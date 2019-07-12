@@ -21,16 +21,15 @@ This repository will contain a pipeline of data augmentation methods, the effect
 - [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html)
 - [IBM gestures](http://www.research.ibm.com/dvsgesture/)
 - NTI Digits
-- audio words
-- NTI digits
 - TIMIT + noise
+- audio words
 
 ## Algorithms
 - [EV-flownet](https://arxiv.org/pdf/1802.06898.pdf)
 - [HOTS/HATS](http://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf)
 - [SLAYER](https://papers.nips.cc/paper/7415-slayer-spike-layer-error-reassignment-in-time.pdf)
 - ContrastNet
-- ELM
+- Extreme Learning Machine, [possible implementation](https://www.ncbi.nlm.nih.gov/pubmed/31251192)
 - Flow/Egomotion/Depth
 - Sound localisation
 - Analog frontend + universal approximator
