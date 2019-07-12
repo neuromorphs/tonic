@@ -13,12 +13,13 @@ This repository will contain a pipeline of data augmentation methods, the effect
 - polarity flips
 
 ## Possible data sets 
-- MVSEC
-- NMNIST
-- NCARS
+- [MVSEC](https://daniilidis-group.github.io/mvsec/)
+- [NMNIST](https://www.garrickorchard.com/datasets/n-mnist)
+- [EMNIST](https://www.nist.gov/node/1298471/emnist-dataset)
+- [NCARS](https://www.prophesee.ai/dataset-n-cars/)
 - N-CALTECH 101
-- pip cards
-- IBM gestures
+- [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html)
+- [IBM gestures](http://www.research.ibm.com/dvsgesture/)
 - NTI Digits
 - audio words
 - NTI digits
