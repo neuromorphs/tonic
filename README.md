@@ -4,12 +4,14 @@ This repository will contain a pipeline of data augmentation methods, the effect
 ## Augementation methods
 - left/right flip
 - crop random
-- timestamp jitter
-- refractory period, subsampling
+- time skew, reversal, or jitter
+- spatial jitter
+- refractory period
 - hot/dead pixels
-- x, y, t (nonlinear) transforms
+- additive mixing / combining of recordings
+- spatial and/or temporal (affine, nonlinear) transforms
 - Gaussian noise addition
-- Dropout
+- Dropout, subsampling, habituation
 - polarity flips
 
 ## Possible data sets 
