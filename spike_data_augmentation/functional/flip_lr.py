@@ -16,6 +16,10 @@ def flip_lr_numpy(
     multi_image=None,
 ):
     """
+    Flips events and images in x. Pixels map as:
+
+        x' = width - x
+
     Arguments:
     - events - ndarray of shape [num_events, 4]
     - images - ndarray of these possible shapes
