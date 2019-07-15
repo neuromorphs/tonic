@@ -3,6 +3,7 @@ import numpy as np
 
 def create_random_input_xytp():
     """
+    Creates a random frame to use for tests
 
     Returns
 
