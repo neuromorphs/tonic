@@ -35,3 +35,9 @@ This repository will contain a pipeline of data augmentation methods, the effect
 - Flow/Egomotion/Depth
 - Sound localisation
 - Analog frontend + universal approximator
+
+## Install pre-commit
+
+```
+pip install pre-commit
+pre-commit install
