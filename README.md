@@ -44,3 +44,17 @@ pre-commit install
 ```
 
 This will install the [black formatter](https://black.readthedocs.io/en/stable/) to a pre-commit hook. When you use ```git add``` you add files to the current commit, then when you run ```git commit``` the black formatter will run BEFORE the commit itself. If it fails the check, the black formatter will format the file and then present it to you to add it into your commit. Simply run ```git add``` on those files again and do the remainder of the commit as normal.
+
+## Run tests
+
+To install pytest
+
+```
+pip install pytest
+```
+
+To run the tests, from the root directory of the repo
+
+```
+python -m pytest test/
+```
