@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 
 import spike_data_augmentation.functional as F
 
@@ -24,8 +25,11 @@ class TestFunctionalAPI(unittest.TestCase):
         print(self.random_xytp[2], self.random_xytp[0][0, 0])
         print(events[0, 0])
 
-        self.assertEqual(
-            self.random_xytp[2][0] - self.random_xytp[0][0, 0],
-            original_x,
+        same_pixel = np.isclose(
+            self.random_xytp[2][0] - self.random_xytp[0][0, 0], original_x
+        )
+
+        self.assertTrue(
+            same_pixel,
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
