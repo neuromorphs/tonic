@@ -25,7 +25,7 @@ class TestFunctionalAPI(unittest.TestCase):
         print(events[0, 0])
 
         self.assertEqual(
-            self.random_xytp[2][1] - self.random_xytp[0][0, 0],
+            self.random_xytp[2][0] - self.random_xytp[0][0, 0],
             original_x,
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )

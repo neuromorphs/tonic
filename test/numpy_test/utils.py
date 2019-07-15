@@ -2,6 +2,17 @@ import numpy as np
 
 
 def create_random_input_xytp():
+    """
+
+    Returns
+
+    - events - 10k events in xytp formatting
+    - images - 4 images at sensor_size
+    - sensor_size - 200 x 100 (w,h)
+    - ordering - xytp
+    - multi_image - True
+    """
+
     sensor_size = (200, 100)  # width x height
 
     events = np.random.rand(10000, 4)
