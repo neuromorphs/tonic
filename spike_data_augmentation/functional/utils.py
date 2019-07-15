@@ -3,7 +3,7 @@ import warnings
 
 def guess_event_ordering_numpy(events):
     """
-    Guesses the names of the channels for events
+    Guesses the names of the channels for events or returns numpy ndarray names
 
     Arguments:
     - events - the events in [num_events, channels]
@@ -14,13 +14,15 @@ def guess_event_ordering_numpy(events):
 
     warnings.warn("[SDAug]::Guessing the ordering of xytp in events")
 
-    if np.issubdtype(events.dtype, np.numeric):
+    if np.issubdtype(events.dtype, np.number):
         if events.shape[1] == 3:
             guess = "xtp"
         elif events.shape[1] == 4:
             guess = "xytp"
         elif events.shape[1] == 5:
             guess = "xyztp"
+    elif isinstance(events, (np.ndarray, np.generic)):
+        guess = events.dtype.names
     else:
         raise NotImplementedError("Unable to guess event ordering")
 
