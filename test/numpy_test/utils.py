@@ -18,8 +18,8 @@ def create_random_input_xytp():
 
     events = np.random.rand(10000, 4)
 
-    events[:, 0] *= sensor_size[1]
-    events[:, 1] *= sensor_size[0]
+    events[:, 0] *= sensor_size[0]
+    events[:, 1] *= sensor_size[1]
 
     events[events[:, 3] < 0.5, 3] = -1
     events[events[:, 3] >= 0.5, 3] = 1

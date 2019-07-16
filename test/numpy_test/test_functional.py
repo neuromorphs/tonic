@@ -22,9 +22,6 @@ class TestFunctionalAPI(unittest.TestCase):
             flip_probability=1.0,
         )
 
-        print(self.random_xytp[2], self.random_xytp[0][0, 0])
-        print(events[0, 0])
-
         same_pixel = np.isclose(
             self.random_xytp[2][0] - self.random_xytp[0][0, 0], original_x
         )
