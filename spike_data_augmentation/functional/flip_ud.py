@@ -26,7 +26,7 @@ def flip_ud_numpy(
     - sensor_size - size of the sensor that was used [W,H]
     - ordering - ordering of the event tuple inside of events, if None
                  the system will take a guess through
-                 guess_event_ordering_numpy. This function requires 'x'
+                 guess_event_ordering_numpy. This function requires 'y'
                  to be in the ordering
     - flip_probability - probability of performing the flip
     - multi_image - Fix whether or not the first dimension of images is
@@ -47,10 +47,10 @@ def flip_ud_numpy(
     if np.random.rand() < flip_probability:
         if images is not None and multi_image:
             # multiple images NHW or NHWC
-            images = images[:, :, ::-1, ...]
+            images = images[:, ::-1, :, ...]
         elif images is not None:
             # single image HW or HWC
-            images = images[:, ::-1, ...]
+            images = images[::-1, :, ...]
 
         y_loc = ordering.index("y")
 
