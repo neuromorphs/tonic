@@ -4,7 +4,7 @@ from .utils import guess_event_ordering_numpy
 
 
 def refractory_period_numpy(
-    events, sensor_size=(346, 260), ordering=None, refractory_period=5000
+    events, sensor_size=(346, 260), ordering=None, refractory_period=0.5
 ):
     """
     Sets a refractory period for each pixel, during which events will be
@@ -21,7 +21,7 @@ def refractory_period_numpy(
                  the system will take a guess through
                  guess_event_ordering_numpy. This function requires 't', 'x'
                  and 'y' to be in the ordering
-    - refractory_period - refractory period for each pixel in micro seconds
+    - refractory_period - refractory period for each pixel in seconds
 
     Returns:
     - events - returns reduced set of events
