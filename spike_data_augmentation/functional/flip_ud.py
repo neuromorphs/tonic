@@ -33,7 +33,7 @@ def flip_ud_numpy(
                     num_images
 
     Returns:
-    - events - returns every event with y' = sensor_size[0] - y
+    - events - returns every event with y' = sensor_size[1] - y
     - images - flips the image in y
     """
 
