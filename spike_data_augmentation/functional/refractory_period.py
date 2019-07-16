@@ -37,7 +37,7 @@ def refractory_period_numpy(
 
     events_copy = np.zeros(events.shape)
     copy_index = 0
-    # initialise timestamp map with negative refractory period
+
     timestamp_memory = np.zeros((sensor_size[0], sensor_size[1])) - refractory_period
 
     for event in events:
@@ -50,15 +50,5 @@ def refractory_period_numpy(
             timestamp_memory[int(event[x_index]), int(event[y_index])] = event[t_index]
 
     events_copy = np.delete(events_copy, np.arange(copy_index, len(events)), axis=0)
-
-    print(
-        "Refractory period of "
-        + str(refractory_period)
-        + " dropped "
-        + str(len(events) - len(events_copy))
-        + " events."
-    )
-
-    del events
 
     return events_copy
