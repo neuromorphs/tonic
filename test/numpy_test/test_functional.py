@@ -30,3 +30,27 @@ class TestFunctionalAPI(unittest.TestCase):
             same_pixel,
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
+
+    def testFlipUD(self):
+        original_y = self.random_xytp[0][0, 1].copy()
+
+        events, images = F.flip_ud_numpy(
+            self.random_xytp[0],
+            images=self.random_xytp[1],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            multi_image=self.random_xytp[4],
+            flip_probability=1.0,
+        )
+
+        print(self.random_xytp[2], self.random_xytp[0][0, 1])
+        print(events[0, 0])
+
+        same_pixel = np.isclose(
+            self.random_xytp[2][1] - self.random_xytp[0][0, 1], original_y
+        )
+
+        self.assertTrue(
+            same_pixel,
+            "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
+        )
