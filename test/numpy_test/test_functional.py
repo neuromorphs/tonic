@@ -54,3 +54,17 @@ class TestFunctionalAPI(unittest.TestCase):
             same_pixel,
             "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
         )
+
+    def testRefractoryPeriod(self):
+        original_events = self.random_xytp[0].copy()
+
+        augmented_events = F.refractory_period_numpy(
+            original_events,
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            refractory_period=0.1,
+        )
+
+        print(augmented_events.shape)
+
+        self.assertTrue(len(augmented_events) < len(original_events))
