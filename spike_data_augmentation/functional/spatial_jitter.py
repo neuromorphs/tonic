@@ -40,10 +40,11 @@ def spatial_jitter_numpy(
     x_index = ordering.find("x")
     y_index = ordering.find("y")
 
-    for event in events:
-        event[x_index], event[y_index] = np.random.multivariate_normal(
-            [event[x_index], event[y_index]],
-            [[variance_x, sigma_x_y], [sigma_x_y, variance_y]],
-        )
+    shifts = np.random.multivariate_normal(
+        [0, 0], [[variance_x, sigma_x_y], [sigma_x_y, variance_y]], len(events)
+    )
+
+    events[:, x_index] += shifts[:, 0]
+    events[:, y_index] += shifts[:, 1]
 
     return events
