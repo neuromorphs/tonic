@@ -1,4 +1,5 @@
 import warnings
+import numpy as np
 
 
 def guess_event_ordering_numpy(events):
