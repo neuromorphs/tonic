@@ -152,6 +152,17 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(len(augmented_events) < len(original_events))
 
+    def testTimeSkew(self):
+        original_events = self.random_xytp[0].copy()
+
+        augmented_events = F.time_skew_numpy(
+            original_events, coefficient=3.1, offset=100
+        )
+
+        self.assertTrue(len(augmented_events) == len(original_events))
+        self.assertTrue((augmented_events[:, 2] >= original_events[:, 2]).all())
+        self.assertTrue(np.min(augmented_events[:, 2]) >= 0)
+
     def testTemporalFlip(self):
         original_t = self.random_xytp[0][0, 2].copy()
         original_p = self.random_xytp[0][0, 3].copy()
