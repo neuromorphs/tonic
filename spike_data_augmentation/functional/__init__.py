@@ -6,6 +6,7 @@ from .refractory_period import refractory_period_numpy
 from .crop import crop_numpy
 from .utils import guess_event_ordering_numpy, is_multi_image
 from .time_reversal import time_reversal_numpy
+from .time_skew import time_skew_numpy
 
 __all__ = [
     flip_lr_numpy,
@@ -16,4 +17,5 @@ __all__ = [
     crop_numpy,
     guess_event_ordering_numpy,
     is_multi_image,
+    time_skew_numpy,
 ]
