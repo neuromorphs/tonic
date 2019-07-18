@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils import guess_event_ordering_numpy
+from .utils import guess_event_ordering_numpy
 
 
 def mix_ev_streams(
@@ -30,7 +30,14 @@ def mix_ev_streams(
 
     if ordering is None:
         assert len(events) > 1
-        ordering = guess_event_ordering_numpy(events[0])
+        prime_ordering = guess_event_ordering_numpy(events[0])
+        orderings = [guess_event_ordering_numpy(x) for x in events]
+
+        for ordering in orderings:
+            assert ordering == prime_ordering
+
+        ordering = prime_ordering
+
         assert "x" in ordering
 
     (x_loc, y_loc, t_loc, p_loc) = ["xytp".index(order) for order in ordering]
@@ -42,12 +49,10 @@ def mix_ev_streams(
     )
     if offsets == "Random":
         time_lengths = [x[-1, t_loc] for x in events]
-        max_t = np.max(time_lengths)
+        max_t = np.max(np.array(time_lengths))
         events[:, :, t_loc] = (
             events[:, :, t_loc]
-            - np.tile(
-                np.random.randint(0, max_t, size=events.shape[0]), (events.shape[1], 1)
-            ).T
+            - np.tile(np.random.random(events.shape[0]) * max_t, (events.shape[1], 1)).T
         )
     elif offsets is not None:
         events[:, :, t_loc] = (
@@ -58,16 +63,19 @@ def mix_ev_streams(
     combined_events = np.concatenate(events, axis=0)
     idx = np.argsort(combined_events[:, t_loc])
     combined_events = combined_events[idx]
+    num_colisions = 0
 
     if check_conflicts:
         keep_events = np.ones(len(combined_events))
-        for i in range(len(combined_events)):
+        for i in range(len(combined_events) - 1):
             ev_1 = combined_events[i]
             ev_1[p_loc] = 0
             ev_2 = combined_events[i + 1]
             ev_2[p_loc] = 0
-            if ev_1 == ev2:
-                if combined_events[i, p_loc] == combined_events[i + 1, p_loc]:
+            if np.array_equal(ev_1, ev_2):
+                if np.array_equal(
+                    combined_events[i, p_loc], combined_events[i + 1, p_loc]
+                ):
                     keep_events[i] = 0
                     i = i + 1
                 else:
@@ -76,7 +84,7 @@ def mix_ev_streams(
                     i = i + 1
             else:
                 keep_events[i] = 1
+        num_colisions = len(keep_events) - np.sum(keep_events)
+        combined_events = combined_events[keep_events.astype("bool")]
 
-        combined_events = combined_events[keep_events]
-
-    return combined_events
+    return combined_events, num_colisions
