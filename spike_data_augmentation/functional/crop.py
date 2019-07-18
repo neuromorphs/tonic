@@ -30,7 +30,7 @@ def crop_numpy(
     - ordering - ordering of the event tuple inside of events, if None
                  the system will take a guess through
                  guess_event_ordering_numpy. This function requires 'x'
-                 to be in the ordering
+                 and 'y' to be in the ordering
     - target_size - size of the sensor that was used [W',H']
     - multi_image - Fix whether or not the first dimension of images is
                     num_images
