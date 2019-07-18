@@ -10,6 +10,7 @@ __all__ = [
     flip_ud_numpy,
     spatial_jitter_numpy,
     refractory_period_numpy,
+    mix_ev_streams,
     guess_event_ordering_numpy,
     is_multi_image,
 ]
