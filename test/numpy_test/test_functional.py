@@ -134,3 +134,14 @@ class TestFunctionalAPI(unittest.TestCase):
         print(augmented_events.shape)
 
         self.assertTrue(len(augmented_events) < len(original_events))
+
+    def testUniformNoise(self):
+        original_events = self.random_xytp[0].copy()
+
+        noisy_events = F.uniform_noise_numpy(
+            original_events,
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            noise_temporal_resolution=1000,
+            time_scaling_factor=1000000,
+        )
