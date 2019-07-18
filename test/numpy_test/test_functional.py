@@ -151,3 +151,26 @@ class TestFunctionalAPI(unittest.TestCase):
         print(augmented_events.shape)
 
         self.assertTrue(len(augmented_events) < len(original_events))
+
+    def testTemporalFlip(self):
+        original_t = self.random_xytp[0][0, 2].copy()
+        original_p = self.random_xytp[0][0, 3].copy()
+
+        max_t = np.max(self.random_xytp[0][:, 2])
+
+        events, images = F.time_reversal_numpy(
+            self.random_xytp[0],
+            images=self.random_xytp[1],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            multi_image=self.random_xytp[4],
+            flip_probability=1.0,
+        )
+
+        same_time = np.isclose(max_t - original_t, events[0, 2])
+
+        same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
+
+        self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
+
+        self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
