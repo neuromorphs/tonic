@@ -8,6 +8,7 @@ __all__ = [
     flip_lr_numpy,
     flip_ud_numpy,
     refractory_period_numpy,
+    mix_ev_streams,
     guess_event_ordering_numpy,
     is_multi_image,
 ]
