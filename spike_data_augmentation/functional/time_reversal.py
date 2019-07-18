@@ -29,15 +29,16 @@ def time_reversal_numpy(
     - sensor_size - size of the sensor that was used [W,H]
     - ordering - ordering of the event tuple inside of events, if None
                  the system will take a guess through
-                 guess_event_ordering_numpy. This function requires 'x'
-                 to be in the ordering
+                 guess_event_ordering_numpy. This function requires 't'
+                 and 'p' to be in the ordering
     - flip_probability - probability of performing the flip
     - multi_image - Fix whether or not the first dimension of images is
                     num_images
 
     Returns:
-    - events - returns every event with x' = sensor_size[1] - x 
-    - images - flips the image in x
+    - events - returns every event flipped in time and polarity or no
+      change
+    - images - flips the image in t
     """
 
     if ordering is None:
