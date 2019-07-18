@@ -1,6 +1,7 @@
 import numpy as np
 
 from .utils import guess_event_ordering_numpy
+from .mix_ev_streams import mix_ev_streams
 
 
 def uniform_noise_numpy(
@@ -42,17 +43,22 @@ def uniform_noise_numpy(
         sensor_size[0],
         sensor_size[1],
     )
-    noise_positive = np.transpose(
-        np.where(
-            np.logical_and(
-                noise_probabilities > 0, noise_probabilities < noise_threshold
+    noise_positive = np.fliplr(
+        np.transpose(
+            np.where(
+                np.logical_and(
+                    noise_probabilities > 0, noise_probabilities < noise_threshold
+                )
             )
         )
     )
-    noise_negative = np.transpose(
-        np.where(
-            np.logical_and(
-                noise_probabilities < 0, noise_probabilities > (-noise_threshold)
+
+    noise_negative = np.fliplr(
+        np.transpose(
+            np.where(
+                np.logical_and(
+                    noise_probabilities < 0, noise_probabilities > (-noise_threshold)
+                )
             )
         )
     )
@@ -63,9 +69,14 @@ def uniform_noise_numpy(
     noise_negative = np.append(
         noise_negative, -(np.ones((len(noise_negative), 1))), axis=1
     )
-    print(noise_negative)
-    print(last_timestamp_micro_seconds)
-    print("len: " + str(len(noise_positive)))
-    print("len: " + str(len(noise_negative)))
+
+    noise_positive[:, t_index] *= noise_temporal_resolution / time_scaling_factor
+    noise_negative[:, t_index] *= noise_temporal_resolution / time_scaling_factor
+
+    event_array = (events, noise_negative, noise_positive)
+
+    events, collisions = mix_ev_streams(
+        event_array, sensor_size=sensor_size, ordering=ordering
+    )
 
     return events

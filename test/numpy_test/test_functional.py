@@ -43,9 +43,6 @@ class TestFunctionalAPI(unittest.TestCase):
             flip_probability=1.0,
         )
 
-        print(self.random_xytp[2], self.random_xytp[0][0, 1])
-        print(events[0, 0])
-
         same_pixel = np.isclose(
             self.random_xytp[2][1] - self.random_xytp[0][0, 1], original_y
         )
@@ -131,8 +128,6 @@ class TestFunctionalAPI(unittest.TestCase):
             refractory_period=0.1,
         )
 
-        print(augmented_events.shape)
-
         self.assertTrue(len(augmented_events) < len(original_events))
 
     def testUniformNoise(self):
@@ -145,3 +140,5 @@ class TestFunctionalAPI(unittest.TestCase):
             noise_temporal_resolution=1000,
             time_scaling_factor=1000000,
         )
+
+        self.assertTrue(len(noisy_events) > len(original_events))
