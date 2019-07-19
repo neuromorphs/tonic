@@ -1,5 +1,5 @@
-# Data augmentation for event/spike recordings
-This repository will contain a pipeline of data augmentation methods, the effect of which will be tested on various data sets and SOA methods for event- and spike-based data.
+# Telluride Spike Data Augmentation toolkit
+This repository contains a pipeline of data augmentation methods, the effect of which will be tested on various data sets and SOA methods for event- and spike-based data. The goal is to reduce overfitting in learning algorithms by providing implementations of data augmentation methods for event/spike recordings.
 
 ## Augementation methods
 - left/right flip
