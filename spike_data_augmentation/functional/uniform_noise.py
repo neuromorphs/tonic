@@ -8,12 +8,13 @@ def uniform_noise_numpy(
     events,
     sensor_size=(346, 260),
     ordering=None,
-    noise_temporal_resolution=10,
     time_scaling_factor=1,
-    noise_threshold=0.00001,
+    noise_threshold=0.00000001,
 ):
     """
-    Introduces noise uniformly distributed across the focal plane and in time.
+    Introduces a fixed number of noise depending on sensor size and temporal
+    noise resolution, uniformly distributed across the focal
+    plane and in time.
 
     Arguments:
     - events - ndarray of shape [num_events, num_event_channels]
@@ -38,6 +39,16 @@ def uniform_noise_numpy(
     t_index = ordering.find("t")
 
     last_timestamp_micro_seconds = events[-1, t_index] * time_scaling_factor
+    first_timestamp_micro_seconds = events[0, t_index] * time_scaling_factor
+
+    number_of_noise_events = int(
+        (last_timestamp_micro_seconds - first_timestamp_micro_seconds)
+        * np.product(sensor_size)
+        * noise_threshold
+    )
+
+    # import ipdb; ipdb.set_trace()
+
     noise_probabilities = np.random.randn(
         int(last_timestamp_micro_seconds / noise_temporal_resolution),
         sensor_size[0],

@@ -137,7 +137,6 @@ class TestFunctionalAPI(unittest.TestCase):
             original_events,
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
-            noise_temporal_resolution=1000,
             time_scaling_factor=1000000,
         )
 
