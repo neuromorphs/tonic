@@ -12,6 +12,14 @@ def st_transform(e, S, T, Roll, imDim):
     ## output:
     ## st_e = spatial and temporal transformed event matrix, shape: Nx4
     
+
+   if ordering is None:
+   	ordering = guess_event_ordering_numpy(events)
+        assert "x" and "y" in ordering
+
+    x_index = ordering.find("x")
+    y_index = ordering.find("y")
+
     nevt = e.shape[0]
     eAddr = e[:,0:2]
     ones_vec = np.ones((nevt,1))
@@ -19,13 +27,13 @@ def st_transform(e, S, T, Roll, imDim):
     #spatial transform
     s_Res = np.matmul(S,eAddrHomog.T)
     #Roll coordinates if specified 
-    s_e_X = s_Res[0,:]
-    s_e_Y = s_Res[1,:]
-    s_Res_oorX_P = np.where(s_Res[0,:] >= imDim[1]) # Out Of Range coordinates based on imDim
-    s_Res_oorX_N = np.where(s_Res[0,:] < 0)
+    s_e_X = s_Res[x_index,:]
+    s_e_Y = s_Res[y_index,:]
+    s_Res_oorX_P = np.where(s_Res[x_index,:] >= imDim[1]) # Out Of Range coordinates based on imDim
+    s_Res_oorX_N = np.where(s_Res[x_index,:] < 0)
 
-    s_Res_oorY_P = np.where(s_Res[1,:] >= imDim[0])
-    s_Res_oorY_N = np.where(s_Res[1,:] < 0)
+    s_Res_oorY_P = np.where(s_Res[y_index,:] >= imDim[0])
+    s_Res_oorY_N = np.where(s_Res[y_index,:] < 0)
 
     if Roll:
         s_e_X[s_Res_oorX_P] = s_e_X[s_Res_oorX_P]-imDim[0] # Roll X right 
