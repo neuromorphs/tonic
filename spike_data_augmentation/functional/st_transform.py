@@ -1,4 +1,8 @@
-st_transform(e, S, T, Roll, imDim):
+import numpy as np
+
+from .utils import guess_event_ordering_numpy
+
+def st_transform(e, S, T, Roll, imDim):
     ## inputs:
     ## e = input event matrix, shape: N,4
     ## S = spatial transform matrix, shape: 3,3
