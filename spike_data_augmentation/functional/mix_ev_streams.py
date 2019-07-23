@@ -9,8 +9,8 @@ def mix_ev_streams(
 
     """
     Combine two or more event streams into a single stream. Event collisions result in a single spike
-    or none if polarities are opposite. Collisions numbering greater than two are handled by consensus. 
-    While not technically required, it is recommended that all event streams be the same [x,y] dimension. 
+    or none if polarities are opposite. Collisions numbering greater than two are handled by consensus.
+    While not technically required, it is recommended that all event streams be the same [x,y] dimension.
 
     Arguments:
     - events - tuple of event streams which are ndarrays of shape [num_events, num_event_channels]
@@ -38,26 +38,29 @@ def mix_ev_streams(
 
         ordering = prime_ordering
 
-        assert "x" in ordering
+        assert "x" and "y" and "t" in ordering
 
-    (x_loc, y_loc, t_loc, p_loc) = ["xytp".index(order) for order in ordering]
+    x_loc = ordering.find("x")
+    y_loc = ordering.find("y")
+    t_loc = ordering.find("t")
+    p_loc = ordering.find("p")
 
     # shift events to zero
     events = np.array(events)
-    events[:, :, t_loc] = (
-        events[:, :, t_loc] - np.tile(events[:, 0, t_loc], (events.shape[1], 1)).T
-    )
+
+    if events.dtype != np.object:
+        # event streams are all of same size
+        events[:, :, t_loc] -= np.tile(events[:, 0, t_loc], (events.shape[1], 1)).T
+
     if offsets == "Random":
         time_lengths = [x[-1, t_loc] for x in events]
         max_t = np.max(np.array(time_lengths))
-        events[:, :, t_loc] = (
-            events[:, :, t_loc]
-            - np.tile(np.random.random(events.shape[0]) * max_t, (events.shape[1], 1)).T
-        )
+        events[:, :, t_loc] -= np.tile(
+            np.random.random(events.shape[0]) * max_t, (events.shape[1], 1)
+        ).T
+
     elif offsets is not None:
-        events[:, :, t_loc] = (
-            events[:, :, t_loc] - np.tile(np.array(offsets), (events.shape[1], 1)).T
-        )
+        events[:, :, t_loc] -= np.tile(np.array(offsets), (events.shape[1], 1)).T
 
     # Concatenate and sort
     combined_events = np.concatenate(events, axis=0)

@@ -52,8 +52,25 @@ class TestFunctionalAPI(unittest.TestCase):
             "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
         )
 
-    def testMixEv(self):
+    def testSpatialJitter(self):
+        original_events = self.random_xytp[0].copy()
 
+        events = F.spatial_jitter_numpy(
+            self.random_xytp[0],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            variance_x=2,
+            variance_y=2,
+            sigma_x_y=0,
+        )
+
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue((events[:, 2] == original_events[:, 2]).all())
+        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
+        self.assertFalse((events[:, 0] == original_events[:, 0]).all())
+        self.assertFalse((events[:, 1] == original_events[:, 1]).all())
+
+    def testMixEv(self):
         stream_1 = utils.create_random_input_xytp()
         stream_2 = utils.create_random_input_xytp()
         events = (stream_1[0], stream_2[0])
@@ -143,3 +160,57 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(len(noisy_events) > len(original_events))
         self.assertTrue(np.isin(original_events, noisy_events).all())
+
+    def testTimeSkew(self):
+        original_events = self.random_xytp[0].copy()
+
+        augmented_events = F.time_skew_numpy(
+            original_events, coefficient=3.1, offset=100
+        )
+
+        self.assertTrue(len(augmented_events) == len(original_events))
+        self.assertTrue((augmented_events[:, 2] >= original_events[:, 2]).all())
+        self.assertTrue(np.min(augmented_events[:, 2]) >= 0)
+
+    def testTemporalFlip(self):
+        original_t = self.random_xytp[0][0, 2].copy()
+        original_p = self.random_xytp[0][0, 3].copy()
+
+        max_t = np.max(self.random_xytp[0][:, 2])
+
+        events, images = F.time_reversal_numpy(
+            self.random_xytp[0],
+            images=self.random_xytp[1],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            multi_image=self.random_xytp[4],
+            flip_probability=1.0,
+        )
+
+        same_time = np.isclose(max_t - original_t, events[0, 2])
+
+        same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
+
+        self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
+
+        self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
+
+    def testCrop(self):
+        events, images = F.crop_numpy(
+            self.random_xytp[0],
+            images=self.random_xytp[1],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            multi_image=self.random_xytp[4],
+            target_size=(50, 50),
+        )
+
+        self.assertTrue(
+            np.all(events[:, 0]) < 50 and np.all(events[:, 1] < 50),
+            "Cropping needs to map the events into the new space",
+        )
+
+        self.assertTrue(
+            images.shape[1] == 50 and images.shape[2] == 50,
+            "Cropping needs to map the images into the new space",
+        )
