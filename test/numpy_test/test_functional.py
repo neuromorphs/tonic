@@ -43,9 +43,6 @@ class TestFunctionalAPI(unittest.TestCase):
             flip_probability=1.0,
         )
 
-        print(self.random_xytp[2], self.random_xytp[0][0, 1])
-        print(events[0, 0])
-
         same_pixel = np.isclose(
             self.random_xytp[2][1] - self.random_xytp[0][0, 1], original_y
         )
@@ -78,6 +75,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             events.shape[0] >= (1 - drop_probability) * original.shape[0],
             "Event dropout with random drop probability should result in less than drop_probability*len(original) events dropped out.",
+        )
 
     def testSpatialJitter(self):
         original_events = self.random_xytp[0].copy()
@@ -155,11 +153,8 @@ class TestFunctionalAPI(unittest.TestCase):
             "Missed some event colisions, may cause processing problems.",
         )
         self.assertTrue(no_offset_monotonic, "Result was not monotonic.")
-
         self.assertTrue(random_offset_monotonic, "Result was not monotonic.")
-
         self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
-
         self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
 
     def testRefractoryPeriod(self):
@@ -172,15 +167,20 @@ class TestFunctionalAPI(unittest.TestCase):
             refractory_period=0.1,
         )
 
-        print(augmented_events.shape)
-
-        self.assertTrue(len(augmented_events) < len(original_events))
+        self.assertTrue(
+            len(augmented_events) <= len(original_events),
+            "Result can not be longer than original event stream",
+        )
+        self.assertTrue(
+            np.isin(augmented_events, original_events).all(),
+            "Added additional events that were not present in original event stream",
+        )
 
     def testTimeSkew(self):
         original_events = self.random_xytp[0].copy()
 
         augmented_events = F.time_skew_numpy(
-            original_events, coefficient=3.1, offset=100
+            original_events, ordering=self.random_xytp[3], coefficient=3.1, offset=100
         )
 
         self.assertTrue(len(augmented_events) == len(original_events))
@@ -207,7 +207,6 @@ class TestFunctionalAPI(unittest.TestCase):
         same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
 
         self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
-
         self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
 
     def testCrop(self):
