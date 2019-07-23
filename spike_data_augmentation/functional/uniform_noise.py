@@ -8,13 +8,12 @@ def uniform_noise_numpy(
     events,
     sensor_size=(346, 260),
     ordering=None,
-    time_scaling_factor=1,
-    noise_threshold=0.00000001,
+    scaling_factor_to_micro_sec=1,
+    noise_density=1e-8,
 ):
     """
-    Introduces a fixed number of noise depending on sensor size and temporal
-    noise resolution, uniformly distributed across the focal
-    plane and in time.
+    Introduces a fixed number of noise depending on sensor size and noise
+    density factor, uniformly distributed across the focal plane and in time.
 
     Arguments:
     - events - ndarray of shape [num_events, num_event_channels]
@@ -23,8 +22,11 @@ def uniform_noise_numpy(
                  the system will take a guess through
                  guess_event_ordering_numpy. This function requires 'x', 'y'
                  and 'y' to be in the ordering
-    - noise_temporal_resolution - set the minimal distance in time between
-                two noise events in microseconds
+    - scaling_factor_to_micro_sec - this is a scaling factor to get to micro
+                    seconds from the time resolution used in the event stream,
+                    as the noise time resolution is fixed to 1 micro second.
+    - noise_density - A noise density of 1 will mean one noise event for every
+                      pixel of the sensor size for every micro second.
 
     Returns:
     - events - returns events + noise events in one array
@@ -38,53 +40,29 @@ def uniform_noise_numpy(
     y_index = ordering.find("y")
     t_index = ordering.find("t")
 
-    last_timestamp_micro_seconds = events[-1, t_index] * time_scaling_factor
-    first_timestamp_micro_seconds = events[0, t_index] * time_scaling_factor
+    last_timestamp_micro_seconds = events[-1, t_index] * scaling_factor_to_micro_sec
+    first_timestamp_micro_seconds = events[0, t_index] * scaling_factor_to_micro_sec
 
-    number_of_noise_events = int(
-        (last_timestamp_micro_seconds - first_timestamp_micro_seconds)
-        * np.product(sensor_size)
-        * noise_threshold
+    recording_length_micro_seconds = (
+        last_timestamp_micro_seconds - first_timestamp_micro_seconds
     )
+    total_number_of_points = recording_length_micro_seconds * np.product(sensor_size)
+    number_of_noise_events = int(total_number_of_points * noise_density)
 
-    # import ipdb; ipdb.set_trace()
-
-    noise_probabilities = np.random.randn(
-        int(last_timestamp_micro_seconds / noise_temporal_resolution),
-        sensor_size[0],
-        sensor_size[1],
+    noise_x = np.random.uniform(0, sensor_size[0], number_of_noise_events)
+    noise_y = np.random.uniform(0, sensor_size[1], number_of_noise_events)
+    noise_t = np.random.uniform(
+        first_timestamp_micro_seconds,
+        last_timestamp_micro_seconds,
+        number_of_noise_events,
     )
-    noise_positive = np.fliplr(
-        np.transpose(
-            np.where(
-                np.logical_and(
-                    noise_probabilities > 0, noise_probabilities < noise_threshold
-                )
-            )
-        )
-    )
+    noise_p = np.random.choice([-1, 1], number_of_noise_events)
 
-    noise_negative = np.fliplr(
-        np.transpose(
-            np.where(
-                np.logical_and(
-                    noise_probabilities < 0, noise_probabilities > (-noise_threshold)
-                )
-            )
-        )
-    )
+    noise = np.vstack((noise_x, noise_y, noise_t, noise_p)).T
+    # noise = noise[noise[:,t_index].argsort()]
+    noise[:, t_index] /= scaling_factor_to_micro_sec
 
-    noise_positive = np.append(
-        noise_positive, np.ones((len(noise_positive), 1)), axis=1
-    )
-    noise_negative = np.append(
-        noise_negative, -(np.ones((len(noise_negative), 1))), axis=1
-    )
-
-    noise_positive[:, t_index] *= noise_temporal_resolution / time_scaling_factor
-    noise_negative[:, t_index] *= noise_temporal_resolution / time_scaling_factor
-
-    event_array = (events, noise_negative, noise_positive)
+    event_array = (events, noise)
 
     events, collisions = mix_ev_streams(
         event_array, sensor_size=sensor_size, ordering=ordering
