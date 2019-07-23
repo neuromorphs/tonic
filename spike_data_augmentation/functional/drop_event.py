@@ -18,5 +18,5 @@ def drop_event_numpy(events, drop_probability=0.5, random_drop_probability=False
 
     length = events.shape[0]  # find the number of events
     nDrop = int(drop_probability * length + 0.5)
-    ind = np.random.randint(0, length, size=nDrop)
+    ind = np.random.choice(length, nDrop, replace=False)
     return np.delete(events, ind, axis=0)

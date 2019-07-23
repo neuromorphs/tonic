@@ -54,3 +54,28 @@ class TestFunctionalAPI(unittest.TestCase):
             same_pixel,
             "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
         )
+
+    def testEventDropout(self):
+        original = self.random_xytp[0]
+        drop_probability = 0.2
+
+        events = F.drop_event_numpy(original, drop_probability=drop_probability)
+
+        self.assertTrue(
+            np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
+            "Event dropout should result in drop_probability*len(original) events dropped out.",
+        )
+
+        self.assertTrue(
+            np.isclose(np.sum((events[:, 2] - np.sort(events[:, 2])) ** 2), 0),
+            "Event dropout should maintain temporal order.",
+        )
+
+        events = F.drop_event_numpy(
+            original, drop_probability=drop_probability, random_drop_probability=True
+        )
+
+        self.assertTrue(
+            events.shape[0] >= (1 - drop_probability) * original.shape[0],
+            "Event dropout with random drop probability should result in less than drop_probability*len(original) events dropped out.",
+        )
