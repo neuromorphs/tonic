@@ -59,7 +59,6 @@ def uniform_noise_numpy(
     noise_p = np.random.choice([-1, 1], number_of_noise_events)
 
     noise = np.vstack((noise_x, noise_y, noise_t, noise_p)).T
-    # noise = noise[noise[:,t_index].argsort()]
     noise[:, t_index] /= scaling_factor_to_micro_sec
 
     event_array = (events, noise)
