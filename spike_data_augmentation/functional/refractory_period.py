@@ -29,7 +29,7 @@ def refractory_period_numpy(
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "t" and "x" and "y" in ordering
+    assert "t" and "x" and "y" in ordering
 
     t_index = ordering.find("t")
     x_index = ordering.find("x")
