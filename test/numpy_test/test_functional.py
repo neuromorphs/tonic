@@ -8,7 +8,8 @@ import utils
 
 class TestFunctionalAPI(unittest.TestCase):
     def setUp(self):
-        self.random_xytp = utils.create_random_input_xytp()
+        self.random_xytp = utils.create_random_input_with_ordering("xytp")
+        self.random_txyp = utils.create_random_input_with_ordering("txyp")
 
     def testFlipLR(self):
         original_x = self.random_xytp[0][0, 0].copy()
@@ -96,8 +97,8 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertFalse((events[:, 1] == original_events[:, 1]).all())
 
     def testMixEv(self):
-        stream_1 = utils.create_random_input_xytp()
-        stream_2 = utils.create_random_input_xytp()
+        stream_1 = utils.create_random_input_with_ordering("xytp")
+        stream_2 = utils.create_random_input_with_ordering("xytp")
         events = (stream_1[0], stream_2[0])
 
         mixed_events_no_offset, _ = F.mix_ev_streams(
