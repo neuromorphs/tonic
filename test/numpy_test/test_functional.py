@@ -1,8 +1,6 @@
 import unittest
 import numpy as np
-
 import spike_data_augmentation.functional as F
-
 import utils
 
 
@@ -195,7 +193,7 @@ class TestFunctionalAPI(unittest.TestCase):
             np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
         )
 
-    def testMixEv(self):
+    def testMixEvXytp(self):
         stream_1 = utils.create_random_input_with_ordering("xytp")
         stream_2 = utils.create_random_input_with_ordering("xytp")
         events = (stream_1[0], stream_2[0])
@@ -245,6 +243,68 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         conflict_offset_monotonic = np.all(
             mixed_events_conflict[1:, 2] >= mixed_events_conflict[:-1, 2], axis=0
+        )
+        all_colisions_detected = len(stream_1[0]) == num_conflicts
+
+        self.assertTrue(
+            all_colisions_detected,
+            "Missed some event colisions, may cause processing problems.",
+        )
+        self.assertTrue(no_offset_monotonic, "Result was not monotonic.")
+        self.assertTrue(random_offset_monotonic, "Result was not monotonic.")
+        self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
+        self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
+
+    def testMixEvTxyp(self):
+        stream_1 = utils.create_random_input_with_ordering("txyp")
+        stream_2 = utils.create_random_input_with_ordering("txyp")
+        events = (stream_1[0], stream_2[0])
+
+        mixed_events_no_offset, _ = F.mix_ev_streams(
+            events,
+            offsets=None,
+            check_conflicts=False,
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+        )
+
+        mixed_events_random_offset, _ = F.mix_ev_streams(
+            events,
+            offsets="Random",
+            check_conflicts=False,
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+        )
+
+        mixed_events_defined_offset, _ = F.mix_ev_streams(
+            events,
+            offsets=(0, 100),
+            check_conflicts=False,
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+        )
+
+        mixed_events_conflict, num_conflicts = F.mix_ev_streams(
+            (stream_1[0], stream_1[0]),
+            offsets=None,
+            check_conflicts=True,
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+        )
+
+        no_offset_monotonic = np.all(
+            mixed_events_no_offset[1:, 0] >= mixed_events_no_offset[:-1, 0], axis=0
+        )
+        random_offset_monotonic = np.all(
+            mixed_events_random_offset[1:, 0] >= mixed_events_random_offset[:-1, 0],
+            axis=0,
+        )
+        defined_offset_monotonic = np.all(
+            mixed_events_defined_offset[1:, 0] >= mixed_events_defined_offset[:-1, 0],
+            axis=0,
+        )
+        conflict_offset_monotonic = np.all(
+            mixed_events_conflict[1:, 0] >= mixed_events_conflict[:-1, 0], axis=0
         )
         all_colisions_detected = len(stream_1[0]) == num_conflicts
 
