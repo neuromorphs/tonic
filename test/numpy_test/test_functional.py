@@ -306,7 +306,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue((augmented_events[:, 2] >= original_events[:, 2]).all())
         self.assertTrue(np.min(augmented_events[:, 2]) >= 0)
 
-    def testTemporalFlip(self):
+    def testTemporalFlipXytp(self):
         original_t = self.random_xytp[0][0, 2].copy()
         original_p = self.random_xytp[0][0, 3].copy()
 
@@ -322,6 +322,28 @@ class TestFunctionalAPI(unittest.TestCase):
         )
 
         same_time = np.isclose(max_t - original_t, events[0, 2])
+
+        same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
+
+        self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
+        self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
+
+    def testTemporalFlipTxyp(self):
+        original_t = self.random_txyp[0][0, 0].copy()
+        original_p = self.random_txyp[0][0, 3].copy()
+
+        max_t = np.max(self.random_txyp[0][:, 0])
+
+        events, images = F.time_reversal_numpy(
+            self.random_txyp[0],
+            images=self.random_txyp[1],
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+            multi_image=self.random_txyp[4],
+            flip_probability=1.0,
+        )
+
+        same_time = np.isclose(max_t - original_t, events[0, 0])
 
         same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
 
