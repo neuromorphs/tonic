@@ -147,13 +147,14 @@ class TestFunctionalAPI(unittest.TestCase):
 
     def testSpatialJitterXytp(self):
         original_events = self.random_xytp[0].copy()
+        variance = 3
 
         events = F.spatial_jitter_numpy(
             self.random_xytp[0],
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
-            variance_x=2,
-            variance_y=2,
+            variance_x=variance,
+            variance_y=variance,
             sigma_x_y=0,
         )
 
@@ -162,24 +163,37 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
         self.assertFalse((events[:, 0] == original_events[:, 0]).all())
         self.assertFalse((events[:, 1] == original_events[:, 1]).all())
+        self.assertTrue(
+            np.isclose(events[:, 0].all(), original_events[:, 0].all(), atol=variance)
+        )
+        self.assertTrue(
+            np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
+        )
 
     def testSpatialJitterTxyp(self):
         original_events = self.random_txyp[0].copy()
+        variance = 2
 
         events = F.spatial_jitter_numpy(
             self.random_txyp[0],
             sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
-            variance_x=2,
-            variance_y=2,
+            variance_x=variance,
+            variance_y=variance,
             sigma_x_y=0,
         )
 
         self.assertTrue(len(events) == len(original_events))
         self.assertTrue((events[:, 0] == original_events[:, 0]).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
-        self.assertFalse((events[:, 2] == original_events[:, 2]).all())
         self.assertFalse((events[:, 1] == original_events[:, 1]).all())
+        self.assertFalse((events[:, 2] == original_events[:, 2]).all())
+        self.assertTrue(
+            np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
+        )
+        self.assertTrue(
+            np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
+        )
 
     def testMixEv(self):
         stream_1 = utils.create_random_input_with_ordering("xytp")
