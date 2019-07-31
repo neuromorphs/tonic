@@ -30,8 +30,10 @@ def flip_polarity_numpy(events, flip_probability=0.5, ordering=None):
 
     p_loc = ordering.index("p")
 
-    events[:, p_loc] = [
-        p * -1 if np.random.rand() < flip_probability else p for p in events[:, p_loc]
-    ]
+    flips = np.ones(len(events))
+    probs = np.random.rand(len(events))
+    flips[probs < flip_probability] = -1
+
+    events[:, p_loc] *= flips
 
     return events
