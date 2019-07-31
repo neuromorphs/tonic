@@ -257,13 +257,32 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
         self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
 
-    def testRefractoryPeriod(self):
+    def testRefractoryPeriodXytp(self):
         original_events = self.random_xytp[0].copy()
 
         augmented_events = F.refractory_period_numpy(
             original_events,
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
+            refractory_period=0.1,
+        )
+
+        self.assertTrue(
+            len(augmented_events) <= len(original_events),
+            "Result can not be longer than original event stream",
+        )
+        self.assertTrue(
+            np.isin(augmented_events, original_events).all(),
+            "Added additional events that were not present in original event stream",
+        )
+
+    def testRefractoryPeriodTxyp(self):
+        original_events = self.random_txyp[0].copy()
+
+        augmented_events = F.refractory_period_numpy(
+            original_events,
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
             refractory_period=0.1,
         )
 
