@@ -2,17 +2,34 @@ import numpy as np
 
 from .utils import guess_event_ordering_numpy
 
-def st_transform(e, S, T, Roll, imDim):
-    ## inputs:
-    ## e = input event matrix, shape: N,4
-    ## S = spatial transform matrix, shape: 3,3
-    ## T = time transform vector, shape: 2, ([0]: scale amount, [1]: shift amount)
-    ## Roll = bool to determine if out of range transformed events are rolled into plane on opposite
-    ## imDim = HxW, shape = 2,
-    ## output:
-    ## st_e = spatial and temporal transformed event matrix, shape: Nx4
+def st_transform(
+    events, 
+    spatial_transform, 
+    temporal_transform, 
+    Roll = False, 
+    sensor_size=(346, 260)):
+   """
+    Transform all events spatial and temporal locations based on 
+    given spatial transform matrix and temporal transform vector.
     
-
+    Arguments:
+    
+    events - ndarray of shape [num_events, num_event_channels]
+    ordering - ordering of the event tuple inside of events, if None
+    the system will take a guess through
+    guess_event_ordering_numpy. This function requires 't', 'x', 'y'
+    to be in the ordering   
+    spatial_transform - 3x3 matrix which can be used to perform rigid (translation and rotation), 
+    non-rigid (scaling and shearing), and non-affine transformations. Generic to user input. 
+    temporal_transform - scale time between events and offset temporal location based on 2 member vector. 
+    Used as arguments to time_skew method.
+    Roll - boolean input to determine if transformed events will be translated across sensor boundaries (True).
+    Otherwise, events will be clipped at sensor boundaries. 
+    sensor_size - tuple which stipulates sensor size and used to determine tranform limits.
+    Returns:
+    events - returns the input events with tranformed temporal and spatial location
+    """
+    
    if ordering is None:
    	ordering = guess_event_ordering_numpy(events)
         assert "x" and "y" in ordering
@@ -20,47 +37,35 @@ def st_transform(e, S, T, Roll, imDim):
     x_index = ordering.find("x")
     y_index = ordering.find("y")
 
-    nevt = e.shape[0]
-    eAddr = e[:,0:2]
-    ones_vec = np.ones((nevt,1))
-    eAddrHomog = np.hstack((eAddr[:,0].reshape(nevt,1),eAddr[:,1].reshape(nevt,1),ones_vec))
-    #spatial transform
-    s_Res = np.matmul(S,eAddrHomog.T)
-    #Roll coordinates if specified 
-    s_e_X = s_Res[x_index,:]
-    s_e_Y = s_Res[y_index,:]
-    s_Res_oorX_P = np.where(s_Res[x_index,:] >= imDim[1]) # Out Of Range coordinates based on imDim
-    s_Res_oorX_N = np.where(s_Res[x_index,:] < 0)
+    number_events = events.shape[0]
 
-    s_Res_oorY_P = np.where(s_Res[y_index,:] >= imDim[0])
-    s_Res_oorY_N = np.where(s_Res[y_index,:] < 0)
+    ones_vec = np.ones((number_events,1))
+    events_homog_coord = np.hstack((events[:,x_index].reshape(number_events,1),events[:,y_index].reshape(number_events,1),ones_vec))
+    #spatial transform
+    events_spatial_transform = np.matmul(spatial_transform,events_homog_coord.T)
+    #Roll coordinates if specified 
+    events_spatial_transform_X = events_spatial_transform[x_index,:]
+    events_spatial_transform_Y = events_spatial_transform[y_index,:]
+    
+    outOfRange_eventsX_P = np.where(events_spatial_transform[x_index,:] >= imDim[1]) # Out Of Range coordinates based on imDim
+    outOfRange_eventsX_N = np.where(events_spatial_transform[x_index,:] < 0)
+    outOfRange_eventsY_P = np.where(events_spatial_transform[y_index,:] >= imDim[0])
+    outOfRange_eventsY_N = np.where(events_spatial_transform[y_index,:] < 0)
 
     if Roll:
-        s_e_X[s_Res_oorX_P] = s_e_X[s_Res_oorX_P]-imDim[0] # Roll X right 
-        s_e_X[s_Res_oorX_N] = s_e_X[s_Res_oorX_N]+imDim[0] # Roll X left
-        s_e_Y[s_Res_oorY_P] = s_e_Y[s_Res_oorY_P]-imDim[1] # Roll Y down
-        s_e_Y[s_Res_oorY_N] = s_e_Y[s_Res_oorY_N]+imDim[1] # Roll Y up
+        events_spatial_transform_X[outOfRange_eventsX_P] = events_spatial_transform_X[outOfRange_eventsX_P]-imDim[0] # Roll X right 
+        events_spatial_transform_X[outOfRange_eventsX_N] = events_spatial_transform_X[outOfRange_eventsX_N]+imDim[0] # Roll X left
+        events_spatial_transform_Y[outOfRange_eventsY_P] = s_e_Y[outOfRange_eventsY_P]-imDim[1] # Roll Y down
+        events_spatial_transform_Y[outOfRange_eventsY_N] = s_e_Y[outOfRange_eventsY_N]+imDim[1] # Roll Y up
     else:
-        s_e_X[s_Res_oorX_P] = imDim[0] # Clip X pos.
-        s_e_X[s_Res_oorX_N] = 0 # Clip X neg.
-        s_e_Y[s_Res_oorY_P] = imDim[1] # Clip Y pos.
-        s_e_Y[s_Res_oorY_N] = 0 # Clip Y neg.
+        events_spatial_transform_X[outOfRange_eventsX_P] = imDim[0] # Clip X pos.
+        events_spatial_transform_X[outOfRange_eventsX_N] = 0 # Clip X neg.
+        events_spatial_transform_Y[outOfRange_eventsY_P] = imDim[1] # Clip Y pos.
+        events_spatial_transform_Y[outOfRange_eventsY_N] = 0 # Clip Y neg.
         
-    s_e = np.vstack((s_e_X,s_e_Y))
+    events[:,x_index] = events_spatial_transform_X.T
+    events[:,y_index] = events_spatial_transform_Y.T
     
-    #scale time 
-    t_v = e[:,3]
-    dT = np.diff(t_v)
-    s_dT = T[0]*dT
-    sh_dT = s_dT + T[1]
-    
-    #if the times are shifted beyond 0, roll time value 
-    badT = np.where(sh_dT < 0)
-    sh_dT[badT] = np.max(t_v)+ sh_dT[badT]
-    t_v_new = t_v[1:]+sh_dT
-    t_v_new = np.append(t_v[0], t_v_new)
-    p = e[:,2]
-    
-    eTransf = np.vstack((s_e_X, s_e_Y, p.T, t_v_new))
-    
-    return eTransf.T
+    events = time_skew(events, ordering, temporal_tranform[0], temporal_transform[1])
+     
+    return events
