@@ -95,6 +95,25 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertFalse((events[:, 0] == original_events[:, 0]).all())
         self.assertFalse((events[:, 1] == original_events[:, 1]).all())
 
+    def testTimeJitter(self):
+        original_events = self.random_xytp[0].copy()
+        variance = 0.1
+        events = F.time_jitter_numpy(
+            self.random_xytp[0],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            variance=variance,
+        )
+
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue((events[:, 0] == original_events[:, 0]).all())
+        self.assertTrue((events[:, 1] == original_events[:, 1]).all())
+        self.assertFalse((events[:, 2] == original_events[:, 2]).all())
+        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
+        self.assertTrue(
+            np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
+        )
+
     def testMixEv(self):
         stream_1 = utils.create_random_input_xytp()
         stream_2 = utils.create_random_input_xytp()
