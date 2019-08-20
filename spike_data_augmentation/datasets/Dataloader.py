@@ -13,8 +13,10 @@ class Dataloader:
         return self
 
     def __next__(self):
-        self.iteration = self.iteration + 1
-        return self.dataset[self.indices[self.iteration]]
+        if self.iteration >= len(self.indices):
+            raise StopIteration
+        else:
+            return self.dataset[self.indices[self.iteration]]
 
     def __len__(self):
         return len(self.dataset)
