@@ -34,7 +34,7 @@ class NMNIST(Dataset):
         "9 - nine",
     ]
 
-    sensor_size = (33, 33)
+    sensor_size = (34, 34)
     ordering = "xytp"
 
     def __init__(self, save_to, train=True, transform=None, download=False):
