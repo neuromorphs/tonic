@@ -13,6 +13,7 @@ class Dataloader:
         return self
 
     def __next__(self):
+        self.iteration = self.iteration + 1
         if self.iteration >= len(self.indices):
             raise StopIteration
         else:

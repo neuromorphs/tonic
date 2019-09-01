@@ -1,8 +1,8 @@
 import os
 import os.path
 import numpy as np
-from Dataset import Dataset
-from utils import check_integrity, download_and_extract_archive
+from .dataset import Dataset
+from .utils import check_integrity, download_and_extract_archive
 
 
 class NMNIST(Dataset):
@@ -34,7 +34,7 @@ class NMNIST(Dataset):
         "9 - nine",
     ]
 
-    sensor_size = (100, 100)
+    sensor_size = (33, 33)
     ordering = "xytp"
 
     def __init__(self, save_to, train=True, transform=None, download=False):
@@ -118,9 +118,10 @@ class NMNIST(Dataset):
         # Everything else is a proper td spike
         td_indices = np.where(all_y != 240)[0]
 
-        td = np.empty([td_indices.size, 4])
+        td = np.empty([td_indices.size, 4], dtype=np.uint32)
         td[:, 0] = all_x[td_indices]
         td[:, 1] = all_y[td_indices]
         td[:, 2] = all_ts[td_indices]
         td[:, 3] = all_p[td_indices]
+
         return td

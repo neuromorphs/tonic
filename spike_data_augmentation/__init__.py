@@ -1,1 +1,2 @@
-from .transforms import Compose
+from spike_data_augmentation import transforms
+from spike_data_augmentation import datasets
