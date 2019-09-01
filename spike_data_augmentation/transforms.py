@@ -1,3 +1,6 @@
+from . import functional
+
+
 class Compose(object):
     """Bundles several transforms.
 
