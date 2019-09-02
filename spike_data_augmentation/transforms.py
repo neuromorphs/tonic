@@ -11,10 +11,16 @@ class Compose(object):
     def __init__(self, transforms):
         self.transforms = transforms
 
-    def __call__(self, events, sensor_size, ordering):
+    def __call__(self, events, sensor_size, ordering, images=None):
         for t in self.transforms:
-            events = t(events, sensor_size, ordering)
-        return events
+            events, images = t(
+                events=events, images=images, sensor_size=sensor_size, ordering=ordering
+            )
+        # import ipdb; ipdb.set_trace()
+        if images == None:
+            return events
+        else:
+            return events, images
 
     def __repr__(self):
         format_string = self.__class__.__name__ + "("
@@ -107,10 +113,11 @@ class SpatialJitter(object):
         self.variance_y = variance_y
         self.sigma_x_y = sigma_x_y
 
-    def __call__(self, events, sensor_size, ordering):
-        return functional.spatial_jitter_numpy(
+    def __call__(self, events, sensor_size, ordering, images=None):
+        events = functional.spatial_jitter_numpy(
             events, ordering, self.variance_x, self.variance_y, self.sigma_x_y
         )
+        return (events, None)
 
 
 class SpatioTemporalTransform(object):
@@ -134,22 +141,22 @@ class TimeJitter(object):
     def __init__(self, variance=1):
         self.variance = variance
 
-    def __call__(self, events, sensor_size, ordering):
-        return functional.time_jitter_numpy(events, ordering, self.variance)
+    def __call__(self, events, sensor_size, ordering, images=None):
+        events = functional.time_jitter_numpy(events, ordering, self.variance)
+        return (events, images)
 
 
 class TimeReversal(object):
-    def __init__(self, images=None, flip_probability=0.5, multi_image=None):
-        self.images = images
+    def __init__(self, flip_probability=0.5, multi_image=None):
         self.flip_probability = flip_probability
         self.multi_image = multi_image
 
-    def __call__(self, events, sensor_size, ordering):
+    def __call__(self, events, sensor_size, ordering, images=None):
         return functional.time_reversal_numpy(
             events,
+            images,
             sensor_size,
             ordering,
-            self.images,
             self.flip_probability,
             self.multi_image,
         )
