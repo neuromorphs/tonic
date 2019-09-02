@@ -116,11 +116,11 @@ class SpatialJitter(object):
         self.variance_y = variance_y
         self.sigma_x_y = sigma_x_y
 
-    def __call__(self, events, sensor_size, ordering, images=None):
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.spatial_jitter_numpy(
             events, ordering, self.variance_x, self.variance_y, self.sigma_x_y
         )
-        return (events, None)
+        return (events, images)
 
 
 class SpatioTemporalTransform(object):

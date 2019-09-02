@@ -39,9 +39,13 @@ class TestTransforms(unittest.TestCase):
         variance_y = 1
         sigma_x_y = 0
         transform = transforms.Compose(
-            [transforms.TimeReversal(flip_probability=flip_probability)]
+            [
+                transforms.TimeReversal(flip_probability=flip_probability),
+                transforms.SpatialJitter(
+                    variance_x=variance_x, variance_y=variance_y, sigma_x_y=sigma_x_y
+                ),
+            ]
         )
-        # transforms.SpatialJitter(variance_x=variance_x, variance_y=variance_y, sigma_x_y=sigma_x_y)])
         events, images = transform(
             events=events,
             images=images,
@@ -50,7 +54,6 @@ class TestTransforms(unittest.TestCase):
             multi_image=multi_image,
         )
 
-        # import ipdb; ipdb.set_trace()
         self.assertTrue(len(events) == len(self.original_events))
         self.assertTrue(
             np.isclose(
