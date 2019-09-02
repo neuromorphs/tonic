@@ -72,3 +72,4 @@ class TestTransforms(unittest.TestCase):
                 == np.max(self.original_events[:, 2]) - self.original_events[:, 2]
             ).all()
         )
+        self.assertTrue((images[::-1] == self.original_images).all())
