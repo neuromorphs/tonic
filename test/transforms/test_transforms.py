@@ -60,11 +60,13 @@ class TestTransforms(unittest.TestCase):
                 events[:, 0].all(), self.original_events[:, 0].all(), atol=variance_x
             )
         )
+        self.assertFalse((events[:, 0] == self.original_events[:, 0]).all())
         self.assertTrue(
             np.isclose(
                 events[:, 1].all(), self.original_events[:, 1].all(), atol=variance_y
             )
         )
+        self.assertFalse((events[:, 1] == self.original_events[:, 1]).all())
         self.assertTrue((events[:, 3] == self.original_events[:, 3] * (-1)).all())
         self.assertTrue(
             (
