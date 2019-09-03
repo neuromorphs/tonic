@@ -3,7 +3,7 @@ import numpy as np
 from .utils import guess_event_ordering_numpy
 
 
-def time_jitter_numpy(events, sensor_size=(346, 260), ordering=None, variance=1):
+def time_jitter_numpy(events, ordering=None, variance=1):
     """
     Changes timestamp for each event by drawing samples from a
     Gaussian distribution with the following properties:
@@ -12,7 +12,6 @@ def time_jitter_numpy(events, sensor_size=(346, 260), ordering=None, variance=1)
 
     Arguments:
     - events - ndarray of shape [num_events, num_event_channels]
-    - sensor_size - size of the sensor that was used [W,H]
     - ordering - ordering of the event tuple inside of events, if None
                  the system will take a guess through
                  guess_event_ordering_numpy. This function requires 't'

@@ -82,7 +82,6 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = F.spatial_jitter_numpy(
             self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
             variance_x=2,
             variance_y=2,
@@ -99,10 +98,7 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_xytp[0].copy()
         variance = 0.1
         events = F.time_jitter_numpy(
-            self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
-            variance=variance,
+            self.random_xytp[0], ordering=self.random_xytp[3], variance=variance
         )
 
         self.assertTrue(len(events) == len(original_events))
@@ -253,14 +249,15 @@ class TestFunctionalAPI(unittest.TestCase):
         temporal_transform = np.array((2, 0))
         events = F.st_transform(
             self.random_xytp[0],
-            spatial_transform,
-            temporal_transform,
-            Roll=False,
             sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3]
+            ordering=self.random_xytp[3],
+            spatial_transform=spatial_transform,
+            temporal_transform=temporal_transform,
+            roll=False,
         )
 
         self.assertTrue(
-            np.all(events[:, 0]) < self.random_xytp[2][0] and np.all(events[:, 1] < self.random_xytp[2][1]),
+            np.all(events[:, 0]) < self.random_xytp[2][0]
+            and np.all(events[:, 1] < self.random_xytp[2][1]),
             "Transformation does not map beyond sensor size",
         )
