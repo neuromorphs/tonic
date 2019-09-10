@@ -6,7 +6,7 @@ import utils
 
 class TestTransforms(unittest.TestCase):
     def setUp(self):
-        self.random_xytp = utils.create_random_input_xytp()
+        self.random_xytp = utils.create_random_input_with_ordering("xytp")
         self.original_events = self.random_xytp[0].copy()
         self.original_images = self.random_xytp[1].copy()
 
