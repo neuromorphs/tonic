@@ -51,6 +51,28 @@ class TestFunctionalAPI(unittest.TestCase):
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
 
+    def testFlipPolarity(self):
+        original_polarities = self.random_xytp[0][:, 3].copy()
+
+        events = F.flip_polarity_numpy(
+            self.random_xytp[0], flip_probability=1, ordering=self.random_xytp[3]
+        )
+
+        self.assertTrue(
+            np.array_equal(original_polarities * -1, events[:, 3]),
+            "When flipping polarity with probability 1, all event polarities must flip",
+        )
+
+        self.random_xytp[0][:, 3] = original_polarities.copy()
+
+        events = F.flip_polarity_numpy(
+            self.random_xytp[0], flip_probability=0, ordering=self.random_xytp[3]
+        )
+
+        self.assertTrue(
+            np.array_equal(original_polarities, events[:, 3]),
+            "When flipping polarity with probability 0, no event polarities must flip",
+
     def testFlipUDxytp(self):
         original_y = self.random_xytp[0][0, 1].copy()
 
@@ -149,7 +171,6 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = F.spatial_jitter_numpy(
             self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
             variance_x=variance,
             variance_y=variance,
@@ -192,10 +213,24 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
         )
+          
+    def testTimeJitter(self):
+        original_events = self.random_xytp[0].copy()
+        variance = 0.1
+        events = F.time_jitter_numpy(
+            self.random_xytp[0], ordering=self.random_xytp[3], variance=variance
+        )
+
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue((events[:, 0] == original_events[:, 0]).all())
+        self.assertTrue((events[:, 1] == original_events[:, 1]).all())
+        self.assertFalse((events[:, 2] == original_events[:, 2]).all())
+        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
 
     def testMixEvXytp(self):
         stream_1 = utils.create_random_input_with_ordering("xytp")
         stream_2 = utils.create_random_input_with_ordering("xytp")
+
         events = (stream_1[0], stream_2[0])
 
         mixed_events_no_offset, _ = F.mix_ev_streams(
@@ -355,6 +390,20 @@ class TestFunctionalAPI(unittest.TestCase):
             "Added additional events that were not present in original event stream",
         )
 
+    def testUniformNoise(self):
+        original_events = self.random_xytp[0].copy()
+
+        noisy_events = F.uniform_noise_numpy(
+            original_events,
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            scaling_factor_to_micro_sec=1000000,
+            noise_density=1e-8,
+        )
+
+        self.assertTrue(len(noisy_events) > len(original_events))
+        self.assertTrue(np.isin(original_events, noisy_events).all())
+
     def testTimeSkew(self):
         original_events = self.random_xytp[0].copy()
 
@@ -448,4 +497,21 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             images.shape[1] == 50 and images.shape[2] == 50,
             "Cropping needs to map the images into the new space",
+
+    def testStTransform(self):
+        spatial_transform = np.array(((1, 0, 10), (0, 1, 10), (0, 0, 1)))
+        temporal_transform = np.array((2, 0))
+        events = F.st_transform(
+            self.random_xytp[0],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            spatial_transform=spatial_transform,
+            temporal_transform=temporal_transform,
+            roll=False,
+        )
+
+        self.assertTrue(
+            np.all(events[:, 0]) < self.random_xytp[2][0]
+            and np.all(events[:, 1] < self.random_xytp[2][1]),
+            "Transformation does not map beyond sensor size",
         )

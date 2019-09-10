@@ -38,7 +38,7 @@ def mix_ev_streams(
 
         ordering = prime_ordering
 
-        assert "x" and "y" and "t" in ordering
+    assert "x" and "y" and "t" in ordering
 
     x_loc = ordering.find("x")
     y_loc = ordering.find("y")

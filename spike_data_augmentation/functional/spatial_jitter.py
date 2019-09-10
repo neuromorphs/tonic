@@ -4,12 +4,7 @@ from .utils import guess_event_ordering_numpy
 
 
 def spatial_jitter_numpy(
-    events,
-    sensor_size=(346, 260),
-    ordering=None,
-    variance_x=1,
-    variance_y=1,
-    sigma_x_y=0,
+    events, ordering=None, variance_x=1, variance_y=1, sigma_x_y=0
 ):
     """
     Changes position for each pixel by drawing samples from a multivariate
@@ -19,7 +14,6 @@ def spatial_jitter_numpy(
 
     Arguments:
     - events - ndarray of shape [num_events, num_event_channels]
-    - sensor_size - size of the sensor that was used [W,H]
     - ordering - ordering of the event tuple inside of events, if None
                  the system will take a guess through
                  guess_event_ordering_numpy. This function requires 'x'
@@ -35,7 +29,7 @@ def spatial_jitter_numpy(
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "x" and "y" in ordering
+    assert "x" and "y" in ordering
 
     x_index = ordering.find("x")
     y_index = ordering.find("y")
