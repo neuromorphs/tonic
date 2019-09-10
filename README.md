@@ -17,11 +17,12 @@ This repository contains a pipeline of data augmentation methods, the effect of 
 ## Possible data sets
 - [MVSEC](https://daniilidis-group.github.io/mvsec/)
 - [NMNIST](https://www.garrickorchard.com/datasets/n-mnist)
-- [EMNIST](https://www.nist.gov/node/1298471/emnist-dataset)
+- [ASL-DVS](https://github.com/PIX2NVS/NVS2Graph)
 - [NCARS](https://www.prophesee.ai/dataset-n-cars/)
 - [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)
 - [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html)
 - [IBM gestures](http://www.research.ibm.com/dvsgesture/)
+- [ATIS planes](https://www.westernsydney.edu.au/bens/home/reproducible_research/atis_planes)
 - NTI Digits
 - TIMIT
 
@@ -30,8 +31,6 @@ This repository contains a pipeline of data augmentation methods, the effect of 
 - [HOTS/HATS](http://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf)
 - [SLAYER](https://papers.nips.cc/paper/7415-slayer-spike-layer-error-reassignment-in-time.pdf)
 - ContrastNet
-- Extreme Learning Machine, [possible implementation](https://www.ncbi.nlm.nih.gov/pubmed/31251192)
-- Flow/Egomotion/Depth
 - Sound localisation
 
 ## Install pre-commit
