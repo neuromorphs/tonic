@@ -1,4 +1,5 @@
 from .flip_lr import flip_lr_numpy
+from .flip_polarity import flip_polarity_numpy
 from .flip_ud import flip_ud_numpy
 from .drop_event import drop_event_numpy
 from .spatial_jitter import spatial_jitter_numpy
@@ -13,6 +14,9 @@ from .time_jitter import time_jitter_numpy
 
 __all__ = [
     flip_lr_numpy,
+    flip_polarity_numpy,
+    guess_event_ordering_numpy,
+    is_multi_image,
     flip_ud_numpy,
     guess_event_ordering_numpy,
     is_multi_image,
