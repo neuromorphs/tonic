@@ -39,7 +39,7 @@ def flip_ud_numpy(
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "y" in ordering
+    assert "y" in ordering
 
     if images is not None and multi_image is None:
         multi_image = is_multi_image(images, sensor_size)

@@ -33,13 +33,13 @@ def flip_lr_numpy(
                     num_images
 
     Returns:
-    - events - returns every event with x' = sensor_size[1] - x 
+    - events - returns every event with x' = sensor_size[1] - x
     - images - flips the image in x
     """
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "x" in ordering
+    assert "x" in ordering
 
     if images is not None and multi_image is None:
         multi_image = is_multi_image(images, sensor_size)
