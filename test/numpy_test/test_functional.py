@@ -72,6 +72,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.array_equal(original_polarities, events[:, 3]),
             "When flipping polarity with probability 0, no event polarities must flip",
+        )
 
     def testFlipUDxytp(self):
         original_y = self.random_xytp[0][0, 1].copy()
@@ -195,7 +196,6 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = F.spatial_jitter_numpy(
             self.random_txyp[0],
-            sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
             variance_x=variance,
             variance_y=variance,
@@ -213,7 +213,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
         )
-          
+
     def testTimeJitter(self):
         original_events = self.random_xytp[0].copy()
         variance = 0.1
@@ -497,6 +497,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             images.shape[1] == 50 and images.shape[2] == 50,
             "Cropping needs to map the images into the new space",
+        )
 
     def testStTransform(self):
         spatial_transform = np.array(((1, 0, 10), (0, 1, 10), (0, 0, 1)))
