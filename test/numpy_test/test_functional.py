@@ -31,6 +31,28 @@ class TestFunctionalAPI(unittest.TestCase):
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
 
+    def testFlipPolarity(self):
+        original_polarities = self.random_xytp[0][:, 3].copy()
+
+        events = F.flip_polarity_numpy(
+            self.random_xytp[0], flip_probability=1, ordering=self.random_xytp[3]
+        )
+
+        self.assertTrue(
+            np.array_equal(original_polarities * -1, events[:, 3]),
+            "When flipping polarity with probability 1, all event polarities must flip",
+        )
+
+        self.random_xytp[0][:, 3] = original_polarities.copy()
+
+        events = F.flip_polarity_numpy(
+            self.random_xytp[0], flip_probability=0, ordering=self.random_xytp[3]
+        )
+
+        self.assertTrue(
+            np.array_equal(original_polarities, events[:, 3]),
+            "When flipping polarity with probability 0, no event polarities must flip",
+
     def testFlipUD(self):
         original_y = self.random_xytp[0][0, 1].copy()
 
@@ -52,12 +74,36 @@ class TestFunctionalAPI(unittest.TestCase):
             "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
         )
 
+    def testEventDropout(self):
+        original = self.random_xytp[0]
+        drop_probability = 0.2
+
+        events = F.drop_event_numpy(original, drop_probability=drop_probability)
+
+        self.assertTrue(
+            np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
+            "Event dropout should result in drop_probability*len(original) events dropped out.",
+        )
+
+        self.assertTrue(
+            np.isclose(np.sum((events[:, 2] - np.sort(events[:, 2])) ** 2), 0),
+            "Event dropout should maintain temporal order.",
+        )
+
+        events = F.drop_event_numpy(
+            original, drop_probability=drop_probability, random_drop_probability=True
+        )
+
+        self.assertTrue(
+            events.shape[0] >= (1 - drop_probability) * original.shape[0],
+            "Event dropout with random drop probability should result in less than drop_probability*len(original) events dropped out.",
+        )
+
     def testSpatialJitter(self):
         original_events = self.random_xytp[0].copy()
 
         events = F.spatial_jitter_numpy(
             self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
             variance_x=2,
             variance_y=2,
@@ -69,6 +115,22 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
         self.assertFalse((events[:, 0] == original_events[:, 0]).all())
         self.assertFalse((events[:, 1] == original_events[:, 1]).all())
+
+    def testTimeJitter(self):
+        original_events = self.random_xytp[0].copy()
+        variance = 0.1
+        events = F.time_jitter_numpy(
+            self.random_xytp[0], ordering=self.random_xytp[3], variance=variance
+        )
+
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue((events[:, 0] == original_events[:, 0]).all())
+        self.assertTrue((events[:, 1] == original_events[:, 1]).all())
+        self.assertFalse((events[:, 2] == original_events[:, 2]).all())
+        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
+        self.assertTrue(
+            np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
+        )
 
     def testMixEv(self):
         stream_1 = utils.create_random_input_xytp()
@@ -128,11 +190,8 @@ class TestFunctionalAPI(unittest.TestCase):
             "Missed some event colisions, may cause processing problems.",
         )
         self.assertTrue(no_offset_monotonic, "Result was not monotonic.")
-
         self.assertTrue(random_offset_monotonic, "Result was not monotonic.")
-
         self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
-
         self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
 
     def testRefractoryPeriod(self):
@@ -145,7 +204,14 @@ class TestFunctionalAPI(unittest.TestCase):
             refractory_period=0.1,
         )
 
-        self.assertTrue(len(augmented_events) < len(original_events))
+        self.assertTrue(
+            len(augmented_events) <= len(original_events),
+            "Result can not be longer than original event stream",
+        )
+        self.assertTrue(
+            np.isin(augmented_events, original_events).all(),
+            "Added additional events that were not present in original event stream",
+        )
 
     def testUniformNoise(self):
         original_events = self.random_xytp[0].copy()
@@ -165,7 +231,7 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_xytp[0].copy()
 
         augmented_events = F.time_skew_numpy(
-            original_events, coefficient=3.1, offset=100
+            original_events, ordering=self.random_xytp[3], coefficient=3.1, offset=100
         )
 
         self.assertTrue(len(augmented_events) == len(original_events))
@@ -192,7 +258,6 @@ class TestFunctionalAPI(unittest.TestCase):
         same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
 
         self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
-
         self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
 
     def testCrop(self):
@@ -213,4 +278,22 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             images.shape[1] == 50 and images.shape[2] == 50,
             "Cropping needs to map the images into the new space",
+        )
+
+    def testStTransform(self):
+        spatial_transform = np.array(((1, 0, 10), (0, 1, 10), (0, 0, 1)))
+        temporal_transform = np.array((2, 0))
+        events = F.st_transform(
+            self.random_xytp[0],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            spatial_transform=spatial_transform,
+            temporal_transform=temporal_transform,
+            roll=False,
+        )
+
+        self.assertTrue(
+            np.all(events[:, 0]) < self.random_xytp[2][0]
+            and np.all(events[:, 1] < self.random_xytp[2][1]),
+            "Transformation does not map beyond sensor size",
         )

@@ -9,9 +9,9 @@ def time_skew_numpy(events, ordering=None, coefficient=0.9, offset=0):
     """
     Skew all event timestamps according to a linear transform,
     potentially sampled from a distribution of acceptable functions.
-    
+
     Arguments:
-    
+
     events - ndarray of shape [num_events, num_event_channels]
     ordering - ordering of the event tuple inside of events, if None
     the system will take a guess through
@@ -24,13 +24,13 @@ def time_skew_numpy(events, ordering=None, coefficient=0.9, offset=0):
     the coefficient. Negative offsets are permissible but may result in
     in an exception if timestamps are shifted below 0.
     Returns:
-    
+
     events - returns the input events with rewritten timestamps (rounded to nearest integer)
     """
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "t" in ordering
+    assert "t" in ordering
 
     t_loc = ordering.index("t")
 

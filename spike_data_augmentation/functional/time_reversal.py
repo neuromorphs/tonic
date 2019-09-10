@@ -43,7 +43,7 @@ def time_reversal_numpy(
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "x" in ordering
+    assert "t" and "p" in ordering
 
     if images is not None and multi_image is None:
         multi_image = is_multi_image(images, sensor_size)
