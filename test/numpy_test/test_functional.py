@@ -213,6 +213,20 @@ class TestFunctionalAPI(unittest.TestCase):
             "Added additional events that were not present in original event stream",
         )
 
+    def testUniformNoise(self):
+        original_events = self.random_xytp[0].copy()
+
+        noisy_events = F.uniform_noise_numpy(
+            original_events,
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            scaling_factor_to_micro_sec=1000000,
+            noise_density=1e-8,
+        )
+
+        self.assertTrue(len(noisy_events) > len(original_events))
+        self.assertTrue(np.isin(original_events, noisy_events).all())
+
     def testTimeSkew(self):
         original_events = self.random_xytp[0].copy()
 

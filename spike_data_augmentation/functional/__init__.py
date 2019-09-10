@@ -5,6 +5,7 @@ from .drop_event import drop_event_numpy
 from .spatial_jitter import spatial_jitter_numpy
 from .mix_ev_streams import mix_ev_streams
 from .refractory_period import refractory_period_numpy
+from .uniform_noise import uniform_noise_numpy
 from .crop import crop_numpy
 from .utils import guess_event_ordering_numpy, is_multi_image
 from .st_transform import st_transform
@@ -23,6 +24,7 @@ __all__ = [
     drop_event_numpy,
     spatial_jitter_numpy,
     refractory_period_numpy,
+    uniform_noise_numpy,
     mix_ev_streams,
     crop_numpy,
     guess_event_ordering_numpy,
