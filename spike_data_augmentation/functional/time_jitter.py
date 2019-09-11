@@ -24,10 +24,16 @@ def time_jitter_numpy(events, ordering=None, variance=1):
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "t" in ordering
+    assert "t" in ordering
 
     t_index = ordering.find("t")
     shifts = np.random.normal(0, variance, len(events))
-    events[:, t_index] += shifts
+
+    if isinstance(events, np.float):
+        events[:, t_index] += shifts
+    else:
+        events[:, t_index] = np.add(
+            events[:, t_index], shifts.round(), casting="unsafe"
+        )
 
     return events
