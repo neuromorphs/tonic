@@ -559,8 +559,8 @@ class TestFunctionalAPI(unittest.TestCase):
         )
 
         self.assertTrue(len(augmented_events) == len(original_events))
-        self.assertTrue((augmented_events[:, 2] >= original_events[:, 2]).all())
-        self.assertTrue(np.min(augmented_events[:, 2]) >= 0)
+        self.assertTrue((augmented_events[:, 0] >= original_events[:, 0]).all())
+        self.assertTrue(np.min(augmented_events[:, 0]) >= 0)
 
     def testUniformNoiseXytp(self):
         original_events = self.random_xytp[0].copy()

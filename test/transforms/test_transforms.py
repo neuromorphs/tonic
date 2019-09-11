@@ -139,3 +139,45 @@ class TestTransforms(unittest.TestCase):
             flipped_events,
             "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
         )
+
+    def testTimeSkewFlipPolarityFlipLR(self):
+        events = self.random_xytp[0].copy()
+        images = self.random_xytp[1].copy()
+        multi_image = self.random_xytp[4]
+        coefficient = 1.5
+        offset = 0
+        flip_probability_pol = 1
+        flip_probability_lr = 1
+
+        transform = transforms.Compose(
+            [
+                transforms.TimeSkew(coefficient=coefficient, offset=offset),
+                transforms.FlipPolarity(flip_probability=flip_probability_pol),
+                transforms.FlipLR(flip_probability=flip_probability_lr),
+            ]
+        )
+
+        events, images = transform(
+            events=events,
+            images=images,
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            multi_image=multi_image,
+        )
+
+        self.assertTrue(len(events) == len(self.original_events))
+        self.assertTrue((events[:, 2] >= self.original_events[:, 2]).all())
+        self.assertTrue(np.min(events[:, 2]) >= 0)
+
+        self.assertTrue(
+            (events[:, 3] == self.original_events[:, 3] * (-1)).all(),
+            "Polarities should be flipped.",
+        )
+
+        same_pixel = np.isclose(
+            self.random_xytp[2][0] - events[0, 0], self.original_events[0, 0]
+        )
+        self.assertTrue(
+            same_pixel,
+            "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
+        )

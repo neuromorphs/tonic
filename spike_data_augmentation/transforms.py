@@ -58,21 +58,32 @@ class DropEvent(object):
 
 class FlipLR(object):
     def __init__(self, flip_probability=0.5):
-        self.flip_probability = flip_probability
+        self.flip_probability_lr = flip_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         return functional.flip_lr_numpy(
-            events, images, sensor_size, ordering, self.flip_probability, multi_image
+            events, images, sensor_size, ordering, self.flip_probability_lr, multi_image
         )
+
+
+class FlipPolarity(object):
+    def __init__(self, flip_probability=0.5):
+        self.flip_probability_pol = flip_probability
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        events = functional.flip_polarity_numpy(
+            events, self.flip_probability_pol, ordering
+        )
+        return events, images
 
 
 class FlipUD(object):
     def __init__(self, flip_probability=0.5):
-        self.flip_probability = flip_probability
+        self.flip_probability_ud = flip_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         return functional.flip_ud_numpy(
-            events, images, sensor_size, ordering, self.flip_probability, multi_image
+            events, images, sensor_size, ordering, self.flip_probability_ud, multi_image
         )
 
 
@@ -129,11 +140,11 @@ class TimeJitter(object):
 
 class TimeReversal(object):
     def __init__(self, flip_probability=0.5):
-        self.flip_probability = flip_probability
+        self.flip_probability_t = flip_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         return functional.time_reversal_numpy(
-            events, images, sensor_size, ordering, self.flip_probability, multi_image
+            events, images, sensor_size, ordering, self.flip_probability_t, multi_image
         )
 
 

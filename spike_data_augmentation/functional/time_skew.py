@@ -25,7 +25,8 @@ def time_skew_numpy(events, ordering=None, coefficient=0.9, offset=0):
     in an exception if timestamps are shifted below 0.
     Returns:
 
-    events - returns the input events with rewritten timestamps (rounded to nearest integer)
+    events - returns the input events with rewritten timestamps (rounded to
+             nearest integer if timestamps used integers in the first place.)
     """
 
     if ordering is None:
@@ -34,7 +35,12 @@ def time_skew_numpy(events, ordering=None, coefficient=0.9, offset=0):
 
     t_loc = ordering.index("t")
 
-    events[:, t_loc] = (events[:, t_loc] * coefficient + offset).round()
+    if (events[:, t_loc] == events[:, t_loc].astype(np.int)).all():
+        # timestamps have integer format (but may still be floats, e.g. 3.0)
+        events[:, t_loc] = (events[:, t_loc] * coefficient + offset).round()
+    else:
+        events[:, t_loc] = events[:, t_loc] * coefficient + offset
+
     assert np.min(events[:, t_loc]) >= 0
 
     return events
