@@ -2,14 +2,14 @@
 This repository contains a pipeline of data augmentation methods, the effect of which will be tested on various data sets and SOA methods for event- and spike-based data. The goal is to reduce overfitting in learning algorithms by providing implementations of data augmentation methods for event/spike recordings.
 
 ## Quickstart
-Clone this repo and install it
+In a terminal: clone this repo and install it
 ```bash
 git clone git@github.com:neuromorphs/spike-data-augmentation.git
 cd spike-data-augmentation
 pip install -e .
 ```
 
-Choose transforms and a dataset and whether you want shuffling enabled!
+In a Python file: choose transforms and a dataset and whether you want shuffling enabled!
 ```python
 import spike_data_augmentation
 import spike_data_augmentation.transforms as transforms
