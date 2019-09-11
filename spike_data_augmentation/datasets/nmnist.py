@@ -20,7 +20,8 @@ class NMNIST(Dataset):
     train_zip = base_url + "AABlMOuR15ugeOxMCX0Pvoxga/Train.zip?dl=1"
     test_md5 = "69CA8762B2FE404D9B9BAD1103E97832"
     train_md5 = "20959B8E626244A1B502305A9E6E2031"
-
+    test_filename = "nmnist_test.zip"
+    train_filename = "nmnist_train.zip"
     classes = [
         "0 - zero",
         "1 - one",
@@ -41,15 +42,18 @@ class NMNIST(Dataset):
         super(NMNIST, self).__init__(save_to, transform=transform)
 
         self.train = train
+        self.location_on_system = save_to
 
         if train:
             self.url = self.train_zip
             self.file_md5 = self.train_md5
-            self.filename = "nmnist_train.zip"
+            self.filename = self.train_filename
+            self.folder_name = "Train"
         else:
             self.url = self.test_zip
             self.file_md5 = self.test_md5
-            self.filename = "nmnist_test.zip"
+            self.filename = self.test_filename
+            self.folder_name = "Test"
 
         if download:
             self.download()
@@ -60,22 +64,17 @@ class NMNIST(Dataset):
                 + " You can use download=True to download it"
             )
 
-        for path, dirs, files in os.walk("./data/Test"):
+        file_path = self.location_on_system + "/" + self.folder_name
+        for path, dirs, files in os.walk(file_path):
             dirs.sort()
             for file in files:
                 if file.endswith("bin"):
-                    events = self._read_nmnist_file(path + "/" + file)
+                    events = self._read_dataset_file(path + "/" + file)
                     self.data.append(events)
                     label_number = int(path[-1])
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
-        """
-        Args:
-            index (int): Index
-        Returns:
-            tuple: (events, target) where target is index of the target class.
-        """
         events, target = self.data[index], self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
@@ -96,7 +95,7 @@ class NMNIST(Dataset):
             return False
         return True
 
-    def _read_nmnist_file(self, filename):
+    def _read_dataset_file(self, filename):
         f = open(filename, "rb")
         raw_data = np.fromfile(f, dtype=np.uint8)
         f.close()
@@ -118,7 +117,7 @@ class NMNIST(Dataset):
         # Everything else is a proper td spike
         td_indices = np.where(all_y != 240)[0]
 
-        td = np.empty([td_indices.size, 4])
+        td = np.empty([td_indices.size, 4], dtype=np.uint32)
         td[:, 0] = all_x[td_indices]
         td[:, 1] = all_y[td_indices]
         td[:, 2] = all_ts[td_indices]
