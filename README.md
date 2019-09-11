@@ -1,22 +1,37 @@
 # Telluride Spike Data Augmentation toolkit
 This repository contains a pipeline of data augmentation methods, the effect of which will be tested on various data sets and SOA methods for event- and spike-based data. The goal is to reduce overfitting in learning algorithms by providing implementations of data augmentation methods for event/spike recordings.
 
-## Augementation methods
-- left/right flip
-- crop random
-- time skew, reversal, or jitter
-- spatial jitter
-- refractory period
-- hot/dead pixels
-- additive mixing / combining of recordings
-- spatial and/or temporal (affine, nonlinear) transforms
-- Gaussian noise addition
-- Dropout, subsampling, habituation
-- polarity flips
+## Quickstart
+Clone this repo and install it
+```bash
+git clone git@github.com:neuromorphs/spike-data-augmentation.git
+cd spike-data-augmentation
+pip install -e .
+```
 
-## Possible data sets
+Choose transforms and a dataset and whether you want shuffling enabled!
+```python
+import spike_data_augmentation
+import spike_data_augmentation.transforms as transforms
+
+transform = transforms.Compose([transforms.TimeJitter(variance=3000),
+                                transforms.SpatialJitter(variance_x=2, variance_y=2)
+                                ])
+
+testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
+                                                  train=False,
+                                                  download=True,
+                                                  transform=transform)
+
+testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
+
+for events, label in iter(testloader):
+    print(label)
+```
+
+## Possible data sets (asterix marks currently supported in this package)
 - [MVSEC](https://daniilidis-group.github.io/mvsec/)
-- [NMNIST](https://www.garrickorchard.com/datasets/n-mnist)
+- [NMNIST](https://www.garrickorchard.com/datasets/n-mnist) (\*)
 - [ASL-DVS](https://github.com/PIX2NVS/NVS2Graph)
 - [NCARS](https://www.prophesee.ai/dataset-n-cars/)
 - [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)
