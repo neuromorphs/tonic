@@ -13,7 +13,7 @@ class TestTransforms(unittest.TestCase):
     def testTimeJitter(self):
         events = self.random_xytp[0].copy()
         images = None
-        variance = 0.1
+        variance = max(self.random_xytp[0][:, 2]) / 10
         transform = transforms.Compose([transforms.TimeJitter(variance=variance)])
         transform(
             events=events, sensor_size=self.random_xytp[2], ordering=self.random_xytp[3]
@@ -130,10 +130,10 @@ class TestTransforms(unittest.TestCase):
         )
         self.assertTrue(temporal_order, "Temporal order should be maintained.")
 
-        first_dropped_index = np.where(events[0, 2] == self.original_events[:, 2])
-        flipped_events = np.isclose(
-            self.random_xytp[2][1] - self.original_events[first_dropped_index, 1],
-            events[0, 1],
+        first_dropped_index = np.where(events[0, 2] == self.original_events[:, 2])[0][0]
+        flipped_events = (
+            self.random_xytp[2][1] - self.original_events[first_dropped_index, 1]
+            == events[0, 1]
         )
         self.assertTrue(
             flipped_events,

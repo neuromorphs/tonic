@@ -35,10 +35,12 @@ def refractory_period_numpy(
     x_index = ordering.find("x")
     y_index = ordering.find("y")
 
-    events_copy = np.zeros(events.shape)
+    events_copy = np.zeros(events.shape, dtype=events.dtype)
     copy_index = 0
-
-    timestamp_memory = np.zeros((sensor_size[0], sensor_size[1])) - refractory_period
+    timestamp_memory = (
+        np.zeros((sensor_size[0], sensor_size[1]), dtype=events.dtype)
+        - refractory_period
+    )
 
     for event in events:
         time_since_last_spike = (

@@ -33,14 +33,13 @@ def time_skew_numpy(events, ordering=None, coefficient=0.9, offset=0):
         ordering = guess_event_ordering_numpy(events)
     assert "t" in ordering
 
-    t_loc = ordering.index("t")
+    t_index = ordering.index("t")
 
-    if (events[:, t_loc] == events[:, t_loc].astype(np.int)).all():
-        # timestamps have integer format (but may still be floats, e.g. 3.0)
-        events[:, t_loc] = (events[:, t_loc] * coefficient + offset).round()
+    if np.issubdtype(events.dtype, np.integer):
+        events[:, t_index] = (events[:, t_index] * coefficient + offset).round()
     else:
-        events[:, t_loc] = events[:, t_loc] * coefficient + offset
+        events[:, t_index] = events[:, t_index] * coefficient + offset
 
-    assert np.min(events[:, t_loc]) >= 0
+    assert np.min(events[:, t_index]) >= 0
 
     return events
