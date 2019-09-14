@@ -117,7 +117,7 @@ class NMNIST(Dataset):
         # Everything else is a proper td spike
         td_indices = np.where(all_y != 240)[0]
 
-        td = np.empty([td_indices.size, 4], dtype=np.uint32)
+        td = np.empty([td_indices.size, 4], dtype=np.int32)
         td[:, 0] = all_x[td_indices]
         td[:, 1] = all_y[td_indices]
         td[:, 2] = all_ts[td_indices]
