@@ -38,13 +38,9 @@ def spatial_jitter_numpy(
         [0, 0], [[variance_x, sigma_x_y], [sigma_x_y, variance_y]], len(events)
     )
 
-    if isinstance(events[0, x_index], np.int_):
-        events[:, x_index] = np.add(
-            events[:, x_index], shifts[:, 0].round(), casting="unsafe"
-        )
-        events[:, y_index] = np.add(
-            events[:, y_index], shifts[:, 1].round(), casting="unsafe"
-        )
+    if np.issubdtype(events.dtype, np.integer):
+        events[:, x_index] += shifts[:, 0].round().astype(np.int)
+        events[:, y_index] += shifts[:, 1].round().astype(np.int)
     else:
         events[:, x_index] += shifts[:, 0]
         events[:, y_index] += shifts[:, 1]

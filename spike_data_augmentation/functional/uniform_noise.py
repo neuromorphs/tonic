@@ -49,8 +49,8 @@ def uniform_noise_numpy(
     total_number_of_points = recording_length_micro_seconds * np.product(sensor_size)
     number_of_noise_events = int(total_number_of_points * noise_density)
 
-    noise_x = np.random.uniform(0, sensor_size[0], number_of_noise_events)
-    noise_y = np.random.uniform(0, sensor_size[1], number_of_noise_events)
+    noise_x = np.random.uniform(0, sensor_size[0], number_of_noise_events).round()
+    noise_y = np.random.uniform(0, sensor_size[1], number_of_noise_events).round()
     noise_t = np.random.uniform(
         first_timestamp_micro_seconds,
         last_timestamp_micro_seconds,

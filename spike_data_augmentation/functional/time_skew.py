@@ -35,7 +35,7 @@ def time_skew_numpy(events, ordering=None, coefficient=0.9, offset=0):
 
     t_index = ordering.index("t")
 
-    if isinstance(events[0, t_index], np.int_):
+    if np.issubdtype(events.dtype, np.integer):
         events[:, t_index] = (events[:, t_index] * coefficient + offset).round()
     else:
         events[:, t_index] = events[:, t_index] * coefficient + offset

@@ -26,7 +26,7 @@ def flip_polarity_numpy(events, flip_probability=0.5, ordering=None):
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "p" in ordering
+    assert "p" in ordering
 
     p_loc = ordering.index("p")
 
