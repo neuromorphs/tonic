@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def create_random_input_with_ordering(ordering):
+def create_random_input_with_ordering(ordering, datatype=None):
     """
     Creates a random frame to use for tests with certain ordering
 
@@ -26,7 +26,10 @@ def create_random_input_with_ordering(ordering):
     events[events[:, p_index] >= 0.5, p_index] = 1
 
     # sort timestamps to ensure the times are sequential
-    events[:, t_index] = np.sort(events[:, t_index])
+    events[:, t_index] = np.sort(events[:, t_index]) * 10000
+
+    if datatype != None:
+        events = events.astype(datatype)
     images = np.random.rand(4, sensor_size[1], sensor_size[0])
 
     return events, images, sensor_size, ordering, True

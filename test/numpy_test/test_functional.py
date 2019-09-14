@@ -472,7 +472,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
     def testTimeJitterXytp(self):
         original_events = self.random_xytp[0].copy()
-        variance = 0.1
+        variance = max(self.random_xytp[0][:, 2]) / 10
         events = F.time_jitter_numpy(
             self.random_xytp[0], ordering=self.random_xytp[3], variance=variance
         )
@@ -485,7 +485,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
     def testTimeJitterTxyp(self):
         original_events = self.random_txyp[0].copy()
-        variance = 0.1
+        variance = max(self.random_txyp[0][:, 0]) / 10
         events = F.time_jitter_numpy(
             self.random_txyp[0], ordering=self.random_txyp[3], variance=variance
         )
