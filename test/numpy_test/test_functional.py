@@ -30,6 +30,7 @@ class TestFunctionalAPI(unittest.TestCase):
             images.shape[1] == 50 and images.shape[2] == 50,
             "Cropping needs to map the images into the new space",
         )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testCropTxyp(self):
         events, images = F.crop_numpy(
@@ -50,7 +51,7 @@ class TestFunctionalAPI(unittest.TestCase):
             images.shape[1] == 50 and images.shape[2] == 50,
             "Cropping needs to map the images into the new space",
         )
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testDropEventXytp(self):
         original = self.random_xytp[0]
@@ -76,6 +77,7 @@ class TestFunctionalAPI(unittest.TestCase):
             events.shape[0] >= (1 - drop_probability) * original.shape[0],
             "Event dropout with random drop probability should result in less than drop_probability*len(original) events dropped out.",
         )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testDropEventTxyp(self):
         original = self.random_txyp[0]
@@ -92,7 +94,7 @@ class TestFunctionalAPI(unittest.TestCase):
             np.isclose(np.sum((events[:, 0] - np.sort(events[:, 0])) ** 2), 0),
             "Event dropout should maintain temporal order.",
         )
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
         events = F.drop_event_numpy(
             original, drop_probability=drop_probability, random_drop_probability=True
@@ -102,7 +104,7 @@ class TestFunctionalAPI(unittest.TestCase):
             events.shape[0] >= (1 - drop_probability) * original.shape[0],
             "Event dropout with random drop probability should result in less than drop_probability*len(original) events dropped out.",
         )
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testFlipLRxytp(self):
         original_x = self.random_xytp[0][0, 0].copy()
@@ -124,6 +126,7 @@ class TestFunctionalAPI(unittest.TestCase):
             same_pixel,
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testFlipLRtxyp(self):
         original_x = self.random_txyp[0][0, 1].copy()
@@ -145,7 +148,7 @@ class TestFunctionalAPI(unittest.TestCase):
             same_pixel,
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testFlipPolarityXytp(self):
         original_polarities = self.random_xytp[0][:, 3].copy()
@@ -166,6 +169,7 @@ class TestFunctionalAPI(unittest.TestCase):
             np.array_equal(original_polarities, events[:, 3]),
             "When flipping polarity with probability 0, no event polarities must flip",
         )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testFlipPolarityTxyp(self):
         original_polarities = self.random_txyp[0][:, 3].copy()
@@ -186,7 +190,7 @@ class TestFunctionalAPI(unittest.TestCase):
             np.array_equal(original_polarities, events[:, 3]),
             "When flipping polarity with probability 0, no event polarities must flip",
         )
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testFlipUDxytp(self):
         original_y = self.random_xytp[0][0, 1].copy()
@@ -208,6 +212,7 @@ class TestFunctionalAPI(unittest.TestCase):
             same_pixel,
             "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
         )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testFlipUDtxyp(self):
         original_y = self.random_txyp[0][0, 2].copy()
@@ -229,7 +234,7 @@ class TestFunctionalAPI(unittest.TestCase):
             same_pixel,
             "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
         )
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testMixEvXytp(self):
         stream_1 = utils.create_random_input_with_ordering("xytp")
@@ -359,7 +364,7 @@ class TestFunctionalAPI(unittest.TestCase):
     def testRefractoryPeriodXytp(self):
         original_events = self.random_xytp[0].copy()
 
-        augmented_events = F.refractory_period_numpy(
+        events = F.refractory_period_numpy(
             original_events,
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
@@ -367,18 +372,19 @@ class TestFunctionalAPI(unittest.TestCase):
         )
 
         self.assertTrue(
-            len(augmented_events) <= len(original_events),
+            len(events) <= len(original_events),
             "Result can not be longer than original event stream",
         )
         self.assertTrue(
-            np.isin(augmented_events, original_events).all(),
+            np.isin(events, original_events).all(),
             "Added additional events that were not present in original event stream",
         )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testRefractoryPeriodTxyp(self):
         original_events = self.random_txyp[0].copy()
 
-        augmented_events = F.refractory_period_numpy(
+        events = F.refractory_period_numpy(
             original_events,
             sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
@@ -386,14 +392,14 @@ class TestFunctionalAPI(unittest.TestCase):
         )
 
         self.assertTrue(
-            len(augmented_events) <= len(original_events),
+            len(events) <= len(original_events),
             "Result can not be longer than original event stream",
         )
         self.assertTrue(
-            np.isin(augmented_events, original_events).all(),
+            np.isin(events, original_events).all(),
             "Added additional events that were not present in original event stream",
         )
-        self.assertTrue(isinstance(augmented_events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testSpatialJitterXytp(self):
         original_events = self.random_xytp[0].copy()
@@ -418,6 +424,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
         )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testSpatialJitterTxyp(self):
         original_events = self.random_txyp[0].copy()
@@ -442,7 +449,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
         )
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testStTransformXytp(self):
         spatial_transform = np.array(((1, 0, 10), (0, 1, 10), (0, 0, 1)))
@@ -492,6 +499,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertFalse((events[:, 2] == original_events[:, 2]).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testTimeJitterTxyp(self):
         original_events = self.random_txyp[0].copy()
@@ -505,7 +513,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertTrue((events[:, 2] == original_events[:, 2]).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testTimeReversalXytp(self):
         original_t = self.random_xytp[0][0, 2].copy()
@@ -528,6 +536,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
         self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testTimeReversalTxyp(self):
         original_t = self.random_txyp[0][0, 0].copy()
@@ -550,30 +559,31 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
         self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
-        self.assertTrue(isinstance(events[0, 0], np.int32))
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testTimeSkewXytp(self):
         original_events = self.random_xytp[0].copy()
 
-        augmented_events = F.time_skew_numpy(
+        events = F.time_skew_numpy(
             original_events, ordering=self.random_xytp[3], coefficient=3.1, offset=100
         )
 
-        self.assertTrue(len(augmented_events) == len(original_events))
-        self.assertTrue((augmented_events[:, 2] >= original_events[:, 2]).all())
-        self.assertTrue(np.min(augmented_events[:, 2]) >= 0)
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue((events[:, 2] >= original_events[:, 2]).all())
+        self.assertTrue(np.min(events[:, 2]) >= 0)
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testTimeSkewTxyp(self):
         original_events = self.random_txyp[0].copy()
 
-        augmented_events = F.time_skew_numpy(
+        events = F.time_skew_numpy(
             original_events, ordering=self.random_txyp[3], coefficient=3.1, offset=100
         )
 
-        self.assertTrue(len(augmented_events) == len(original_events))
-        self.assertTrue((augmented_events[:, 0] >= original_events[:, 0]).all())
-        self.assertTrue(np.min(augmented_events[:, 0]) >= 0)
-        self.assertTrue(isinstance(augmented_events[0, 0], np.int32))
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue((events[:, 0] >= original_events[:, 0]).all())
+        self.assertTrue(np.min(events[:, 0]) >= 0)
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testUniformNoiseXytp(self):
         original_events = self.random_xytp[0].copy()
