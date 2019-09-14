@@ -34,7 +34,7 @@ def uniform_noise_numpy(
 
     if ordering is None:
         ordering = guess_event_ordering_numpy(events)
-        assert "x" and "y" and "t" in ordering
+    assert "x" and "y" and "t" in ordering
 
     x_index = ordering.find("x")
     y_index = ordering.find("y")

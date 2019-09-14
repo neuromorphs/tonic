@@ -29,7 +29,7 @@ def time_jitter_numpy(events, ordering=None, variance=1):
     t_index = ordering.find("t")
     shifts = np.random.normal(0, variance, len(events))
 
-    if (events[:, t_index] == events[:, t_index].astype(np.int)).all():
+    if isinstance(events[0, t_index], np.int_):
         events[:, t_index] = np.add(
             events[:, t_index], shifts.round(), casting="unsafe"
         )
