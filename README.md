@@ -14,8 +14,9 @@ In a Python file: choose transforms and a dataset and whether you want shuffling
 import spike_data_augmentation
 import spike_data_augmentation.transforms as transforms
 
-transform = transforms.Compose([transforms.TimeJitter(variance=3000),
-                                transforms.SpatialJitter(variance_x=2, variance_y=2)
+transform = transforms.Compose([transforms.TimeJitter(variance=100),
+                                transforms.SpatialJitter(variance_x=2, variance_y=2),
+                                # mix and match!
                                 ])
 
 testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
@@ -26,7 +27,7 @@ testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
 testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
 
 for events, label in iter(testloader):
-    print(label)
+    print("label: " + str(label))
 ```
 
 ## Possible data sets (asterix marks currently supported in this package)
