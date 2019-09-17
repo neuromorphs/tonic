@@ -7,10 +7,11 @@ def drop_event_numpy(events, drop_probability=0.5, random_drop_probability=False
     Args:
         events: ndarray of shape [num_events, num_event_channels].
         drop_probability: probability of dropping out event.
-        random_drop_probability: randomize the dropout probability between 0 and drop_probability.
+        random_drop_probability: randomize the dropout probability
+                                 between 0 and drop_probability.
 
     Returns:
-        augmented events that were not dropped
+        augmented events that were not dropped.
     """
 
     if random_drop_probability is True:

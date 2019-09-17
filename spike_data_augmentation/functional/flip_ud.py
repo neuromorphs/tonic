@@ -17,24 +17,23 @@ def flip_ud_numpy(
         y' = height - y
 
     Arguments:
-    - events - ndarray of shape [num_events, num_event_channels]
-    - images - ndarray of these possible shapes
-               - [num_images, height, width, num_channels]
-               - [height, width, num_channels]
-               - [num_images, height, width]
-               - [height, width]
-    - sensor_size - size of the sensor that was used [W,H]
-    - ordering - ordering of the event tuple inside of events, if None
-                 the system will take a guess through
-                 guess_event_ordering_numpy. This function requires 'y'
-                 to be in the ordering
-    - flip_probability - probability of performing the flip
-    - multi_image - Fix whether or not the first dimension of images is
-                    num_images
+        events: ndarray of shape [num_events, num_event_channels]
+        images: ndarray of these possible shapes:
+                [num_images, height, width, num_channels],
+                [height, width, num_channels],
+                [num_images, height, width],
+                [height, width]
+        sensor_size: size of the sensor that was used [W,H]
+        ordering: ordering of the event tuple inside of events, if None
+                  the system will take a guess through
+                  guess_event_ordering_numpy. This function requires 'x'
+                  to be in the ordering
+        flip_probability: probability of performing the flip
+        multi_image: Fix whether or not the first dimension of images is num_images
 
     Returns:
-    - events - returns every event with y' = sensor_size[1] - y
-    - images - flips the image in y
+        events: returns every event with y' = sensor_size[1] - y
+        images: flips the image in y
     """
 
     if ordering is None:
