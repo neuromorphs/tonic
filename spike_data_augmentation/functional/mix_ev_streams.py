@@ -22,7 +22,7 @@ def mix_ev_streams_numpy(
                   will take a guess through guess_event_ordering_numpy.
 
     Returns:
-        events: A combined event stream
+        a combined event stream
     """
 
     if ordering is None:
