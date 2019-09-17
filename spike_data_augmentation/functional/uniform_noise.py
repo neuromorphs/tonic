@@ -1,7 +1,7 @@
 import numpy as np
 
 from .utils import guess_event_ordering_numpy
-from .mix_ev_streams import mix_ev_streams
+from .mix_ev_streams import mix_ev_streams_numpy
 
 
 def uniform_noise_numpy(
@@ -63,7 +63,7 @@ def uniform_noise_numpy(
 
     event_array = (events, noise)
 
-    events, collisions = mix_ev_streams(
+    events, collisions = mix_ev_streams_numpy(
         event_array, sensor_size=sensor_size, ordering=ordering
     )
 
