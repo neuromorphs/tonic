@@ -13,32 +13,31 @@ def time_reversal_numpy(
     flip_probability=0.5,
     multi_image=None,
 ):
-    """
-    Temporal flip is defined as:
+    """Temporal flip is defined as:
 
-    t_i' = max(t) - t_i
-    p_i' = -1 * p_i
+        .. math::
+           t_i' = max(t) - t_i
 
-    Arguments:
-    - events - ndarray of shape [num_events, num_event_channels]
-    - images - ndarray of these possible shapes
-               - [num_images, height, width, num_channels]
-               - [height, width, num_channels]
-               - [num_images, height, width]
-               - [height, width]
-    - sensor_size - size of the sensor that was used [W,H]
-    - ordering - ordering of the event tuple inside of events, if None
-                 the system will take a guess through
-                 guess_event_ordering_numpy. This function requires 't'
-                 and 'p' to be in the ordering
-    - flip_probability - probability of performing the flip
-    - multi_image - Fix whether or not the first dimension of images is
-                    num_images
+           p_i' = -1 * p_i
+
+    Args:
+        events: ndarray of shape [num_events, num_event_channels]
+        images: ndarray of these possible shapes:
+                [num_images, height, width, num_channels],
+                [height, width, num_channels],
+                [num_images, height, width],
+                [height, width]
+        sensor_size: size of the sensor that was used [W,H]
+        ordering: ordering of the event tuple inside of events, if None
+                  the system will take a guess through
+                  guess_event_ordering_numpy. This function requires 'x'
+                  to be in the ordering
+        flip_probability: probability of performing the flip
+        multi_image: Fix whether or not the first dimension of images is num_images
 
     Returns:
-    - events - returns every event flipped in time and polarity or no
-      change
-    - images - flips the image in t
+        - every event flipped in time and polarity or no change and
+        - images flipped in time
     """
 
     if ordering is None:

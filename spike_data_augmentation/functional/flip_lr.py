@@ -31,8 +31,8 @@ def flip_lr_numpy(
         multi_image: Fix whether or not the first dimension of images is num_images
 
     Returns:
-        events: returns every event with x' = sensor_size[1] - x
-        images: flips the image in x
+        - every event with x' = sensor_size[1] - x
+        - images flipped in x
     """
 
     if ordering is None:

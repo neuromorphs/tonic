@@ -32,8 +32,8 @@ def flip_ud_numpy(
         multi_image: Fix whether or not the first dimension of images is num_images
 
     Returns:
-        events: returns every event with y' = sensor_size[1] - y
-        images: flips the image in y
+        - returns every event with y' = sensor_size[1] - y
+        - images flipped in y
     """
 
     if ordering is None:
