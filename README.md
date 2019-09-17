@@ -30,6 +30,14 @@ for events, label in iter(testloader):
     print("label: " + str(label))
 ```
 
+## Documentation
+This repo will stay private until publication. It is therefore necessary to build documentation locally. Just run the following commands to do that after having made sure that you are on the latest master branch:
+```bash
+cd docs
+make html
+firefox _build/html/index.html
+```
+
 ## Possible data sets (asterix marks currently supported in this package)
 - [MVSEC](https://daniilidis-group.github.io/mvsec/)
 - [NMNIST](https://www.garrickorchard.com/datasets/n-mnist) (\*)
