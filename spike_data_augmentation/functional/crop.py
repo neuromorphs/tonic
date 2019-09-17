@@ -11,33 +11,32 @@ def crop_numpy(
     target_size=(256, 256),
     multi_image=None,
 ):
-    """
-    Crops the sensor size to a smaller sensor.
-
+    """Crops the sensor size to a smaller sensor.
     Removes events outsize of the target sensor and maps
 
     x' = x - new_sensor_start_x
+
     y' = y - new_sensor_start_y
 
-    Arguments:
-    - events - ndarray of shape [num_events, num_event_channels]
-    - images - ndarray of these possible shapes
-               - [num_images, height, width, num_channels]
-               - [height, width, num_channels]
-               - [num_images, height, width]
-               - [height, width]
-    - sensor_size - size of the sensor that was used [W,H]
-    - ordering - ordering of the event tuple inside of events, if None
+    Args:
+        events: ndarray of shape [num_events, num_event_channels]
+        images: ndarray of these possible shapes:
+                - [num_images, height, width, num_channels]
+                - [height, width, num_channels]
+                - [num_images, height, width]
+                - [height, width]
+        sensor_size: size of the sensor that was used [W,H]
+        ordering: ordering of the event tuple inside of events, if None
                  the system will take a guess through
                  guess_event_ordering_numpy. This function requires 'x'
                  and 'y' to be in the ordering
-    - target_size - size of the sensor that was used [W',H']
-    - multi_image - Fix whether or not the first dimension of images is
+        target_size: size of the sensor that was used [W',H']
+        multi_image: Fix whether or not the first dimension of images is
                     num_images
 
     Returns:
-    - events - events within the crop box
-    - images - crop box out of the images
+        events - events within the crop box
+        images - crop box out of the images
     """
 
     assert target_size[0] <= sensor_size[0] and target_size[1] <= sensor_size[1]

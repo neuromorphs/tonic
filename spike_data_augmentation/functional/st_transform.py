@@ -12,26 +12,25 @@ def st_transform(
     ordering=None,
     roll=False,
 ):
-    """
-    Transform all events spatial and temporal locations based on
+    """Transform all events spatial and temporal locations based on
     given spatial transform matrix and temporal transform vector.
 
-    Arguments:
+    Args:
+        events: ndarray of shape [num_events, num_event_channels]
+        ordering: ordering of the event tuple inside of events, if None
+                  the system will take a guess through
+                  guess_event_ordering_numpy. This function requires 't', 'x', 'y'
+                  to be in the ordering
+        spatial_transform: 3x3 matrix which can be used to perform rigid (translation and rotation),
+                           non-rigid (scaling and shearing), and non-affine transformations. Generic to user input.
+        temporal_transform: scale time between events and offset temporal location based on 2 member vector.
+                            Used as arguments to time_skew method.
+        roll: boolean input to determine if transformed events will be translated across sensor boundaries (True).
+              Otherwise, events will be clipped at sensor boundaries.
+        sensor_size: tuple which stipulates sensor size and used to determine tranform limits.
 
-    events - ndarray of shape [num_events, num_event_channels]
-    ordering - ordering of the event tuple inside of events, if None
-    the system will take a guess through
-    guess_event_ordering_numpy. This function requires 't', 'x', 'y'
-    to be in the ordering
-    spatial_transform - 3x3 matrix which can be used to perform rigid (translation and rotation),
-    non-rigid (scaling and shearing), and non-affine transformations. Generic to user input.
-    temporal_transform - scale time between events and offset temporal location based on 2 member vector.
-    Used as arguments to time_skew method.
-    roll - boolean input to determine if transformed events will be translated across sensor boundaries (True).
-    Otherwise, events will be clipped at sensor boundaries.
-    sensor_size - tuple which stipulates sensor size and used to determine tranform limits.
     Returns:
-    tr_events - returns the input events with tranformed temporal and spatial location
+        the input events with tranformed temporal and spatial location
     """
 
     if ordering is None:

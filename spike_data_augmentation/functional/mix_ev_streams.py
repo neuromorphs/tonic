@@ -3,29 +3,26 @@ import numpy as np
 from .utils import guess_event_ordering_numpy
 
 
-def mix_ev_streams(
+def mix_ev_streams_numpy(
     events, offsets=None, check_conflicts=False, sensor_size=(346, 260), ordering=None
 ):
 
-    """
-    Combine two or more event streams into a single stream. Event collisions result in a single spike
+    """Combine two or more event streams into a single stream. Event collisions result in a single spike
     or none if polarities are opposite. Collisions numbering greater than two are handled by consensus.
     While not technically required, it is recommended that all event streams be the same [x,y] dimension.
 
-    Arguments:
-    - events - tuple of event streams which are ndarrays of shape [num_events, num_event_channels]
-    - offsets - tuple of start time offsets for each event stream
-                - Default all streams start at the same time
-                - Random : applies a random offset from 0 to the timespan of the longest event stream
-    - check_conflicts - bool, whether or not to check for event collisions
-                        - Slower processing if True and probably uneccessary most of the time
-    - sensor_size - size of the sensor that was used [W,H]
-    - ordering - ordering of the event tuple inside of events, if None
-                 the system will take a guess through
-                 guess_event_ordering_numpy.
+    Args:
+        events: tuple of event streams which are ndarrays of shape [num_events, num_event_channels]
+        offsets: tuple of start time offsets for each event stream:
+                    - Default all streams start at the same time
+                    - Random : applies a random offset from 0 to the timespan of the longest event stream
+        check_conflicts: bool, whether or not to check for event collisions. Slower processing if True and probably uneccessary most of the time
+        sensor_size: size of the sensor that was used [W,H]
+        ordering: ordering of the event tuple inside of events, if None the system
+                  will take a guess through guess_event_ordering_numpy.
 
     Returns:
-    - events - A combined event stream
+        a combined event stream
     """
 
     if ordering is None:
