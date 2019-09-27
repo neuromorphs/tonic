@@ -242,7 +242,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = (stream_1[0], stream_2[0])
 
-        mixed_events_no_offset, _ = F.mix_ev_streams(
+        mixed_events_no_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=None,
             check_conflicts=False,
@@ -250,7 +250,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_xytp[3],
         )
 
-        mixed_events_random_offset, _ = F.mix_ev_streams(
+        mixed_events_random_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets="Random",
             check_conflicts=False,
@@ -258,7 +258,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_xytp[3],
         )
 
-        mixed_events_defined_offset, _ = F.mix_ev_streams(
+        mixed_events_defined_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=(0, 100),
             check_conflicts=False,
@@ -266,7 +266,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_xytp[3],
         )
 
-        mixed_events_conflict, num_conflicts = F.mix_ev_streams(
+        mixed_events_conflict, num_conflicts = F.mix_ev_streams_numpy(
             (stream_1[0], stream_1[0]),
             offsets=None,
             check_conflicts=True,
@@ -304,7 +304,7 @@ class TestFunctionalAPI(unittest.TestCase):
         stream_2 = utils.create_random_input_with_ordering("txyp")
         events = (stream_1[0], stream_2[0])
 
-        mixed_events_no_offset, _ = F.mix_ev_streams(
+        mixed_events_no_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=None,
             check_conflicts=False,
@@ -312,7 +312,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_txyp[3],
         )
 
-        mixed_events_random_offset, _ = F.mix_ev_streams(
+        mixed_events_random_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets="Random",
             check_conflicts=False,
@@ -320,7 +320,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_txyp[3],
         )
 
-        mixed_events_defined_offset, _ = F.mix_ev_streams(
+        mixed_events_defined_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=(0, 100),
             check_conflicts=False,
@@ -328,7 +328,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_txyp[3],
         )
 
-        mixed_events_conflict, num_conflicts = F.mix_ev_streams(
+        mixed_events_conflict, num_conflicts = F.mix_ev_streams_numpy(
             (stream_1[0], stream_1[0]),
             offsets=None,
             check_conflicts=True,
@@ -365,15 +365,15 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_xytp[0].copy()
 
         events = F.refractory_period_numpy(
-            original_events,
+            events=self.random_xytp[0],
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
-            refractory_period=0.1,
+            refractory_period=max(self.random_xytp[0][:, 2]) / 1000,
         )
 
         self.assertTrue(
-            len(events) <= len(original_events),
-            "Result can not be longer than original event stream",
+            len(events) < len(original_events),
+            "Result should be fewer events than original event stream",
         )
         self.assertTrue(
             np.isin(events, original_events).all(),
@@ -385,15 +385,15 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_txyp[0].copy()
 
         events = F.refractory_period_numpy(
-            original_events,
+            events=self.random_txyp[0],
             sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
-            refractory_period=10,
+            refractory_period=max(self.random_txyp[0][:, 0]) / 1000,
         )
 
         self.assertTrue(
-            len(events) <= len(original_events),
-            "Result can not be longer than original event stream",
+            len(events) < len(original_events),
+            "Result should be fewer events than original event stream",
         )
         self.assertTrue(
             np.isin(events, original_events).all(),
