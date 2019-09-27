@@ -15,13 +15,11 @@ class IBMGesture(Dataset):
         download: choose to download data or not
     """
 
-    # Train: https://1drv.ms/u/s!Asr9bJkBENkkgalxyTOcGKSBWG3rOQ?e=dDs9Jb
-    # Test : https://1drv.ms/u/s!Asr9bJkBENkkgalwF9rrPL_P6t47ng?e=QOAI67
-    # Train: https://rktdwg.bn.files.1drv.com/y4mr62ZioKqrwsz5Qlp_hPpfW_nZaveyfaxzCi9CQpP3TKpjnGmBTGkJHzhZnxzGslAT_EHdpfMjxN3krXYVhWdqalrH_wGmKSZMiPKGJc2lsz68P71IKTMGn42ZfvT6qf1g_M1dazYVUjfDJ6BD5LefVCcF90vxcsHIqQK0JOonqiHCdBFIBW7f5_2qzcvu5nn/ibmGestureTrain.tar.gz?download&psid=1
-    # Test : https://rktcwg.bn.files.1drv.com/y4mc9Bm7TkqVlFPO_iOErKQl7LJV-CqfcXgxsATXnZLpyMOfxZrEB5RmuDWgkKgYrO8gcoulEL6RxNHgCUOXlxNyI7A1R4pSZbS0G9NPOxbfw50ZgrMVaw91jFfn6Ruh0jJ_fQ_CVPnk776dyhnfCEJ4Z0KDYAJ2JgmaUviHng-inpnz4BvRa4dWrTxMKeMCsl3/ibmGestureTest.tar.gz?download&psid=1
-    base_url = ""
-    test_zip = "https://rktcwg.bn.files.1drv.com/y4mc9Bm7TkqVlFPO_iOErKQl7LJV-CqfcXgxsATXnZLpyMOfxZrEB5RmuDWgkKgYrO8gcoulEL6RxNHgCUOXlxNyI7A1R4pSZbS0G9NPOxbfw50ZgrMVaw91jFfn6Ruh0jJ_fQ_CVPnk776dyhnfCEJ4Z0KDYAJ2JgmaUviHng-inpnz4BvRa4dWrTxMKeMCsl3/ibmGestureTest.tar.gz?download&psid=1"
-    train_zip = "https://rktdwg.bn.files.1drv.com/y4mr62ZioKqrwsz5Qlp_hPpfW_nZaveyfaxzCi9CQpP3TKpjnGmBTGkJHzhZnxzGslAT_EHdpfMjxN3krXYVhWdqalrH_wGmKSZMiPKGJc2lsz68P71IKTMGn42ZfvT6qf1g_M1dazYVUjfDJ6BD5LefVCcF90vxcsHIqQK0JOonqiHCdBFIBW7f5_2qzcvu5nn/ibmGestureTrain.tar.gz?download&psid=1"
+    # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
+    # Test : https://www.neuromorphic-vision.com/public/downloads/ibmGestureTest.tar.gz
+    base_url = "https://www.neuromorphic-vision.com/public/downloads/"
+    test_zip = "ibmGestureTrain.tar.gz"
+    train_zip = "ibmGestureTest.tar.gz"
     test_md5 = "56070E45DADAA85FFF82E0FBFBC06DE5"
     train_md5 = "3A8F0D4120A166BAC7591F77409CB105"
     test_filename = "ibmGestureTest.tar.gz"
