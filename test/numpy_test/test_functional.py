@@ -563,33 +563,70 @@ class TestFunctionalAPI(unittest.TestCase):
 
     def testTimeSkewXytp(self):
         original_events = self.random_xytp[0].copy()
+        offset = 100
+        slower = 3.1
+        quicker = 0.8
 
         events = F.time_skew_numpy(
-            original_events, ordering=self.random_xytp[3], coefficient=3.1, offset=100
+            self.random_xytp[0].copy(),
+            ordering=self.random_xytp[3],
+            coefficient=slower,
+            offset=offset,
         )
-
         self.assertTrue(len(events) == len(original_events))
-        self.assertTrue((events[:, 2] >= original_events[:, 2]).all())
-        self.assertTrue(np.min(events[:, 2]) >= 0)
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
+        self.assertTrue((events[:, 2] - offset > original_events[:, 2]).all())
+        self.assertTrue(np.min(events[:, 2]) >= offset)
+        self.assertTrue(events.dtype == original_events.dtype)
+
+        events = F.time_skew_numpy(
+            self.random_xytp[0].copy(),
+            ordering=self.random_xytp[3],
+            coefficient=quicker,
+            offset=offset,
+        )
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue((events[:, 2] - offset < original_events[:, 2]).all())
+        self.assertTrue(np.min(events[:, 2]) >= offset)
+        self.assertTrue(events.dtype == original_events.dtype)
 
     def testTimeSkewTxyp(self):
         original_events = self.random_txyp[0].copy()
+        offset = 100
+        slower = 3.1
+        quicker = 0.8
 
         events = F.time_skew_numpy(
-            original_events, ordering=self.random_txyp[3], coefficient=3.1, offset=100
+            self.random_txyp[0].copy(),
+            ordering=self.random_txyp[3],
+            coefficient=slower,
+            offset=offset,
         )
-
+        nonzero = np.nonzero(events[:, 0] - offset)
         self.assertTrue(len(events) == len(original_events))
-        self.assertTrue((events[:, 0] >= original_events[:, 0]).all())
-        self.assertTrue(np.min(events[:, 0]) >= 0)
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
+        self.assertTrue(
+            (events[:, 0][nonzero] - offset > original_events[:, 0][nonzero]).all()
+        )
+        self.assertTrue(np.min(events[:, 0][nonzero]) > offset)
+        self.assertTrue(events.dtype == original_events.dtype)
+
+        events = F.time_skew_numpy(
+            self.random_txyp[0].copy(),
+            ordering=self.random_txyp[3],
+            coefficient=quicker,
+            offset=offset,
+        )
+        self.assertTrue(len(events) == len(original_events))
+        self.assertTrue(
+            (events[:, 0][nonzero] - offset <= original_events[:, 0][nonzero]).all()
+        )
+        self.assertTrue(np.min(events[:, 0][nonzero]) > offset)
+        self.assertTrue(events.dtype == original_events.dtype)
 
     def testUniformNoiseXytp(self):
         original_events = self.random_xytp[0].copy()
 
         noisy_events = F.uniform_noise_numpy(
-            original_events,
+            self.random_xytp[0],
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
             scaling_factor_to_micro_sec=1000000,
@@ -603,7 +640,7 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_txyp[0].copy()
 
         noisy_events = F.uniform_noise_numpy(
-            original_events,
+            self.random_txyp[0],
             sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
             scaling_factor_to_micro_sec=1000000,
