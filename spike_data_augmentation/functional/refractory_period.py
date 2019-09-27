@@ -46,9 +46,7 @@ def refractory_period_numpy(
         )
         if time_since_last_spike > refractory_period:
             events_copy[copy_index] = event
-            copy_index = copy_index + 1
-            timestamp_memory[int(event[x_index]), int(event[y_index])] = event[t_index]
+            copy_index += 1
+        timestamp_memory[int(event[x_index]), int(event[y_index])] = event[t_index]
 
-    events_copy = np.delete(events_copy, np.arange(copy_index, len(events)), axis=0)
-
-    return events_copy
+    return events_copy[:copy_index]

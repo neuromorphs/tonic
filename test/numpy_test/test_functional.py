@@ -365,15 +365,15 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_xytp[0].copy()
 
         events = F.refractory_period_numpy(
-            original_events,
+            events=self.random_xytp[0],
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
-            refractory_period=0.1,
+            refractory_period=max(self.random_xytp[0][:, 2]) / 1000,
         )
 
         self.assertTrue(
-            len(events) <= len(original_events),
-            "Result can not be longer than original event stream",
+            len(events) < len(original_events),
+            "Result should be fewer events than original event stream",
         )
         self.assertTrue(
             np.isin(events, original_events).all(),
@@ -385,15 +385,15 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_txyp[0].copy()
 
         events = F.refractory_period_numpy(
-            original_events,
+            events=self.random_txyp[0],
             sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
-            refractory_period=10,
+            refractory_period=max(self.random_txyp[0][:, 0]) / 1000,
         )
 
         self.assertTrue(
-            len(events) <= len(original_events),
-            "Result can not be longer than original event stream",
+            len(events) < len(original_events),
+            "Result should be fewer events than original event stream",
         )
         self.assertTrue(
             np.isin(events, original_events).all(),
