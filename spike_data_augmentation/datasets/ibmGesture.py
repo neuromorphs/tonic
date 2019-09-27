@@ -18,8 +18,8 @@ class IBMGesture(Dataset):
     # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
     # Test : https://www.neuromorphic-vision.com/public/downloads/ibmGestureTest.tar.gz
     base_url = "https://www.neuromorphic-vision.com/public/downloads/"
-    test_zip = "ibmGestureTrain.tar.gz"
-    train_zip = "ibmGestureTest.tar.gz"
+    test_zip = base_url + "ibmGestureTest.tar.gz"
+    train_zip = base_url + "ibmGestureTrain.tar.gz"
     test_md5 = "56070E45DADAA85FFF82E0FBFBC06DE5"
     train_md5 = "3A8F0D4120A166BAC7591F77409CB105"
     test_filename = "ibmGestureTest.tar.gz"
