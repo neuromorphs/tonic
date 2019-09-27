@@ -242,7 +242,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = (stream_1[0], stream_2[0])
 
-        mixed_events_no_offset, _ = F.mix_ev_streams(
+        mixed_events_no_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=None,
             check_conflicts=False,
@@ -250,7 +250,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_xytp[3],
         )
 
-        mixed_events_random_offset, _ = F.mix_ev_streams(
+        mixed_events_random_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets="Random",
             check_conflicts=False,
@@ -258,7 +258,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_xytp[3],
         )
 
-        mixed_events_defined_offset, _ = F.mix_ev_streams(
+        mixed_events_defined_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=(0, 100),
             check_conflicts=False,
@@ -266,7 +266,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_xytp[3],
         )
 
-        mixed_events_conflict, num_conflicts = F.mix_ev_streams(
+        mixed_events_conflict, num_conflicts = F.mix_ev_streams_numpy(
             (stream_1[0], stream_1[0]),
             offsets=None,
             check_conflicts=True,
@@ -304,7 +304,7 @@ class TestFunctionalAPI(unittest.TestCase):
         stream_2 = utils.create_random_input_with_ordering("txyp")
         events = (stream_1[0], stream_2[0])
 
-        mixed_events_no_offset, _ = F.mix_ev_streams(
+        mixed_events_no_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=None,
             check_conflicts=False,
@@ -312,7 +312,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_txyp[3],
         )
 
-        mixed_events_random_offset, _ = F.mix_ev_streams(
+        mixed_events_random_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets="Random",
             check_conflicts=False,
@@ -320,7 +320,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_txyp[3],
         )
 
-        mixed_events_defined_offset, _ = F.mix_ev_streams(
+        mixed_events_defined_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=(0, 100),
             check_conflicts=False,
@@ -328,7 +328,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ordering=self.random_txyp[3],
         )
 
-        mixed_events_conflict, num_conflicts = F.mix_ev_streams(
+        mixed_events_conflict, num_conflicts = F.mix_ev_streams_numpy(
             (stream_1[0], stream_1[0]),
             offsets=None,
             check_conflicts=True,
