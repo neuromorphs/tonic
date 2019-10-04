@@ -7,3 +7,12 @@ class Dataset:
 
     def __repr__(self):
         return "Dataset " + self.__class__.__name__
+
+    def total_number_of_events(self):
+        if self.data == []:
+            return None
+        else:
+            total_number_of_events = 0
+            for recording in self.data:
+                total_number_of_events += len(recording)
+            return total_number_of_events
