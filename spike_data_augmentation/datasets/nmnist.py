@@ -38,8 +38,12 @@ class NMNIST(Dataset):
     sensor_size = (34, 34)
     ordering = "xytp"
 
-    def __init__(self, save_to, train=True, transform=None, download=False):
-        super(NMNIST, self).__init__(save_to, transform=transform)
+    def __init__(
+        self, save_to, train=True, transform=None, representation=None, download=False
+    ):
+        super(NMNIST, self).__init__(
+            save_to, transform=transform, representation=representation
+        )
 
         self.train = train
         self.location_on_system = save_to
@@ -78,6 +82,8 @@ class NMNIST(Dataset):
         events, target = self.data[index], self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
+        if self.representation is not None:
+            events = self.representation(events, self.sensor_size, self.ordering)
         return events, target
 
     def __len__(self):

@@ -41,8 +41,12 @@ class IBMGesture(Dataset):
     sensor_size = (128, 128)
     ordering = "xypt"
 
-    def __init__(self, save_to, train=True, transform=None, download=False):
-        super(IBMGesture, self).__init__(save_to, transform=transform)
+    def __init__(
+        self, save_to, train=True, transform=None, representation=None, download=False
+    ):
+        super(IBMGesture, self).__init__(
+            save_to, transform=transform, representation=representation
+        )
         # We will not be loading everything into memory. Instead, we will keep a list of samples into file
         # Could have reused self.data for that purpose as well.
         self.samples = []
@@ -83,6 +87,8 @@ class IBMGesture(Dataset):
         target = self.targets[index]
         if self.transform is not None:
             event = self.transform(event, self.sensor_size, self.ordering)
+        if self.representation is not None:
+            events = self.representation(events, self.sensor_size, self.ordering)
         return event, target
 
     def __len__(self):
