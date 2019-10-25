@@ -41,7 +41,7 @@ transform = transforms.Compose([transforms.TimeJitter(variance=100)])
 representation = representations.Timesurface(surface_dimensions=(7,7), tau=5e3, decay='lin')
 
 testset = spike_data_augmentation.datasets.NMNIST(save_to='./data', train=False, download=True,
-                                                  transform=transform, # will be applied before representation 
+                                                  transform=transform, # will be applied before representation
                                                   representation=representation)
 
 testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
@@ -64,7 +64,7 @@ firefox _build/html/index.html
 - [ASL-DVS](https://github.com/PIX2NVS/NVS2Graph)
 - [NCARS](https://www.prophesee.ai/dataset-n-cars/)
 - [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)
-- [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html)
+- [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html) (\*)
 - [IBM gestures](http://www.research.ibm.com/dvsgesture/) (\*)
 - [ATIS planes](https://www.westernsydney.edu.au/bens/home/reproducible_research/atis_planes)
 - NTI Digits
