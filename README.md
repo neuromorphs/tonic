@@ -30,6 +30,26 @@ for events, label in iter(testloader):
     print("label: " + str(label))
 ```
 
+### Choose representations
+If you want to use something else than raw events, you can choose a different representation. Currently supported: Timesurfaces
+```python
+import spike_data_augmentation
+import spike_data_augmentation.transforms as transforms
+import spike_data_augmentation.representations as representations
+
+transform = transforms.Compose([transforms.TimeJitter(variance=100)])
+representation = representations.Timesurface(surface_dimensions=(7,7), tau=5e3, decay='lin')
+
+testset = spike_data_augmentation.datasets.NMNIST(save_to='./data', train=False, download=True,
+                                                  transform=transform, # will be applied before representation 
+                                                  representation=representation)
+
+testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
+
+for surfaces, label in iter(testloader):
+    print("surfaces shape: " + str(surfaces.shape))
+```
+
 ## Documentation
 This repo will stay private until publication. It is therefore necessary to build documentation locally. Just run the following commands to do that after having made sure that you are on the latest master branch:
 ```bash
