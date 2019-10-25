@@ -15,3 +15,5 @@ The User Guide
    :maxdepth: 2
 
    methods-index
+
+   representations-index

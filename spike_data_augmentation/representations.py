@@ -2,6 +2,18 @@ import numpy as np
 
 
 class Timesurface(object):
+    """Representation that creates timesurfaces for each event for one recording.
+
+    Args:
+        surface_dimensions (int, int): width does not have to be equal to height, however both numbers have to be odd.
+        tau (float): time constant to decay events around occuring event with.
+        decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
+        merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
+
+    Returns:
+        array of timesurfaces with dimensions (w,h)
+    """
+
     def __init__(
         self, surface_dimensions=(7, 7), tau=5e3, decay="lin", merge_polarities=False
     ):
