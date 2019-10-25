@@ -83,13 +83,13 @@ class IBMGesture(Dataset):
                     self.targets.append(int(file[:-4]))
 
     def __getitem__(self, index):
-        event = np.load(self.samples[index])
+        events = np.load(self.samples[index])
         target = self.targets[index]
         if self.transform is not None:
-            event = self.transform(event, self.sensor_size, self.ordering)
+            events = self.transform(events, self.sensor_size, self.ordering)
         if self.representation is not None:
             events = self.representation(events, self.sensor_size, self.ordering)
-        return event, target
+        return events, target
 
     def __len__(self):
         return len(self.samples)
