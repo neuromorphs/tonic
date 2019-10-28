@@ -14,7 +14,7 @@ import os
 import sys
 
 # sys.path.insert(0, os.path.abspath('../../spike-data-augmentation'))
-sys.path.append(os.path.join(os.path.dirname(__name__), ".."))
+sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
@@ -33,6 +33,7 @@ release = "0.0.2"
 # ones.
 extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon"]
 
+# Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 
@@ -44,13 +45,22 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 html_theme = "alabaster"
+
+html_theme_options = {
+    #    'logo': 'images/logo.png',
+    "description": "Augmentation for spike recordings",
+    "github_button": True,
+    "github_user": "neuromorphs",
+    "github_repo": "spike-data-augmentation",
+    "travis_button": True,
+    "codecov_button": True,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

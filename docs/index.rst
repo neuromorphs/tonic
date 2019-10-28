@@ -9,11 +9,13 @@ Welcome to Telluride data augmentation's documentation!
 **Telluride Spike Augmentation** is a tool to reduce overfitting in learning algorithms by providing implementations of data augmentation methods for event/spike recordings.
 
 -------------------
-The User Guide
---------------
+API Reference
+-------------
+
+If you are looking for information about a specific function, class, or method,
+this documentation section will help you.
+
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 3
 
-   methods-index
-
-   representations-index
+  references/index.rst
