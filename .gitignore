@@ -126,3 +126,7 @@ dmypy.json
 
 # vim swap files
 *.swp
+
+# slayer checkpoints
+checkpoint*.pt
+slayerScripts/*/data

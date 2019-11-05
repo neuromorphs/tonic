@@ -1,0 +1,16 @@
+simulation:
+    Ts: 1.0
+    tSample: 300
+neuron:
+  type    : SRMALPHA
+  theta   : 10
+  tauSr   : 5.0
+  tauRef  : 5.0
+  scaleRef: 2
+  tauRho  : 0.1
+  scaleRho: 0.1
+training:
+    error:
+        type: NumSpikes #ProbSpikes #NumSpikes
+        tgtSpikeRegion: {start: 0, stop: 300}    # only valid for NumSpikes and ProbSpikes
+        tgtSpikeCount: {true: 100, false: 20}    # only valid for NumSpikes
