@@ -39,7 +39,13 @@ class NMNIST(Dataset):
     ordering = "xytp"
 
     def __init__(
-        self, save_to, train=True, transform=None, representation=None, download=False
+        self,
+        save_to,
+        train=True,
+        transform=None,
+        representation=None,
+        download=False,
+        first_saccade_only=False,
     ):
         super(NMNIST, self).__init__(
             save_to, transform=transform, representation=representation
@@ -47,6 +53,7 @@ class NMNIST(Dataset):
 
         self.train = train
         self.location_on_system = save_to
+        self.first_saccade_only = first_saccade_only
 
         if train:
             self.url = self.train_zip
@@ -122,6 +129,9 @@ class NMNIST(Dataset):
 
         # Everything else is a proper td spike
         td_indices = np.where(all_y != 240)[0]
+
+        if self.first_saccade_only:
+            td_indices = np.where(all_ts < 100000)[0]
 
         td = np.empty([td_indices.size, 4], dtype=np.int32)
         td[:, 0] = all_x[td_indices]
