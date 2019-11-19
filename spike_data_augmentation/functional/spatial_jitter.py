@@ -4,14 +4,15 @@ from .utils import guess_event_ordering_numpy
 
 
 def spatial_jitter_numpy(
-    events, ordering=None, variance_x=1, variance_y=1, sigma_x_y=0
+    events, sensor_size, ordering=None, variance_x=1, variance_y=1, sigma_x_y=0
 ):
     """Changes position for each pixel by drawing samples from a multivariate
     Gaussian distribution with the following properties:
 
         mean = [x,y]
-
         covariance matrix = [[variance_x, sigma_x_y],[sigma_x_y, variance_y]]
+
+    Jittered events that lie outside the focal plane will be clipped.
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
@@ -44,5 +45,13 @@ def spatial_jitter_numpy(
     else:
         events[:, x_index] += shifts[:, 0]
         events[:, y_index] += shifts[:, 1]
+
+    x_array = events[:, x_index]
+    y_array = events[:, y_index]
+
+    x_array[x_array < 0] = 0
+    x_array[x_array > sensor_size[0]] = sensor_size[0]
+    y_array[y_array < 0] = 0
+    y_array[y_array > sensor_size[1]] = sensor_size[1]
 
     return events

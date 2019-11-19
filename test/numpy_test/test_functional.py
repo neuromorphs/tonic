@@ -407,6 +407,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = F.spatial_jitter_numpy(
             self.random_xytp[0],
+            sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
             variance_x=variance,
             variance_y=variance,
@@ -421,9 +422,13 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 0].all(), original_events[:, 0].all(), atol=variance)
         )
+        self.assertTrue((events[:, 0] >= 0).all())
+        self.assertTrue((events[:, 0] <= self.random_xytp[2][0]).all())
         self.assertTrue(
             np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
         )
+        self.assertTrue((events[:, 1] >= 0).all())
+        self.assertTrue((events[:, 1] <= self.random_xytp[2][1]).all())
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testSpatialJitterTxyp(self):
@@ -432,6 +437,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = F.spatial_jitter_numpy(
             self.random_txyp[0],
+            sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
             variance_x=variance,
             variance_y=variance,
@@ -446,9 +452,13 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
         )
+        self.assertTrue((events[:, 1] >= 0).all())
+        self.assertTrue((events[:, 1] <= self.random_txyp[2][0]).all())
         self.assertTrue(
             np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
         )
+        self.assertTrue((events[:, 2] >= 0).all())
+        self.assertTrue((events[:, 2] <= self.random_txyp[2][1]).all())
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testStTransformXytp(self):
