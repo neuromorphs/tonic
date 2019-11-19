@@ -46,12 +46,12 @@ def spatial_jitter_numpy(
         events[:, x_index] += shifts[:, 0]
         events[:, y_index] += shifts[:, 1]
 
-    x_array = events[:, x_index]
-    y_array = events[:, y_index]
+    xs = events[:, x_index]
+    ys = events[:, y_index]
 
-    x_array[x_array < 0] = 0
-    x_array[x_array > sensor_size[0]] = sensor_size[0]
-    y_array[y_array < 0] = 0
-    y_array[y_array > sensor_size[1]] = sensor_size[1]
+    xs[xs < 0] = 0
+    xs[xs > sensor_size[0]] = sensor_size[0]
+    ys[ys < 0] = 0
+    ys[ys > sensor_size[1]] = sensor_size[1]
 
     return events
