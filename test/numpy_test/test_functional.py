@@ -498,6 +498,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue((events[:, 0] == original_events[:, 0]).all())
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertFalse((events[:, 2] == original_events[:, 2]).all())
+        self.assertTrue((events[:, 2] >= 0).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
@@ -510,6 +511,7 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(len(events) == len(original_events))
         self.assertFalse((events[:, 0] == original_events[:, 0]).all())
+        self.assertTrue((events[:, 0] >= 0).all())
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertTrue((events[:, 2] == original_events[:, 2]).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())

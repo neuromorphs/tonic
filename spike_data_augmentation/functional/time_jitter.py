@@ -8,15 +8,15 @@ def time_jitter_numpy(events, ordering=None, variance=1):
     Gaussian distribution with the following properties:
 
         mean = [t]
-
         variance = variance
+
+    Automatically clipping negative timestamps.
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
         ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 'x'
-                  and 'y' to be in the ordering
+                  the system will take a guess. This function requires 't'
+                  to be in the ordering
         variance: change the variance of the time jitter
 
     Returns:
@@ -34,5 +34,8 @@ def time_jitter_numpy(events, ordering=None, variance=1):
         events[:, t_index] += shifts.round().astype(np.int)
     else:
         events[:, t_index] += shifts
+
+    times = events[:, t_index]
+    times[times < 0] = 0
 
     return events
