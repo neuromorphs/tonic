@@ -236,6 +236,50 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
+    def testMaskIsolatedxytp(self):
+        original_events = self.random_xytp[0].copy()
+        filter_time = max(self.random_xytp[0][:, 2]) / 10
+
+        events = F.mask_isolated_numpy(
+            self.random_xytp[0],
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            filter_time=filter_time,
+        )
+
+        self.assertTrue(len(events) > 0, "Not all events should be filtered")
+        self.assertTrue(
+            len(events) < len(original_events),
+            "Result should be fewer events than original event stream",
+        )
+        self.assertTrue(
+            np.isin(events, original_events).all(),
+            "Added additional events that were not present in original event stream",
+        )
+        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
+
+    def testMaskIsolatedtxyp(self):
+        original_events = self.random_txyp[0].copy()
+        filter_time = max(self.random_txyp[0][:, 0]) / 10
+
+        events = F.mask_isolated_numpy(
+            self.random_txyp[0],
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+            filter_time=filter_time,
+        )
+
+        self.assertTrue(len(events) > 0, "Not all events should be filtered")
+        self.assertTrue(
+            len(events) < len(original_events),
+            "Result should be fewer events than original event stream",
+        )
+        self.assertTrue(
+            np.isin(events, original_events).all(),
+            "Added additional events that were not present in original event stream",
+        )
+        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
+
     def testMixEvXytp(self):
         stream_1 = utils.create_random_input_with_ordering("xytp")
         stream_2 = utils.create_random_input_with_ordering("xytp")
@@ -371,6 +415,7 @@ class TestFunctionalAPI(unittest.TestCase):
             refractory_period=max(self.random_xytp[0][:, 2]) / 1000,
         )
 
+        self.assertTrue(len(events) > 0, "Not all events should be filtered")
         self.assertTrue(
             len(events) < len(original_events),
             "Result should be fewer events than original event stream",
@@ -391,6 +436,7 @@ class TestFunctionalAPI(unittest.TestCase):
             refractory_period=max(self.random_txyp[0][:, 0]) / 1000,
         )
 
+        self.assertTrue(len(events) > 0, "Not all events should be filtered")
         self.assertTrue(
             len(events) < len(original_events),
             "Result should be fewer events than original event stream",

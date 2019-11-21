@@ -87,6 +87,17 @@ class FlipUD(object):
         )
 
 
+class MaskIsolated(object):
+    def __init__(self, time_filter=10000):
+        self.time_filter = time_filter
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        events = functional.mask_isolated_numpy(
+            events, sensor_size, ordering, self.time_filter
+        )
+        return events, images
+
+
 class RefractoryPeriod(object):
     def __init__(self, refractory_period=0.5):
         self.refractory_period = refractory_period
