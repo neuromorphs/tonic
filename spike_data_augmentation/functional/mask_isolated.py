@@ -6,8 +6,9 @@ from .utils import guess_event_ordering_numpy
 def mask_isolated_numpy(
     events, sensor_size=(346, 260), ordering=None, filter_time=10000
 ):
-    """Drops events that have no spatiotemporal neighbour within one pixel
-    and filter_time time units. Useful to filter noisy recordings.
+    """Drops events that are 'not sufficiently connected to other events in the recording.'
+    In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
+    of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to filter noisy recordings.
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
@@ -16,10 +17,11 @@ def mask_isolated_numpy(
                   the system will take a guess through
                   guess_event_ordering_numpy. This function requires 'x',
                   'y' and 't' to be in the ordering
-        filter_time: maximum temporal distance to next event, otherwise dropped
+        filter_time: maximum temporal distance to next event, otherwise dropped.
+                    Lower values will mean higher constraints, therefore less events.
 
     Returns:
-        Noise filtered events.
+        filtered set of events.
     """
 
     if ordering is None:

@@ -22,7 +22,7 @@ def refractory_period_numpy(
         refractory_period: refractory period for each pixel in seconds
 
     Returns:
-        reduced set of events.
+        filtered set of events.
     """
 
     if ordering is None:

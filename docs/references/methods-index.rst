@@ -10,6 +10,7 @@ Augmentation methods numpy
    methods/flip_lr
    methods/flip_polarity
    methods/flip_ud
+   methods/mask_isolated
    methods/mix_ev_streams
    methods/refractory_period
    methods/spatial_jitter
