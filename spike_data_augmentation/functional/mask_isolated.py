@@ -34,7 +34,7 @@ def mask_isolated_numpy(
     copy_index = 0
     width = int(sensor_size[0])
     height = int(sensor_size[1])
-    timestamp_memory = np.zeros((width, height), dtype=events.dtype)
+    timestamp_memory = np.zeros((width, height), dtype=events.dtype) + filter_time
 
     for event in events:
         x = int(event[x_index])
