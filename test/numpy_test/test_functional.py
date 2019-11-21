@@ -412,6 +412,8 @@ class TestFunctionalAPI(unittest.TestCase):
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
+            integer_coordinates=True,
+            clip_outliers=False,
         )
 
         self.assertTrue(len(events) == len(original_events))
@@ -442,6 +444,8 @@ class TestFunctionalAPI(unittest.TestCase):
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
+            integer_coordinates=True,
+            clip_outliers=False,
         )
 
         self.assertTrue(len(events) == len(original_events))
@@ -501,7 +505,11 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_xytp[0].copy()
         variance = max(self.random_xytp[0][:, 2]) / 10
         events = F.time_jitter_numpy(
-            self.random_xytp[0], ordering=self.random_xytp[3], variance=variance
+            self.random_xytp[0],
+            ordering=self.random_xytp[3],
+            variance=variance,
+            integer_timestamps=False,
+            clip_negative=False,
         )
 
         self.assertTrue(len(events) == len(original_events))
@@ -516,7 +524,11 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_txyp[0].copy()
         variance = max(self.random_txyp[0][:, 0]) / 10
         events = F.time_jitter_numpy(
-            self.random_txyp[0], ordering=self.random_txyp[3], variance=variance
+            self.random_txyp[0],
+            ordering=self.random_txyp[3],
+            variance=variance,
+            integer_timestamps=False,
+            clip_negative=False,
         )
 
         self.assertTrue(len(events) == len(original_events))

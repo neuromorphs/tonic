@@ -14,7 +14,9 @@ class TestTransforms(unittest.TestCase):
         events = self.random_xytp[0].copy()
         images = None
         variance = max(self.random_xytp[0][:, 2]) / 10
-        transform = transforms.Compose([transforms.TimeJitter(variance=variance)])
+        transform = transforms.Compose(
+            [transforms.TimeJitter(variance=variance, clip_negative=False)]
+        )
         transform(
             events=events, sensor_size=self.random_xytp[2], ordering=self.random_xytp[3]
         )
@@ -42,7 +44,10 @@ class TestTransforms(unittest.TestCase):
             [
                 transforms.TimeReversal(flip_probability=flip_probability),
                 transforms.SpatialJitter(
-                    variance_x=variance_x, variance_y=variance_y, sigma_x_y=sigma_x_y
+                    variance_x=variance_x,
+                    variance_y=variance_y,
+                    sigma_x_y=sigma_x_y,
+                    clip_outliers=False,
                 ),
             ]
         )
