@@ -453,10 +453,13 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = F.spatial_jitter_numpy(
             self.random_xytp[0],
+            sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
+            integer_coordinates=True,
+            clip_outliers=False,
         )
 
         self.assertTrue(len(events) == len(original_events))
@@ -467,9 +470,13 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 0].all(), original_events[:, 0].all(), atol=variance)
         )
+        self.assertTrue((events[:, 0] >= 0).all())
+        self.assertTrue((events[:, 0] <= self.random_xytp[2][0]).all())
         self.assertTrue(
             np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
         )
+        self.assertTrue((events[:, 1] >= 0).all())
+        self.assertTrue((events[:, 1] <= self.random_xytp[2][1]).all())
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testSpatialJitterTxyp(self):
@@ -478,10 +485,13 @@ class TestFunctionalAPI(unittest.TestCase):
 
         events = F.spatial_jitter_numpy(
             self.random_txyp[0],
+            sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
+            integer_coordinates=True,
+            clip_outliers=False,
         )
 
         self.assertTrue(len(events) == len(original_events))
@@ -492,9 +502,13 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
         )
+        self.assertTrue((events[:, 1] >= 0).all())
+        self.assertTrue((events[:, 1] <= self.random_txyp[2][0]).all())
         self.assertTrue(
             np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
         )
+        self.assertTrue((events[:, 2] >= 0).all())
+        self.assertTrue((events[:, 2] <= self.random_txyp[2][1]).all())
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testStTransformXytp(self):
@@ -537,13 +551,18 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_xytp[0].copy()
         variance = max(self.random_xytp[0][:, 2]) / 10
         events = F.time_jitter_numpy(
-            self.random_xytp[0], ordering=self.random_xytp[3], variance=variance
+            self.random_xytp[0],
+            ordering=self.random_xytp[3],
+            variance=variance,
+            integer_timestamps=False,
+            clip_negative=False,
         )
 
         self.assertTrue(len(events) == len(original_events))
         self.assertTrue((events[:, 0] == original_events[:, 0]).all())
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertFalse((events[:, 2] == original_events[:, 2]).all())
+        self.assertTrue((events[:, 2] >= 0).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
@@ -551,11 +570,16 @@ class TestFunctionalAPI(unittest.TestCase):
         original_events = self.random_txyp[0].copy()
         variance = max(self.random_txyp[0][:, 0]) / 10
         events = F.time_jitter_numpy(
-            self.random_txyp[0], ordering=self.random_txyp[3], variance=variance
+            self.random_txyp[0],
+            ordering=self.random_txyp[3],
+            variance=variance,
+            integer_timestamps=False,
+            clip_negative=False,
         )
 
         self.assertTrue(len(events) == len(original_events))
         self.assertFalse((events[:, 0] == original_events[:, 0]).all())
+        self.assertTrue((events[:, 0] >= 0).all())
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertTrue((events[:, 2] == original_events[:, 2]).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())

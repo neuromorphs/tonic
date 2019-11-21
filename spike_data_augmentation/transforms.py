@@ -110,14 +110,30 @@ class RefractoryPeriod(object):
 
 
 class SpatialJitter(object):
-    def __init__(self, variance_x=1, variance_y=1, sigma_x_y=0):
+    def __init__(
+        self,
+        variance_x=1,
+        variance_y=1,
+        sigma_x_y=0,
+        integer_coordinates=True,
+        clip_outliers=True,
+    ):
         self.variance_x = variance_x
         self.variance_y = variance_y
         self.sigma_x_y = sigma_x_y
+        self.integer_coordinates = integer_coordinates
+        self.clip_outliers = clip_outliers
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.spatial_jitter_numpy(
-            events, ordering, self.variance_x, self.variance_y, self.sigma_x_y
+            events,
+            sensor_size,
+            ordering,
+            self.variance_x,
+            self.variance_y,
+            self.sigma_x_y,
+            self.integer_coordinates,
+            self.clip_outliers,
         )
         return events, images
 
@@ -141,11 +157,15 @@ class SpatioTemporalTransform(object):
 
 
 class TimeJitter(object):
-    def __init__(self, variance=1):
+    def __init__(self, variance=1, integer_timestamps=False, clip_negative=True):
         self.variance = variance
+        self.integer_timestamps = integer_timestamps
+        self.clip_negative = clip_negative
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.time_jitter_numpy(events, ordering, self.variance)
+        events = functional.time_jitter_numpy(
+            events, ordering, self.variance, self.integer_timestamps, self.clip_negative
+        )
         return events, images
 
 
