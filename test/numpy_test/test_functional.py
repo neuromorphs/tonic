@@ -692,6 +692,42 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(np.min(events[:, 0][nonzero]) > offset)
         self.assertTrue(events.dtype == original_events.dtype)
 
+    def testToTimesurfaceXytp(self):
+        original_events = self.random_xytp[0].copy()
+        surf_dims = (5, 5)
+        tau = 100
+        merge_polarities = True
+
+        surfaces = F.to_timesurface_numpy(
+            events=self.random_xytp[0].copy(),
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            surface_dimensions=surf_dims,
+            tau=tau,
+            merge_polarities=merge_polarities,
+        )
+        self.assertEqual(surfaces.shape[0], len(original_events))
+        self.assertEqual(surfaces.shape[1], 1)
+        self.assertEqual(surfaces.shape[2:], surf_dims)
+
+    def testToTimesurfaceTyxp(self):
+        original_events = self.random_txyp[0].copy()
+        surf_dims = (5, 5)
+        tau = 100
+        merge_polarities = False
+
+        surfaces = F.to_timesurface_numpy(
+            events=self.random_txyp[0].copy(),
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+            surface_dimensions=surf_dims,
+            tau=tau,
+            merge_polarities=merge_polarities,
+        )
+        self.assertEqual(surfaces.shape[0], len(original_events))
+        self.assertEqual(surfaces.shape[1], 2)
+        self.assertEqual(surfaces.shape[2:], surf_dims)
+
     def testUniformNoiseXytp(self):
         original_events = self.random_xytp[0].copy()
 

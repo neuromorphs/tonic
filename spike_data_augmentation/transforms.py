@@ -189,3 +189,27 @@ class TimeSkew(object):
             events, ordering, self.coefficient, self.offset
         )
         return events, images
+
+
+class ToTimesurface(object):
+    def __init__(
+        self, surface_dimensions=(7, 7), tau=5e3, decay="lin", merge_polarities=False
+    ):
+        assert len(surface_dimensions) == 2
+        assert surface_dimensions[0] % 2 == 1 and surface_dimensions[1] % 2 == 1
+        self.surface_dimensions = surface_dimensions
+        self.tau = tau
+        self.decay = decay
+        self.merge_polarities = merge_polarities
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        surfaces = functional.to_timesurface_numpy(
+            events,
+            sensor_size,
+            ordering,
+            self.surface_dimensions,
+            self.tau,
+            self.decay,
+            self.merge_polarities,
+        )
+        return surfaces, images

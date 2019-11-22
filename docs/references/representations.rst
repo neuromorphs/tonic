@@ -1,10 +1,10 @@
 Represenations for events
 ==========================
 
-spike_data_augmentation.representations
----------------------------------------
+Timesurfaces
+--------------
 
-.. automodule:: spike_data_augmentation.representations
+.. automodule:: spike_data_augmentation.functional.to_timesurface
     :members:
     :undoc-members:
     :show-inheritance:
