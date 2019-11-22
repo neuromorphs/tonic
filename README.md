@@ -15,10 +15,10 @@ import spike_data_augmentation
 import spike_data_augmentation.transforms as transforms
 
 transform = transforms.Compose([transforms.TimeJitter(variance=100),
-                                transforms.FlipLR(flip_probability=0.5),])
-
-# add representation at the end if desired
-transform.transforms += [transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3, decay='lin')]
+                                transforms.FlipLR(flip_probability=0.5),
+                                transforms.ToTimesurface(surface_dimensions=(7,7),
+                                                         tau=5e3,
+                                                         decay='lin'),])
 
 testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
                                                   train=False,
@@ -27,7 +27,7 @@ testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
 
 testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
 
-for events, label in iter(testloader):
+for surfaces, label in iter(testloader):
     print("label: " + str(label))
 ```
 
