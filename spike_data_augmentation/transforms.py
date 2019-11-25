@@ -212,4 +212,4 @@ class ToTimesurface(object):
             self.decay,
             self.merge_polarities,
         )
-        return surfaces, images
+        return surfaces
