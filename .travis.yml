@@ -1,0 +1,12 @@
+dist: xenial   # required for Python >= 3.7
+
+language: python
+
+install:
+  - python setup.py install
+
+before_script:
+  - pip install pytest
+
+script:
+  - python -m pytest --capture=no
