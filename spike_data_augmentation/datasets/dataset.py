@@ -1,19 +1,26 @@
+from .utils import check_integrity, download_and_extract_archive
+
+
 class Dataset:
-    def __init__(self, save_to="./", transform=None, representation=None):
+    def __init__(self, save_to="./", transform=None, target_transform=None):
         self.location_on_system = save_to
         self.transform = transform
-        self.representation = representation
+        self.target_transform = target_transform
         self.data = []
         self.targets = []
 
     def __repr__(self):
         return "Dataset " + self.__class__.__name__
 
-    def total_number_of_events(self):
-        if self.data == []:
-            return None
-        else:
-            total_number_of_events = 0
-            for recording in self.data:
-                total_number_of_events += len(recording)
-            return total_number_of_events
+    def download(self):
+        download_and_extract_archive(
+            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+        )
+
+    def check_integrity(self):
+        root = self.location_on_system
+        fpath = os.path.join(root, self.filename)
+
+        if not check_integrity(fpath, self.file_md5):
+            return False
+        return True

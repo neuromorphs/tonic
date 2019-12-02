@@ -2,7 +2,6 @@ import os
 import os.path
 import numpy as np
 from .dataset import Dataset
-from .utils import check_integrity, download_and_extract_archive
 
 
 class NMNIST(Dataset):
@@ -42,13 +41,13 @@ class NMNIST(Dataset):
         self,
         save_to,
         train=True,
+        download=True,
         transform=None,
-        representation=None,
-        download=False,
+        target_transform=None,
         first_saccade_only=False,
     ):
         super(NMNIST, self).__init__(
-            save_to, transform=transform, representation=representation
+            save_to, transform=transform, target_transform=target_transform
         )
 
         self.train = train
@@ -69,7 +68,7 @@ class NMNIST(Dataset):
         if download:
             self.download()
 
-        if not self._check_integrity():
+        if not self.check_integrity():
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -89,24 +88,12 @@ class NMNIST(Dataset):
         events, target = self.data[index], self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
-        if self.representation is not None:
-            events = self.representation(events, self.sensor_size, self.ordering)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
         return events, target
 
     def __len__(self):
         return len(self.data)
-
-    def download(self):
-        download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
-        )
-
-    def _check_integrity(self):
-        root = self.location_on_system
-        fpath = os.path.join(root, self.filename)
-        if not check_integrity(fpath, self.file_md5):
-            return False
-        return True
 
     def _read_dataset_file(self, filename):
         f = open(filename, "rb")
