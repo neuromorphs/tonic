@@ -1,3 +1,4 @@
+import os.path
 from .utils import check_integrity, download_and_extract_archive
 
 
