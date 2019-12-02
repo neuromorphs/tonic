@@ -1,2 +1,3 @@
 from spike_data_augmentation import datasets
 from spike_data_augmentation import transforms
+from spike_data_augmentation import target_transforms
