@@ -51,8 +51,8 @@ class POKERDVS(Dataset):
         events, target = self.data[index], self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
-        if self.representation is not None:
-            events = self.representation(events, self.sensor_size, self.ordering)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
         return events, target
 
     def __len__(self):

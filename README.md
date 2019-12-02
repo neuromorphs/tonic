@@ -24,8 +24,8 @@ testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
 
 testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
 
-for surfaces, label in iter(testloader):
-    print("label: " + str(label))
+for surfaces, target in iter(testloader):
+    print("target: " + str(target))
 ```
 
 ## Documentation
