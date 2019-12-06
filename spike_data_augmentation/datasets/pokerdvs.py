@@ -1,6 +1,4 @@
 import os
-import os.path
-import loris
 import numpy as np
 from .utils import check_integrity, download_and_extract_archive
 from .dataset import Dataset
@@ -17,10 +15,8 @@ class POKERDVS(Dataset):
     sensor_size = (35, 35)
     ordering = "txyp"
 
-    def __init__(self, save_to, transform=None, representation=None, download=True):
-        super(POKERDVS, self).__init__(
-            save_to, transform=transform, representation=representation
-        )
+    def __init__(self, save_to, transform=None, download=True):
+        super(POKERDVS, self).__init__(save_to, transform=transform)
 
         counts = dict(zip(self.classes, [0, 0, 0, 0]))
 
@@ -32,6 +28,8 @@ class POKERDVS(Dataset):
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
             )
+
+        import loris
 
         file_path = self.location_on_system + "/pips"
         for path, dirs, files in os.walk(file_path):
@@ -53,8 +51,6 @@ class POKERDVS(Dataset):
         events, target = self.data[index], self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
-        if self.representation is not None:
-            events = self.representation(events, self.sensor_size, self.ordering)
         return events, target
 
     def __len__(self):
