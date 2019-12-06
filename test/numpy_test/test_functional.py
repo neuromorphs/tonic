@@ -692,6 +692,19 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(np.min(events[:, 0][nonzero]) > offset)
         self.assertTrue(events.dtype == original_events.dtype)
 
+    def testToRatecodedFrameXytp(self):
+        original_events = self.random_xytp[0].copy()
+        frame_time = 1000
+
+        frames = F.to_ratecoded_frame_numpy(
+            events=self.random_xytp[0].copy(),
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            frame_time=frame_time,
+        )
+
+        self.assertEqual(frames.shape, (12, 200, 100))
+
     def testToTimesurfaceXytp(self):
         original_events = self.random_xytp[0].copy()
         surf_dims = (5, 5)
