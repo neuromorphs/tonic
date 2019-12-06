@@ -2,14 +2,21 @@ import numpy as np
 import math
 
 
-def to_ratecoded_frame_numpy(events, sensor_size, ordering, frame_time=5000):
+def to_ratecoded_frame_numpy(
+    events,
+    sensor_size,
+    ordering,
+    frame_time=5000,
+    merge_polarities=True,
+    interpolate=True,
+):
     """Representation that creates frames by encoding the rate of events.
 
     Args:
         frame_time: time value that events should be binned into
 
     Returns:
-        n rate-coded frames (n,w,h) 
+        numpy array of n rate-coded frames (n,w,h)
     """
     assert "x" and "y" and "t" and "p" in ordering
     assert len(sensor_size) == 2
@@ -24,7 +31,7 @@ def to_ratecoded_frame_numpy(events, sensor_size, ordering, frame_time=5000):
 
     n = 0
     frames = np.zeros((n_bins + 2,) + sensor_size)
-    for i, e in enumerate(events):
+    for e in events:
         x = int(e[x_index])
         y = int(e[y_index])
         t = e[t_index]
