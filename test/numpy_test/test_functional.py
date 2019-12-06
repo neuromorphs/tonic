@@ -53,11 +53,11 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
-    def testDropEventXytp(self):
+    def testDropEventsXytp(self):
         original = self.random_xytp[0]
         drop_probability = 0.2
 
-        events = F.drop_event_numpy(original, drop_probability=drop_probability)
+        events = F.drop_events_numpy(original, drop_probability=drop_probability)
 
         self.assertTrue(
             np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
@@ -69,7 +69,7 @@ class TestFunctionalAPI(unittest.TestCase):
             "Event dropout should maintain temporal order.",
         )
 
-        events = F.drop_event_numpy(
+        events = F.drop_events_numpy(
             original, drop_probability=drop_probability, random_drop_probability=True
         )
 
@@ -79,11 +79,11 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
-    def testDropEventTxyp(self):
+    def testDropEventsTxyp(self):
         original = self.random_txyp[0]
         drop_probability = 0.2
 
-        events = F.drop_event_numpy(original, drop_probability=drop_probability)
+        events = F.drop_events_numpy(original, drop_probability=drop_probability)
 
         self.assertTrue(
             np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
@@ -96,7 +96,7 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
-        events = F.drop_event_numpy(
+        events = F.drop_events_numpy(
             original, drop_probability=drop_probability, random_drop_probability=True
         )
 

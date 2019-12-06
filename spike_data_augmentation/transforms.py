@@ -44,13 +44,13 @@ class Crop(object):
         )
 
 
-class DropEvent(object):
+class DropEvents(object):
     def __init__(self, drop_probability=0.5, random_drop_probability=False):
         self.drop_probability = drop_probability
         self.random_drop_probability = random_drop_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.drop_event_numpy(
+        events = functional.drop_events_numpy(
             events, self.drop_probability, self.random_drop_probability
         )
         return events, images

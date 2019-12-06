@@ -109,7 +109,7 @@ class TestTransforms(unittest.TestCase):
 
         transform = transforms.Compose(
             [
-                transforms.DropEvent(drop_probability=drop_probability),
+                transforms.DropEvents(drop_probability=drop_probability),
                 transforms.FlipUD(flip_probability=flip_probability),
             ]
         )

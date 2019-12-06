@@ -1,5 +1,5 @@
 from .crop import crop_numpy
-from .drop_event import drop_event_numpy
+from .drop_events import drop_events_numpy
 from .flip_lr import flip_lr_numpy
 from .flip_polarity import flip_polarity_numpy
 from .flip_ud import flip_ud_numpy
@@ -18,7 +18,7 @@ from .utils import guess_event_ordering_numpy, is_multi_image
 
 __all__ = [
     crop_numpy,
-    drop_event_numpy,
+    drop_events_numpy,
     flip_lr_numpy,
     flip_polarity_numpy,
     flip_ud_numpy,
