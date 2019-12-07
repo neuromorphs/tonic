@@ -43,7 +43,7 @@ def flip_ud_numpy(
     if images is not None and multi_image is None:
         multi_image = is_multi_image(images, sensor_size)
 
-    if np.random.rand() < flip_probability:
+    if np.random.rand() <= flip_probability:
         if images is not None and multi_image:
             # multiple images NHW or NHWC
             images = images[:, ::-1, :, ...]
@@ -53,6 +53,6 @@ def flip_ud_numpy(
 
         y_loc = ordering.index("y")
 
-        events[:, y_loc] = sensor_size[1] - events[:, y_loc]
+        events[:, y_loc] = (sensor_size[1] - 1) - events[:, y_loc]
 
     return events, images
