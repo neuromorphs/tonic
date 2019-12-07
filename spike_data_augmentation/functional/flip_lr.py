@@ -42,7 +42,7 @@ def flip_lr_numpy(
     if images is not None and multi_image is None:
         multi_image = is_multi_image(images, sensor_size)
 
-    if np.random.rand() < flip_probability:
+    if np.random.rand() <= flip_probability:
         if images is not None and multi_image:
             # multiple images NHW or NHWC
             images = images[:, :, ::-1, ...]
@@ -52,6 +52,6 @@ def flip_lr_numpy(
 
         x_loc = ordering.index("x")
 
-        events[:, x_loc] = sensor_size[0] - events[:, x_loc]
+        events[:, x_loc] = (sensor_size[0] - 1) - events[:, x_loc]
 
     return events, images

@@ -107,7 +107,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testFlipLRxytp(self):
-        original_x = self.random_xytp[0][0, 0].copy()
+        original_x = self.random_xytp[0][:, 0].copy()
 
         events, images = F.flip_lr_numpy(
             self.random_xytp[0],
@@ -118,18 +118,14 @@ class TestFunctionalAPI(unittest.TestCase):
             flip_probability=1.0,
         )
 
-        same_pixel = np.isclose(
-            self.random_xytp[2][0] - self.random_xytp[0][0, 0], original_x
-        )
-
         self.assertTrue(
-            same_pixel,
+            ((self.random_txyp[2][0] - 1) - events[:, 0] == original_x).all(),
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
+        self.assertEqual(events.dtype, self.random_xytp[0].dtype)
 
     def testFlipLRtxyp(self):
-        original_x = self.random_txyp[0][0, 1].copy()
+        original_x = self.random_txyp[0][:, 1].copy()
 
         events, images = F.flip_lr_numpy(
             self.random_txyp[0],
@@ -140,12 +136,8 @@ class TestFunctionalAPI(unittest.TestCase):
             flip_probability=1.0,
         )
 
-        same_pixel = np.isclose(
-            self.random_txyp[2][0] - self.random_txyp[0][0, 1], original_x
-        )
-
         self.assertTrue(
-            same_pixel,
+            ((self.random_txyp[2][0] - 1) - events[:, 1] == original_x).all(),
             "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
