@@ -9,26 +9,23 @@ cd spike-data-augmentation
 pip install -e .
 ```
 
-In a Python file: choose transforms and a dataset and whether you want shuffling enabled!
+In a Python file: choose transforms, a data set and whether you want shuffling enabled!
 ```python
 import spike_data_augmentation
 import spike_data_augmentation.transforms as transforms
 
 transform = transforms.Compose([transforms.TimeJitter(variance=100),
                                 transforms.FlipLR(flip_probability=0.5),
-                                transforms.ToTimesurface(surface_dimensions=(7,7),
-                                                         tau=5e3,
-                                                         decay='lin'),])
+                                transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3),])
 
 testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
                                                   train=False,
-                                                  download=True,
                                                   transform=transform)
 
 testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
 
-for surfaces, label in iter(testloader):
-    print("label: " + str(label))
+for surfaces, target in iter(testloader):
+    print("target: " + str(target))
 ```
 
 ## Documentation

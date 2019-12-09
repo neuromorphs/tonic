@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from .utils import check_integrity, download_and_extract_archive
 from .dataset import Dataset
 from numpy.lib import recfunctions as rfn
 
@@ -15,15 +14,17 @@ class POKERDVS(Dataset):
     sensor_size = (35, 35)
     ordering = "txyp"
 
-    def __init__(self, save_to, transform=None, download=True):
-        super(POKERDVS, self).__init__(save_to, transform=transform)
+    def __init__(self, save_to, download=True, transform=None, target_transform=None):
+        super(POKERDVS, self).__init__(
+            save_to, transform=transform, target_transform=target_transform
+        )
 
         counts = dict(zip(self.classes, [0, 0, 0, 0]))
 
         if download:
             self.download()
 
-        if not self._check_integrity():
+        if not self.check_integrity():
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -51,20 +52,9 @@ class POKERDVS(Dataset):
         events, target = self.data[index], self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
         return events, target
 
     def __len__(self):
         return len(self.data)
-
-    def download(self):
-        download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
-        )
-
-    def _check_integrity(self):
-        root = self.location_on_system
-        fpath = os.path.join(root, self.filename)
-
-        if not check_integrity(fpath, self.file_md5):
-            return False
-        return True

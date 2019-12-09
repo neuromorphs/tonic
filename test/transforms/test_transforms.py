@@ -32,6 +32,23 @@ class TestTransforms(unittest.TestCase):
             )
         )
 
+    def testToTimesurfaces(self):
+        events = self.random_xytp[0].copy()
+        surf_dims = (7, 7)
+        transform = transforms.Compose(
+            [
+                transforms.ToTimesurface(
+                    surface_dimensions=surf_dims, tau=5e3, decay="lin"
+                )
+            ]
+        )
+        surfaces = transform(
+            events=events, sensor_size=self.random_xytp[2], ordering=self.random_xytp[3]
+        )
+        self.assertEqual(surfaces.shape[0], len(self.original_events))
+        self.assertEqual(surfaces.shape[1], 2)
+        self.assertEqual(surfaces.shape[2:], surf_dims)
+
     def testTimeReversalSpatialJitter(self):
         events = self.random_xytp[0].copy()
         images = self.random_xytp[1].copy()
