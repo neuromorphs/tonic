@@ -8,7 +8,7 @@ def to_ratecoded_frame_numpy(
     ordering,
     frame_time=5000,
     merge_polarities=True,
-    interpolate=True,
+    interpolate_to=None,
 ):
     """Representation that creates frames by encoding the rate of events.
 
@@ -26,7 +26,13 @@ def to_ratecoded_frame_numpy(
     p_index = ordering.find("p")
     n_events = len(events)
 
-    events[:, p_index][events[:, p_index] == -1] = 0
+    pols = events[:, p_index]
+    if merge_polarities:
+        pols[pols == -1] = 1
+        pols[pols == 0] = 1
+    else:
+        pols[pols == -1] = 0
+
     n_bins = math.ceil(events[-1, t_index] / frame_time)
 
     n = 0
@@ -40,5 +46,11 @@ def to_ratecoded_frame_numpy(
         if t >= frame_time * (n + 1):
             n += 1
         frames[n, x, y] += p
+
+    if interpolate_to != None:
+        max_values = np.max(frames, axis=(1, 2))
+        for i, f in enumerate(frames):
+            if max_values[i] != 0:
+                f *= interpolate_to / max_values[i]
 
     return frames
