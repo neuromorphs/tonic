@@ -126,7 +126,7 @@ class TestTransforms(unittest.TestCase):
 
         transform = transforms.Compose(
             [
-                transforms.DropEvent(drop_probability=drop_probability),
+                transforms.DropEvents(drop_probability=drop_probability),
                 transforms.FlipUD(flip_probability=flip_probability),
             ]
         )
@@ -154,7 +154,7 @@ class TestTransforms(unittest.TestCase):
 
         first_dropped_index = np.where(events[0, 2] == self.original_events[:, 2])[0][0]
         flipped_events = (
-            self.random_xytp[2][1] - self.original_events[first_dropped_index, 1]
+            self.random_xytp[2][1] - 1 - self.original_events[first_dropped_index, 1]
             == events[0, 1]
         )
         self.assertTrue(
@@ -197,7 +197,7 @@ class TestTransforms(unittest.TestCase):
         )
 
         same_pixel = np.isclose(
-            self.random_xytp[2][0] - events[0, 0], self.original_events[0, 0]
+            (self.random_xytp[2][0] - 1) - events[0, 0], self.original_events[0, 0]
         )
         self.assertTrue(
             same_pixel,

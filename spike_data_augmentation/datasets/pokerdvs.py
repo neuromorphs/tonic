@@ -1,5 +1,4 @@
 import os
-import loris
 import numpy as np
 from .dataset import Dataset
 from numpy.lib import recfunctions as rfn
@@ -30,6 +29,8 @@ class POKERDVS(Dataset):
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
             )
+
+        import loris
 
         file_path = self.location_on_system + "/pips"
         for path, dirs, files in os.walk(file_path):
