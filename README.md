@@ -14,7 +14,7 @@ In a Python file: choose transforms, a data set and whether you want shuffling e
 import spike_data_augmentation
 import spike_data_augmentation.transforms as transforms
 
-transform = transforms.Compose([transforms.TimeJitter(variance=100),
+transform = transforms.Compose([transforms.TimeJitter(variance=10),
                                 transforms.FlipLR(flip_probability=0.5),
                                 transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3),])
 
@@ -25,11 +25,11 @@ testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
 testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
 
 for surfaces, target in iter(testloader):
-    print("target: " + str(target))
+    print("{0} surfaces for target {1}".format(len(surfaces), target))
 ```
 
 ## Documentation
-This repo will stay private until publication. It is therefore necessary to build documentation locally. Just run the following commands to do that after having made sure that you are on the latest master branch:
+To see a list of all transforms and their possible parameters, it is necessary to build documentation locally. Just run the following commands to do that:
 ```bash
 cd docs
 make html
@@ -55,7 +55,9 @@ firefox _build/html/index.html
 - ContrastNet
 - Sound localisation
 
-## Install pre-commit
+## Contribute
+
+#### Install pre-commit
 
 ```
 pip install pre-commit
@@ -64,7 +66,7 @@ pre-commit install
 
 This will install the [black formatter](https://black.readthedocs.io/en/stable/) to a pre-commit hook. When you use ```git add``` you add files to the current commit, then when you run ```git commit``` the black formatter will run BEFORE the commit itself. If it fails the check, the black formatter will format the file and then present it to you to add it into your commit. Simply run ```git add``` on those files again and do the remainder of the commit as normal.
 
-## Run tests
+#### Run tests
 
 To install pytest
 
