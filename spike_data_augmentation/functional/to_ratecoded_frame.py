@@ -3,17 +3,13 @@ import math
 
 
 def to_ratecoded_frame_numpy(
-    events,
-    sensor_size,
-    ordering,
-    frame_time=5000,
-    merge_polarities=True,
-    interpolate_to=None,
+    events, sensor_size, ordering, frame_time=5000, merge_polarities=True,
 ):
     """Representation that creates frames by encoding the rate of events.
 
     Args:
-        frame_time: time value that events should be binned into
+        frame_time: time bin for each frame
+        merge_polarities: flag to add all polarities together
 
     Returns:
         numpy array of n rate-coded frames (n,w,h)
@@ -36,7 +32,7 @@ def to_ratecoded_frame_numpy(
     n_bins = math.ceil(events[-1, t_index] / frame_time)
 
     n = 0
-    frames = np.zeros((n_bins + 2,) + sensor_size)
+    frames = np.zeros((n_bins, sensor_size[1], sensor_size[0]))
     for e in events:
         x = int(e[x_index])
         y = int(e[y_index])
@@ -45,12 +41,8 @@ def to_ratecoded_frame_numpy(
 
         if t >= frame_time * (n + 1):
             n += 1
-        frames[n, x, y] += p
+        frames[n, y, x] += p
 
-    if interpolate_to != None:
-        max_values = np.max(frames, axis=(1, 2))
-        for i, f in enumerate(frames):
-            if max_values[i] != 0:
-                f *= interpolate_to / max_values[i]
+    frames = np.tanh(frames / 3) * 255
 
     return frames
