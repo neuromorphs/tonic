@@ -192,10 +192,9 @@ class TimeSkew(object):
 
 
 class ToRatecodedFrame(object):
-    def __init__(self, frame_time=5000, merge_polarities=True, interpolate_to=None):
+    def __init__(self, frame_time=5000, merge_polarities=True):
         self.frame_time = frame_time
         self.merge_polarities = merge_polarities
-        self.interpolate_to = interpolate_to
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         frames = functional.to_ratecoded_frame_numpy(
@@ -204,7 +203,6 @@ class ToRatecodedFrame(object):
             ordering,
             frame_time=self.frame_time,
             merge_polarities=self.merge_polarities,
-            interpolate_to=self.interpolate_to,
         )
         return frames, images
 
