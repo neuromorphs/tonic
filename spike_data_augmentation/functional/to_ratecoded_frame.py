@@ -3,7 +3,7 @@ import math
 
 
 def to_ratecoded_frame_numpy(
-    events, sensor_size, ordering, frame_time=5000, merge_polarities=True,
+    events, sensor_size, ordering, frame_time=5000, merge_polarities=True
 ):
     """Representation that creates frames by encoding the rate of events.
 
@@ -39,7 +39,7 @@ def to_ratecoded_frame_numpy(
         t = e[t_index]
         p = e[p_index]
 
-        if t >= frame_time * (n + 1):
+        if t > frame_time * (n + 1):
             n += 1
         frames[n, y, x] += p
 
