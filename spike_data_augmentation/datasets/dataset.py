@@ -1,5 +1,5 @@
 import os.path
-from .utils import check_integrity, download_and_extract_archive
+from .utils import check_integrity, download_and_extract_archive, extract_archive
 
 
 class Dataset:
@@ -21,7 +21,9 @@ class Dataset:
     def check_integrity(self):
         root = self.location_on_system
         fpath = os.path.join(root, self.filename)
-
         if not check_integrity(fpath, self.file_md5):
             return False
         return True
+
+    def extract_archive(self, archive):
+        extract_archive(archive, to_path=self.location_on_system)
