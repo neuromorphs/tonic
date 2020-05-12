@@ -27,10 +27,10 @@ class NCARS(Dataset):
     test_md5 = "3B5E8E9A5BFFEB95614B8C0A2BA4E511"
     classes = [
         "background",
-        "cars",
+        "car",
     ]
     
-    #class_dict = {"background":0, "cars": 1,}
+    class_dict = {"background":0, "cars": 1,}
 
     sensor_size = (304, 240)
     ordering = "txyp"
@@ -73,7 +73,7 @@ class NCARS(Dataset):
             for file in files:
                 if file.endswith("dat"):
                     self.samples.append(path + "/" + file)
-                    self.targets.append(os.path.basename(path))
+                    self.targets.append(self.class_dict[os.path.basename(path)])
 
     def __getitem__(self, index):
         events = loris.read_file(self.samples[index])["events"]
