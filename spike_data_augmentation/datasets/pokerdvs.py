@@ -13,6 +13,7 @@ class POKERDVS(Dataset):
     test_md5 = "EEF2BF7D0D3DEFAE89A6FA98B07C17AF"
 
     classes = ["cl", "he", "di", "sp"]
+    int_classes = dict(zip(classes, range(4)))
     sensor_size = (35, 35)
     ordering = "txyp"
 
@@ -52,7 +53,7 @@ class POKERDVS(Dataset):
             for file in files:
                 if file.endswith("npy"):
                     self.data.append(np.load(path + "/" + file))
-                    self.targets.append(path[-2:])
+                    self.targets.append(self.int_classes[path[-2:]])
 
     def __getitem__(self, index):
         events, target = self.data[index], self.targets[index]
