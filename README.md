@@ -44,9 +44,8 @@ firefox _build/html/index.html
 - [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)
 - [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html) (\*)
 - [IBM gestures](http://www.research.ibm.com/dvsgesture/) (\*)
-- [ATIS planes](https://www.westernsydney.edu.au/bens/home/reproducible_research/atis_planes)
-- NTI Digits
-- TIMIT
+- [TI Digits](https://catalog.ldc.upenn.edu/LDC93S10)
+- [TIMIT](https://catalog.ldc.upenn.edu/LDC93S1)
 
 ## Algorithms
 - [EV-flownet](https://arxiv.org/pdf/1802.06898.pdf)
