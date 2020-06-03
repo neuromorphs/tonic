@@ -41,7 +41,7 @@ firefox _build/html/index.html
 - [NMNIST](https://www.garrickorchard.com/datasets/n-mnist) (\*)
 - [ASL-DVS](https://github.com/PIX2NVS/NVS2Graph)
 - [NCARS](https://www.prophesee.ai/dataset-n-cars/)(\*)
-- [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)
+- [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)(\*)
 - [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html) (\*)
 - [IBM gestures](http://www.research.ibm.com/dvsgesture/) (\*)
 - [TI Digits](https://catalog.ldc.upenn.edu/LDC93S10)
@@ -51,8 +51,6 @@ firefox _build/html/index.html
 - [EV-flownet](https://arxiv.org/pdf/1802.06898.pdf)
 - [HOTS/HATS](http://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf)
 - [SLAYER](https://papers.nips.cc/paper/7415-slayer-spike-layer-error-reassignment-in-time.pdf)
-- ContrastNet
-- Sound localisation
 
 ## Contribute
 
