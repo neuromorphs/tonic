@@ -1,5 +1,4 @@
 import numpy as np
-import time
 
 def findCell(x, y, bounds):
     
@@ -22,7 +21,7 @@ def findCell(x, y, bounds):
     r[nz[1]] = nz[0]
     return int(r)
         
-def to_averaged_timesurface_numpy(
+def to_averaged_timesurface(
     events,
     sensor_size,
     ordering,
@@ -58,8 +57,7 @@ def to_averaged_timesurface_numpy(
     if merge_polarities:
         events[:, p_index] = np.zeros(n_of_events)
     n_of_pols = len(np.unique(events[:, p_index]))
- 
-    # initialising matrix containing all averaged time surfaces
+    
     all_surfaces = np.zeros(
         (n_of_events, n_of_pols, surface_size, surface_size)
     )
@@ -69,10 +67,13 @@ def to_averaged_timesurface_numpy(
     cols = -(-sensor_size[1] // cell_size)
     ncells = rows * cols
     
+    # initialise cell structures
+    cells = np.empty(ncells, dtype=object)
+    
     # boundaries for each cell
-    bounds = np.zeros((ncells,4))
     xmin = 0;
     ymin = 0;
+    bounds = np.zeros((ncells,4))
     for i in np.arange(ncells):
         
         if i != 0 and i % rows == 0:
@@ -82,59 +83,67 @@ def to_averaged_timesurface_numpy(
         bounds[i] = np.array([xmin,ymin,xmin+cell_size,ymin+cell_size])
         xmin += cell_size
     
-    # initialise cell structures
-    cells = np.empty(ncells, dtype=object)
+    # event loop
     for index, event in enumerate(events):
         x = int(event[x_index])
         y = int(event[y_index])
-        t = int(event[t_index])
-        p = int(event[p_index])
         
         # find the cell
         r = findCell(x, y, bounds)
         
+        # initialise timesurface
+        timesurface = np.zeros([surface_size, surface_size])
+        timesurface[radius,radius] = 1
+            
         if cells[r]:
-            local_memory = np.array(cells[r]).T
-        
+            local_memory = np.array(cells[r])
+            
             # find events ej such that tj is in [ti-temporal_window, ti)
-            context  t= (local_memory[0] < t)
-            context &= (local_memory[0] >= t-temporal_window)
+            context  = (local_memory[:,0] >= event[t_index]-temporal_window)
+            context &= (local_memory[:,0] < event[t_index])
             
             # find events ej such that xj is in [xi-radius,xi+radius]
-            context &= (local_memory[1] <= x+radius)
-            context &= (local_memory[1] >= x-radius) 
+            context &= (local_memory[:,1] <= x+radius)
+            context &= (local_memory[:,1] >= x-radius) 
             
             # find events ej such that yj is in [yi-radius,yi+radius]
-            context &= (local_memory[2] <= y+radius)
-            context &= (local_memory[2] >= y-radius)
+            context &= (local_memory[:,2] <= y+radius)
+            context &= (local_memory[:,2] >= y-radius)
             
             # taking into consideration different polarities
-            context &= (local_memory[3] == p)
+            context &= (local_memory[:,3] == event[p_index])
             
-            # get non-zero values that denote the relevant events inside neighborhood
-            relevant_events = np.nonzero(context)
+            # get the neighborhood of center event
+            neighborhood = local_memory[context]
             
-            # local_memory[relevant_events] contains the neighborhood of events needed to do the time surface
-            timestamp_context = local_memory[0][relevant_events] - t 
-            
-            # step missing here that "averages" the event times to be able to shape the timesurface: they do a sum over all the events according to HATS paper
-            # figure suggests but I find it odd to use a sum of decays
-            
-            # apply decay on each value in the relevant context
-            if decay == "lin":
-                timestamp_context /= (3 * tau) + 1
-                timestamp_context[timestamp_context < 0] = 0
-            elif decay == "exp":
-                timestamp_context = np.exp(timestamp_context / tau)
-                timestamp_context[timestamp_context < (-3 * tau)] = 0
+            if len(neighborhood) != 0:
+                
+                # get unique coordinates
+                unique_coord = np.unique(neighborhood[:,1:3], axis=0)                
+                for i, coord in enumerate(unique_coord):
+                    
+                    # get timestamp of matching coordinates from cell
+                    match  = (neighborhood[:,1] == coord[0])
+                    match &= (neighborhood[:,2] == coord[1])
+                    
+                    # scale x and y to find their position on timesurface
+                    scaled_x = int(coord[0] - x + radius)
+                    scaled_y = int(coord[1] - y + radius)
+                    
+                    # for each neighbor use some of decay of past events
+                    if decay == "lin":
+                        timesurface[scaled_x, scaled_y] = np.sum((neighborhood[match,0] - event[t_index]) / (3 * tau) + 1)
+                    elif decay == "exp":
+                        timesurface[scaled_x, scaled_y] = np.sum(np.exp((neighborhood[match,0] - event[t_index]) / tau))
+                
         else:
             # initialising cell with an empty list
             cells[r] = []
             
         # save event inside the cell
-        cells[r].append((t,x,y,p))
+        cells[r].append((event[t_index],x,y,event[p_index]))
         
         # save into all_surfaces
-#         all_surfaces[index, :, :, :] = timesurface
-        
+        all_surfaces[index, :, :, :] = timesurface
+    
     return all_surfaces
