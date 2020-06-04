@@ -47,6 +47,7 @@ def to_averaged_timesurface_numpy(
         array of timesurfaces with dimensions (w,h)
     """
     radius = surface_size // 2
+    assert surface_size <= cell_size
     assert "x" and "y" and "t" and "p" in ordering
 #     assert len(sensor_size) == 1
     x_index = ordering.find("x")
@@ -111,13 +112,21 @@ def to_averaged_timesurface_numpy(
             context &= (local_memory[3] == p)
             
             # get non-zero values that denote the relevant events inside neighborhood
-            nz = np.nonzero(context)
+            relevant_events = np.nonzero(context)
             
-            # time values to use in averaging                                
-            timestamp_context = local_memory[0][nz]
+            # local_memory[relevant_events] contains the neighborhood of events needed to do the time surface
+            timestamp_context = local_memory[0][relevant_events] - t 
             
-            # magic
+            # step missing here that "averages" the event times to be able to shape the timesurface: they do a sum over all the events according to HATS paper
+            # figure suggests but I find it odd to use a sum of decays
             
+            # apply decay on each value in the relevant context
+            if decay == "lin":
+                timestamp_context /= (3 * tau) + 1
+                timestamp_context[timestamp_context < 0] = 0
+            elif decay == "exp":
+                timestamp_context = np.exp(timestamp_context / tau)
+                timestamp_context[timestamp_context < (-3 * tau)] = 0
         else:
             # initialising cell with an empty list
             cells[r] = []
@@ -128,5 +137,4 @@ def to_averaged_timesurface_numpy(
         # save into all_surfaces
 #         all_surfaces[index, :, :, :] = timesurface
         
-    time.sleep(100)
     return all_surfaces

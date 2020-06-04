@@ -126,3 +126,5 @@ dmypy.json
 
 # vim swap files
 *.swp
+
+test/numpy_test/data/
