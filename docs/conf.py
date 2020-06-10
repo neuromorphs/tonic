@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import tonic
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -22,7 +23,8 @@ copyright = "2019, the Neuromorphs"
 author = "the Neuromorphs"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.2"
+version = ".".join(tonic.__version__.split(".")[:2])
+release = tonic.__version__
 
 
 # -- General configuration ---------------------------------------------------
