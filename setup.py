@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/neuromorphs/tonic",
     include_package_data=False,
-    packages=["tonic"],
+    packages=setuptools.find_packages(),
     install_requires=["numpy", "loris", "tqdm"],
     classifiers=[
         "Programming Language :: Python :: 3",
