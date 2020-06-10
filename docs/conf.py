@@ -13,7 +13,6 @@
 import os
 import sys
 
-# sys.path.insert(0, os.path.abspath('../../spike-data-augmentation'))
 sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
@@ -57,7 +56,7 @@ html_theme_options = {
     "description": "Augmentation for spike recordings",
     "github_button": True,
     "github_user": "neuromorphs",
-    "github_repo": "spike-data-augmentation",
+    "github_repo": "tonic",
     "travis_button": True,
     "codecov_button": True,
 }

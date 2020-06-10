@@ -4,25 +4,25 @@ This repository contains a pipeline of data augmentation methods, the effect of 
 ## Quickstart
 In a terminal: clone this repo and install it
 ```bash
-git clone git@github.com:neuromorphs/spike-data-augmentation.git
-cd spike-data-augmentation
+git clone git@github.com:neuromorphs/tonic.git
+cd tonic
 pip install -e .
 ```
 
 In a Python file: choose transforms, a data set and whether you want shuffling enabled!
 ```python
-import spike_data_augmentation
-import spike_data_augmentation.transforms as transforms
+import tonic
+import tonic.transforms as transforms
 
 transform = transforms.Compose([transforms.TimeJitter(variance=10),
                                 transforms.FlipLR(flip_probability=0.5),
                                 transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3),])
 
-testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
+testset = tonic.datasets.NMNIST(save_to='./data',
                                                   train=False,
                                                   transform=transform)
 
-testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
+testloader = tonic.datasets.Dataloader(testset, shuffle=True)
 
 for surfaces, target in iter(testloader):
     print("{0} surfaces for target {1}".format(len(surfaces), target))

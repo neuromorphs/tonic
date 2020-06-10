@@ -1,7 +1,7 @@
 crop
 =====
 
-.. automodule:: spike_data_augmentation.functional.crop
+.. automodule:: tonic.functional.crop
     :members:
     :undoc-members:
     :show-inheritance:

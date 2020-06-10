@@ -2,6 +2,7 @@ import os
 import numpy as np
 from .dataset import Dataset
 
+
 class NCALTECH101(Dataset):
     """NCALTECH101 <https://www.garrickorchard.com/datasets/n-mnist> data set.
 
@@ -20,13 +21,7 @@ class NCALTECH101(Dataset):
     sensor_size = (233, 173)
     ordering = "xytp"
 
-    def __init__(
-        self,
-        save_to,
-        download=True,
-        transform=None,
-        target_transform=None,
-    ):
+    def __init__(self, save_to, download=True, transform=None, target_transform=None):
         super(NCALTECH101, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )

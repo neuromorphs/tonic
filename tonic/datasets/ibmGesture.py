@@ -82,7 +82,7 @@ class IBMGesture(Dataset):
 
     def __getitem__(self, index):
         events = np.load(self.samples[index])
-        events[:,3] *= 1000 # convert from ms to us
+        events[:, 3] *= 1000  # convert from ms to us
         target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
