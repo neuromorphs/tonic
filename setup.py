@@ -12,11 +12,13 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/neuromorphs/tonic",
+    include_package_data=False,
     packages=["tonic"],
-    install_requires=["numpy", "tqdm"],
+    install_requires=["numpy", "loris", "tqdm"],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GPL-3.0",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
+        "Framework :: Tonic",
     ],
 )

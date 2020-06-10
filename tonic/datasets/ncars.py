@@ -3,7 +3,6 @@ import numpy as np
 from .dataset import Dataset
 from numpy.lib.recfunctions import structured_to_unstructured
 import loris
-import ipdb
 
 
 class NCARS(Dataset):
