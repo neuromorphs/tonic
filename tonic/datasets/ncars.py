@@ -25,12 +25,9 @@ class NCARS(Dataset):
     file_md5 = "553CE464D6E5E617B3C21CE27C19368E"
     train_md5 = "976D126A651B95D81800B05A3093337B"
     test_md5 = "3B5E8E9A5BFFEB95614B8C0A2BA4E511"
-    classes = [
-        "background",
-        "car",
-    ]
-    
-    class_dict = {"background":0, "cars": 1,}
+    classes = ["background", "car"]
+
+    class_dict = {"background": 0, "cars": 1}
 
     sensor_size = (304, 240)
     ordering = "txyp"
@@ -49,20 +46,20 @@ class NCARS(Dataset):
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
             )
-        
+
         if train:
-            target_zip = self.train_file 
+            target_zip = self.train_file
             source_path = os.path.join(save_to, "train")
             target_path = os.path.join(save_to, "ncars-train")
         else:
             target_zip = self.test_file
             source_path = os.path.join(save_to, "test")
             target_path = os.path.join(save_to, "ncars-test")
-            
+
         if not os.path.exists(target_path):
             self.extract_archive(os.path.join(save_to, target_zip))
             os.rename(source_path, target_path)
-            
+
         # We will not be loading everything into memory. Instead, we will keep a list of samples into file
         # Could have reused self.data for that purpose as well.
         self.samples = []

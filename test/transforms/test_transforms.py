@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import spike_data_augmentation.transforms as transforms
+import tonic.transforms as transforms
 import utils
 
 

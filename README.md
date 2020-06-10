@@ -1,28 +1,29 @@
+![tonic](tonic-logo-padded.png)
 # Telluride Spike Data Augmentation toolkit
 This repository contains a pipeline of data augmentation methods, the effect of which will be tested on various data sets and SOA methods for event- and spike-based data. The goal is to reduce overfitting in learning algorithms by providing implementations of data augmentation methods for event/spike recordings.
 
 ## Quickstart
 In a terminal: clone this repo and install it
 ```bash
-git clone git@github.com:neuromorphs/spike-data-augmentation.git
-cd spike-data-augmentation
+git clone git@github.com:neuromorphs/tonic.git
+cd tonic
 pip install -e .
 ```
 
 In a Python file: choose transforms, a data set and whether you want shuffling enabled!
 ```python
-import spike_data_augmentation
-import spike_data_augmentation.transforms as transforms
+import tonic
+import tonic.transforms as transforms
 
 transform = transforms.Compose([transforms.TimeJitter(variance=10),
                                 transforms.FlipLR(flip_probability=0.5),
                                 transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3),])
 
-testset = spike_data_augmentation.datasets.NMNIST(save_to='./data',
+testset = tonic.datasets.NMNIST(save_to='./data',
                                                   train=False,
                                                   transform=transform)
 
-testloader = spike_data_augmentation.datasets.Dataloader(testset, shuffle=True)
+testloader = tonic.datasets.Dataloader(testset, shuffle=True)
 
 for surfaces, target in iter(testloader):
     print("{0} surfaces for target {1}".format(len(surfaces), target))
@@ -41,19 +42,16 @@ firefox _build/html/index.html
 - [NMNIST](https://www.garrickorchard.com/datasets/n-mnist) (\*)
 - [ASL-DVS](https://github.com/PIX2NVS/NVS2Graph)
 - [NCARS](https://www.prophesee.ai/dataset-n-cars/)(\*)
-- [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)
+- [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)(\*)
 - [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html) (\*)
 - [IBM gestures](http://www.research.ibm.com/dvsgesture/) (\*)
-- [ATIS planes](https://www.westernsydney.edu.au/bens/home/reproducible_research/atis_planes)
-- NTI Digits
-- TIMIT
+- [TI Digits](https://catalog.ldc.upenn.edu/LDC93S10)
+- [TIMIT](https://catalog.ldc.upenn.edu/LDC93S1)
 
 ## Algorithms
 - [EV-flownet](https://arxiv.org/pdf/1802.06898.pdf)
 - [HOTS/HATS](http://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf)
 - [SLAYER](https://papers.nips.cc/paper/7415-slayer-spike-layer-error-reassignment-in-time.pdf)
-- ContrastNet
-- Sound localisation
 
 ## Contribute
 

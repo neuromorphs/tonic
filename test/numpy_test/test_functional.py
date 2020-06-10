@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import spike_data_augmentation.functional as F
+import tonic.functional as F
 import utils
 
 

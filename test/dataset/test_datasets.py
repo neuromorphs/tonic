@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import spike_data_augmentation.datasets as datasets
+import tonic.datasets as datasets
 
 
 @unittest.skip("Super slow!")
