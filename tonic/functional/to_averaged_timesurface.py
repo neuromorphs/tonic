@@ -132,7 +132,9 @@ def to_averaged_timesurface(
                     
                     # for each neighbor use some of decay of past events
                     if decay == "lin":
-                        timesurface[scaled_x, scaled_y] = np.sum((neighborhood[match,0] - event[t_index]) / (3 * tau) + 1)
+                        decay = (neighborhood[match,0] - event[t_index]) / (3 * tau) + 1
+                        decay[decay < 0] = 0
+                        timesurface[scaled_x, scaled_y] = np.sum(decay)
                     elif decay == "exp":
                         timesurface[scaled_x, scaled_y] = np.sum(np.exp((neighborhood[match,0] - event[t_index]) / tau))
                 
