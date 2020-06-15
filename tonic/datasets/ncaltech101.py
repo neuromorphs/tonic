@@ -4,16 +4,15 @@ from .dataset import Dataset
 
 
 class NCALTECH101(Dataset):
-    """NCALTECH101 <https://www.garrickorchard.com/datasets/n-mnist> data set.
+    """NCALTECH101 <https://www.garrickorchard.com/datasets/n-caltech101> data set.
 
     arguments:
-        train: choose training or test set
         save_to: location to save files to on disk
         transform: list of transforms to apply to the data
         download: choose to download data or not
     """
 
-    url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AAD0T79lglp-BrdbSCuH_7MFa/Caltech101.zip\?dl\=1"
+    url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AAD0T79lglp-BrdbSCuH_7MFa/Caltech101.zip?dl=1"
     file_md5 = "66201824EABB0239C7AB992480B50BA3"
     filename = "Caltech101.zip"
     folder_name = "Caltech101"
