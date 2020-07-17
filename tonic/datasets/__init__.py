@@ -5,4 +5,4 @@ from .ncars import NCARS
 from .pokerdvs import POKERDVS
 from torch.utils.data import DataLoader
 
-__all__ = ["IBMGesture", "NMNIST", "NCALTECH101", "NCARS", "POKERDVS", "Dataloader"]
+__all__ = ["IBMGesture", "NMNIST", "NCALTECH101", "NCARS", "POKERDVS", "DataLoader"]
