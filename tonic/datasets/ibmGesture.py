@@ -1,9 +1,10 @@
 import os
 import numpy as np
-from .dataset import Dataset
+from torchvision.datasets.vision import VisionDataset
+from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
 
 
-class IBMGesture(Dataset):
+class IBMGesture(VisionDataset):
     """IBMGesture <http://research.ibm.com/dvsgesture/> data set.
 
     arguments:
@@ -18,8 +19,8 @@ class IBMGesture(Dataset):
     base_url = "https://www.neuromorphic-vision.com/public/downloads/"
     test_zip = base_url + "ibmGestureTest.tar.gz"
     train_zip = base_url + "ibmGestureTrain.tar.gz"
-    test_md5 = "56070E45DADAA85FFF82E0FBFBC06DE5"
-    train_md5 = "3A8F0D4120A166BAC7591F77409CB105"
+    test_md5 = "56070e45dadaa85fff82e0fbfbc06de5"
+    train_md5 = "3a8f0d4120a166bac7591f77409cb105"
     test_filename = "ibmGestureTest.tar.gz"
     train_filename = "ibmGestureTrain.tar.gz"
     classes = [
@@ -51,6 +52,8 @@ class IBMGesture(Dataset):
 
         self.train = train
         self.location_on_system = save_to
+        self.data = []
+        self.targets = []
 
         if train:
             self.url = self.train_zip
@@ -66,7 +69,7 @@ class IBMGesture(Dataset):
         if download:
             self.download()
 
-        if not self.check_integrity():
+        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -79,6 +82,11 @@ class IBMGesture(Dataset):
                 if file.endswith("npy"):
                     self.samples.append(path + "/" + file)
                     self.targets.append(int(file[:-4]))
+
+    def download(self):
+        download_and_extract_archive(
+            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+        )
 
     def __getitem__(self, index):
         events = np.load(self.samples[index])
