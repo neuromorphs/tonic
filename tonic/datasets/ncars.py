@@ -1,11 +1,12 @@
 import os
 import numpy as np
-from .dataset import Dataset
+from torchvision.datasets.vision import VisionDataset
+from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
 from numpy.lib.recfunctions import structured_to_unstructured
 import loris
 
 
-class NCARS(Dataset):
+class NCARS(VisionDataset):
     """N-Cars <https://www.prophesee.ai/dataset-n-cars-download/> data set.
 
     arguments:
@@ -21,9 +22,9 @@ class NCARS(Dataset):
     filename = "Prophesee_Dataset_n_cars.zip"
     train_file = "n-cars_train.zip"
     test_file = "n-cars_test.zip"
-    file_md5 = "553CE464D6E5E617B3C21CE27C19368E"
-    train_md5 = "976D126A651B95D81800B05A3093337B"
-    test_md5 = "3B5E8E9A5BFFEB95614B8C0A2BA4E511"
+    file_md5 = "553ce464d6e5e617b3c21ce27c19368e"
+    train_md5 = "976d126a651b95d81800b05a3093337b"
+    test_md5 = "3b5e8e9a5bffeb95614b8c0a2ba4e511"
     classes = ["background", "car"]
 
     class_dict = {"background": 0, "cars": 1}
@@ -37,10 +38,15 @@ class NCARS(Dataset):
         super(NCARS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
+        
+        self.location_on_system = save_to
+        self.data = []
+        self.targets = []
+        
         if download:
             self.download()
 
-        if not self.check_integrity():
+        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -83,3 +89,8 @@ class NCARS(Dataset):
 
     def __len__(self):
         return len(self.samples)
+
+    def download(self):
+        download_and_extract_archive(
+            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+        )
