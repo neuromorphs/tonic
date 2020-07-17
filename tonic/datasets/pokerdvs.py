@@ -1,16 +1,17 @@
 import os
 import numpy as np
-from .dataset import Dataset
+from torchvision.datasets.vision import VisionDataset
+from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
 
 
-class POKERDVS(Dataset):
+class POKERDVS(VisionDataset):
     base_url = "https://www.neuromorphic-vision.com/public/downloads/"
     train_filename = "pips_train.tar.gz"
     test_filename = "pips_test.tar.gz"
     train_url = base_url + train_filename
     test_url = base_url + test_filename
-    train_md5 = "412BCFB96826E4FCB290558E8C150AAE"
-    test_md5 = "EEF2BF7D0D3DEFAE89A6FA98B07C17AF"
+    train_md5 = "412bcfb96826e4fcb290558e8c150aae"
+    test_md5 = "eef2bf7d0d3defae89a6fa98b07c17af"
 
     classes = ["cl", "he", "di", "sp"]
     int_classes = dict(zip(classes, range(4)))
@@ -26,6 +27,8 @@ class POKERDVS(Dataset):
 
         self.train = train
         self.location_on_system = save_to
+        self.data = []
+        self.targets = []
 
         if train:
             self.url = self.train_url
@@ -41,7 +44,7 @@ class POKERDVS(Dataset):
         if download:
             self.download()
 
-        if not self.check_integrity():
+        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -61,7 +64,12 @@ class POKERDVS(Dataset):
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return events, target
+        return events.astype('int64'), target
 
     def __len__(self):
         return len(self.data)
+
+    def download(self):
+        download_and_extract_archive(
+            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+        )
