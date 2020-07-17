@@ -687,7 +687,7 @@ class TestFunctionalAPI(unittest.TestCase):
             frame_time=frame_time,
         )
 
-        self.assertEqual(frames.shape, (12, 200, 100))
+        self.assertEqual(frames.shape, (10, 100, 200))
 
     def testToTimesurfaceXytp(self):
         original_events = self.random_xytp[0].copy()
