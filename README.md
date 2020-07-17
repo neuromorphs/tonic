@@ -1,5 +1,5 @@
 ![tonic](tonic-logo-padded.png)
-Tonic provides spike-based datasets and a pipeline of data augmentation methods.
+Tonic provides spike-based datasets and a pipeline of data augmentation methods based on [pytorch](https://pytorch.org/).
 
 ## Install
 ```bash
@@ -16,10 +16,10 @@ transform = transforms.Compose([transforms.TimeJitter(variance=10),
                                 transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3),])
 
 testset = tonic.datasets.NMNIST(save_to='./data',
-                                                  train=False,
-                                                  transform=transform)
+                                train=False,
+                                transform=transform)
 
-testloader = tonic.datasets.Dataloader(testset, shuffle=True)
+testloader = tonic.datasets.DataLoader(testset, shuffle=True)
 
 for surfaces, target in iter(testloader):
     print("{} surfaces for target {}".format(len(surfaces), target))
