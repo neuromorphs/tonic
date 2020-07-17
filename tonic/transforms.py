@@ -1,7 +1,7 @@
 from . import functional
 
 
-class Compose(object):
+class Compose:
     """Bundles several transforms.
 
     Args:
@@ -34,7 +34,7 @@ class Compose(object):
         return format_string
 
 
-class Crop(object):
+class Crop:
     def __init__(self, target_size=(256, 256)):
         self.target_size = target_size
 
@@ -44,7 +44,7 @@ class Crop(object):
         )
 
 
-class DropEvents(object):
+class DropEvents:
     def __init__(self, drop_probability=0.5, random_drop_probability=False):
         self.drop_probability = drop_probability
         self.random_drop_probability = random_drop_probability
@@ -56,7 +56,7 @@ class DropEvents(object):
         return events, images
 
 
-class FlipLR(object):
+class FlipLR:
     def __init__(self, flip_probability=0.5):
         self.flip_probability_lr = flip_probability
 
@@ -66,7 +66,7 @@ class FlipLR(object):
         )
 
 
-class FlipPolarity(object):
+class FlipPolarity:
     def __init__(self, flip_probability=0.5):
         self.flip_probability_pol = flip_probability
 
@@ -77,7 +77,7 @@ class FlipPolarity(object):
         return events, images
 
 
-class FlipUD(object):
+class FlipUD:
     def __init__(self, flip_probability=0.5):
         self.flip_probability_ud = flip_probability
 
@@ -87,7 +87,7 @@ class FlipUD(object):
         )
 
 
-class MaskIsolated(object):
+class MaskIsolated:
     def __init__(self, time_filter=10000):
         self.time_filter = time_filter
 
@@ -98,7 +98,7 @@ class MaskIsolated(object):
         return events, images
 
 
-class RefractoryPeriod(object):
+class RefractoryPeriod:
     def __init__(self, refractory_period=0.5):
         self.refractory_period = refractory_period
 
@@ -109,7 +109,7 @@ class RefractoryPeriod(object):
         return events, images
 
 
-class SpatialJitter(object):
+class SpatialJitter:
     def __init__(
         self,
         variance_x=1,
@@ -138,7 +138,7 @@ class SpatialJitter(object):
         return events, images
 
 
-class SpatioTemporalTransform(object):
+class SpatioTemporalTransform:
     def __init__(self, spatial_transform, temporal_transform, roll=False):
         self.spatial_transform = spatial_transform
         self.temporal_transform = temporal_transform
@@ -156,7 +156,7 @@ class SpatioTemporalTransform(object):
         return events, images
 
 
-class TimeJitter(object):
+class TimeJitter:
     def __init__(self, variance=1, integer_timestamps=False, clip_negative=True):
         self.variance = variance
         self.integer_timestamps = integer_timestamps
@@ -169,7 +169,7 @@ class TimeJitter(object):
         return events, images
 
 
-class TimeReversal(object):
+class TimeReversal:
     def __init__(self, flip_probability=0.5):
         self.flip_probability_t = flip_probability
 
@@ -179,7 +179,7 @@ class TimeReversal(object):
         )
 
 
-class TimeSkew(object):
+class TimeSkew:
     def __init__(self, coefficient=0.9, offset=0):
         self.coefficient = coefficient
         self.offset = offset
@@ -191,7 +191,7 @@ class TimeSkew(object):
         return events, images
 
 
-class ToRatecodedFrame(object):
+class ToRatecodedFrame:
     def __init__(self, frame_time=5000, merge_polarities=True):
         self.frame_time = frame_time
         self.merge_polarities = merge_polarities
@@ -207,7 +207,7 @@ class ToRatecodedFrame(object):
         return frames, images
 
 
-class ToTimesurface(object):
+class ToTimesurface:
     def __init__(
         self, surface_dimensions=(7, 7), tau=5e3, decay="lin", merge_polarities=False
     ):
