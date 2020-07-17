@@ -1,9 +1,10 @@
 import os
 import numpy as np
-from .dataset import Dataset
+from torchvision.datasets.vision import VisionDataset
+from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
 
 
-class NMNIST(Dataset):
+class NMNIST(VisionDataset):
     """NMNIST <https://www.garrickorchard.com/datasets/n-mnist> data set.
 
     arguments:
@@ -16,8 +17,8 @@ class NMNIST(Dataset):
     base_url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/"
     test_zip = base_url + "AADSKgJ2CjaBWh75HnTNZyhca/Test.zip?dl=1"
     train_zip = base_url + "AABlMOuR15ugeOxMCX0Pvoxga/Train.zip?dl=1"
-    test_md5 = "69CA8762B2FE404D9B9BAD1103E97832"
-    train_md5 = "20959B8E626244A1B502305A9E6E2031"
+    test_md5 = "69ca8762b2fe404d9b9bad1103e97832"
+    train_md5 = "20959b8e626244a1b502305a9e6e2031"
     test_filename = "nmnist_test.zip"
     train_filename = "nmnist_train.zip"
     classes = [
@@ -52,6 +53,8 @@ class NMNIST(Dataset):
         self.train = train
         self.location_on_system = save_to
         self.first_saccade_only = first_saccade_only
+        self.data = []
+        self.targets = []
 
         if train:
             self.url = self.train_zip
@@ -67,7 +70,7 @@ class NMNIST(Dataset):
         if download:
             self.download()
 
-        if not self.check_integrity():
+        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -89,10 +92,15 @@ class NMNIST(Dataset):
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return events, target
+        return events.astype('int64'), target
 
     def __len__(self):
         return len(self.data)
+
+    def download(self):
+        download_and_extract_archive(
+            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+        )
 
     def _read_dataset_file(self, filename):
         f = open(filename, "rb")
