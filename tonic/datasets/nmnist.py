@@ -1,7 +1,11 @@
 import os
 import numpy as np
 from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
+from torchvision.datasets.utils import (
+    check_integrity,
+    download_and_extract_archive,
+    extract_archive,
+)
 
 
 class NMNIST(VisionDataset):
@@ -70,7 +74,9 @@ class NMNIST(VisionDataset):
         if download:
             self.download()
 
-        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.filename), self.file_md5
+        ):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -86,8 +92,7 @@ class NMNIST(VisionDataset):
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
-        events = self._read_dataset_file(self.samples[index]).astype('int64')
-        print(events)
+        events = self._read_dataset_file(self.samples[index]).astype("int64")
         target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
