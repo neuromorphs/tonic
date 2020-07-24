@@ -1,7 +1,11 @@
 import os
 import numpy as np
 from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
+from torchvision.datasets.utils import (
+    check_integrity,
+    download_and_extract_archive,
+    extract_archive,
+)
 from numpy.lib.recfunctions import structured_to_unstructured
 import loris
 
@@ -10,10 +14,11 @@ class NCARS(VisionDataset):
     """N-Cars <https://www.prophesee.ai/dataset-n-cars-download/> data set.
 
     arguments:
-        train: choose training or test set
         save_to: location to save files to on disk
-        transform: list of transforms to apply to the data
+        train: choose training or test set
         download: choose to download data or not
+        transform: list of transforms to apply to the data
+        target_transform: list of transforms to apply to targets
     """
 
     # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
@@ -38,15 +43,17 @@ class NCARS(VisionDataset):
         super(NCARS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        
+
         self.location_on_system = save_to
         self.data = []
         self.targets = []
-        
+
         if download:
             self.download()
 
-        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.filename), self.file_md5
+        ):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"

@@ -1,7 +1,11 @@
 import os
 import numpy as np
 from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
+from torchvision.datasets.utils import (
+    check_integrity,
+    download_and_extract_archive,
+    extract_archive,
+)
 
 
 class NCALTECH101(VisionDataset):
@@ -9,8 +13,9 @@ class NCALTECH101(VisionDataset):
 
     arguments:
         save_to: location to save files to on disk
-        transform: list of transforms to apply to the data
         download: choose to download data or not
+        transform: list of transforms to apply to the data
+        target_transform: list of transforms to apply to targets
     """
 
     url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AAD0T79lglp-BrdbSCuH_7MFa/Caltech101.zip?dl=1"
@@ -33,7 +38,9 @@ class NCALTECH101(VisionDataset):
         if download:
             self.download()
 
-        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.filename), self.file_md5
+        ):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
@@ -59,7 +66,7 @@ class NCALTECH101(VisionDataset):
 
     def __len__(self):
         return len(self.data)
-    
+
     def download(self):
         download_and_extract_archive(
             self.url, self.location_on_system, filename=self.filename, md5=self.file_md5

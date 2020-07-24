@@ -1,17 +1,22 @@
 import os
 import numpy as np
 from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_and_extract_archive, extract_archive
+from torchvision.datasets.utils import (
+    check_integrity,
+    download_and_extract_archive,
+    extract_archive,
+)
 
 
 class IBMGesture(VisionDataset):
     """IBMGesture <http://research.ibm.com/dvsgesture/> data set.
 
     arguments:
-        train: choose training or test set
         save_to: location to save files to on disk
-        transform: list of transforms to apply to the data
+        train: choose training or test set
         download: choose to download data or not
+        transform: list of transforms to apply to the data
+        target_transform: list of transforms to apply to targets
     """
 
     # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
@@ -66,7 +71,9 @@ class IBMGesture(VisionDataset):
         if download:
             self.download()
 
-        if not check_integrity(os.path.join(self.location_on_system, self.filename), self.file_md5):
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.filename), self.file_md5
+        ):
             raise RuntimeError(
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
