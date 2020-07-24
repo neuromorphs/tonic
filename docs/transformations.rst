@@ -27,9 +27,15 @@ Transforms on events
 
 Event Representations
 ---------------------
+.. autoclass:: ToAveragedTimesurface
 .. autoclass:: ToRatecodedFrame
-.. autoclass:: ToTimesurface
 .. autoclass:: ToSparseTensor
+.. autoclass:: ToTimesurface
+
+Target transforms
+-----------------
+.. autoclass:: ToOneHotEncoding
+.. autoclass:: Repeat
 
 Functional transforms in numpy
 ------------------------------

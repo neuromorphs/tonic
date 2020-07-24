@@ -2,10 +2,14 @@ from . import functional
 
 
 class Compose:
-    """Bundles several transforms.
-
+    """Composes several transforms together.
     Args:
-        transforms (list of transforms)
+        transforms (list of ``Transform`` objects): list of transforms to compose.
+    Example:
+        >>> transforms.Compose([
+        >>>     transforms.MaskIsolated(),
+        >>>     transforms.ToTensor(),
+        >>> ])
     """
 
     def __init__(self, transforms):
@@ -35,9 +39,7 @@ class Compose:
 
 
 class Crop:
-    """Crops the sensor size to a smaller sensor.
-    Removes events outsize of the target sensor and maps
-    """
+    """Crops the sensor size to a smaller sensor and removes events outsize of the target sensor and maps."""
 
     def __init__(self, target_size=(256, 256)):
         self.target_size = target_size
@@ -49,6 +51,8 @@ class Crop:
 
 
 class DropEvents:
+    """Drops events with  a certain probability."""
+
     def __init__(self, drop_probability=0.5, random_drop_probability=False):
         self.drop_probability = drop_probability
         self.random_drop_probability = random_drop_probability
@@ -61,6 +65,8 @@ class DropEvents:
 
 
 class FlipLR:
+    """Mirrors x coordinates of events and images (if present)"""
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_lr = flip_probability
 
@@ -71,6 +77,8 @@ class FlipLR:
 
 
 class FlipPolarity:
+    """Changes polarities 1 to -1 and polarities [-1, 0] to 1"""
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_pol = flip_probability
 
@@ -82,6 +90,8 @@ class FlipPolarity:
 
 
 class FlipUD:
+    """Mirrors y coordinates of events and images (if present)"""
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_ud = flip_probability
 
@@ -92,6 +102,9 @@ class FlipUD:
 
 
 class MaskIsolated:
+    """Cycles through all events and drops it if there is no other event within
+    a time of time_filter and a spatial neighbourhood of 1. Good noise filter."""
+
     def __init__(self, time_filter=10000):
         self.time_filter = time_filter
 
@@ -103,6 +116,9 @@ class MaskIsolated:
 
 
 class RefractoryPeriod:
+    """Cycles through all events and drops event if within refractory period for
+    that pixel."""
+
     def __init__(self, refractory_period=0.5):
         self.refractory_period = refractory_period
 
@@ -114,6 +130,8 @@ class RefractoryPeriod:
 
 
 class SpatialJitter:
+    """Blurs x and y coordinates of events. Integer or subpixel precision possible."""
+
     def __init__(
         self,
         variance_x=1,
@@ -143,6 +161,8 @@ class SpatialJitter:
 
 
 class SpatioTemporalTransform:
+    """Choose arbitrary spatial and temporal transformation."""
+
     def __init__(self, spatial_transform, temporal_transform, roll=False):
         self.spatial_transform = spatial_transform
         self.temporal_transform = temporal_transform
@@ -161,6 +181,8 @@ class SpatioTemporalTransform:
 
 
 class TimeJitter:
+    """Blurs timestamps of events. Will clip negative timestamps by default."""
+
     def __init__(self, variance=1, integer_timestamps=False, clip_negative=True):
         self.variance = variance
         self.integer_timestamps = integer_timestamps
@@ -174,6 +196,8 @@ class TimeJitter:
 
 
 class TimeReversal:
+    """Will reverse the timestamps of events with a certain probability."""
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_t = flip_probability
 
@@ -184,6 +208,8 @@ class TimeReversal:
 
 
 class TimeSkew:
+    """Scale and/or offset all timestamps."""
+
     def __init__(self, coefficient=0.9, offset=0):
         self.coefficient = coefficient
         self.offset = offset
@@ -196,6 +222,8 @@ class TimeSkew:
 
 
 class ToRatecodedFrame:
+    """Bin events to frames."""
+
     def __init__(self, frame_time=5000, merge_polarities=True):
         self.frame_time = frame_time
         self.merge_polarities = merge_polarities
@@ -212,6 +240,8 @@ class ToRatecodedFrame:
 
 
 class ToSparseTensor:
+    """Turn event array (N,E) into sparse Tensor (B,T,W,H)."""
+
     def __init__(self, merge_polarities=False):
         self.merge_polarities = merge_polarities
 
@@ -223,6 +253,8 @@ class ToSparseTensor:
 
 
 class ToTimesurface:
+    """Create Time surfaces for each event."""
+
     def __init__(
         self, surface_dimensions=(7, 7), tau=5e3, decay="lin", merge_polarities=False
     ):
@@ -247,6 +279,8 @@ class ToTimesurface:
 
 
 class UniformNoise:
+    """Inject noise events."""
+
     def __init__(self, noise_density=1e-8):
         self.noise_density = noise_density
 
@@ -278,6 +312,8 @@ class ToOneHotEncoding:
 
 
 class ToAveragedTimesurface(object):
+    """Creates Averaged Time Surfaces."""
+
     def __init__(
         self,
         cell_size=10,
