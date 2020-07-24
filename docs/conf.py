@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "Telluride data augmentation"
-copyright = "2019, the Neuromorphs"
+copyright = "2020, the Neuromorphs"
 author = "the Neuromorphs"
 
 # The full version, including alpha/beta/rc tags
@@ -32,7 +32,7 @@ release = tonic.__version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosummary", "sphinx.ext.napoleon"]
 
 # Napoleon settings
 napoleon_google_docstring = True
