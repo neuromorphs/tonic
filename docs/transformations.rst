@@ -1,4 +1,4 @@
-tonic.transforms
+Transforms
 ==========================
 
 .. currentmodule:: tonic.transforms
