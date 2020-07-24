@@ -82,7 +82,7 @@ class NMNIST(VisionDataset):
             for file in files:
                 if file.endswith("bin"):
                     events = self._read_dataset_file(path + "/" + file)
-                    self.data.append(events)
+                    self.data.append(events.astype('int64'))
                     label_number = int(path[-1])
                     self.targets.append(label_number)
 
@@ -92,7 +92,7 @@ class NMNIST(VisionDataset):
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return events.astype('int64'), target
+        return events, target
 
     def __len__(self):
         return len(self.data)

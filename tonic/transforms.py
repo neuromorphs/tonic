@@ -207,6 +207,20 @@ class ToRatecodedFrame:
         return frames, images
 
 
+class ToSparseTensor:
+    def __init__(self, merge_polarities=False):
+        self.merge_polarities = merge_polarities
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        tensor = functional.to_sparse_tensor_pytorch(
+            events,
+            sensor_size,
+            ordering,
+            merge_polarities=self.merge_polarities,
+        )
+        return tensor, images
+
+
 class ToTimesurface:
     def __init__(
         self, surface_dimensions=(7, 7), tau=5e3, decay="lin", merge_polarities=False
