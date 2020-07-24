@@ -1,6 +1,22 @@
+import numpy as np
 from matplotlib import animation, rc
 import matplotlib.pyplot as plt
 import tonic.transforms as transforms
+
+
+def pad_events(batch):
+    max_length = 0
+    for sample, target in batch:
+        if len(sample) > max_length:
+            max_length = len(sample)
+    samples_output = []
+    targets_output = []
+    for sample, target in batch:
+        sample = np.vstack((np.zeros((max_length - len(sample), 4)), sample))
+        samples_output.append(sample)
+        targets_output.append(target)
+    return np.stack(samples_output), targets_output
+
 
 # needs matplotlib widget backend
 def plot_events(events, sensor_size, ordering, frame_time=25000, repeat=False):

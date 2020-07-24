@@ -19,6 +19,12 @@ def to_sparse_tensor_pytorch(
     t_index = ordering.find("t")
     p_index = ordering.find("p")
 
+    if len(events.shape) != 2:
+        raise RuntimeError(
+            "Will only convert to sparse tensor from (N,E) (i.e., a list of events)"
+            " dimension."
+        )
+
     if merge_polarities:
         events[:, p_index] = np.zeros(n_of_events)
     else:
