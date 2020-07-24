@@ -229,3 +229,29 @@ class ToTimesurface(object):
             self.merge_polarities,
         )
         return surfaces, images
+
+class ToAveragedTimesurface(object):
+    def __init__(
+        self, cell_size=10, surface_size=7, temporal_window=5e5, tau=5e3, decay="lin", merge_polarities=False
+    ):
+        assert surface_size % 2 == 1
+        self.cell_size = cell_size
+        self.surface_size = surface_size
+        self.temporal_window = temporal_window
+        self.tau = tau
+        self.decay = decay
+        self.merge_polarities = merge_polarities
+        
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        surfaces = functional.to_averaged_timesurface(
+            events,
+            sensor_size,
+            ordering,
+            self.cell_size,
+            self.surface_size,
+            self.temporal_window,
+            self.tau,
+            self.decay,
+            self.merge_polarities,
+        )
+        return surfaces, images

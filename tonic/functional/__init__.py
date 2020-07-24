@@ -15,6 +15,7 @@ from .to_ratecoded_frame import to_ratecoded_frame_numpy
 from .to_timesurface import to_timesurface_numpy
 from .uniform_noise import uniform_noise_numpy
 from .utils import guess_event_ordering_numpy, is_multi_image
+from .to_averaged_timesurface import to_averaged_timesurface
 
 __all__ = [
     crop_numpy,
@@ -32,6 +33,7 @@ __all__ = [
     time_skew_numpy,
     to_ratecoded_frame_numpy,
     to_timesurface_numpy,
+    to_averaged_timesurface,
     uniform_noise_numpy,
     guess_event_ordering_numpy,
     is_multi_image,
