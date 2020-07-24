@@ -1,5 +1,4 @@
 import numpy as np
-
 import warnings
 
 from .utils import guess_event_ordering_numpy, is_multi_image

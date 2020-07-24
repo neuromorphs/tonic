@@ -35,6 +35,10 @@ class Compose:
 
 
 class Crop:
+    """Crops the sensor size to a smaller sensor.
+        Removes events outsize of the target sensor and maps
+    """
+
     def __init__(self, target_size=(256, 256)):
         self.target_size = target_size
 
@@ -213,10 +217,7 @@ class ToSparseTensor:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         tensor = functional.to_sparse_tensor_pytorch(
-            events,
-            sensor_size,
-            ordering,
-            merge_polarities=self.merge_polarities,
+            events, sensor_size, ordering, merge_polarities=self.merge_polarities
         )
         return tensor, images
 
@@ -243,3 +244,14 @@ class ToTimesurface:
             self.merge_polarities,
         )
         return surfaces, images
+
+
+class UniformNoise:
+    def __init__(self, noise_density=1e-8):
+        self.noise_density = noise_density
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        surfaces = functional.uniform_noise_numpy(
+            events, sensor_size, ordering, self.noise_density
+        )
+        return events, images
