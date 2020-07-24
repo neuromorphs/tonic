@@ -255,3 +255,23 @@ class UniformNoise:
             events, sensor_size, ordering, self.noise_density
         )
         return events, images
+
+
+class Repeat:
+    """Copies target n times. Useful to transform sample labels into sequences."""
+
+    def __init__(self, repetitions):
+        self.repetitions = repetitions
+
+    def __call__(self, target):
+        return np.tile(np.expand_dims(target, 0), [self.repetitions, 1])
+
+
+class ToOneHotEncoding:
+    """Transforms one or more targets into a one hot encoding scheme."""
+
+    def __init__(self, n_classes):
+        self.n_classes = n_classes
+
+    def __call__(self, target):
+        return np.eye(self.n_classes)[target]

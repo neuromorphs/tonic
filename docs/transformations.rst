@@ -4,7 +4,7 @@ tonic.transforms
 .. currentmodule:: tonic.transforms
 
 Transforms are common event transformations. They can be chained together using :class:`Compose`.
-Additionally, there is the :mod:`tonic.transforms.functional` module.
+Additionally, there is the :mod:`tonic.functional` module.
 Functional transforms give fine-grained control over the transformations.
 This is useful if you have to build a more complex transformation pipeline.
 
