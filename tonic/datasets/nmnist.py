@@ -49,11 +49,11 @@ class NMNIST(VisionDataset):
         super(NMNIST, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-
         self.train = train
         self.location_on_system = save_to
         self.first_saccade_only = first_saccade_only
         self.data = []
+        self.samples = []
         self.targets = []
 
         if train:
@@ -81,13 +81,14 @@ class NMNIST(VisionDataset):
             dirs.sort()
             for file in files:
                 if file.endswith("bin"):
-                    events = self._read_dataset_file(path + "/" + file)
-                    self.data.append(events.astype('int64'))
+                    self.samples.append(path + "/" + file)
                     label_number = int(path[-1])
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
-        events, target = self.data[index], self.targets[index]
+        events = self._read_dataset_file(self.samples[index]).astype('int64')
+        print(events)
+        target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
@@ -95,7 +96,7 @@ class NMNIST(VisionDataset):
         return events, target
 
     def __len__(self):
-        return len(self.data)
+        return len(self.samples)
 
     def download(self):
         download_and_extract_archive(

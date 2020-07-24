@@ -46,13 +46,10 @@ class IBMGesture(VisionDataset):
         super(IBMGesture, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        # We will not be loading everything into memory. Instead, we will keep a list of samples into file
-        # Could have reused self.data for that purpose as well.
-        self.samples = []
-
         self.train = train
         self.location_on_system = save_to
         self.data = []
+        self.samples = []
         self.targets = []
 
         if train:
