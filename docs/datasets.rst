@@ -7,11 +7,8 @@ Hence, they can all be passed to a :class:`torch.utils.data.DataLoader`
 which can load multiple samples parallelly using ``torch.multiprocessing`` workers.
 For example: ::
 
-    imagenet_data = torchvision.datasets.ImageNet('path/to/imagenet_root/')
-    data_loader = torch.utils.data.DataLoader(imagenet_data,
-                                              batch_size=4,
-                                              shuffle=True,
-                                              num_workers=args.nThreads)
+    dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
+    dataloader = tonic.datasets.DataLoader(dataset, shuffle=True, num_workers=4)
 
 The following datasets are available:
 
@@ -43,3 +40,12 @@ NMNIST
 POKER DVS
 ~~~~~~~~~
 .. autoclass:: POKERDVS
+
+Dataset suggestions
+~~~~~~~~~~~~~~~~~~~~
+We would like to include support for some other datasets as well. Some possible candidates are:
+
+* `MVSEC <https://daniilidis-group.github.io/mvsec/>`_
+* `ASL-DVS <https://github.com/PIX2NVS/NVS2Graph>`_
+* `TI Digits <https://catalog.ldc.upenn.edu/LDC93S10>`_
+* `TIMIT <https://catalog.ldc.upenn.edu/LDC93S1>`_

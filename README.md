@@ -1,7 +1,9 @@
 ![tonic](tonic-logo-padded.png)
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 
-Tonic provides publicly available spike-based datasets and a pipeline of data augmentation methods based on [PyTorch](https://pytorch.org/), which enables multithreaded dataloading and shuffling as well as batching. Have a look at the list of [datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
+Tonic provides publicly available spike-based datasets and a pipeline of data augmentation methods based on [PyTorch](https://pytorch.org/), which enables multithreaded dataloading and shuffling as well as batching.
+
+Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
 
 ## Install
 ```bash
@@ -28,15 +30,4 @@ for surfaces, target in iter(testloader):
 ```
 
 ## Documentation
-You can find the API documentation on the Tonic readthedocs website: https://tonic.readthedocs.io/en/latest/index.html
-
-## Possible data sets (asterix marks currently supported in this package)
-- [MVSEC](https://daniilidis-group.github.io/mvsec/)
-- [NMNIST](https://www.garrickorchard.com/datasets/n-mnist) (\*)
-- [ASL-DVS](https://github.com/PIX2NVS/NVS2Graph)
-- [NCARS](https://www.prophesee.ai/dataset-n-cars/)(\*)
-- [N-CALTECH 101](https://www.garrickorchard.com/datasets/n-caltech101)(\*)
-- [POKER-DVS](http://www2.imse-cnm.csic.es/caviar/POKERDVS.html) (\*)
-- [IBM gestures](http://www.research.ibm.com/dvsgesture/) (\*)
-- [TI Digits](https://catalog.ldc.upenn.edu/LDC93S10)
-- [TIMIT](https://catalog.ldc.upenn.edu/LDC93S1)
+You can find the full documentation on Tonic [here](https://tonic.readthedocs.io/en/latest/index.html).
