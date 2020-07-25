@@ -11,6 +11,7 @@ from .st_transform import st_transform
 from .time_jitter import time_jitter_numpy
 from .time_reversal import time_reversal_numpy
 from .time_skew import time_skew_numpy
+from .to_averaged_timesurface import to_averaged_timesurface
 from .to_ratecoded_frame import to_ratecoded_frame_numpy
 from .to_sparse_tensor import to_sparse_tensor_pytorch
 from .to_timesurface import to_timesurface_numpy
@@ -31,6 +32,7 @@ __all__ = [
     "time_jitter_numpy",
     "time_reversal_numpy",
     "time_skew_numpy",
+    "to_averaged_timesurface",
     "to_ratecoded_frame_numpy",
     "to_sparse_tensor_pytorch",
     "to_timesurface_numpy",

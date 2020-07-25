@@ -5,6 +5,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Mac DS_store
+*DS_Store
+
 # C extensions
 *.so
 
@@ -127,3 +130,5 @@ dmypy.json
 
 # vim swap files
 *.swp
+
+test/numpy_test/data/

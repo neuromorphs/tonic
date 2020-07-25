@@ -61,7 +61,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
-            "Event dropout should result in drop_probability*len(original) events dropped out.",
+            "Event dropout should result in drop_probability*len(original) events"
+            " dropped out.",
         )
 
         self.assertTrue(
@@ -75,7 +76,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             events.shape[0] >= (1 - drop_probability) * original.shape[0],
-            "Event dropout with random drop probability should result in less than drop_probability*len(original) events dropped out.",
+            "Event dropout with random drop probability should result in less than"
+            " drop_probability*len(original) events dropped out.",
         )
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
@@ -87,7 +89,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
-            "Event dropout should result in drop_probability*len(original) events dropped out.",
+            "Event dropout should result in drop_probability*len(original) events"
+            " dropped out.",
         )
 
         self.assertTrue(
@@ -102,7 +105,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             events.shape[0] >= (1 - drop_probability) * original.shape[0],
-            "Event dropout with random drop probability should result in less than drop_probability*len(original) events dropped out.",
+            "Event dropout with random drop probability should result in less than"
+            " drop_probability*len(original) events dropped out.",
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
@@ -120,7 +124,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             ((self.random_txyp[2][0] - 1) - events[:, 0] == original_x).all(),
-            "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
+            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
+            " sensor width - x",
         )
         self.assertEqual(events.dtype, self.random_xytp[0].dtype)
 
@@ -138,7 +143,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             ((self.random_txyp[2][0] - 1) - events[:, 1] == original_x).all(),
-            "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
+            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
+            " sensor width - x",
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
@@ -198,7 +204,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             ((self.random_xytp[2][1] - 1) - events[:, 1] == original_y).all(),
-            "When flipping up and down, y must map to the opposite pixel, i.e. y' = sensor width - 1 - y",
+            "When flipping up and down, y must map to the opposite pixel, i.e. y' ="
+            " sensor width - 1 - y",
         )
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
@@ -216,7 +223,8 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(
             ((self.random_xytp[2][1] - 1) - events[:, 2] == original_y).all(),
-            "When flipping up and down, y must map to the opposite pixel, i.e. y' = sensor width - 1 - y",
+            "When flipping up and down, y must map to the opposite pixel, i.e. y' ="
+            " sensor width - 1 - y",
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
@@ -724,6 +732,50 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertEqual(surfaces.shape[0], len(original_events))
         self.assertEqual(surfaces.shape[1], 2)
         self.assertEqual(surfaces.shape[2:], surf_dims)
+
+    def testToAveragedTimesurfaceXytp(self):
+        original_events = self.random_xytp[0].copy()
+        cell_size = 10
+        surface_size = 5
+        temporal_window = 100
+        tau = 100
+        merge_polarities = True
+
+        surfaces = F.to_averaged_timesurface(
+            events=self.random_xytp[0].copy(),
+            sensor_size=self.random_xytp[2],
+            ordering=self.random_xytp[3],
+            cell_size=cell_size,
+            surface_size=surface_size,
+            temporal_window=temporal_window,
+            tau=tau,
+            merge_polarities=merge_polarities,
+        )
+        self.assertEqual(surfaces.shape[0], len(original_events))
+        self.assertEqual(surfaces.shape[1], 1)
+        self.assertEqual(surfaces.shape[2], surface_size)
+
+    def testToAveragedTimesurfaceTyxp(self):
+        original_events = self.random_txyp[0].copy()
+        cell_size = 10
+        surface_size = 5
+        temporal_window = 100
+        tau = 100
+        merge_polarities = False
+
+        surfaces = F.to_averaged_timesurface(
+            events=self.random_txyp[0].copy(),
+            sensor_size=self.random_txyp[2],
+            ordering=self.random_txyp[3],
+            cell_size=cell_size,
+            surface_size=surface_size,
+            temporal_window=temporal_window,
+            tau=tau,
+            merge_polarities=merge_polarities,
+        )
+        self.assertEqual(surfaces.shape[0], len(original_events))
+        self.assertEqual(surfaces.shape[1], 2)
+        self.assertEqual(surfaces.shape[2], surface_size)
 
     def testUniformNoiseXytp(self):
         original_events = self.random_xytp[0].copy()
