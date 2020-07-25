@@ -1,5 +1,7 @@
 ![tonic](tonic-logo-padded.png)
-Tonic provides spike-based datasets and a pipeline of data augmentation methods based on [pytorch](https://pytorch.org/).
+[![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
+
+Tonic provides publicly available spike-based datasets and a pipeline of data augmentation methods based on [PyTorch](https://pytorch.org/), which enables multithreaded dataloading and shuffling as well as batching. Have a look at the list of [datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
 
 ## Install
 ```bash
@@ -26,12 +28,7 @@ for surfaces, target in iter(testloader):
 ```
 
 ## Documentation
-To see a list of all transforms and their possible parameters, it is necessary to build documentation locally. Just run the following commands to do that:
-```bash
-cd docs
-make html
-firefox _build/html/index.html
-```
+You can find the API documentation on the Tonic readthedocs website: https://tonic.readthedocs.io/en/latest/index.html
 
 ## Possible data sets (asterix marks currently supported in this package)
 - [MVSEC](https://daniilidis-group.github.io/mvsec/)
@@ -43,22 +40,3 @@ firefox _build/html/index.html
 - [IBM gestures](http://www.research.ibm.com/dvsgesture/) (\*)
 - [TI Digits](https://catalog.ldc.upenn.edu/LDC93S10)
 - [TIMIT](https://catalog.ldc.upenn.edu/LDC93S1)
-
-## Contribute
-
-#### Install pre-commit
-
-Please use the [black formatter](https://black.readthedocs.io/en/stable/) as a pre-commit hook. You can easily install it as follows:
-```
-pip install pre-commit
-pre-commit install
-```
-When you use ```git add``` you add files to the current commit, then when you run ```git commit``` the black formatter will run BEFORE the commit itself. If it fails the check, the black formatter will format the file and then present it to you to add it into your commit. Simply run ```git add``` on those files again and do the remainder of the commit as normal.
-
-#### Run tests
-
-To run the tests, from the root directory of the repo
-
-```
-python -m pytest
-```

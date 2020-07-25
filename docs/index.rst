@@ -14,3 +14,4 @@ The :mod:`tonic` package consists of popular datasets and transformations for sp
 
    transformations
    datasets
+   contribute
