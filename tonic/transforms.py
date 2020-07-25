@@ -7,7 +7,7 @@ class Compose:
         transforms (list of ``Transform`` objects): list of transforms to compose.
     Example:
         >>> transforms.Compose([
-        >>>     transforms.MaskIsolated(),
+        >>>     transforms.Denoise(),
         >>>     transforms.ToTensor(),
         >>> ])
     """
@@ -101,15 +101,15 @@ class FlipUD:
         )
 
 
-class MaskIsolated:
+class Denoise:
     """Cycles through all events and drops it if there is no other event within
-    a time of time_filter and a spatial neighbourhood of 1. Good noise filter."""
+    a time of time_filter and a spatial neighbourhood of 1."""
 
     def __init__(self, time_filter=10000):
         self.time_filter = time_filter
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.mask_isolated_numpy(
+        events = functional.denoise_numpy(
             events, sensor_size, ordering, self.time_filter
         )
         return events, images

@@ -13,11 +13,11 @@ This is useful if you have to build a more complex transformation pipeline.
 Transforms on events
 -----------------------
 .. autoclass:: Crop
+.. autoclass:: Denoise
 .. autoclass:: DropEvents
 .. autoclass:: FlipLR
 .. autoclass:: FlipPolarity
 .. autoclass:: FlipUD
-.. autoclass:: MaskIsolated
 .. autoclass:: RefractoryPeriod
 .. autoclass:: SpatialJitter
 .. autoclass:: TimeJitter

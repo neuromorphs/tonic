@@ -228,11 +228,11 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
-    def testMaskIsolatedxytp(self):
+    def testDenoisexytp(self):
         original_events = self.random_xytp[0].copy()
         filter_time = max(self.random_xytp[0][:, 2]) / 10
 
-        events = F.mask_isolated_numpy(
+        events = F.denoise_numpy(
             self.random_xytp[0],
             sensor_size=self.random_xytp[2],
             ordering=self.random_xytp[3],
@@ -250,11 +250,11 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
-    def testMaskIsolatedtxyp(self):
+    def testDenoisetxyp(self):
         original_events = self.random_txyp[0].copy()
         filter_time = max(self.random_txyp[0][:, 0]) / 10
 
-        events = F.mask_isolated_numpy(
+        events = F.denoise_numpy(
             self.random_txyp[0],
             sensor_size=self.random_txyp[2],
             ordering=self.random_txyp[3],

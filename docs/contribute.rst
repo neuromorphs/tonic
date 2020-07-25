@@ -5,7 +5,7 @@ If you want to see a specific dataset or transformation implemented but you're u
 Once you have your code ready on a separate branch, please do the following steps before you open a pull request:
 
 Format the code
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 Please use the `black formatter <https://black.readthedocs.io/en/stable/>`_ as a pre-commit hook. You can easily install it as follows:
 ::
 
