@@ -11,5 +11,4 @@ python:
   version: 3.7
   install:
     - method: setuptools
-        path: tonic
-    - requirements: docs/requirements.txt
+      path: tonic
