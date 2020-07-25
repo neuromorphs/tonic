@@ -11,4 +11,4 @@ python:
   version: 3.7
   install:
     - method: setuptools
-      path: tonic
+      path: /home/docs/checkouts/readthedocs.org/user_builds/tonic/
