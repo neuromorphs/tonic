@@ -12,7 +12,6 @@
 #
 import os
 import sys
-import tonic
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -22,10 +21,14 @@ project = "Tonic"
 copyright = "2020, the Neuromorphs"
 author = "the Neuromorphs"
 
-# The full version, including alpha/beta/rc tags
-version = ".".join(tonic.__version__.split(".")[:2])
-release = tonic.__version__
+try:
+    import tonic
 
+    version = ".".join(tonic.__version__.split(".")[:2])
+    release = tonic.__version__
+except ImportError:
+    version = ""
+    release = ""
 
 # -- General configuration ---------------------------------------------------
 
