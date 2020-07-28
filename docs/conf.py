@@ -61,7 +61,7 @@ html_theme = "sphinx_rtd_theme"
 html_logo = "_static/tonic-logo-white.png"
 html_show_sourcelink = True
 
-html_theme_options = {"logo_only": True}
+html_theme_options = {"logo_only": True, "analytics_id": "UA-36748283-2"}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
