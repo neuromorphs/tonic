@@ -94,7 +94,7 @@ class NMNIST(VisionDataset):
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
-        events = self._read_dataset_file(self.samples[index]).astype("int64")
+        events = self._read_dataset_file(self.samples[index])
         target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
