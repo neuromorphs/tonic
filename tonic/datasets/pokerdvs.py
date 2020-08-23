@@ -76,6 +76,7 @@ class POKERDVS(VisionDataset):
 
     def __getitem__(self, index):
         events, target = self.data[index], self.targets[index]
+        events = events.astype(np.float)
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:

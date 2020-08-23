@@ -69,7 +69,7 @@ class NCARS(VisionDataset):
             target_path = os.path.join(save_to, "ncars-test")
 
         if not os.path.exists(target_path):
-            self.extract_archive(os.path.join(save_to, target_zip))
+            extract_archive(os.path.join(save_to, target_zip))
             os.rename(source_path, target_path)
 
         # We will not be loading everything into memory. Instead, we will keep a list of samples into file
@@ -86,7 +86,7 @@ class NCARS(VisionDataset):
 
     def __getitem__(self, index):
         events = loris.read_file(self.samples[index])["events"]
-        events = np.array(structured_to_unstructured(events))
+        events = np.array(structured_to_unstructured(events, dtype=np.float))
         target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
