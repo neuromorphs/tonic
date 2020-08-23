@@ -6,12 +6,13 @@
 Welcome to Tonic!
 =======================================================
 
-The :mod:`tonic` package consists of popular datasets and transformations for spike-based/event-based data. It builds on PyTorch.
+This package provides popular datasets and transformations for spike-based/event-based data. It builds on PyTorch.
 
 .. toctree::
    :maxdepth: 2
    :caption: Package Reference
 
+   examples
    transformations
    datasets
    contribute
