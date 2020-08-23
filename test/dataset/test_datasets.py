@@ -13,10 +13,10 @@ class TestDatasets(unittest.TestCase):
         dataset = datasets.IBMGesture(
             save_to="./data", train=train, download=self.download
         )
-        dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)
+        dataloader = datasets.DataLoader(dataset, shuffle=False)
         events, label = next(iter(dataloader))
 
-        self.assertEqual(events.shape[0], n_events)
+        self.assertEqual(events.shape[1], n_events)
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
 
@@ -34,6 +34,40 @@ class TestDatasets(unittest.TestCase):
             download=self.download,
             first_saccade_only=first_saccade_only,
         )
+        dataloader = datasets.DataLoader(dataset, shuffle=False)
+        events, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[1], n_events)
+        self.assertEqual(label, true_label)
+        self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand([(True, 10066, 0, 15422), (False, 4938, 0, 8607)])
+    def testNCARS(self, train, n_events, true_label, n_samples):
+        dataset = datasets.NCARS(save_to="./data", train=train, download=self.download)
+        dataloader = datasets.DataLoader(dataset, shuffle=False)
+        events, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[1], n_events)
+        self.assertEqual(label, true_label)
+        self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand([(True, 3773, 0, 48), (False, 2515, 0, 20)])
+    def testPOKERDVS(self, train, n_events, true_label, n_samples):
+        dataset = datasets.POKERDVS(
+            save_to="./data", train=train, download=self.download
+        )
+        dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)
+        events, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[0], n_events)
+        self.assertEqual(label, true_label)
+        self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand(
+        [(163302, "BACKGROUND_Google", 8709),]
+    )
+    def testNCALTECH101(self, n_events, true_label, n_samples):
+        dataset = datasets.NCALTECH101(save_to="./data", download=self.download)
         dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)
         events, label = next(iter(dataloader))
 
