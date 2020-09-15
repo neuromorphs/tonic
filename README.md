@@ -1,5 +1,7 @@
 ![tonic](tonic-logo-padded.png)
+[![PyPI](https://img.shields.io/pypi/v/tonic)](https://pypi.org/project/tonic/)
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
+[![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 
 Tonic provides publicly available spike-based datasets and data transformations based on [PyTorch](https://pytorch.org/).
 
