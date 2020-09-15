@@ -9,8 +9,8 @@ class TestDatasets(unittest.TestCase):
     download = False
 
     @parameterized.expand([(True, 440860, 7, 1077), (False, 288123, 7, 264)])
-    def testIBMGesture(self, train, n_events, true_label, n_samples):
-        dataset = datasets.IBMGesture(
+    def testDVSGesture(self, train, n_events, true_label, n_samples):
+        dataset = datasets.DVSGesture(
             save_to="./data", train=train, download=self.download
         )
         dataloader = datasets.DataLoader(dataset, shuffle=False)
@@ -63,9 +63,7 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
 
-    @parameterized.expand(
-        [(163302, "BACKGROUND_Google", 8709),]
-    )
+    @parameterized.expand([(163302, "BACKGROUND_Google", 8709)])
     def testNCALTECH101(self, n_events, true_label, n_samples):
         dataset = datasets.NCALTECH101(save_to="./data", download=self.download)
         dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)

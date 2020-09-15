@@ -8,8 +8,8 @@ from torchvision.datasets.utils import (
 )
 
 
-class IBMGesture(VisionDataset):
-    """IBMGesture <http://research.ibm.com/dvsgesture/> data set.
+class DVSGesture(VisionDataset):
+    """DVSGesture <http://research.ibm.com/dvsgesture/> data set.
 
     arguments:
         save_to: location to save files to on disk
@@ -48,7 +48,7 @@ class IBMGesture(VisionDataset):
     def __init__(
         self, save_to, train=True, download=True, transform=None, target_transform=None
     ):
-        super(IBMGesture, self).__init__(
+        super(DVSGesture, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
         self.train = train
@@ -61,12 +61,12 @@ class IBMGesture(VisionDataset):
             self.url = self.train_zip
             self.file_md5 = self.train_md5
             self.filename = self.train_filename
-            self.folder_name = "ibmGestureTrain"
+            self.folder_name = "DVSGestureTrain"
         else:
             self.url = self.test_zip
             self.file_md5 = self.test_md5
             self.filename = self.test_filename
-            self.folder_name = "ibmGestureTest"
+            self.folder_name = "DVSGestureTest"
 
         if download:
             self.download()

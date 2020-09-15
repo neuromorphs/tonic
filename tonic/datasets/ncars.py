@@ -21,8 +21,6 @@ class NCARS(VisionDataset):
         target_transform: list of transforms to apply to targets
     """
 
-    # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
-    # Test : https://www.neuromorphic-vision.com/public/downloads/ibmGestureTest.tar.gz
     url = "http://www.prophesee.ai/resources/Prophesee_Dataset_n_cars.zip"
     filename = "Prophesee_Dataset_n_cars.zip"
     train_file = "n-cars_train.zip"
