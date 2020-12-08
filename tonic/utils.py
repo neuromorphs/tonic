@@ -24,7 +24,7 @@ def plot_events(events, sensor_size, ordering, frame_time=25000, repeat=False):
 
     transform = transforms.Compose(
         [
-            transforms.MaskIsolated(time_filter=20000),
+            transforms.Denoise(time_filter=20000),
             transforms.ToRatecodedFrame(frame_time=frame_time, merge_polarities=True),
         ]
     )
