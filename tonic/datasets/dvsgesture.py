@@ -61,12 +61,12 @@ class DVSGesture(VisionDataset):
             self.url = self.train_zip
             self.file_md5 = self.train_md5
             self.filename = self.train_filename
-            self.folder_name = "DVSGestureTrain"
+            self.folder_name = "ibmGestureTrain"
         else:
             self.url = self.test_zip
             self.file_md5 = self.test_md5
             self.filename = self.test_filename
-            self.folder_name = "DVSGestureTest"
+            self.folder_name = "ibmGestureTest"
 
         if download:
             self.download()
