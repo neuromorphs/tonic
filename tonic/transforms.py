@@ -3,8 +3,10 @@ from . import functional
 
 class Compose:
     """Composes several transforms together.
+    
     Args:
         transforms (list of ``Transform`` objects): list of transform(s) to compose. Even when using a single transform, the Compose wrapper is necessary.
+    
     Example:
         >>> transforms.Compose([
         >>>     transforms.Denoise(),
