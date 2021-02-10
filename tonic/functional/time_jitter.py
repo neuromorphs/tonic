@@ -12,7 +12,7 @@ def time_jitter_numpy(
         mean = [t]
         variance = variance
 
-    Automatically clipping negative timestamps.
+    Will clip negative timestamps by default.
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
@@ -46,7 +46,5 @@ def time_jitter_numpy(
 
     if clip_negative:
         events = np.delete(events, (np.where(times < 0)), axis=0)
-    else:
-        times[times < 0] = 0
 
     return events
