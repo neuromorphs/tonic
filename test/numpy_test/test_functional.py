@@ -462,18 +462,14 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 0].all(), original_events[:, 0].all(), atol=variance)
         )
-        self.assertTrue((events[:, 0] >= 0).all())
-        self.assertTrue((events[:, 0] <= self.random_xytp[2][0]).all())
         self.assertTrue(
             np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
         )
-        self.assertTrue((events[:, 1] >= 0).all())
-        self.assertTrue((events[:, 1] <= self.random_xytp[2][1]).all())
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
     def testSpatialJitterTxyp(self):
         original_events = self.random_txyp[0].copy()
-        variance = 2
+        variance = 100
 
         events = F.spatial_jitter_numpy(
             self.random_txyp[0],
@@ -494,13 +490,9 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(
             np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
         )
-        self.assertTrue((events[:, 1] >= 0).all())
-        self.assertTrue((events[:, 1] <= self.random_txyp[2][0]).all())
         self.assertTrue(
             np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
         )
-        self.assertTrue((events[:, 2] >= 0).all())
-        self.assertTrue((events[:, 2] <= self.random_txyp[2][1]).all())
         self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testStTransformXytp(self):
@@ -554,7 +546,6 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue((events[:, 0] == original_events[:, 0]).all())
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertFalse((events[:, 2] == original_events[:, 2]).all())
-        self.assertTrue((events[:, 2] >= 0).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
         self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
@@ -571,7 +562,6 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(len(events) == len(original_events))
         self.assertFalse((events[:, 0] == original_events[:, 0]).all())
-        self.assertTrue((events[:, 0] >= 0).all())
         self.assertTrue((events[:, 1] == original_events[:, 1]).all())
         self.assertTrue((events[:, 2] == original_events[:, 2]).all())
         self.assertTrue((events[:, 3] == original_events[:, 3]).all())
