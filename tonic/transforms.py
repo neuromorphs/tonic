@@ -3,10 +3,10 @@ from . import functional
 
 class Compose:
     """Composes several transforms together.
-    
+
     Args:
         transforms (list of ``Transform`` objects): list of transform(s) to compose. Even when using a single transform, the Compose wrapper is necessary.
-    
+
     Example:
         >>> transforms.Compose([
         >>>     transforms.Denoise(),
@@ -312,6 +312,30 @@ class ToOneHotEncoding:
     def __call__(self, target):
         return np.eye(self.n_classes)[target]
 
+class ToRandomTimesurface:
+    """Create Time surfaces for each event."""
+
+    def __init__(
+        self, surface_dimensions=(7, 7), tau_range=(10e3,100e3), decay="lin", merge_polarities=False
+    ):
+        assert len(surface_dimensions) == 2
+        assert surface_dimensions[0] % 2 == 1 and surface_dimensions[1] % 2 == 1
+        self.surface_dimensions = surface_dimensions
+        self.tau_range = tau_range
+        self.decay = decay
+        self.merge_polarities = merge_polarities
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        surfaces = functional.to_random_timesurface_numpy(
+            events,
+            sensor_size,
+            ordering,
+            self.surface_dimensions,
+            self.tau_range,
+            self.decay,
+            self.merge_polarities,
+        )
+        return surfaces, images
 
 class ToAveragedTimesurface(object):
     """Creates Averaged Time Surfaces."""
