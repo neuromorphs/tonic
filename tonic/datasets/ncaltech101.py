@@ -62,7 +62,7 @@ class NCALTECH101(VisionDataset):
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return events, target
+        return events, target, index
 
     def __len__(self):
         return len(self.data)
