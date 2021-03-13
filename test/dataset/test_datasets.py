@@ -72,3 +72,15 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(events.shape[0], n_events)
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand([(915556, 0, 304, True)])
+    def testNavGestures(self, n_events, true_label, n_samples, walk_subset):
+        dataset = datasets.NavGesture(
+            save_to="./data", walk_subset=walk_subset, download=self.download
+        )
+        dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)
+        events, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[0], n_events)
+        self.assertEqual(label, true_label)
+        self.assertEqual(len(dataset), n_samples)

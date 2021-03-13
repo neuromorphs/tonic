@@ -37,6 +37,10 @@ NMNIST
 ~~~~~~
 .. autoclass:: NMNIST
 
+NavGesture
+~~~~~~~~~~
+.. autoclass:: NavGesture
+
 POKER DVS
 ~~~~~~~~~
 .. autoclass:: POKERDVS
