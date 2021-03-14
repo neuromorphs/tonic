@@ -4,7 +4,7 @@ from parameterized import parameterized
 import tonic.datasets as datasets
 
 
-@unittest.skip("Super slow!")
+# @unittest.skip("Super slow!")
 class TestDatasets(unittest.TestCase):
     download = False
 
@@ -73,11 +73,21 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
 
-    @parameterized.expand([(915556, 0, 304, True)])
+    @parameterized.expand([(915556, 0, 304, True), (227321, 0, 1342, False)])
     def testNavGestures(self, n_events, true_label, n_samples, walk_subset):
         dataset = datasets.NavGesture(
             save_to="./data", walk_subset=walk_subset, download=self.download
         )
+        dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)
+        events, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[0], n_events)
+        self.assertEqual(label, true_label)
+        self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand([(15951, 0, 100800)])
+    def testASLDVS(self, n_events, true_label, n_samples):
+        dataset = datasets.ASLDVS(save_to="./data", download=self.download)
         dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)
         events, label = next(iter(dataloader))
 
