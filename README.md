@@ -28,6 +28,7 @@ testloader = tonic.datasets.DataLoader(testset, shuffle=True)
 
 events, target = next(iter(testloader))
 ```
+![dataset-summary](https://www.neuromorphic-vision.com/public/downloads/dataset-classification-summary.png)
 
 ## Documentation
 You can find the full documentation on Tonic [here](https://tonic.readthedocs.io/en/latest/index.html).
