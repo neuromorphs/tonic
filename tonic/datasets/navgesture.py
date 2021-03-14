@@ -21,11 +21,11 @@ class NavGesture(VisionDataset):
     """
 
     base_url = "https://www.neuromorphic-vision.com/public/downloads/navgesture/"
-    sit_filename = "navgesture-walk.zip"
+    sit_filename = "navgesture-sit.zip"
     walk_filename = "navgesture-walk.zip"
     sit_url = base_url + sit_filename
     walk_url = base_url + walk_filename
-    sit_md5 = "2bd780bffb10ec07ddeefd903b65cdb2"
+    sit_md5 = "1571753ace4d9e0946e6503313712c22"
     walk_md5 = "5d305266f13005401959e819abe206f0"
 
     classes = ["swipe down", "swipe up", "swipe left", "swipe right", "select", "home"]
@@ -79,12 +79,6 @@ class NavGesture(VisionDataset):
                 + " You can use download=True to download it"
             )
 
-        for path, dirs, files in os.walk(self.location_on_system):
-            dirs.sort()
-            for file in files:
-                if file.endswith("zip"):
-                    extract_archive(os.path.join(self.location_on_system, file))
-
         self.samples = []
         for path, dirs, files in os.walk(self.location_on_system):
             dirs.sort()
@@ -112,3 +106,8 @@ class NavGesture(VisionDataset):
         download_and_extract_archive(
             self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
         )
+        for path, dirs, files in os.walk(self.location_on_system):
+            dirs.sort()
+            for file in files:
+                if file.startswith("user") and file.endswith("zip"):
+                    extract_archive(os.path.join(self.location_on_system, file))
