@@ -4,6 +4,7 @@ from .flip_lr import flip_lr_numpy
 from .flip_polarity import flip_polarity_numpy
 from .flip_ud import flip_ud_numpy
 from .denoise import denoise_numpy
+from .mask_hot_pixel import mask_hot_pixel
 from .mix_ev_streams import mix_ev_streams_numpy
 from .refractory_period import refractory_period_numpy
 from .spatial_jitter import spatial_jitter_numpy
@@ -25,6 +26,7 @@ __all__ = [
     "flip_polarity_numpy",
     "flip_ud_numpy",
     "denoise",
+    "mask_hot_pixel",
     "mix_ev_streams_numpy",
     "refractory_period_numpy",
     "spatial_jitter_numpy",
