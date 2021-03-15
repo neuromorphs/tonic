@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def create_random_input_with_ordering(ordering, datatype=None):
+def create_random_input_with_ordering(ordering, sensor_size=(200, 100), datatype=None):
     """
     Creates a random frame to use for tests with certain ordering
 
@@ -17,7 +17,6 @@ def create_random_input_with_ordering(ordering, datatype=None):
     t_index = ordering.find("t")
     p_index = ordering.find("p")
 
-    sensor_size = (200, 100)  # width x height
     events = np.random.rand(10000, 4)
 
     events[:, x_index] = (events[:, x_index] * sensor_size[0]).astype(int)
@@ -32,4 +31,6 @@ def create_random_input_with_ordering(ordering, datatype=None):
         events = events.astype(datatype)
     images = np.random.rand(4, sensor_size[1], sensor_size[0])
 
-    return events, images, sensor_size, ordering, True
+    is_multi_image = True
+
+    return events, images, sensor_size, is_multi_image

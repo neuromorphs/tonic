@@ -1,152 +1,115 @@
 import unittest
+from parameterized import parameterized
 import numpy as np
 import tonic.functional as F
 import utils
+import ipdb
 
 
 class TestFunctionalAPI(unittest.TestCase):
-    def setUp(self):
-        self.random_xytp = utils.create_random_input_with_ordering("xytp")
-        self.random_txyp = utils.create_random_input_with_ordering(
-            "txyp", datatype=np.int32
-        )
+    def findXytpPermutation(self, ordering):
+        x_index = ordering.find("x")
+        y_index = ordering.find("y")
+        t_index = ordering.find("t")
+        p_index = ordering.find("p")
+        return x_index, y_index, t_index, p_index
 
-    def testCropXytp(self):
+    @parameterized.expand(
+        [("xytp", (50, 50)), ("typx", (10, 5)),]
+    )
+    def testCrop(self, ordering, target_size):
+        (
+            events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
         events, images = F.crop_numpy(
-            self.random_xytp[0],
-            images=self.random_xytp[1],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
-            multi_image=self.random_xytp[4],
-            target_size=(50, 50),
+            events,
+            images=images,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+            target_size=target_size,
         )
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
         self.assertTrue(
-            np.all(events[:, 0]) < 50 and np.all(events[:, 1] < 50),
+            np.all(events[:, x_index]) < target_size[0]
+            and np.all(events[:, y_index] < target_size[1]),
             "Cropping needs to map the events into the new space",
         )
 
         self.assertTrue(
-            images.shape[1] == 50 and images.shape[2] == 50,
+            images.shape[2] == target_size[0] and images.shape[1] == target_size[1],
             "Cropping needs to map the images into the new space",
         )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
 
-    def testCropTxyp(self):
-        events, images = F.crop_numpy(
-            self.random_txyp[0],
-            images=self.random_txyp[1],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            multi_image=self.random_txyp[4],
-            target_size=(50, 50),
+    @parameterized.expand(
+        [("xytp", 0.2, False), ("typx", 0.5, True),]
+    )
+    def testDropEvents(self, ordering, drop_probability, random_drop_probability):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        events = F.drop_events_numpy(
+            orig_events.copy(),
+            drop_probability=drop_probability,
+            random_drop_probability=random_drop_probability,
         )
-
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        #         ipdb.set_trace()
         self.assertTrue(
-            np.all(events[:, 0]) < 50 and np.all(events[:, 1] < 50),
-            "Cropping needs to map the events into the new space",
-        )
-
-        self.assertTrue(
-            images.shape[1] == 50 and images.shape[2] == 50,
-            "Cropping needs to map the images into the new space",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
-
-    def testDropEventsXytp(self):
-        original = self.random_xytp[0]
-        drop_probability = 0.2
-
-        events = F.drop_events_numpy(original, drop_probability=drop_probability)
-
-        self.assertTrue(
-            np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
+            np.isclose(
+                events.shape[x_index],
+                (1 - drop_probability) * orig_events.shape[x_index],
+            ),
             "Event dropout should result in drop_probability*len(original) events"
             " dropped out.",
         )
-
         self.assertTrue(
-            np.isclose(np.sum((events[:, 2] - np.sort(events[:, 2])) ** 2), 0),
+            np.isclose(
+                np.sum((orig_events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+            ),
             "Event dropout should maintain temporal order.",
         )
+        if random_drop_probability:
+            self.assertTrue(
+                events.shape[x_index]
+                >= (1 - drop_probability) * orig_events.shape[x_index],
+                "Event dropout with random drop probability should result in less than"
+                " drop_probability*len(original) events dropped out.",
+            )
 
-        events = F.drop_events_numpy(
-            original, drop_probability=drop_probability, random_drop_probability=True
-        )
-
-        self.assertTrue(
-            events.shape[0] >= (1 - drop_probability) * original.shape[0],
-            "Event dropout with random drop probability should result in less than"
-            " drop_probability*len(original) events dropped out.",
-        )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
-
-    def testDropEventsTxyp(self):
-        original = self.random_txyp[0]
-        drop_probability = 0.2
-
-        events = F.drop_events_numpy(original, drop_probability=drop_probability)
-
-        self.assertTrue(
-            np.isclose(events.shape[0], (1 - drop_probability) * original.shape[0]),
-            "Event dropout should result in drop_probability*len(original) events"
-            " dropped out.",
-        )
-
-        self.assertTrue(
-            np.isclose(np.sum((events[:, 0] - np.sort(events[:, 0])) ** 2), 0),
-            "Event dropout should maintain temporal order.",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
-
-        events = F.drop_events_numpy(
-            original, drop_probability=drop_probability, random_drop_probability=True
-        )
-
-        self.assertTrue(
-            events.shape[0] >= (1 - drop_probability) * original.shape[0],
-            "Event dropout with random drop probability should result in less than"
-            " drop_probability*len(original) events dropped out.",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
-
-    def testFlipLRxytp(self):
-        original_x = self.random_xytp[0][:, 0].copy()
-
+    @parameterized.expand(
+        [("xytp", 1.0), ("typx", 1.0),]
+    )
+    def testFlipLR(self, ordering, flip_probability):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
         events, images = F.flip_lr_numpy(
-            self.random_xytp[0],
-            images=self.random_xytp[1],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
-            multi_image=self.random_xytp[4],
-            flip_probability=1.0,
+            orig_events.copy(),
+            images=images,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+            flip_probability=flip_probability,
         )
-
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
         self.assertTrue(
-            ((self.random_txyp[2][0] - 1) - events[:, 0] == original_x).all(),
+            (
+                (sensor_size[0] - 1) - orig_events[:, x_index] == events[:, x_index]
+            ).all(),
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x",
         )
-        self.assertEqual(events.dtype, self.random_xytp[0].dtype)
-
-    def testFlipLRtxyp(self):
-        original_x = self.random_txyp[0][:, 1].copy()
-
-        events, images = F.flip_lr_numpy(
-            self.random_txyp[0],
-            images=self.random_txyp[1],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            multi_image=self.random_txyp[4],
-            flip_probability=1.0,
-        )
-
-        self.assertTrue(
-            ((self.random_txyp[2][0] - 1) - events[:, 1] == original_x).all(),
-            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
     def testFlipPolarityXytp(self):
         original_polarities = self.random_xytp[0][:, 3].copy()

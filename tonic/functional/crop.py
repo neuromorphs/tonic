@@ -36,7 +36,7 @@ def crop_numpy(
 
     Returns:
         events - events within the crop box
-        images - crop box out of the images
+        images - crop box out of the images [N,C,H,W]
     """
 
     assert target_size[0] <= sensor_size[0] and target_size[1] <= sensor_size[1]
@@ -54,12 +54,7 @@ def crop_numpy(
     x_end_ind = x_start_ind + target_size[0]
     y_end_ind = y_start_ind + target_size[1]
 
-    if images is not None and multi_image:
-        # multiple images NHW or NHWC
-        images = images[:, y_start_ind:y_end_ind, x_start_ind:x_end_ind, ...]
-    elif images is not None:
-        # single image HW or HWC
-        images = images[y_start_ind:y_end_ind, x_start_ind:x_end_ind, ...]
+    images = images[..., y_start_ind:y_end_ind, x_start_ind:x_end_ind]
 
     x_loc = ordering.index("x")
     y_loc = ordering.index("y")
