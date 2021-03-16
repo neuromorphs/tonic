@@ -6,7 +6,8 @@ import utils
 
 class TestTransforms(unittest.TestCase):
     def setUp(self):
-        self.random_xytp = utils.create_random_input_with_ordering("xytp")
+        self.ordering = "xytp"
+        self.random_xytp = utils.create_random_input_with_ordering(self.ordering)
         self.original_events = self.random_xytp[0].copy()
         self.original_images = self.random_xytp[1].copy()
 
@@ -18,7 +19,7 @@ class TestTransforms(unittest.TestCase):
             [transforms.TimeJitter(variance=variance, clip_negative=False)]
         )
         transform(
-            events=events, sensor_size=self.random_xytp[2], ordering=self.random_xytp[3]
+            events=events, sensor_size=self.random_xytp[2], ordering=self.ordering
         )
 
         self.assertTrue(len(events) == len(self.original_events))
@@ -43,7 +44,7 @@ class TestTransforms(unittest.TestCase):
             ]
         )
         surfaces = transform(
-            events=events, sensor_size=self.random_xytp[2], ordering=self.random_xytp[3]
+            events=events, sensor_size=self.random_xytp[2], ordering=self.ordering
         )
         self.assertEqual(surfaces.shape[0], len(self.original_events))
         self.assertEqual(surfaces.shape[1], 2)
@@ -53,7 +54,7 @@ class TestTransforms(unittest.TestCase):
         events = self.random_xytp[0].copy()
         images = self.random_xytp[1].copy()
         flip_probability = 1
-        multi_image = self.random_xytp[4]
+        multi_image = self.random_xytp[3]
         variance_x = 1
         variance_y = 1
         sigma_x_y = 0
@@ -72,7 +73,7 @@ class TestTransforms(unittest.TestCase):
             events=events,
             images=images,
             sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            ordering=self.ordering,
             multi_image=multi_image,
         )
 
@@ -120,7 +121,7 @@ class TestTransforms(unittest.TestCase):
     def testDropoutFlipUD(self):
         events = self.random_xytp[0].copy()
         images = self.random_xytp[1].copy()
-        multi_image = self.random_xytp[4]
+        multi_image = self.random_xytp[3]
         flip_probability = 1
         drop_probability = 0.5
 
@@ -135,7 +136,7 @@ class TestTransforms(unittest.TestCase):
             events=events,
             images=images,
             sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            ordering=self.ordering,
             multi_image=multi_image,
         )
 
@@ -144,7 +145,8 @@ class TestTransforms(unittest.TestCase):
         )
         self.assertTrue(
             drop_events,
-            "Event dropout should result in drop_probability*len(original) events dropped out.",
+            "Event dropout should result in drop_probability*len(original) events"
+            " dropped out.",
         )
 
         temporal_order = np.isclose(
@@ -159,13 +161,14 @@ class TestTransforms(unittest.TestCase):
         )
         self.assertTrue(
             flipped_events,
-            "When flipping up and down y must map to the opposite pixel, i.e. y' = sensor width - y",
+            "When flipping up and down y must map to the opposite pixel, i.e. y' ="
+            " sensor width - y",
         )
 
     def testTimeSkewFlipPolarityFlipLR(self):
         events = self.random_xytp[0].copy()
         images = self.random_xytp[1].copy()
-        multi_image = self.random_xytp[4]
+        multi_image = self.random_xytp[3]
         coefficient = 1.5
         offset = 0
         flip_probability_pol = 1
@@ -183,7 +186,7 @@ class TestTransforms(unittest.TestCase):
             events=events,
             images=images,
             sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            ordering=self.ordering,
             multi_image=multi_image,
         )
 
@@ -201,5 +204,6 @@ class TestTransforms(unittest.TestCase):
         )
         self.assertTrue(
             same_pixel,
-            "When flipping left and right x must map to the opposite pixel, i.e. x' = sensor width - x",
+            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
+            " sensor width - x",
         )
