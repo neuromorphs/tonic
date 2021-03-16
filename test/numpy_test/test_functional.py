@@ -4,6 +4,7 @@ import numpy as np
 import tonic.functional as F
 import utils
 import ipdb
+import math
 
 
 class TestFunctionalAPI(unittest.TestCase):
@@ -61,28 +62,27 @@ class TestFunctionalAPI(unittest.TestCase):
             random_drop_probability=random_drop_probability,
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
-        #         ipdb.set_trace()
-        self.assertTrue(
-            np.isclose(
-                events.shape[x_index],
-                (1 - drop_probability) * orig_events.shape[x_index],
-            ),
-            "Event dropout should result in drop_probability*len(original) events"
-            " dropped out.",
-        )
-        self.assertTrue(
-            np.isclose(
-                np.sum((orig_events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
-            ),
-            "Event dropout should maintain temporal order.",
-        )
+
         if random_drop_probability:
             self.assertTrue(
-                events.shape[x_index]
-                >= (1 - drop_probability) * orig_events.shape[x_index],
+                events.shape[0] >= (1 - drop_probability) * orig_events.shape[0],
                 "Event dropout with random drop probability should result in less than"
                 " drop_probability*len(original) events dropped out.",
             )
+        else:
+            self.assertTrue(
+                np.isclose(
+                    events.shape[0], (1 - drop_probability) * orig_events.shape[0],
+                ),
+                "Event dropout should result in drop_probability*len(original) events"
+                " dropped out.",
+            )
+        self.assertTrue(
+            np.isclose(
+                np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+            ),
+            "Event dropout should maintain temporal order.",
+        )
 
     @parameterized.expand(
         [("xytp", 1.0), ("typx", 1.0),]
@@ -111,183 +111,161 @@ class TestFunctionalAPI(unittest.TestCase):
             " sensor width - x",
         )
 
-    def testFlipPolarityXytp(self):
-        original_polarities = self.random_xytp[0][:, 3].copy()
+    @parameterized.expand(
+        [("xytp", 1.0), ("typx", 0),]
+    )
+    def testFlipPolarity(self, ordering, flip_probability):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
 
         events = F.flip_polarity_numpy(
-            self.random_xytp[0], flip_probability=1, ordering=self.random_xytp[3]
+            orig_events.copy(), ordering=ordering, flip_probability=flip_probability,
         )
-        self.assertTrue(
-            np.array_equal(original_polarities * -1, events[:, 3]),
-            "When flipping polarity with probability 1, all event polarities must flip",
-        )
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        if flip_probability == 1:
+            self.assertTrue(
+                np.array_equal(orig_events[:, p_index] * -1, events[:, p_index]),
+                "When flipping polarity with probability 1, all event polarities must"
+                " flip",
+            )
+        else:
+            self.assertTrue(
+                np.array_equal(orig_events[:, p_index], events[:, p_index]),
+                "When flipping polarity with probability 0, no event polarities must"
+                " flip",
+            )
 
-        self.random_xytp[0][:, 3] = original_polarities.copy()
-        events = F.flip_polarity_numpy(
-            self.random_xytp[0], flip_probability=0, ordering=self.random_xytp[3]
-        )
-        self.assertTrue(
-            np.array_equal(original_polarities, events[:, 3]),
-            "When flipping polarity with probability 0, no event polarities must flip",
-        )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
-
-    def testFlipPolarityTxyp(self):
-        original_polarities = self.random_txyp[0][:, 3].copy()
-
-        events = F.flip_polarity_numpy(
-            self.random_txyp[0], flip_probability=1, ordering=self.random_txyp[3]
-        )
-        self.assertTrue(
-            np.array_equal(original_polarities * -1, events[:, 3]),
-            "When flipping polarity with probability 1, all event polarities must flip",
-        )
-
-        self.random_txyp[0][:, 3] = original_polarities.copy()
-        events = F.flip_polarity_numpy(
-            self.random_txyp[0], flip_probability=0, ordering=self.random_txyp[3]
-        )
-        self.assertTrue(
-            np.array_equal(original_polarities, events[:, 3]),
-            "When flipping polarity with probability 0, no event polarities must flip",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
-
-    def testFlipUDxytp(self):
-        original_y = self.random_xytp[0][:, 1].copy()
-
+    @parameterized.expand(
+        [("xytp", 1.0), ("typx", 1.0),]
+    )
+    def testFlipUD(self, ordering, flip_probability):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
         events, images = F.flip_ud_numpy(
-            self.random_xytp[0],
-            images=self.random_xytp[1],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
-            multi_image=self.random_xytp[4],
-            flip_probability=1.0,
+            orig_events.copy(),
+            images=images,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+            flip_probability=flip_probability,
         )
-
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
         self.assertTrue(
-            ((self.random_xytp[2][1] - 1) - events[:, 1] == original_y).all(),
-            "When flipping up and down, y must map to the opposite pixel, i.e. y' ="
-            " sensor width - 1 - y",
-        )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
-
-    def testFlipUDtxyp(self):
-        original_y = self.random_txyp[0][:, 2].copy()
-
-        events, images = F.flip_ud_numpy(
-            self.random_txyp[0],
-            images=self.random_txyp[1],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            multi_image=self.random_txyp[4],
-            flip_probability=1.0,
+            (
+                (sensor_size[1] - 1) - orig_events[:, y_index] == events[:, y_index]
+            ).all(),
+            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
+            " sensor width - x",
         )
 
-        self.assertTrue(
-            ((self.random_xytp[2][1] - 1) - events[:, 2] == original_y).all(),
-            "When flipping up and down, y must map to the opposite pixel, i.e. y' ="
-            " sensor width - 1 - y",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
-
-    def testDenoisexytp(self):
-        original_events = self.random_xytp[0].copy()
-        filter_time = max(self.random_xytp[0][:, 2]) / 10
+    @parameterized.expand(
+        [("xytp", 1000), ("typx", 500),]
+    )
+    def testDenoise(self, ordering, filter_time):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
 
         events = F.denoise_numpy(
-            self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            orig_events,
+            sensor_size=sensor_size,
+            ordering=ordering,
             filter_time=filter_time,
         )
 
         self.assertTrue(len(events) > 0, "Not all events should be filtered")
         self.assertTrue(
-            len(events) < len(original_events),
+            len(events) < len(orig_events),
             "Result should be fewer events than original event stream",
         )
         self.assertTrue(
-            np.isin(events, original_events).all(),
-            "Added additional events that were not present in original event stream",
-        )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
-
-    def testDenoisetxyp(self):
-        original_events = self.random_txyp[0].copy()
-        filter_time = max(self.random_txyp[0][:, 0]) / 10
-
-        events = F.denoise_numpy(
-            self.random_txyp[0],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            filter_time=filter_time,
+            np.isin(events, orig_events).all(),
+            "Denoising should not add additional events that were not present in"
+            " original event stream",
         )
 
-        self.assertTrue(len(events) > 0, "Not all events should be filtered")
-        self.assertTrue(
-            len(events) < len(original_events),
-            "Result should be fewer events than original event stream",
-        )
-        self.assertTrue(
-            np.isin(events, original_events).all(),
-            "Added additional events that were not present in original event stream",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
+    @parameterized.expand(
+        ["xytp", "typx",]
+    )
+    def testMixEvents(self, ordering):
+        (
+            stream1,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        (
+            stream2,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
-    def testMixEvXytp(self):
-        stream_1 = utils.create_random_input_with_ordering("xytp")
-        stream_2 = utils.create_random_input_with_ordering("xytp")
-
-        events = (stream_1[0], stream_2[0])
+        events = (stream1, stream2)
 
         mixed_events_no_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=None,
             check_conflicts=False,
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            sensor_size=sensor_size,
+            ordering=ordering,
         )
 
         mixed_events_random_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets="Random",
             check_conflicts=False,
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            sensor_size=sensor_size,
+            ordering=ordering,
         )
 
         mixed_events_defined_offset, _ = F.mix_ev_streams_numpy(
             events,
             offsets=(0, 100),
             check_conflicts=False,
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            sensor_size=sensor_size,
+            ordering=ordering,
         )
 
         mixed_events_conflict, num_conflicts = F.mix_ev_streams_numpy(
-            (stream_1[0], stream_1[0]),
+            (stream1, stream1),
             offsets=None,
             check_conflicts=True,
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            sensor_size=sensor_size,
+            ordering=ordering,
         )
 
         no_offset_monotonic = np.all(
-            mixed_events_no_offset[1:, 2] >= mixed_events_no_offset[:-1, 2], axis=0
+            mixed_events_no_offset[1:, t_index] >= mixed_events_no_offset[:-1, t_index],
+            axis=0,
         )
         random_offset_monotonic = np.all(
-            mixed_events_random_offset[1:, 2] >= mixed_events_random_offset[:-1, 2],
+            mixed_events_random_offset[1:, t_index]
+            >= mixed_events_random_offset[:-1, t_index],
             axis=0,
         )
         defined_offset_monotonic = np.all(
-            mixed_events_defined_offset[1:, 2] >= mixed_events_defined_offset[:-1, 2],
+            mixed_events_defined_offset[1:, t_index]
+            >= mixed_events_defined_offset[:-1, t_index],
             axis=0,
         )
         conflict_offset_monotonic = np.all(
-            mixed_events_conflict[1:, 2] >= mixed_events_conflict[:-1, 2], axis=0
+            mixed_events_conflict[1:, t_index] >= mixed_events_conflict[:-1, t_index],
+            axis=0,
         )
-        all_colisions_detected = len(stream_1[0]) == num_conflicts
+        all_colisions_detected = len(stream1) == num_conflicts
 
         self.assertTrue(
             all_colisions_detected,
@@ -298,396 +276,252 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
         self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
 
-    def testMixEvTxyp(self):
-        stream_1 = utils.create_random_input_with_ordering("txyp")
-        stream_2 = utils.create_random_input_with_ordering("txyp")
-        events = (stream_1[0], stream_2[0])
-
-        mixed_events_no_offset, _ = F.mix_ev_streams_numpy(
-            events,
-            offsets=None,
-            check_conflicts=False,
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-        )
-
-        mixed_events_random_offset, _ = F.mix_ev_streams_numpy(
-            events,
-            offsets="Random",
-            check_conflicts=False,
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-        )
-
-        mixed_events_defined_offset, _ = F.mix_ev_streams_numpy(
-            events,
-            offsets=(0, 100),
-            check_conflicts=False,
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-        )
-
-        mixed_events_conflict, num_conflicts = F.mix_ev_streams_numpy(
-            (stream_1[0], stream_1[0]),
-            offsets=None,
-            check_conflicts=True,
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-        )
-
-        no_offset_monotonic = np.all(
-            mixed_events_no_offset[1:, 0] >= mixed_events_no_offset[:-1, 0], axis=0
-        )
-        random_offset_monotonic = np.all(
-            mixed_events_random_offset[1:, 0] >= mixed_events_random_offset[:-1, 0],
-            axis=0,
-        )
-        defined_offset_monotonic = np.all(
-            mixed_events_defined_offset[1:, 0] >= mixed_events_defined_offset[:-1, 0],
-            axis=0,
-        )
-        conflict_offset_monotonic = np.all(
-            mixed_events_conflict[1:, 0] >= mixed_events_conflict[:-1, 0], axis=0
-        )
-        all_colisions_detected = len(stream_1[0]) == num_conflicts
-
-        self.assertTrue(
-            all_colisions_detected,
-            "Missed some event colisions, may cause processing problems.",
-        )
-        self.assertTrue(no_offset_monotonic, "Result was not monotonic.")
-        self.assertTrue(random_offset_monotonic, "Result was not monotonic.")
-        self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
-        self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
-
-    def testRefractoryPeriodXytp(self):
-        original_events = self.random_xytp[0].copy()
+    @parameterized.expand(
+        [("xytp", 1000), ("typx", 50),]
+    )
+    def testRefractoryPeriod(self, ordering, refractory_period):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
 
         events = F.refractory_period_numpy(
-            events=self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
-            refractory_period=max(self.random_xytp[0][:, 2]) / 1000,
+            events=orig_events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            refractory_period=refractory_period,
         )
 
         self.assertTrue(len(events) > 0, "Not all events should be filtered")
         self.assertTrue(
-            len(events) < len(original_events),
+            len(events) < len(orig_events),
             "Result should be fewer events than original event stream",
         )
         self.assertTrue(
-            np.isin(events, original_events).all(),
+            np.isin(events, orig_events).all(),
             "Added additional events that were not present in original event stream",
         )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
+        self.assertTrue(events.dtype == events.dtype)
 
-    def testRefractoryPeriodTxyp(self):
-        original_events = self.random_txyp[0].copy()
-
-        events = F.refractory_period_numpy(
-            events=self.random_txyp[0],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            refractory_period=max(self.random_txyp[0][:, 0]) / 1000,
-        )
-
-        self.assertTrue(len(events) > 0, "Not all events should be filtered")
-        self.assertTrue(
-            len(events) < len(original_events),
-            "Result should be fewer events than original event stream",
-        )
-        self.assertTrue(
-            np.isin(events, original_events).all(),
-            "Added additional events that were not present in original event stream",
-        )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
-
-    def testSpatialJitterXytp(self):
-        original_events = self.random_xytp[0].copy()
-        variance = 3
+    @parameterized.expand(
+        [("xytp", 30), ("typx", 10),]
+    )
+    def testSpatialJitter(self, ordering, variance):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
 
         events = F.spatial_jitter_numpy(
-            self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
-            integer_coordinates=True,
+            integer_coordinates=False,
             clip_outliers=False,
         )
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
-        self.assertTrue(len(events) == len(original_events))
-        self.assertTrue((events[:, 2] == original_events[:, 2]).all())
-        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
-        self.assertFalse((events[:, 0] == original_events[:, 0]).all())
-        self.assertFalse((events[:, 1] == original_events[:, 1]).all())
+        self.assertTrue(len(events) == len(orig_events))
+        self.assertTrue((events[:, t_index] == orig_events[:, t_index]).all())
+        self.assertTrue((events[:, p_index] == orig_events[:, p_index]).all())
+        self.assertFalse((events[:, x_index] == orig_events[:, x_index]).all())
+        self.assertFalse((events[:, y_index] == orig_events[:, y_index]).all())
         self.assertTrue(
-            np.isclose(events[:, 0].all(), original_events[:, 0].all(), atol=variance)
-        )
-        self.assertTrue(
-            np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
-        )
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
-
-    def testSpatialJitterTxyp(self):
-        original_events = self.random_txyp[0].copy()
-        variance = 100
-
-        events = F.spatial_jitter_numpy(
-            self.random_txyp[0],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            variance_x=variance,
-            variance_y=variance,
-            sigma_x_y=0,
-            integer_coordinates=True,
-            clip_outliers=False,
-        )
-
-        self.assertTrue(len(events) == len(original_events))
-        self.assertTrue((events[:, 0] == original_events[:, 0]).all())
-        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
-        self.assertFalse((events[:, 1] == original_events[:, 1]).all())
-        self.assertFalse((events[:, 2] == original_events[:, 2]).all())
-        self.assertTrue(
-            np.isclose(events[:, 1].all(), original_events[:, 1].all(), atol=variance)
+            np.isclose(
+                events[:, x_index].all(), orig_events[:, x_index].all(), atol=variance
+            )
         )
         self.assertTrue(
-            np.isclose(events[:, 2].all(), original_events[:, 2].all(), atol=variance)
+            np.isclose(
+                events[:, y_index].all(), orig_events[:, y_index].all(), atol=variance
+            )
         )
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
 
-    def testStTransformXytp(self):
+    @parameterized.expand(
+        ["xytp",]
+    )
+    def testStTransform(self, ordering):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
         spatial_transform = np.array(((1, 0, 10), (0, 1, 10), (0, 0, 1)))
         temporal_transform = np.array((2, 0))
         events = F.st_transform(
-            self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
             spatial_transform=spatial_transform,
             temporal_transform=temporal_transform,
             roll=False,
         )
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
         self.assertTrue(
-            np.all(events[:, 0]) < self.random_xytp[2][0]
-            and np.all(events[:, 1] < self.random_xytp[2][1]),
+            np.all(events[:, x_index]) < sensor_size[0]
+            and np.all(events[:, y_index] < sensor_size[1]),
             "Transformation does not map beyond sensor size",
         )
 
-    def testStTransformTxyp(self):
-        spatial_transform = np.array(((1, 0, 10), (0, 1, 10), (0, 0, 1)))
-        temporal_transform = np.array((2, 0))
-        events = F.st_transform(
-            self.random_txyp[0],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            spatial_transform=spatial_transform,
-            temporal_transform=temporal_transform,
-            roll=False,
-        )
-
-        self.assertTrue(
-            np.all(events[:, 1]) < self.random_txyp[2][0]
-            and np.all(events[:, 2] < self.random_txyp[2][1]),
-            "Transformation does not map beyond sensor size",
-        )
-
-    def testTimeJitterXytp(self):
-        original_events = self.random_xytp[0].copy()
-        variance = max(self.random_xytp[0][:, 2]) / 10
+    @parameterized.expand(
+        [("xytp", 10), ("typx", 50),]
+    )
+    def testTimeJitter(self, ordering, variance):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
         events = F.time_jitter_numpy(
-            self.random_xytp[0],
-            ordering=self.random_xytp[3],
+            orig_events.copy(),
+            ordering=ordering,
             variance=variance,
             integer_timestamps=False,
             clip_negative=False,
         )
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
-        self.assertTrue(len(events) == len(original_events))
-        self.assertTrue((events[:, 0] == original_events[:, 0]).all())
-        self.assertTrue((events[:, 1] == original_events[:, 1]).all())
-        self.assertFalse((events[:, 2] == original_events[:, 2]).all())
-        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
+        self.assertTrue(len(events) == len(orig_events))
+        self.assertTrue((events[:, x_index] == orig_events[:, x_index]).all())
+        self.assertTrue((events[:, y_index] == orig_events[:, y_index]).all())
+        self.assertFalse((events[:, t_index] == orig_events[:, t_index]).all())
+        self.assertTrue((events[:, p_index] == orig_events[:, p_index]).all())
 
-    def testTimeJitterTxyp(self):
-        original_events = self.random_txyp[0].copy()
-        variance = max(self.random_txyp[0][:, 0]) / 10
-        events = F.time_jitter_numpy(
-            self.random_txyp[0],
-            ordering=self.random_txyp[3],
-            variance=variance,
-            integer_timestamps=False,
-            clip_negative=False,
-        )
+    @parameterized.expand(
+        [("xytp", 1000), ("typx", 50),]
+    )
+    def testTimeReversal(self, ordering, flip_probability):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
-        self.assertTrue(len(events) == len(original_events))
-        self.assertFalse((events[:, 0] == original_events[:, 0]).all())
-        self.assertTrue((events[:, 1] == original_events[:, 1]).all())
-        self.assertTrue((events[:, 2] == original_events[:, 2]).all())
-        self.assertTrue((events[:, 3] == original_events[:, 3]).all())
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
+        original_t = orig_events[0, t_index]
+        original_p = orig_events[0, p_index]
 
-    def testTimeReversalXytp(self):
-        original_t = self.random_xytp[0][0, 2].copy()
-        original_p = self.random_xytp[0][0, 3].copy()
-
-        max_t = np.max(self.random_xytp[0][:, 2])
+        max_t = np.max(orig_events[:, t_index])
 
         events, images = F.time_reversal_numpy(
-            self.random_xytp[0],
-            images=self.random_xytp[1],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
-            multi_image=self.random_xytp[4],
-            flip_probability=1.0,
+            orig_events,
+            images=images,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+            flip_probability=flip_probability,
         )
 
-        same_time = np.isclose(max_t - original_t, events[0, 2])
+        same_time = np.isclose(max_t - original_t, events[0, t_index])
 
-        same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
+        same_polarity = np.isclose(events[0, p_index], -1.0 * original_p)
 
         self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
         self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
-        self.assertTrue(events.dtype == self.random_xytp[0].dtype)
+        self.assertTrue(events.dtype == events.dtype)
 
-    def testTimeReversalTxyp(self):
-        original_t = self.random_txyp[0][0, 0].copy()
-        original_p = self.random_txyp[0][0, 3].copy()
-
-        max_t = np.max(self.random_txyp[0][:, 0])
-
-        events, images = F.time_reversal_numpy(
-            self.random_txyp[0],
-            images=self.random_txyp[1],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            multi_image=self.random_txyp[4],
-            flip_probability=1.0,
-        )
-
-        same_time = np.isclose(max_t - original_t, events[0, 0])
-
-        same_polarity = np.isclose(events[0, 3], -1.0 * original_p)
-
-        self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
-        self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
-        self.assertTrue(events.dtype == self.random_txyp[0].dtype)
-
-    def testTimeSkewXytp(self):
-        original_events = self.random_xytp[0].copy()
-        offset = 100
-        slower = 3.1
-        quicker = 0.8
+    @parameterized.expand(
+        [("xytp", 100, 3.1), ("typx", 0, 0.7),]
+    )
+    def testTimeSkew(self, ordering, offset, coefficient):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
         events = F.time_skew_numpy(
-            self.random_xytp[0].copy(),
-            ordering=self.random_xytp[3],
-            coefficient=slower,
+            orig_events.copy(),
+            ordering=ordering,
+            coefficient=coefficient,
             offset=offset,
         )
-        self.assertTrue(len(events) == len(original_events))
-        self.assertTrue((events[:, 2] - offset > original_events[:, 2]).all())
-        self.assertTrue(np.min(events[:, 2]) >= offset)
-        self.assertTrue(events.dtype == original_events.dtype)
+        self.assertTrue(len(events) == len(orig_events))
+        self.assertTrue(np.min(events[:, t_index]) >= offset)
+        if coefficient > 1:
+            self.assertTrue(
+                (events[:, t_index] - offset > orig_events[:, t_index]).all()
+            )
+        elif coefficient < 1:
+            self.assertTrue(
+                (events[:, t_index] - offset < orig_events[:, t_index]).all()
+            )
 
-        events = F.time_skew_numpy(
-            self.random_xytp[0].copy(),
-            ordering=self.random_xytp[3],
-            coefficient=quicker,
-            offset=offset,
-        )
-        self.assertTrue(len(events) == len(original_events))
-        self.assertTrue((events[:, 2] - offset < original_events[:, 2]).all())
-        self.assertTrue(np.min(events[:, 2]) >= offset)
-        self.assertTrue(events.dtype == original_events.dtype)
-
-    def testTimeSkewTxyp(self):
-        original_events = self.random_txyp[0].copy()
-        offset = 100
-        slower = 3.1
-        quicker = 0.8
-
-        events = F.time_skew_numpy(
-            self.random_txyp[0].copy(),
-            ordering=self.random_txyp[3],
-            coefficient=slower,
-            offset=offset,
-        )
-        nonzero = np.nonzero(events[:, 0] - offset)
-        self.assertTrue(len(events) == len(original_events))
-        self.assertTrue(
-            (events[:, 0][nonzero] - offset > original_events[:, 0][nonzero]).all()
-        )
-        self.assertTrue(np.min(events[:, 0][nonzero]) > offset)
-        self.assertTrue(events.dtype == original_events.dtype)
-
-        events = F.time_skew_numpy(
-            self.random_txyp[0].copy(),
-            ordering=self.random_txyp[3],
-            coefficient=quicker,
-            offset=offset,
-        )
-        self.assertTrue(len(events) == len(original_events))
-        self.assertTrue(
-            (events[:, 0][nonzero] - offset <= original_events[:, 0][nonzero]).all()
-        )
-        self.assertTrue(np.min(events[:, 0][nonzero]) > offset)
-        self.assertTrue(events.dtype == original_events.dtype)
-
-    def testToRatecodedFrameXytp(self):
-        original_events = self.random_xytp[0].copy()
-        frame_time = 1000
+    @parameterized.expand(
+        [("xytp", 1000), ("typx", 500),]
+    )
+    def testToRatecodedFrame(self, ordering, frame_time):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
         frames = F.to_ratecoded_frame_numpy(
-            events=self.random_xytp[0].copy(),
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            events=orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
             frame_time=frame_time,
         )
+        self.assertEqual(
+            frames.shape,
+            (
+                math.ceil(orig_events[-1, t_index] / frame_time),
+                sensor_size[1],
+                sensor_size[0],
+            ),
+        )
 
-        self.assertEqual(frames.shape, (10, 100, 200))
-
-    def testToTimesurfaceXytp(self):
-        original_events = self.random_xytp[0].copy()
-        surf_dims = (5, 5)
-        tau = 100
+    @parameterized.expand(
+        [("xytp", (5, 5), 100), ("typx", (3, 3), 10),]
+    )
+    def testToTimesurface(self, ordering, surface_dimensions, tau):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
         merge_polarities = True
 
         surfaces = F.to_timesurface_numpy(
-            events=self.random_xytp[0].copy(),
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
-            surface_dimensions=surf_dims,
+            events=orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            surface_dimensions=surface_dimensions,
             tau=tau,
             merge_polarities=merge_polarities,
         )
-        self.assertEqual(surfaces.shape[0], len(original_events))
+        self.assertEqual(surfaces.shape[0], len(orig_events))
         self.assertEqual(surfaces.shape[1], 1)
-        self.assertEqual(surfaces.shape[2:], surf_dims)
+        self.assertEqual(surfaces.shape[2:], surface_dimensions)
 
-    def testToTimesurfaceTyxp(self):
-        original_events = self.random_txyp[0].copy()
-        surf_dims = (5, 5)
-        tau = 100
-        merge_polarities = False
-
-        surfaces = F.to_timesurface_numpy(
-            events=self.random_txyp[0].copy(),
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            surface_dimensions=surf_dims,
-            tau=tau,
-            merge_polarities=merge_polarities,
-        )
-        self.assertEqual(surfaces.shape[0], len(original_events))
-        self.assertEqual(surfaces.shape[1], 2)
-        self.assertEqual(surfaces.shape[2:], surf_dims)
-
-    def testToAveragedTimesurfaceXytp(self):
-        original_events = self.random_xytp[0].copy()
+    @parameterized.expand(
+        ["xytp", "typx",]
+    )
+    def testToAveragedTimesurfaceXytp(self, ordering):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
         cell_size = 10
         surface_size = 5
         temporal_window = 100
@@ -695,65 +529,36 @@ class TestFunctionalAPI(unittest.TestCase):
         merge_polarities = True
 
         surfaces = F.to_averaged_timesurface(
-            events=self.random_xytp[0].copy(),
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            events=orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
             cell_size=cell_size,
             surface_size=surface_size,
             temporal_window=temporal_window,
             tau=tau,
             merge_polarities=merge_polarities,
         )
-        self.assertEqual(surfaces.shape[0], len(original_events))
+        self.assertEqual(surfaces.shape[0], len(orig_events))
         self.assertEqual(surfaces.shape[1], 1)
         self.assertEqual(surfaces.shape[2], surface_size)
 
-    def testToAveragedTimesurfaceTyxp(self):
-        original_events = self.random_txyp[0].copy()
-        cell_size = 10
-        surface_size = 5
-        temporal_window = 100
-        tau = 100
-        merge_polarities = False
-
-        surfaces = F.to_averaged_timesurface(
-            events=self.random_txyp[0].copy(),
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            cell_size=cell_size,
-            surface_size=surface_size,
-            temporal_window=temporal_window,
-            tau=tau,
-            merge_polarities=merge_polarities,
-        )
-        self.assertEqual(surfaces.shape[0], len(original_events))
-        self.assertEqual(surfaces.shape[1], 2)
-        self.assertEqual(surfaces.shape[2], surface_size)
-
-    def testUniformNoiseXytp(self):
-        original_events = self.random_xytp[0].copy()
-
+    @parameterized.expand(
+        ["xytp", "typx",]
+    )
+    def testUniformNoiseXytp(self, ordering):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
         noisy_events = F.uniform_noise_numpy(
-            self.random_xytp[0],
-            sensor_size=self.random_xytp[2],
-            ordering=self.random_xytp[3],
+            orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
             scaling_factor_to_micro_sec=1000000,
             noise_density=1e-8,
         )
 
-        self.assertTrue(len(noisy_events) > len(original_events))
-        self.assertTrue(np.isin(original_events, noisy_events).all())
-
-    def testUniformNoiseTxyp(self):
-        original_events = self.random_txyp[0].copy()
-
-        noisy_events = F.uniform_noise_numpy(
-            self.random_txyp[0],
-            sensor_size=self.random_txyp[2],
-            ordering=self.random_txyp[3],
-            scaling_factor_to_micro_sec=1000000,
-            noise_density=1e-8,
-        )
-
-        self.assertTrue(len(noisy_events) > len(original_events))
-        self.assertTrue(np.isin(original_events, noisy_events).all())
+        self.assertTrue(len(noisy_events) > len(orig_events))
+        self.assertTrue(np.isin(orig_events, noisy_events).all())
