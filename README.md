@@ -1,5 +1,6 @@
 ![tonic](tonic-logo-padded.png)
 [![PyPI](https://img.shields.io/pypi/v/tonic)](https://pypi.org/project/tonic/)
+[![Travis Build Status](https://travis-ci.com/neuromorphs/tonic.svg?branch=master)](https://travis-ci.com/neuromorphs/tonic)
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 
