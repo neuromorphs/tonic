@@ -1,12 +1,15 @@
-dist: xenial   # required for Python >= 3.7
-
 language: python
+
+jobs:
+  include:
+    - name: "Python 3.8.0 on Xenial Linux"
+      python: 3.8           # this works for Linux but is ignored on macOS or Windows
+
+before_install:
+  - pip install pytest parameterized matplotlib loris ipdb
 
 install:
   - python setup.py install
-
-before_script:
-  - pip install pytest
 
 script:
   - python -m pytest --capture=no
