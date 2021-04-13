@@ -3,7 +3,6 @@ from parameterized import parameterized
 import numpy as np
 import tonic.functional as F
 import utils
-import ipdb
 import math
 
 
@@ -489,16 +488,15 @@ class TestFunctionalAPI(unittest.TestCase):
         )
 
     @parameterized.expand(
-        [("xytp", (5, 5), 100), ("typx", (3, 3), 10),]
+        [("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False),]
     )
-    def testToTimesurface(self, ordering, surface_dimensions, tau):
+    def testToTimesurface(self, ordering, surface_dimensions, tau, merge_polarities):
         (
             orig_events,
             images,
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        merge_polarities = True
 
         surfaces = F.to_timesurface_numpy(
             events=orig_events.copy(),
@@ -509,7 +507,7 @@ class TestFunctionalAPI(unittest.TestCase):
             merge_polarities=merge_polarities,
         )
         self.assertEqual(surfaces.shape[0], len(orig_events))
-        self.assertEqual(surfaces.shape[1], 1)
+        self.assertEqual(surfaces.shape[1], 1 if merge_polarities else 2)
         self.assertEqual(surfaces.shape[2:], surface_dimensions)
 
     @parameterized.expand(
@@ -562,3 +560,22 @@ class TestFunctionalAPI(unittest.TestCase):
 
         self.assertTrue(len(noisy_events) > len(orig_events))
         self.assertTrue(np.isin(orig_events, noisy_events).all())
+
+    @parameterized.expand(
+        [("xytp", 10), ("typx", 1),]
+    )
+    def testToVoxelGrid(self, ordering, num_time_bins):
+        (
+            orig_events,
+            images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        volumes = F.to_voxel_grid_numpy(
+            events=orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            num_time_bins=num_time_bins,
+        )
+        self.assertEqual(volumes.shape, (num_time_bins, *sensor_size[::-1]))

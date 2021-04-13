@@ -286,7 +286,7 @@ class ToAveragedTimesurface:
 
 
 class ToRatecodedFrame:
-    """Bin events to frames."""
+    """Bin events to rate-coded frames. Sensitive to hot (constantly firing) pixels. """
 
     def __init__(self, frame_time=5000, merge_polarities=True):
         self.frame_time = frame_time
@@ -340,6 +340,21 @@ class ToTimesurface:
             self.merge_polarities,
         )
         return surfaces, images
+
+
+class ToVoxelGrid(object):
+    """Build a voxel grid with bilinear interpolation in the time domain from a set of events."""
+
+    def __init__(
+        self, num_time_bins=10,
+    ):
+        self.num_time_bins = num_time_bins
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        volume = functional.to_voxel_grid_numpy(
+            events, sensor_size, ordering, self.num_time_bins,
+        )
+        return volume, images
 
 
 class Repeat:

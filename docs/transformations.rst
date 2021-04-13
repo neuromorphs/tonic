@@ -18,6 +18,7 @@ Transforms on events
 .. autoclass:: FlipLR
 .. autoclass:: FlipPolarity
 .. autoclass:: FlipUD
+.. autoclass:: MaskHotPixel
 .. autoclass:: RefractoryPeriod
 .. autoclass:: SpatialJitter
 .. autoclass:: TimeJitter
@@ -31,6 +32,7 @@ Event Representations
 .. autoclass:: ToRatecodedFrame
 .. autoclass:: ToSparseTensor
 .. autoclass:: ToTimesurface
+.. autoclass:: ToVoxelGrid
 
 Target transforms
 -----------------
