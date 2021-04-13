@@ -69,7 +69,14 @@ class ASLDVS(VisionDataset):
     def __getitem__(self, index):
         events, target = scio.loadmat(self.samples[index]), self.targets[index]
         events = (
-            np.array([events["ts"], events["x"], events["y"], events["pol"]])
+            np.array(
+                [
+                    events["ts"],
+                    events["x"],
+                    self.sensor_size[1] - events["y"],
+                    events["pol"],
+                ]
+            )
             .squeeze()
             .T.astype(np.float)
         )
