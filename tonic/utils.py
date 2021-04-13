@@ -4,6 +4,22 @@ import matplotlib.pyplot as plt
 import tonic.transforms as transforms
 
 
+def plot_event_grid(events, sensor_size, ordering, axis_array=(3, 3)):
+    events = events.squeeze()
+    events = np.array(events)
+    transform = transforms.Compose(
+        [transforms.ToVoxelGrid(num_time_bins=np.product(axis_array))]
+    )
+    volume = transform(events, sensor_size=sensor_size, ordering=ordering)
+    fig, axes_array = plt.subplots(*axis_array)
+    for i in range(axis_array[0]):
+        for j in range(axis_array[1]):
+            axes_array[i, j].imshow(volume[i * axis_array[0] + j, :, :])
+            axes_array[i, j].axis("off")
+            axes_array[i, j].title.set_text(str(i * axis_array[0] + j))
+    plt.tight_layout()
+
+
 def pad_events(batch):
     max_length = 0
     for sample, target in batch:
@@ -16,37 +32,3 @@ def pad_events(batch):
         samples_output.append(sample)
         targets_output.append(target)
     return np.stack(samples_output), targets_output
-
-
-# needs matplotlib widget backend
-def plot_events(events, sensor_size, ordering, frame_time=25000, repeat=False):
-    from .utils import plot_frames
-
-    transform = transforms.Compose(
-        [
-            transforms.Denoise(time_filter=20000),
-            transforms.ToRatecodedFrame(frame_time=frame_time, merge_polarities=True),
-        ]
-    )
-    frames = transform(events, sensor_size=sensor_size, ordering=ordering)
-    plot_frames(frames, frame_time)
-
-
-def plot_frames(frames, frame_time, repeat=False, vmax=255):
-    plt.close()
-    fig, ax = plt.subplots()
-    axisImage = ax.imshow(frames[0, :, :], cmap=plt.cm.plasma, vmin=0, vmax=vmax)
-
-    def animate(i):
-        fig.suptitle("frames {0}".format(i))
-        axisImage.set_data(frames[i, :, :])
-        return (axisImage,)
-
-    return animation.FuncAnimation(
-        fig,
-        animate,
-        frames=frames.shape[0],
-        interval=frame_time / 1000,
-        blit=True,
-        repeat=repeat,
-    )
