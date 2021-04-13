@@ -5,6 +5,19 @@ import tonic.transforms as transforms
 
 
 def plot_event_grid(events, sensor_size, ordering, axis_array=(3, 3)):
+    """Plot events accumulated in a voxel grid for visual inspection.
+    
+    Args:
+        events: event Tensor of shape [num_events, num_event_channels]
+        sensor_size: size of the sensor that was used [W,H]
+        ordering: ordering of the event tuple inside of events, 
+                    for example 'xytp'.
+        axis_array: dimensions of plotting grid. The larger the grid,
+                    the more fine-grained the events will be sliced in time.
+
+    Returns:
+        None
+    """
     events = events.squeeze()
     events = np.array(events)
     transform = transforms.Compose(

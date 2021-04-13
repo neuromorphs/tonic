@@ -11,15 +11,16 @@ Denoise events and transform to time surfaces
 
     import tonic
     import tonic.transforms as transforms
+
     transform = transforms.Compose([transforms.Denoise(time_filter=10000),
                                     transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3),])
 
-    testset = tonic.datasets.NMNIST(save_to='./data',
+    dataset = tonic.datasets.NMNIST(save_to='./data',
                                     train=False,
                                     transform=transform)
 
-    testloader = tonic.datasets.DataLoader(testset, shuffle=True)
-    for surfaces, target in iter(testloader):
+    dataloader = tonic.datasets.DataLoader(dataset, shuffle=True)
+    for surfaces, target in iter(dataloader):
         print("{} surfaces for target {}".format(len(surfaces), target))
 
 Load batches of event recordings
@@ -31,11 +32,26 @@ batches of events by padding shorter event recordings with 0s like so:
     import tonic
     import tonic.transforms as transforms
 
-    testset = tonic.datasets.NMNIST(save_to='./data', train=False)
-
-    testloader = tonic.datasets.DataLoader(testset,
+    dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
+    dataloader = tonic.datasets.DataLoader(dataset,
                                            batch_size=10,
                                            collate_fn=tonic.utils.pad_events,
                                            shuffle=True)
 
-    events, target = next(iter(testloader))
+    events, target = next(iter(dataloader))
+
+Plot events in a grid
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For a quick visual check on events, we can plot them in a grid. You can check
+the parameters of the function used in :doc:`utils <utils>`.
+::
+
+    import tonic
+    import tonic.transforms as transforms
+
+    dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
+    dataloader = tonic.datasets.DataLoader(dataset, shuffle=True)
+    
+    events, target = next(iter(dataloader))
+
+    tonic.utils.plot_event_grid(events, dataset.sensor_size, dataset.ordering)

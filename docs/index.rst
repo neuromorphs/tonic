@@ -15,4 +15,5 @@ This package provides popular datasets and transformations for spike-based/event
    examples
    transformations
    datasets
+   utils
    contribute
