@@ -65,7 +65,7 @@ def spatial_jitter_numpy(
         events = np.delete(
             events,
             np.where(
-                (xs < 0) | (xs > sensor_size[0]) | (ys < 0) | (ys > sensor_size[1])
+                (xs < 0) | (xs >= sensor_size[0]) | (ys < 0) | (ys >= sensor_size[1])
             ),
             axis=0,
         )
