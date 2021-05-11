@@ -4,7 +4,7 @@ from .utils import guess_event_ordering_numpy
 
 
 def time_jitter_numpy(
-    events, ordering=None, variance=1, integer_timestamps=False, clip_negative=True
+    events, ordering=None, variance=1, integer_timestamps=False, clip_negative=True, sort_timestamps=False
 ):
     """Changes timestamp for each event by drawing samples from a
     Gaussian distribution with the following properties:
@@ -22,6 +22,7 @@ def time_jitter_numpy(
         variance: change the variance of the time jitter
         integer_timestamps: will round the jitter that is added to timestamps
         clip_negative: drops events that have negative timestamps, otherwise set to zero.
+        sort_timestamps: sort the events by timestamps
 
     Returns:
         temporally jittered set of events.
@@ -46,5 +47,8 @@ def time_jitter_numpy(
 
     if clip_negative:
         events = np.delete(events, (np.where(times < 0)), axis=0)
+        
+    if sort_timestamps:
+        events = events[np.argsort(events[:,t_index]),:]
 
     return events
