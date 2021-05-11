@@ -199,14 +199,15 @@ class SpatioTemporalTransform:
 class TimeJitter:
     """Blurs timestamps of events. Will clip negative timestamps by default."""
 
-    def __init__(self, variance=1, integer_timestamps=False, clip_negative=True):
+    def __init__(self, variance=1, integer_timestamps=False, clip_negative=True, sort_timestamps=False):
         self.variance = variance
         self.integer_timestamps = integer_timestamps
         self.clip_negative = clip_negative
+        self.sort_timestamps = sort_timestamps
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.time_jitter_numpy(
-            events, ordering, self.variance, self.integer_timestamps, self.clip_negative
+            events, ordering, self.variance, self.integer_timestamps, self.clip_negative, self.sort_timestamps
         )
         return events, images
 
