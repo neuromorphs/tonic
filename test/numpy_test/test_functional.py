@@ -373,29 +373,47 @@ class TestFunctionalAPI(unittest.TestCase):
         )
 
     @parameterized.expand(
-        [("xytp", 10), ("typx", 50),]
+        [
+            ("xytp", 10, False, True, True),
+            ("typx", 50, True, False, False),
+            ("pxty", 0, True, True, False),
+        ]
     )
-    def testTimeJitter(self, ordering, variance):
+    def testTimeJitter(
+        self, ordering, std, integer_jitter, clip_negative, sort_timestamps
+    ):
         (
             orig_events,
             images,
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+
+        if integer_jitter:
+            orig_events[:, t_index] = orig_events[:, t_index].round()
         events = F.time_jitter_numpy(
             orig_events.copy(),
             ordering=ordering,
-            variance=variance,
-            integer_timestamps=False,
-            clip_negative=False,
+            std=std,
+            integer_jitter=integer_jitter,
+            clip_negative=clip_negative,
+            sort_timestamps=sort_timestamps,
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
-
-        self.assertTrue(len(events) == len(orig_events))
-        self.assertTrue((events[:, x_index] == orig_events[:, x_index]).all())
-        self.assertTrue((events[:, y_index] == orig_events[:, y_index]).all())
-        self.assertFalse((events[:, t_index] == orig_events[:, t_index]).all())
-        self.assertTrue((events[:, p_index] == orig_events[:, p_index]).all())
+        if integer_jitter:
+            self.assertEqual(np.sum(np.mod(events[:, t_index], 1)), 0)
+        if clip_negative:
+            self.assertTrue((events[:, t_index] >= 0).all())
+        else:
+            self.assertEqual(len(events), len(orig_events))
+        if sort_timestamps:
+            np.testing.assert_array_equal(
+                events[:, t_index], np.sort(events[:, t_index])
+            )
+        if not sort_timestamps and not clip_negative:
+            np.testing.assert_array_equal(events[:, x_index], orig_events[:, x_index])
+            np.testing.assert_array_equal(events[:, y_index], orig_events[:, y_index])
+            np.testing.assert_array_equal(events[:, p_index], orig_events[:, p_index])
 
     @parameterized.expand(
         [("xytp", 1000), ("typx", 50),]

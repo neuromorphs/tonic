@@ -4,13 +4,18 @@ from .utils import guess_event_ordering_numpy
 
 
 def time_jitter_numpy(
-    events, ordering=None, variance=1, integer_timestamps=False, clip_negative=True, sort_timestamps=False
+    events,
+    ordering=None,
+    std=1,
+    integer_jitter=False,
+    clip_negative=False,
+    sort_timestamps=False,
 ):
     """Changes timestamp for each event by drawing samples from a
     Gaussian distribution with the following properties:
 
         mean = [t]
-        variance = variance
+        std = std
 
     Will clip negative timestamps by default.
 
@@ -19,9 +24,9 @@ def time_jitter_numpy(
         ordering: ordering of the event tuple inside of events, if None
                   the system will take a guess. This function requires 't'
                   to be in the ordering
-        variance: change the variance of the time jitter
-        integer_timestamps: will round the jitter that is added to timestamps
-        clip_negative: drops events that have negative timestamps, otherwise set to zero.
+        std: change the standard deviation of the time jitter
+        integer_jitter: will round the jitter that is added to timestamps
+        clip_negative: drops events that have negative timestamps
         sort_timestamps: sort the events by timestamps
 
     Returns:
@@ -33,9 +38,9 @@ def time_jitter_numpy(
     assert "t" in ordering
 
     t_index = ordering.find("t")
-    shifts = np.random.normal(0, variance, len(events))
+    shifts = np.random.normal(0, std, len(events))
 
-    if integer_timestamps:
+    if integer_jitter:
         shifts = shifts.round()
 
     times = events[:, t_index]
@@ -47,8 +52,8 @@ def time_jitter_numpy(
 
     if clip_negative:
         events = np.delete(events, (np.where(times < 0)), axis=0)
-        
+
     if sort_timestamps:
-        events = events[np.argsort(events[:,t_index]),:]
+        events = events[np.argsort(events[:, t_index]), :]
 
     return events

@@ -11,12 +11,12 @@ class TestTransforms(unittest.TestCase):
         self.original_events = self.random_xytp[0].copy()
         self.original_images = self.random_xytp[1].copy()
 
-    def testTimeJitter(self):
+    def testTransformTimeJitter(self):
         events = self.random_xytp[0].copy()
         images = None
-        variance = max(self.random_xytp[0][:, 2]) / 10
+        std = max(self.random_xytp[0][:, 2]) / 10
         transform = transforms.Compose(
-            [transforms.TimeJitter(variance=variance, clip_negative=False)]
+            [transforms.TimeJitter(std=std, clip_negative=False)]
         )
         transform(
             events=events, sensor_size=self.random_xytp[2], ordering=self.ordering
@@ -28,12 +28,10 @@ class TestTransforms(unittest.TestCase):
         self.assertFalse((events[:, 2] == self.original_events[:, 2]).all())
         self.assertTrue((events[:, 3] == self.original_events[:, 3]).all())
         self.assertTrue(
-            np.isclose(
-                events[:, 2].all(), self.original_events[:, 2].all(), atol=variance
-            )
+            np.isclose(events[:, 2].all(), self.original_events[:, 2].all(), atol=std)
         )
 
-    def testToTimesurfaces(self):
+    def testTransformToTimesurfaces(self):
         events = self.random_xytp[0].copy()
         surf_dims = (7, 7)
         transform = transforms.Compose(
