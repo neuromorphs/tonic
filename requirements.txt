@@ -1,0 +1,5 @@
+torch
+torchvision
+loris
+parameterized
+h5py
