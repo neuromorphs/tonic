@@ -4,6 +4,7 @@ from .hsd import SHD, SSC
 from .nmnist import NMNIST
 from .ncaltech101 import NCALTECH101
 from .ncars import NCARS
+from .ntidigits import NTIDIGITS
 from .pokerdvs import POKERDVS
 from .navgesture import NavGesture
 from torch.utils.data import DataLoader
@@ -14,6 +15,7 @@ __all__ = [
     "NMNIST",
     "NCALTECH101",
     "NCARS",
+    "NTIDIGITS",
     "POKERDVS",
     "NavGesture",
     "SHD",

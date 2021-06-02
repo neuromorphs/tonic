@@ -41,6 +41,10 @@ N-MNIST
 ~~~~~~~
 .. autoclass:: NMNIST
 
+N-TI DIGITS
+~~~~~~~~~~~
+.. autoclass:: NTIDIGITS
+
 NavGesture
 ~~~~~~~~~~
 .. autoclass:: NavGesture
