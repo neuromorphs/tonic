@@ -63,10 +63,3 @@ Spiking Speech Commands (SSC)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: SSC
 
-Dataset suggestions
-~~~~~~~~~~~~~~~~~~~~
-We would like to include support for some other datasets as well. Some possible candidates are:
-
-* `MVSEC <https://daniilidis-group.github.io/mvsec/>`_
-* `TI Digits <https://catalog.ldc.upenn.edu/LDC93S10>`_
-* `TIMIT <https://catalog.ldc.upenn.edu/LDC93S1>`_
