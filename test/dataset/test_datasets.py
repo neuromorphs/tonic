@@ -4,7 +4,7 @@ from parameterized import parameterized
 import tonic.datasets as datasets
 
 
-# @unittest.skip("Super slow!")
+@unittest.skip("Super slow!")
 class TestDatasets(unittest.TestCase):
     download = False
 
