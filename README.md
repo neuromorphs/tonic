@@ -19,7 +19,7 @@ import tonic
 import tonic.transforms as transforms
 
 transform = transforms.Compose([transforms.Denoise(time_filter=10000),
-                                transforms.TimeJitter(variance=10),])
+                                transforms.TimeJitter(std=10),])
 
 testset = tonic.datasets.NMNIST(save_to='./data',
                                 train=False,
