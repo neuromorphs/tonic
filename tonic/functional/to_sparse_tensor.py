@@ -2,9 +2,7 @@ import numpy as np
 import torch
 
 
-def to_sparse_tensor_pytorch(
-    events, sensor_size, ordering, merge_polarities=False,
-):
+def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=False):
     """Sparse Tensor PyTorch representation. See https://pytorch.org/docs/stable/sparse.html for details.
 
     Args:
@@ -38,5 +36,5 @@ def to_sparse_tensor_pytorch(
     indices = torch.LongTensor(events[:, [t_index, x_index, y_index]]).T
     values = torch.FloatTensor(events[:, p_index])
     return torch.sparse.FloatTensor(
-        indices, values, torch.Size([max_time, max_x, max_y,])
+        indices, values, torch.Size([max_time, max_x, max_y])
     )
