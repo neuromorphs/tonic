@@ -19,7 +19,7 @@ class HSD(VisionDataset):
     ordering = "tx"
 
     def __init__(
-        self, save_to, train=True, download=True, transform=None, target_transform=None,
+        self, save_to, train=True, download=True, transform=None, target_transform=None
     ):
         super(HSD, self).__init__(
             save_to, transform=transform, target_transform=target_transform
@@ -47,13 +47,13 @@ class HSD(VisionDataset):
                 + " You can use download=True to download it"
             )
 
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), 'r')
-        self.classes = file['extra/keys']
+        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        self.classes = file["extra/keys"]
 
     def __getitem__(self, index):
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), 'r')
-        events = np.vstack((file['spikes/times'][index], file['spikes/units'][index])).T
-        target = file['labels'][index].astype(np.int)
+        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index])).T
+        target = file["labels"][index].astype(np.int)
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
@@ -61,27 +61,26 @@ class HSD(VisionDataset):
         return events, target
 
     def __len__(self):
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), 'r')
-        return len(file['labels'])
+        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        return len(file["labels"])
 
     def download(self):
         download_and_extract_archive(
             self.url, self.location_on_system, filename=self.zipfile, md5=self.file_md5
         )
 
-        
+
 class SHD(HSD):
     """ Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
-    
+
     arguments:
-        save_to: Location to save files to on disk.
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
         download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
-    
+
     test_zip = "shd_test.h5.zip"
     train_zip = "shd_train.h5.zip"
     test_md5 = "1503a5064faa34311c398fb0a1ed0a6f"
@@ -90,7 +89,7 @@ class SHD(HSD):
 
 class SSC(HSD):
     """ Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
-    
+
     arguments:
         save_to (string): Location to save files to on disk.
         split (string): One of 'train', 'test' or 'valid'
@@ -98,7 +97,7 @@ class SSC(HSD):
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
-    
+
     test_zip = "ssc_test.h5.zip"
     train_zip = "ssc_train.h5.zip"
     valid_zip = "ssc_valid.h5.zip"
@@ -107,22 +106,27 @@ class SSC(HSD):
     valid_md5 = "b4eee3516a4a90dd0c71a6ac23a8ae43"
 
     def __init__(
-        self, save_to, split='train', download=True, transform=None, target_transform=None,
+        self,
+        save_to,
+        split="train",
+        download=True,
+        transform=None,
+        target_transform=None,
     ):
         super(HSD, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
         self.location_on_system = save_to
 
-        if split == 'train':
+        if split == "train":
             self.url = self.base_url + self.train_zip
             self.zipfile = self.train_zip
             self.file_md5 = self.train_md5
-        elif split == 'test':
+        elif split == "test":
             self.url = self.base_url + self.test_zip
             self.zipfile = self.test_zip
             self.file_md5 = self.test_md5
-        elif split == 'valid':
+        elif split == "valid":
             self.url = self.base_url + self.valid_zip
             self.zipfile = self.valid_zip
             self.file_md5 = self.valid_md5
@@ -139,5 +143,5 @@ class SSC(HSD):
                 + " You can use download=True to download it"
             )
 
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), 'r')
-        self.classes = file['extra/keys']
+        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        self.classes = file["extra/keys"]

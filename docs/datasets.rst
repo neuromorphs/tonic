@@ -34,11 +34,11 @@ NCALTECH 101
 .. autoclass:: NCALTECH101
 
 N-CARS
-~~~~~
+~~~~~~
 .. autoclass:: NCARS
 
 N-MNIST
-~~~~~~
+~~~~~~~
 .. autoclass:: NMNIST
 
 NavGesture
@@ -49,8 +49,8 @@ POKER DVS
 ~~~~~~~~~
 .. autoclass:: POKERDVS
 
-Heidelberg Spiking Datasets (HSD)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Heidelberg Spiking Datasets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: SHD
 
 .. autoclass:: SSC
