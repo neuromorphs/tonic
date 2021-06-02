@@ -9,15 +9,15 @@ from torchvision.datasets.utils import (
 
 
 class NMNIST(VisionDataset):
-    """NMNIST <https://www.garrickorchard.com/datasets/n-mnist> data set.
+    """N-MNIST <https://www.garrickorchard.com/datasets/n-mnist> data set.
 
     arguments:
-        save_to: location to save files to on disk
-        train: choose training or test set
-        download: choose to download data or not
-        transform: list of transforms to apply to the data
-        target_transform: list of transforms to apply to targets
-        first_saccade_only: only work with events of the first of three saccades
+        save_to (string): Location to save files to on disk.
+        train (bool): If True, uses training subset, otherwise testing subset.
+        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
     """
 
     base_url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/"

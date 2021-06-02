@@ -12,10 +12,10 @@ class NCALTECH101(VisionDataset):
     """NCALTECH101 <https://www.garrickorchard.com/datasets/n-caltech101> data set.
 
     arguments:
-        save_to: location to save files to on disk
-        download: choose to download data or not
-        transform: list of transforms to apply to the data
-        target_transform: list of transforms to apply to targets
+        save_to (string): Location to save files to on disk.
+        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AAD0T79lglp-BrdbSCuH_7MFa/Caltech101.zip?dl=1"

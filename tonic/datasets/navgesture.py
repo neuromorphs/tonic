@@ -13,11 +13,11 @@ class NavGesture(VisionDataset):
     """NavGesture <https://www.neuromorphic-vision.com/public/downloads/navgesture/> data set
 
     arguments:
-        save_to: location to save files to on disk
-        walk_subset: choose either NavGesture-sit (default) or NavGesture-walk
-        download: choose to download data or not
-        transform: list of transforms to apply to the data
-        target_transform: list of transforms to apply to targets
+        save_to (string): Location to save files to on disk.
+        walk_subset (bool): Choose either NavGesture-sit (default) or NavGesture-walk dataset. No train/test split provided. 
+        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     base_url = "https://www.neuromorphic-vision.com/public/downloads/navgesture/"

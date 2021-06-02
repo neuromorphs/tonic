@@ -12,11 +12,11 @@ class DVSGesture(VisionDataset):
     """DVSGesture <http://research.ibm.com/dvsgesture/> data set.
 
     arguments:
-        save_to: location to save files to on disk
-        train: choose training or test set
-        download: choose to download data or not
-        transform: list of transforms to apply to the data
-        target_transform: list of transforms to apply to targets
+        save_to (string): Location to save files to on disk.
+        train (bool): If True, uses training subset, otherwise testing subset.
+        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz

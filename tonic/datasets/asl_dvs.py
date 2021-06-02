@@ -13,10 +13,10 @@ class ASLDVS(VisionDataset):
     """ASLDVS <https://github.com/PIX2NVS/NVS2Graph> data set
 
     arguments:
-        save_to: location to save files to on disk
-        download: choose to download data or not
-        transform: list of transforms to apply to the data
-        target_transform: list of transforms to apply to targets
+        save_to (string): Location to save files to on disk.
+        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     url = "https://www.dropbox.com/sh/ibq0jsicatn7l6r/AACNrNELV56rs1YInMWUs9CAa?dl=1"

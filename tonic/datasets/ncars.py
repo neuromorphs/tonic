@@ -14,11 +14,11 @@ class NCARS(VisionDataset):
     """N-Cars <https://www.prophesee.ai/dataset-n-cars-download/> data set.
 
     arguments:
-        save_to: location to save files to on disk
-        train: choose training or test set
-        download: choose to download data or not
-        transform: list of transforms to apply to the data
-        target_transform: list of transforms to apply to targets
+        save_to (string): Location to save files to on disk.
+        train (bool): If True, uses training subset, otherwise testing subset.
+        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     url = "http://www.prophesee.ai/resources/Prophesee_Dataset_n_cars.zip"
