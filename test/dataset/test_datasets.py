@@ -95,11 +95,9 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
 
-    @parameterized.expand(
-        [(True, 4278, 11, 8156), (False, 11273, 10, 2264),]
-    )
+    @parameterized.expand([(True, 4278, 11, 8156), (False, 11273, 10, 2264)])
     def testSHD(self, train, n_events, true_label, n_samples):
-        dataset = datasets.SHD(save_to="./data", train=train, download=self.download,)
+        dataset = datasets.SHD(save_to="./data", train=train, download=self.download)
         dataloader = datasets.DataLoader(dataset, shuffle=False)
         events, label = next(iter(dataloader))
 
@@ -115,7 +113,7 @@ class TestDatasets(unittest.TestCase):
         ]
     )
     def testSSC(self, split, n_events, true_label, n_samples):
-        dataset = datasets.SSC(save_to="./data", split=split, download=self.download,)
+        dataset = datasets.SSC(save_to="./data", split=split, download=self.download)
         dataloader = datasets.DataLoader(dataset, shuffle=False)
         events, label = next(iter(dataloader))
 

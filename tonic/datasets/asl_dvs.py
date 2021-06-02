@@ -28,9 +28,7 @@ class ASLDVS(VisionDataset):
     sensor_size = (240, 180)
     ordering = "txyp"
 
-    def __init__(
-        self, save_to, download=True, transform=None, target_transform=None,
-    ):
+    def __init__(self, save_to, download=True, transform=None, target_transform=None):
         super(ASLDVS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )

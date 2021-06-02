@@ -2,9 +2,7 @@ import numpy as np
 from .utils import guess_event_ordering_numpy, is_multi_image
 
 
-def to_voxel_grid_numpy(
-    events, sensor_size, ordering, num_time_bins=10,
-):
+def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
     Code taken from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
 

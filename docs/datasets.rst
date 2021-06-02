@@ -55,8 +55,12 @@ POKER DVS
 
 Heidelberg Spiking Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Spiking Heidelberg Dataset (SHD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: SHD
 
+Spiking Speech Commands (SSC)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: SSC
 
 Dataset suggestions

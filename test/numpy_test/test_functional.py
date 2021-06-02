@@ -14,9 +14,7 @@ class TestFunctionalAPI(unittest.TestCase):
         p_index = ordering.find("p")
         return x_index, y_index, t_index, p_index
 
-    @parameterized.expand(
-        [("xytp", (50, 50)), ("typx", (10, 5)),]
-    )
+    @parameterized.expand([("xytp", (50, 50)), ("typx", (10, 5))])
     def testCrop(self, ordering, target_size):
         (
             events,
@@ -45,9 +43,7 @@ class TestFunctionalAPI(unittest.TestCase):
             "Cropping needs to map the images into the new space",
         )
 
-    @parameterized.expand(
-        [("xytp", 0.2, False), ("typx", 0.5, True),]
-    )
+    @parameterized.expand([("xytp", 0.2, False), ("typx", 0.5, True)])
     def testDropEvents(self, ordering, drop_probability, random_drop_probability):
         (
             orig_events,
@@ -71,7 +67,7 @@ class TestFunctionalAPI(unittest.TestCase):
         else:
             self.assertTrue(
                 np.isclose(
-                    events.shape[0], (1 - drop_probability) * orig_events.shape[0],
+                    events.shape[0], (1 - drop_probability) * orig_events.shape[0]
                 ),
                 "Event dropout should result in drop_probability*len(original) events"
                 " dropped out.",
@@ -83,9 +79,7 @@ class TestFunctionalAPI(unittest.TestCase):
             "Event dropout should maintain temporal order.",
         )
 
-    @parameterized.expand(
-        [("xytp", 1.0), ("typx", 1.0),]
-    )
+    @parameterized.expand([("xytp", 1.0), ("typx", 1.0)])
     def testFlipLR(self, ordering, flip_probability):
         (
             orig_events,
@@ -110,9 +104,7 @@ class TestFunctionalAPI(unittest.TestCase):
             " sensor width - x",
         )
 
-    @parameterized.expand(
-        [("xytp", 1.0), ("typx", 0),]
-    )
+    @parameterized.expand([("xytp", 1.0), ("typx", 0)])
     def testFlipPolarity(self, ordering, flip_probability):
         (
             orig_events,
@@ -122,7 +114,7 @@ class TestFunctionalAPI(unittest.TestCase):
         ) = utils.create_random_input_with_ordering(ordering)
 
         events = F.flip_polarity_numpy(
-            orig_events.copy(), ordering=ordering, flip_probability=flip_probability,
+            orig_events.copy(), ordering=ordering, flip_probability=flip_probability
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
         if flip_probability == 1:
@@ -138,9 +130,7 @@ class TestFunctionalAPI(unittest.TestCase):
                 " flip",
             )
 
-    @parameterized.expand(
-        [("xytp", 1.0), ("typx", 1.0),]
-    )
+    @parameterized.expand([("xytp", 1.0), ("typx", 1.0)])
     def testFlipUD(self, ordering, flip_probability):
         (
             orig_events,
@@ -165,9 +155,7 @@ class TestFunctionalAPI(unittest.TestCase):
             " sensor width - x",
         )
 
-    @parameterized.expand(
-        [("xytp", 1000), ("typx", 500),]
-    )
+    @parameterized.expand([("xytp", 1000), ("typx", 500)])
     def testDenoise(self, ordering, filter_time):
         (
             orig_events,
@@ -194,9 +182,7 @@ class TestFunctionalAPI(unittest.TestCase):
             " original event stream",
         )
 
-    @parameterized.expand(
-        ["xytp", "typx",]
-    )
+    @parameterized.expand(["xytp", "typx"])
     def testMixEvents(self, ordering):
         (
             stream1,
@@ -275,9 +261,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
         self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
 
-    @parameterized.expand(
-        [("xytp", 1000), ("typx", 50),]
-    )
+    @parameterized.expand([("xytp", 1000), ("typx", 50)])
     def testRefractoryPeriod(self, ordering, refractory_period):
         (
             orig_events,
@@ -304,9 +288,7 @@ class TestFunctionalAPI(unittest.TestCase):
         )
         self.assertTrue(events.dtype == events.dtype)
 
-    @parameterized.expand(
-        [("xytp", 30), ("typx", 10),]
-    )
+    @parameterized.expand([("xytp", 30), ("typx", 10)])
     def testSpatialJitter(self, ordering, variance):
         (
             orig_events,
@@ -343,9 +325,7 @@ class TestFunctionalAPI(unittest.TestCase):
             )
         )
 
-    @parameterized.expand(
-        ["xytp",]
-    )
+    @parameterized.expand(["xytp"])
     def testStTransform(self, ordering):
         (
             orig_events,
@@ -415,9 +395,7 @@ class TestFunctionalAPI(unittest.TestCase):
             np.testing.assert_array_equal(events[:, y_index], orig_events[:, y_index])
             np.testing.assert_array_equal(events[:, p_index], orig_events[:, p_index])
 
-    @parameterized.expand(
-        [("xytp", 1000), ("typx", 50),]
-    )
+    @parameterized.expand([("xytp", 1000), ("typx", 50)])
     def testTimeReversal(self, ordering, flip_probability):
         (
             orig_events,
@@ -449,9 +427,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
         self.assertTrue(events.dtype == events.dtype)
 
-    @parameterized.expand(
-        [("xytp", 100, 3.1), ("typx", 0, 0.7),]
-    )
+    @parameterized.expand([("xytp", 100, 3.1), ("typx", 0, 0.7)])
     def testTimeSkew(self, ordering, offset, coefficient):
         (
             orig_events,
@@ -478,9 +454,7 @@ class TestFunctionalAPI(unittest.TestCase):
                 (events[:, t_index] - offset < orig_events[:, t_index]).all()
             )
 
-    @parameterized.expand(
-        [("xytp", 1000), ("typx", 500),]
-    )
+    @parameterized.expand([("xytp", 1000), ("typx", 500)])
     def testToRatecodedFrame(self, ordering, frame_time):
         (
             orig_events,
@@ -505,9 +479,7 @@ class TestFunctionalAPI(unittest.TestCase):
             ),
         )
 
-    @parameterized.expand(
-        [("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False),]
-    )
+    @parameterized.expand([("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False)])
     def testToTimesurface(self, ordering, surface_dimensions, tau, merge_polarities):
         (
             orig_events,
@@ -528,9 +500,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertEqual(surfaces.shape[1], 1 if merge_polarities else 2)
         self.assertEqual(surfaces.shape[2:], surface_dimensions)
 
-    @parameterized.expand(
-        ["xytp", "typx",]
-    )
+    @parameterized.expand(["xytp", "typx"])
     def testToAveragedTimesurfaceXytp(self, ordering):
         (
             orig_events,
@@ -558,9 +528,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertEqual(surfaces.shape[1], 1)
         self.assertEqual(surfaces.shape[2], surface_size)
 
-    @parameterized.expand(
-        ["xytp", "typx",]
-    )
+    @parameterized.expand(["xytp", "typx"])
     def testUniformNoiseXytp(self, ordering):
         (
             orig_events,
@@ -579,9 +547,7 @@ class TestFunctionalAPI(unittest.TestCase):
         self.assertTrue(len(noisy_events) > len(orig_events))
         self.assertTrue(np.isin(orig_events, noisy_events).all())
 
-    @parameterized.expand(
-        [("xytp", 10), ("typx", 1),]
-    )
+    @parameterized.expand([("xytp", 10), ("typx", 1)])
     def testToVoxelGrid(self, ordering, num_time_bins):
         (
             orig_events,

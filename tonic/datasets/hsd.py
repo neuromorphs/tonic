@@ -10,9 +10,7 @@ from torchvision.datasets.utils import (
 
 
 class HSD(VisionDataset):
-    """Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407> data set contains the Spiking Heidelberg Dataset (SHD) and the Spiking Speech Commands dataset (SSC)
-
-    """
+    """Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407> data set contains the Spiking Heidelberg Dataset (SHD) and the Spiking Speech Commands dataset (SSC)"""
 
     base_url = "https://zenkelab.org/datasets/"
     sensor_size = (700,)
@@ -71,7 +69,7 @@ class HSD(VisionDataset):
 
 
 class SHD(HSD):
-    """ Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
+    """Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
 
     arguments:
         save_to (string): Location to save files to on disk.
@@ -88,7 +86,7 @@ class SHD(HSD):
 
 
 class SSC(HSD):
-    """ Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
+    """Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
 
     arguments:
         save_to (string): Location to save files to on disk.
