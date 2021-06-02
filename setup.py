@@ -19,7 +19,7 @@ setuptools.setup(
     url="https://github.com/neuromorphs/tonic",
     include_package_data=False,
     packages=setuptools.find_packages(),
-    install_requires=["loris", "torchvision", "scipy"],
+    install_requires=["loris", "torch", "torchvision", "h5py", "scipy"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
