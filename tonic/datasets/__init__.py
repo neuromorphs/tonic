@@ -1,5 +1,6 @@
 from .asl_dvs import ASLDVS
 from .dvsgesture import DVSGesture
+from .hsd import SHD, SSC
 from .nmnist import NMNIST
 from .ncaltech101 import NCALTECH101
 from .ncars import NCARS
@@ -15,5 +16,7 @@ __all__ = [
     "NCARS",
     "POKERDVS",
     "NavGesture",
+    "SHD",
+    "SSC",
     "DataLoader",
 ]

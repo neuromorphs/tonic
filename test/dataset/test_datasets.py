@@ -4,7 +4,7 @@ from parameterized import parameterized
 import tonic.datasets as datasets
 
 
-@unittest.skip("Super slow!")
+# @unittest.skip("Super slow!")
 class TestDatasets(unittest.TestCase):
     download = False
 
@@ -92,5 +92,33 @@ class TestDatasets(unittest.TestCase):
         events, label = next(iter(dataloader))
 
         self.assertEqual(events.shape[0], n_events)
+        self.assertEqual(label, true_label)
+        self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand(
+        [(True, 4278, 11, 8156), (False, 11273, 10, 2264),]
+    )
+    def testSHD(self, train, n_events, true_label, n_samples):
+        dataset = datasets.SHD(save_to="./data", train=train, download=self.download,)
+        dataloader = datasets.DataLoader(dataset, shuffle=False)
+        events, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[1], n_events)
+        self.assertEqual(label, true_label)
+        self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand(
+        [
+            ("train", 12618, 0, 75466),
+            ("test", 11671, 0, 20382),
+            ("valid", 14591, 0, 9981),
+        ]
+    )
+    def testSSC(self, split, n_events, true_label, n_samples):
+        dataset = datasets.SSC(save_to="./data", split=split, download=self.download,)
+        dataloader = datasets.DataLoader(dataset, shuffle=False)
+        events, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[1], n_events)
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
