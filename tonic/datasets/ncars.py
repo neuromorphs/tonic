@@ -44,6 +44,7 @@ class NCARS(VisionDataset):
         )
 
         self.location_on_system = save_to
+        self.samples = []
         self.targets = []
 
         if download:
@@ -69,9 +70,6 @@ class NCARS(VisionDataset):
         if not os.path.exists(target_path):
             extract_archive(os.path.join(save_to, target_zip))
             os.rename(source_path, target_path)
-
-        # We will not be loading everything into memory. Instead, we will keep a list of samples into file
-        self.samples = []
 
         file_path = target_path
         for path, dirs, files in os.walk(file_path):
