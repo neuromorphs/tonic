@@ -14,7 +14,6 @@ class NTIDIGITS(VisionDataset):
         download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
     """
 
     url = "https://www.dropbox.com/s/vfwwrhlyzkax4a2/n-tidigits.hdf5?dl=1"

@@ -1,5 +1,6 @@
 from .asl_dvs import ASLDVS
 from .dvsgesture import DVSGesture
+from .davisdataset import DAVISDATA
 from .hsd import SHD, SSC
 from .nmnist import NMNIST
 from .ncaltech101 import NCALTECH101
@@ -12,6 +13,7 @@ from torch.utils.data import DataLoader
 __all__ = [
     "ASLDVS",
     "DVSGesture",
+    "DAVISDATA",
     "NMNIST",
     "NCALTECH101",
     "NCARS",

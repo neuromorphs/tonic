@@ -25,6 +25,10 @@ ASL-DVS
 ~~~~~~~
 .. autoclass:: ASLDVS
 
+DAVIS Event Camera Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: DAVISDATA
+
 DVS gestures
 ~~~~~~~~~~~~
 .. autoclass:: DVSGesture
@@ -41,7 +45,7 @@ N-MNIST
 ~~~~~~~
 .. autoclass:: NMNIST
 
-N-TI DIGITS
+N-TIDIGITS
 ~~~~~~~~~~~
 .. autoclass:: NTIDIGITS
 

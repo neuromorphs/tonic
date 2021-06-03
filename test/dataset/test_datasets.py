@@ -134,3 +134,17 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(events.shape[1], n_events)
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
+
+    @parameterized.expand(
+        [("shapes_6dof", 17962477, 1356, 1),]
+    )
+    def testDAVISDATA(self, recording, n_events, n_images, n_samples):
+        dataset = datasets.DAVISDATA(
+            save_to="./data", recording=recording, download=self.download,
+        )
+        dataloader = datasets.DataLoader(dataset, shuffle=False)
+        events, images, label = next(iter(dataloader))
+
+        self.assertEqual(events.shape[1], n_events)
+        self.assertEqual(images.shape[1], n_images)
+        self.assertEqual(len(dataset), n_samples)
