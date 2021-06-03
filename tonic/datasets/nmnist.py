@@ -20,13 +20,13 @@ class NMNIST(VisionDataset):
         first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
     """
 
-    base_url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/"
-    test_zip = base_url + "AADSKgJ2CjaBWh75HnTNZyhca/Test.zip?dl=1"
-    train_zip = base_url + "AABlMOuR15ugeOxMCX0Pvoxga/Train.zip?dl=1"
-    test_md5 = "69ca8762b2fe404d9b9bad1103e97832"
+    url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/AABrCc6FewNZSNsoObWJqY74a?dl=1"
+    filename = "nmnist-archive.zip"
+    file_md5 = "c5b12b1213584bd3fe976b55fe43c835"
     train_md5 = "20959b8e626244a1b502305a9e6e2031"
-    test_filename = "nmnist_test.zip"
-    train_filename = "nmnist_train.zip"
+    test_md5 = "69ca8762b2fe404d9b9bad1103e97832"
+    train_filename = "Train.zip"
+    test_filename = "Test.zip"
     classes = [
         "0 - zero",
         "1 - one",
@@ -56,25 +56,23 @@ class NMNIST(VisionDataset):
             save_to, transform=transform, target_transform=target_transform
         )
         self.train = train
-        self.location_on_system = save_to
+        self.location_on_system = os.path.join(save_to, "nmnist/")
         self.first_saccade_only = first_saccade_only
         self.data = []
         self.samples = []
         self.targets = []
 
+        if download:
+            self.download()
+
         if train:
-            self.url = self.train_zip
             self.file_md5 = self.train_md5
             self.filename = self.train_filename
             self.folder_name = "Train"
         else:
-            self.url = self.test_zip
             self.file_md5 = self.test_md5
             self.filename = self.test_filename
             self.folder_name = "Test"
-
-        if download:
-            self.download()
 
         if not check_integrity(
             os.path.join(self.location_on_system, self.filename), self.file_md5
@@ -84,7 +82,9 @@ class NMNIST(VisionDataset):
                 + " You can use download=True to download it"
             )
 
-        file_path = self.location_on_system + "/" + self.folder_name
+        extract_archive(os.path.join(self.location_on_system, self.filename))
+
+        file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
             dirs.sort()
             for file in files:

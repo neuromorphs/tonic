@@ -44,7 +44,6 @@ class NCARS(VisionDataset):
         )
 
         self.location_on_system = save_to
-        self.data = []
         self.targets = []
 
         if download:
@@ -72,7 +71,6 @@ class NCARS(VisionDataset):
             os.rename(source_path, target_path)
 
         # We will not be loading everything into memory. Instead, we will keep a list of samples into file
-        # Could have reused self.data for that purpose as well.
         self.samples = []
 
         file_path = target_path

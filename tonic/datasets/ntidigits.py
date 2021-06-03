@@ -16,7 +16,8 @@ class NTIDIGITS(VisionDataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
-    url = "https://www.dropbox.com/s/vfwwrhlyzkax4a2/n-tidigits.hdf5?dl=1"
+    #     url = "https://www.dropbox.com/s/vfwwrhlyzkax4a2/n-tidigits.hdf5?dl=1"
+    url = "https://www.neuromorphic-vision.com/public/downloads/n-tidigits.hdf5"
     file_md5 = "360a2d11e5429555c9197381cf6b58e0"
     filename = "n-tidigits.hdf5"
 
