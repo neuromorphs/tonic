@@ -21,8 +21,8 @@ class NMNIST(VisionDataset):
     """
 
     url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/AABrCc6FewNZSNsoObWJqY74a?dl=1"
-    filename = "nmnist-archive.zip"
-    file_md5 = "c5b12b1213584bd3fe976b55fe43c835"
+    archive_filename = "nmnist-archive.zip"
+    archive_md5 = "c5b12b1213584bd3fe976b55fe43c835"
     train_md5 = "20959b8e626244a1b502305a9e6e2031"
     test_md5 = "69ca8762b2fe404d9b9bad1103e97832"
     train_filename = "Train.zip"
@@ -58,12 +58,8 @@ class NMNIST(VisionDataset):
         self.train = train
         self.location_on_system = os.path.join(save_to, "nmnist/")
         self.first_saccade_only = first_saccade_only
-        self.data = []
         self.samples = []
         self.targets = []
-
-        if download:
-            self.download()
 
         if train:
             self.file_md5 = self.train_md5
@@ -74,6 +70,9 @@ class NMNIST(VisionDataset):
             self.filename = self.test_filename
             self.folder_name = "Test"
 
+        if download:
+            self.download()
+
         if not check_integrity(
             os.path.join(self.location_on_system, self.filename), self.file_md5
         ):
@@ -81,8 +80,6 @@ class NMNIST(VisionDataset):
                 "Dataset not found or corrupted."
                 + " You can use download=True to download it"
             )
-
-        extract_archive(os.path.join(self.location_on_system, self.filename))
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
@@ -107,8 +104,13 @@ class NMNIST(VisionDataset):
 
     def download(self):
         download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+            self.url,
+            self.location_on_system,
+            filename=self.archive_filename,
+            md5=self.archive_md5,
         )
+        extract_archive(os.path.join(self.location_on_system, self.train_filename))
+        extract_archive(os.path.join(self.location_on_system, self.test_filename))
 
     def _read_dataset_file(self, filename):
         f = open(filename, "rb")
