@@ -18,12 +18,14 @@ class NCALTECH101(VisionDataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
-    url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AAD0T79lglp-BrdbSCuH_7MFa/Caltech101.zip?dl=1"
+    url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AADYPdhIBK7g_fPCLKmG6aVpa?dl=1"
+    archive_filename = "N-Caltech101-archive.zip"
+    archive_md5 = "989af2c704103341d616b748b5daa70c"
     file_md5 = "66201824eabb0239c7ab992480b50ba3"
     filename = "Caltech101.zip"
     folder_name = "Caltech101"
 
-    sensor_size = (233, 173)
+    sensor_size = None  # all recordings are of different size
     ordering = "xytp"
 
     def __init__(self, save_to, download=True, transform=None, target_transform=None):
@@ -31,8 +33,8 @@ class NCALTECH101(VisionDataset):
             save_to, transform=transform, target_transform=target_transform
         )
 
-        self.location_on_system = save_to
-        self.data = []
+        self.location_on_system = os.path.join(save_to, "ncaltech-101/")
+        self.samples = []
         self.targets = []
 
         if download:
@@ -43,34 +45,43 @@ class NCALTECH101(VisionDataset):
         ):
             raise RuntimeError(
                 "Dataset not found or corrupted."
-                + " You can use download=True to download it"
+                + " You can use download=True to download it."
             )
 
-        file_path = self.location_on_system + "/" + self.folder_name
+        file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
             dirs.sort()
             for file in files:
                 if file.endswith("bin"):
-                    events = self._read_dataset_file(path + "/" + file)
-                    self.data.append(events)
+                    self.samples.append(path + "/" + file)
                     label_number = os.path.basename(path)
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
-        events, target = self.data[index], self.targets[index]
+        events = self._read_dataset_file(self.samples[index])
+        target = self.targets[index]
+        events[:, 0] -= events[:, 0].min()
+        events[:, 1] -= events[:, 1].min()
         if self.transform is not None:
-            events = self.transform(events, self.sensor_size, self.ordering)
+            sensor_size_x = events[:, 0].max() + 1
+            sensor_size_y = events[:, 1].max() + 1
+            sensor_size = (sensor_size_x, sensor_size_y)
+            events = self.transform(events, sensor_size, self.ordering)
         if self.target_transform is not None:
             target = self.target_transform(target)
         return events, target
 
     def __len__(self):
-        return len(self.data)
+        return len(self.samples)
 
     def download(self):
         download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+            self.url,
+            self.location_on_system,
+            filename=self.archive_filename,
+            md5=self.archive_md5,
         )
+        extract_archive(os.path.join(self.location_on_system, self.filename))
 
     def _read_dataset_file(self, filename):
         f = open(filename, "rb")
