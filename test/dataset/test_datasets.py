@@ -8,7 +8,7 @@ import tonic.datasets as datasets
 class TestDatasets(unittest.TestCase):
     download = False
 
-    @parameterized.expand([(True, 440860, 7, 1077), (False, 288123, 7, 264)])
+    @parameterized.expand([(True, 927713, 3, 1077), (False, 944776, 3, 264)])
     def testDVSGesture(self, train, n_events, true_label, n_samples):
         dataset = datasets.DVSGesture(
             save_to="./data", train=train, download=self.download
@@ -22,9 +22,9 @@ class TestDatasets(unittest.TestCase):
 
     @parameterized.expand(
         [
-            (True, False, 4733, 0, 60000),
-            (False, False, 5100, 0, 10000),
-            (False, True, 1706, 0, 10000),
+            (True, False, 5520, 3, 60000),
+            (False, False, 6144, 3, 10000),
+            (False, True, 2126, 3, 10000),
         ]
     )
     def testNMNIST(self, train, first_saccade_only, n_events, true_label, n_samples):
@@ -41,7 +41,7 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
 
-    @parameterized.expand([(True, 10066, 0, 15422), (False, 4938, 0, 8607)])
+    @parameterized.expand([(True, 1309, 0, 15422), (False, 2308, 0, 8607)])
     def testNCARS(self, train, n_events, true_label, n_samples):
         dataset = datasets.NCARS(save_to="./data", train=train, download=self.download)
         dataloader = datasets.DataLoader(dataset, shuffle=False)
@@ -51,7 +51,7 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
 
-    @parameterized.expand([(True, 3773, 0, 48), (False, 2515, 0, 20)])
+    @parameterized.expand([(True, 4819, 3, 48), (False, 5366, 3, 20)])
     def testPOKERDVS(self, train, n_events, true_label, n_samples):
         dataset = datasets.POKERDVS(
             save_to="./data", train=train, download=self.download
@@ -63,7 +63,7 @@ class TestDatasets(unittest.TestCase):
         self.assertEqual(label, true_label)
         self.assertEqual(len(dataset), n_samples)
 
-    @parameterized.expand([(163302, "BACKGROUND_Google", 8709)])
+    @parameterized.expand([(88007, "BACKGROUND_Google", 8709)])
     def testNCALTECH101(self, n_events, true_label, n_samples):
         dataset = datasets.NCALTECH101(save_to="./data", download=self.download)
         dataloader = datasets.DataLoader(dataset, batch_size=None, shuffle=False)
@@ -143,8 +143,8 @@ class TestDatasets(unittest.TestCase):
             save_to="./data", recording=recording, download=self.download,
         )
         dataloader = datasets.DataLoader(dataset, shuffle=False)
-        events, images, label = next(iter(dataloader))
+        events, imu, images, ground_truth = next(iter(dataloader))
 
         self.assertEqual(events.shape[1], n_events)
-        self.assertEqual(images.shape[1], n_images)
+        self.assertEqual(images["frames"].shape[1], n_images)
         self.assertEqual(len(dataset), n_samples)
