@@ -68,7 +68,7 @@ class POKERDVS(VisionDataset):
 
         file_path = self.location_on_system + "/" + self.folder_name
         for path, dirs, files in os.walk(file_path):
-            dirs.sort()
+            files.sort()
             for file in files:
                 if file.endswith("npy"):
                     self.data.append(np.load(path + "/" + file))

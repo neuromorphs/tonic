@@ -83,7 +83,7 @@ class NMNIST(VisionDataset):
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
-            dirs.sort()
+            files.sort()
             for file in files:
                 if file.endswith("bin"):
                     self.samples.append(path + "/" + file)

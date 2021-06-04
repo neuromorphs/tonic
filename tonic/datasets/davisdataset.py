@@ -1,50 +1,51 @@
 import os
 import numpy as np
-import h5py
-from PIL import Image
+from importRosbag.importRosbag import importRosbag
 from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_and_extract_archive
+from torchvision.datasets.utils import check_integrity, download_url
 
 
 class DAVISDATA(VisionDataset):
     """DAVIS Event Camera Dataset <http://rpg.ifi.uzh.ch/davis_data.html> data set.
+    One example of this dataset returns a tuple of (events, imu, images, opti_track_ground_truth)
 
     arguments:
-        save_to (string): Location to save files to on disk.
-        recording (string): Use the name of the recording to load it. See project homepage for a list of available recordings.
+        save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
+        recording (string): Use the name of the recording or a list thereof to load it, for example 'dynamic_6dof'
+                            or ['slider_far', 'urban']. See project homepage for a list of available recordings.
+                            Can use 'all' to load every recording.
         download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     base_url = "http://rpg.ifi.uzh.ch/datasets/davis/"
-
     recordings = {  # recording names and their md5 hash
-        "boxes_6dof": "2c508711f444123734b44ff14b36163b",
-        "boxes_rotation": "201b3eb45a75a9af9964c4002cd9895a",
-        "boxes_translation": "353192ec47e3764404ba544f63756c81",
-        "calibration": "93750e844eb737a75e66a587ef58a8d0",
-        "dynamic_6dof": "2fa355235f0d7c88a443fee4e0ef58da",
-        "dynamic_rotation": "53282071b96d0f03c6d37ee33e3e75cd",
-        "dynamic_translation": "f399c30c8df7186ff771fd2aeb767ef1",
-        "hdr_boxes": "d9b2d0a74c69072abf42477376ee45c3",
-        "hdr_poster": "3e91a58daa8b279f764db4319f5c901c",
-        "office_spiral": "f506f4fed9c69e35d13108662a7616bb",
-        "office_zigzag": "86547b7696dc50532db9a05a19e76231",
-        "outdoors_running": "bdbb80da73239cb91a7ca3267c76b997",
-        "outdoors_walking": "7df86a872515e8f4150fdaf16e30f9de",
-        "poster_6dof": "39f11372e539c5b9c0bf053aa57fea91",
-        "poster_rotation": "effd58b9c693d2442a26b7390fc2b7be",
-        "poster_translation": "7b88d8242a544701a70104f2e6f86fad",
-        "shapes_6dof": "4fd3779db4df6b0b067e46c2f15f6d01",
-        "shapes_rotation": "1f629824940bd79cb8b6bfeb0d086c7e",
-        "shapes_translation": "497e502ddf4f4aed8d328136e6cd79ed",
-        "slider_close": "280f4f8b83ba537e660aa0048c0b35d8",
-        "slider_depth": "13b57c000f82433857ef396ebff0d247",
-        "slider_far": "fa8df212935f931488ab7b3c13fc647a",
-        "slider_hdr_close": "db563e1579d164367c9c105a0ec1f4e7",
-        "slider_hdr_far": "9cc5e0e4d2575949cb3f02227480307e",
-        "urban": "5fd331f7f26df339a1525467d6047929",
+        "boxes_6dof": "c919cebc25e564935abfc0a3954bf016",
+        "boxes_rotation": "1ec1ef4f354ce1908ed091703c1f98d0",
+        "boxes_translation": "4fd11a69015022c72b375a4d000ee8cd",
+        "calibration": "6e67817c7b6d2e95ca5796e89d219bac",
+        "dynamic_6dof": "16e8cb3b151da15ff1fe6019b517e695",
+        "dynamic_rotation": "77a2b0a87582e10e702365a38dc0c93c",
+        "dynamic_translation": "2db36fd0c2945cbace48735f0416c506",
+        "hdr_boxes": "67661ed4b472189432e35e8849faf200",
+        "hdr_poster": "b59e37b616a3eda81184183b12b0dce5",
+        "office_spiral": "60fe934450c558aff90ff5ba6b370a05",
+        "office_zigzag": "3eba8fc8f42adbfd394b630852ce1f78",
+        "outdoors_running": "7db2de811cb22b71fa34abd4ab1bba6b",
+        "outdoors_walking": "2ef9b03c87d3c565d30211b7dcfaabc5",
+        "poster_6dof": "e42ef11f523a52f11921cdb4a0fca231",
+        "poster_rotation": "abcd843a894546775e5dda3560979edf",
+        "poster_translation": "bb6736c56ff38f07cbe72613b72d25ed",
+        "shapes_6dof": "9b9495ace2dd82881bcc5c0620dd595f",
+        "shapes_rotation": "ee436cfe74b545fa25a2534f3ef021df",
+        "shapes_translation": "2a805ba32671b237e4e13c023f276be9",
+        "slider_close": "9426bbb70334c7b849dd5dd38eb7f2a9",
+        "slider_depth": "b38a7a373f170f4b6aeca4f36e06f71a",
+        "slider_far": "0f341da6aec0fd1801129e3d3a9981fa",
+        "slider_hdr_close": "34cc10dd212ca1fddd3a8584046d5d1c",
+        "slider_hdr_far": "c310f4f2d62cdf7b8d1c0a49315fb253",
+        "urban": "c22db0b3ecbcbba8d282b0d8c3393851",
     }
 
     sensor_size = (180, 240)
@@ -56,52 +57,62 @@ class DAVISDATA(VisionDataset):
         super(DAVISDATA, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        folder_name = "event_camera_dataset"
-        self.recording = recording
-        self.location_on_system = os.path.join(save_to, folder_name, recording)
-        self.filename = recording + ".zip"
-        self.url = self.base_url + self.filename
-        self.file_md5 = self.recordings[recording]
+        folder_name = "davis_dataset"
+        self.location_on_system = os.path.join(save_to, folder_name)
+        self.selection = (
+            list(self.recordings.keys()) if recording == "all" else recording
+        )
+        if not isinstance(self.selection, list):
+            self.selection = [self.selection]
+
+        for recording in self.selection:
+            if recording not in self.recordings:
+                raise RuntimeError(
+                    "Recording {} is not available or in the wrong format.".format(
+                        recording
+                    )
+                )
 
         if download:
             self.download()
-
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
+        else:
+            for recording in self.selection:
+                if not check_integrity(
+                    os.path.join(self.location_on_system, recording + ".bag"),
+                    self.recordings[recording],
+                ):
+                    raise RuntimeError(
+                        "Recording not found or corrupted."
+                        + " You can use download=True to download it"
+                    )
 
     def __getitem__(self, index):
-        with open(os.path.join(self.location_on_system, "events.txt"), "r") as file:
-            lines = file.readlines()
-            events = np.zeros((len(lines), 4))
-            for l, line in enumerate(lines):
-                events[l, :] = np.array([float(num) for num in line.split()])
+        filename = os.path.join(self.location_on_system, self.selection[index] + ".bag")
+        topics = importRosbag(filename)
+        events = topics["/dvs/events"]
+        events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
+        imu = topics["/dvs/imu"]
+        images = topics["/dvs/image_raw"]
+        images["frames"] = np.stack(images["frames"])
+        target = topics["/optitrack/davis"]
 
-        file_path = os.path.join(self.location_on_system, "images/")
-        for path, dirs, files in os.walk(file_path):
-            files.sort()
-            images = np.zeros((len(files), *self.sensor_size))
-            for f, file in enumerate(files):
-                if file.endswith("png"):
-                    images[f, :, :] = np.array(Image.open(file_path + file))
-
-        target = self.recording
         if self.transform is not None:
             events = self.transform(
                 events, self.sensor_size, self.ordering, images=images
             )
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return events, images, target
+
+        return events, imu, images, target
 
     def __len__(self):
-        return 1
+        return len(self.selection)
 
     def download(self):
-        download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
-        )
+        for recording in self.selection:
+            download_url(
+                self.base_url + recording + ".bag",
+                self.location_on_system,
+                filename=recording + ".bag",
+                md5=self.recordings[recording],
+            )

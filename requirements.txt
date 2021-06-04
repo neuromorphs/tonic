@@ -1,5 +1,6 @@
 torch
 torchvision
+importRosbag
 loris
 parameterized
 h5py
