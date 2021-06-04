@@ -8,14 +8,14 @@ from torchvision.datasets.utils import check_integrity, download_url
 class NTIDIGITS(VisionDataset):
     """N-TIDIGITS <https://docs.google.com/document/d/1Uxe7GsKKXcy6SlDUX4hoJVAC0-UkH-8kr5UXp0Ndi1M/edit> data set.
 
-    arguments:
+    Args:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
         download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         
-    returns:
+    Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 

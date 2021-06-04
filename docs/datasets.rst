@@ -10,11 +10,6 @@ For example: ::
     dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
     dataloader = tonic.datasets.DataLoader(dataset, shuffle=True, num_workers=4)
 
-The following datasets are available:
-
-.. contents:: Datasets
-    :local:
-
 All the datasets have almost similar API. They all have two common arguments:
 ``transform`` and  ``target_transform`` to transform the input and target respectively.
 

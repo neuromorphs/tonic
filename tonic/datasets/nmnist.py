@@ -11,7 +11,7 @@ from torchvision.datasets.utils import (
 class NMNIST(VisionDataset):
     """N-MNIST <https://www.garrickorchard.com/datasets/n-mnist> data set.
 
-    arguments:
+    Args:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
         download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
@@ -19,7 +19,7 @@ class NMNIST(VisionDataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
         
-    returns:
+    Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
