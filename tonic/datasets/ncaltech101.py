@@ -36,6 +36,8 @@ class NCALTECH101(VisionDataset):
         self.location_on_system = os.path.join(save_to, "ncaltech-101/")
         self.samples = []
         self.targets = []
+        self.x_index = ordering.find("x")
+        self.y_index = ordering.find("y")
 
         if download:
             self.download()
@@ -60,11 +62,11 @@ class NCALTECH101(VisionDataset):
     def __getitem__(self, index):
         events = self._read_dataset_file(self.samples[index])
         target = self.targets[index]
-        events[:, 0] -= events[:, 0].min()
-        events[:, 1] -= events[:, 1].min()
+        events[:, self.x_index] -= events[:, self.x_index].min()
+        events[:, self.y_index] -= events[:, self.y_index].min()
         if self.transform is not None:
-            sensor_size_x = events[:, 0].max() + 1
-            sensor_size_y = events[:, 1].max() + 1
+            sensor_size_x = int(events[:, self.x_index].max() + 1)
+            sensor_size_y = int(events[:, self.y_index].max() + 1)
             sensor_size = (sensor_size_x, sensor_size_y)
             events = self.transform(events, sensor_size, self.ordering)
         if self.target_transform is not None:

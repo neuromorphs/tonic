@@ -4,14 +4,11 @@ import matplotlib.pyplot as plt
 import tonic.transforms as transforms
 
 
-def plot_event_grid(
-    events, sensor_size, ordering, axis_array=(3, 3), plot_frame_number=False
-):
+def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False):
     """Plot events accumulated in a voxel grid for visual inspection.
 
     Args:
         events: event Tensor of shape [num_events, num_event_channels]
-        sensor_size: size of the sensor that was used [W,H]
         ordering: ordering of the event tuple inside of events,
                     for example 'xytp'.
         axis_array: dimensions of plotting grid. The larger the grid,
@@ -26,6 +23,12 @@ def plot_event_grid(
     transform = transforms.Compose(
         [transforms.ToVoxelGrid(num_time_bins=np.product(axis_array))]
     )
+    x_index = ordering.find("x")
+    y_index = ordering.find("y")
+    sensor_size_x = int(events[:, x_index].max() + 1)
+    sensor_size_y = int(events[:, y_index].max() + 1)
+    sensor_size = (sensor_size_x, sensor_size_y)
+
     volume = transform(events, sensor_size=sensor_size, ordering=ordering)
     fig, axes_array = plt.subplots(*axis_array)
 
