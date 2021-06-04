@@ -8,6 +8,7 @@ from .ncars import NCARS
 from .ntidigits import NTIDIGITS
 from .pokerdvs import POKERDVS
 from .navgesture import NavGesture
+from .visual_place_recognition import VisualPlaceRecognition
 from torch.utils.data import DataLoader
 
 __all__ = [
@@ -22,5 +23,6 @@ __all__ = [
     "NavGesture",
     "SHD",
     "SSC",
+    "VisualPlaceRecognition",
     "DataLoader",
 ]
