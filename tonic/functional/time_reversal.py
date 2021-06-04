@@ -1,16 +1,11 @@
 import numpy as np
 import warnings
 
-from .utils import guess_event_ordering_numpy, is_multi_image
+from .utils import is_multi_image
 
 
 def time_reversal_numpy(
-    events,
-    images=None,
-    sensor_size=(346, 260),
-    ordering=None,
-    flip_probability=0.5,
-    multi_image=None,
+    events, sensor_size, ordering, images=None, multi_image=None, flip_probability=0.5,
 ):
     """Temporal flip is defined as:
 
@@ -27,9 +22,7 @@ def time_reversal_numpy(
                 [num_images, height, width],
                 [height, width]
         sensor_size: size of the sensor that was used [W,H]
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 'x'
+        ordering: ordering of the event tuple inside of events. This function requires 'x'
                   to be in the ordering
         flip_probability: probability of performing the flip
         multi_image: Fix whether or not the first dimension of images is num_images
@@ -39,8 +32,6 @@ def time_reversal_numpy(
         - images flipped in time
     """
 
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
     assert "t" and "p" in ordering
 
     if images is not None and multi_image is None:

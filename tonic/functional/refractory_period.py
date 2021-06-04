@@ -1,11 +1,7 @@
 import numpy as np
 
-from .utils import guess_event_ordering_numpy
 
-
-def refractory_period_numpy(
-    events, sensor_size=(346, 260), ordering=None, refractory_period=0.5
-):
+def refractory_period_numpy(events, sensor_size, ordering, refractory_period=0.5):
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
 
@@ -15,9 +11,7 @@ def refractory_period_numpy(
     Args:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 't', 'x'
+        ordering: ordering of the event tuple inside of events. This function requires 't', 'x'
                   and 'y' to be in the ordering
         refractory_period: refractory period for each pixel in seconds
 
@@ -25,8 +19,6 @@ def refractory_period_numpy(
         filtered set of events.
     """
 
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
     assert "t" and "x" and "y" in ordering
 
     t_index = ordering.find("t")

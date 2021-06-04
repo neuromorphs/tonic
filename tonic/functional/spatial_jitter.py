@@ -1,12 +1,10 @@
 import numpy as np
 
-from .utils import guess_event_ordering_numpy
-
 
 def spatial_jitter_numpy(
     events,
     sensor_size,
-    ordering=None,
+    ordering,
     variance_x=1,
     variance_y=1,
     sigma_x_y=0,
@@ -23,9 +21,7 @@ def spatial_jitter_numpy(
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 'x'
+        ordering: ordering of the event tuple inside of events. This function requires 'x'
                   and 'y' to be in the ordering
         variance_x: squared sigma value for the distribution in the x direction
         variance_y: squared sigma value for the distribution in the y direction
@@ -37,8 +33,6 @@ def spatial_jitter_numpy(
         spatially jittered set of events.
     """
 
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
     assert "x" and "y" in ordering
 
     x_index = ordering.find("x")

@@ -1,11 +1,9 @@
 import numpy as np
 
-from .utils import guess_event_ordering_numpy
-
 
 def time_jitter_numpy(
     events,
-    ordering=None,
+    ordering,
     std=1,
     integer_jitter=False,
     clip_negative=False,
@@ -21,8 +19,7 @@ def time_jitter_numpy(
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess. This function requires 't'
+        ordering: ordering of the event tuple inside of events. This function requires 't'
                   to be in the ordering
         std: change the standard deviation of the time jitter
         integer_jitter: will round the jitter that is added to timestamps
@@ -33,8 +30,6 @@ def time_jitter_numpy(
         temporally jittered set of events.
     """
 
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
     assert "t" in ordering
 
     t_index = ordering.find("t")

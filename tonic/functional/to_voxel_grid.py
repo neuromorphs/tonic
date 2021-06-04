@@ -1,5 +1,5 @@
 import numpy as np
-from .utils import guess_event_ordering_numpy, is_multi_image
+from .utils import is_multi_image
 
 
 def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
@@ -9,9 +9,7 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     Args:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H].
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 'x', 'y',
+        ordering: ordering of the event tuple inside of events. This function requires 'x', 'y',
                   't' and 'p' to be in the ordering.
         num_time_bins: number of bins in the temporal axis of the voxel grid.
 
@@ -19,9 +17,6 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
         numpy array of n event volumes (n,w,h,t)
 
     """
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
-
     assert "x" in ordering and "y" in ordering
     assert "t" in ordering and "p" in ordering
 

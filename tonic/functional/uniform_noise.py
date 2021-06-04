@@ -1,15 +1,9 @@
 import numpy as np
-
-from .utils import guess_event_ordering_numpy
 from .mix_ev_streams import mix_ev_streams_numpy
 
 
 def uniform_noise_numpy(
-    events,
-    sensor_size=(346, 260),
-    ordering=None,
-    scaling_factor_to_micro_sec=1,
-    noise_density=1e-8,
+    events, sensor_size, ordering, scaling_factor_to_micro_sec=1, noise_density=1e-8,
 ):
     """
     Introduces a fixed number of noise depending on sensor size and noise
@@ -18,9 +12,7 @@ def uniform_noise_numpy(
     Args:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 'x', 'y'
+        ordering: ordering of the event tuple inside of events. This function requires 'x', 'y'
                   and 'y' to be in the ordering
         scaling_factor_to_micro_sec: this is a scaling factor to get to micro
                                      seconds from the time resolution used in the event stream,
@@ -31,9 +23,6 @@ def uniform_noise_numpy(
     Returns:
         events + noise events in one array
     """
-
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
     assert "x" and "y" and "t" in ordering
 
     x_index = ordering.find("x")

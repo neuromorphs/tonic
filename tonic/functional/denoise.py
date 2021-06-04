@@ -1,9 +1,7 @@
 import numpy as np
 
-from .utils import guess_event_ordering_numpy
 
-
-def denoise_numpy(events, sensor_size=(346, 260), ordering=None, filter_time=10000):
+def denoise_numpy(events, sensor_size, ordering, filter_time=10000):
     """Drops events that are 'not sufficiently connected to other events in the recording.'
     In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
     of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to filter noisy recordings
@@ -12,9 +10,7 @@ def denoise_numpy(events, sensor_size=(346, 260), ordering=None, filter_time=100
     Args:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 'x',
+        ordering: ordering of the event tuple inside of events. This function requires 'x',
                   'y' and 't' to be in the ordering
         filter_time: maximum temporal distance to next event, otherwise dropped.
                     Lower values will mean higher constraints, therefore less events.
@@ -23,8 +19,6 @@ def denoise_numpy(events, sensor_size=(346, 260), ordering=None, filter_time=100
         filtered set of events.
     """
 
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
     assert "x" and "y" and "t" in ordering
 
     x_index = ordering.find("x")

@@ -1,25 +1,16 @@
 import numpy as np
-
-from .utils import guess_event_ordering_numpy
 from .time_skew import time_skew_numpy
 
 
 def st_transform(
-    events,
-    spatial_transform,
-    temporal_transform,
-    sensor_size=(346, 260),
-    ordering=None,
-    roll=False,
+    events, spatial_transform, temporal_transform, sensor_size, ordering, roll=False,
 ):
     """Transform all events spatial and temporal locations based on
     given spatial transform matrix and temporal transform vector.
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
-        ordering: ordering of the event tuple inside of events, if None
-                  the system will take a guess through
-                  guess_event_ordering_numpy. This function requires 't', 'x', 'y'
+        ordering: ordering of the event tuple inside of events. This function requires 't', 'x', 'y'
                   to be in the ordering
         spatial_transform: 3x3 matrix which can be used to perform rigid (translation and rotation),
                            non-rigid (scaling and shearing), and non-affine transformations. Generic to user input.
@@ -33,9 +24,7 @@ def st_transform(
         the input events with tranformed temporal and spatial location
     """
 
-    if ordering is None:
-        ordering = guess_event_ordering_numpy(events)
-        assert "x" and "y" and "t" and "p" in ordering
+    assert "x" and "y" and "t" and "p" in ordering
 
     x_index = ordering.find("x")
     y_index = ordering.find("y")

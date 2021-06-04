@@ -48,7 +48,12 @@ class Crop:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         return functional.crop_numpy(
-            events, images, sensor_size, ordering, self.target_size, multi_image
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            images=images,
+            multi_image=multi_image,
+            target_size=self.target_size,
         )
 
 
@@ -74,7 +79,12 @@ class FlipLR:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         return functional.flip_lr_numpy(
-            events, images, sensor_size, ordering, self.flip_probability_lr, multi_image
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            images=images,
+            multi_image=multi_image,
+            flip_probability=self.flip_probability_lr,
         )
 
 
@@ -86,7 +96,7 @@ class FlipPolarity:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.flip_polarity_numpy(
-            events, self.flip_probability_pol, ordering
+            events=events, ordering=ordering, flip_probability=self.flip_probability_pol
         )
         return events, images
 
@@ -99,7 +109,12 @@ class FlipUD:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         return functional.flip_ud_numpy(
-            events, images, sensor_size, ordering, self.flip_probability_ud, multi_image
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            images=images,
+            multi_image=multi_image,
+            flip_probability=self.flip_probability_ud,
         )
 
 
@@ -112,7 +127,10 @@ class Denoise:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.denoise_numpy(
-            events, sensor_size, ordering, self.time_filter
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            time_filter=self.time_filter,
         )
         return events, images
 
@@ -126,7 +144,10 @@ class MaskHotPixel:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.mask_hot_pixel(
-            events, self.coordinates, sensor_size, ordering
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            coordinates=self.coordinates,
         )
         return events, images
 
@@ -227,7 +248,12 @@ class TimeReversal:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         return functional.time_reversal_numpy(
-            events, images, sensor_size, ordering, self.flip_probability_t, multi_image
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            images=images,
+            multi_image=multi_image,
+            flip_probability=self.flip_probability_t,
         )
 
 
@@ -302,9 +328,9 @@ class ToRatecodedFrame:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         frames = functional.to_ratecoded_frame_numpy(
-            events,
-            sensor_size,
-            ordering,
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
             frame_time=self.frame_time,
             merge_polarities=self.merge_polarities,
         )
@@ -319,7 +345,10 @@ class ToSparseTensor:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         tensor = functional.to_sparse_tensor_pytorch(
-            events, sensor_size, ordering, merge_polarities=self.merge_polarities
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            merge_polarities=self.merge_polarities,
         )
         return tensor, images
 
@@ -383,7 +412,7 @@ class ToOneHotEncoding:
         return np.eye(self.n_classes)[target]
 
 
-class NumpyAsType(object):
+class NumpyAsType:
     def __init__(self, cast_to):
         self.cast_to = cast_to
 
