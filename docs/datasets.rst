@@ -33,8 +33,8 @@ DVS gestures
 ~~~~~~~~~~~~
 .. autoclass:: DVSGesture
 
-NCALTECH 101
-~~~~~~~~~~~~
+N-CALTECH 101
+~~~~~~~~~~~~~
 .. autoclass:: NCALTECH101
 
 N-CARS

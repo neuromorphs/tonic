@@ -7,7 +7,6 @@ from torchvision.datasets.utils import check_integrity, download_url
 
 class DAVISDATA(VisionDataset):
     """DAVIS Event Camera Dataset <http://rpg.ifi.uzh.ch/davis_data.html> data set.
-    One example of this dataset returns a tuple of (events, imu, images, opti_track_ground_truth)
 
     arguments:
         save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
@@ -17,6 +16,9 @@ class DAVISDATA(VisionDataset):
         download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        
+    returns:
+        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images, opti_track_ground_truth).
     """
 
     base_url = "http://rpg.ifi.uzh.ch/datasets/davis/"

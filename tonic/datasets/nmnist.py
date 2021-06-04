@@ -18,6 +18,9 @@ class NMNIST(VisionDataset):
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
+        
+    returns:
+        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/AABrCc6FewNZSNsoObWJqY74a?dl=1"
