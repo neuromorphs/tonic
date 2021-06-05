@@ -28,6 +28,10 @@ DVS gestures
 ~~~~~~~~~~~~
 .. autoclass:: DVSGesture
 
+MVSEC
+~~~~~
+.. autoclass:: MVSEC
+
 N-CALTECH 101
 ~~~~~~~~~~~~~
 .. autoclass:: NCALTECH101
