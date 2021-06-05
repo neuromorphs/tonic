@@ -15,8 +15,7 @@ class MVSEC(VisionDataset):
                         it will be verified and re-download is automatically skipped. If False, existing files will be
                         be verified. If you already have the data on your system, make sure to place it in a subfolder
                         'MVSEC/{scene}', where {scene} is one of the available strings (see parameter above).
-        transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transform (callable, optional): A callable of transforms to apply to events and / or images for both left and right cameras.
         
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a mix of data and ground truth in a tuple of 
