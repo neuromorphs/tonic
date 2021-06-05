@@ -11,4 +11,7 @@ See :doc:`Examples <examples>` for an example.
 
 .. autofunction:: plot_event_grid
 
+Pad events for batching
+-----------------------
+
 .. autofunction:: pad_events
