@@ -221,7 +221,7 @@ class TimeJitter:
     """Blurs timestamps of events. Will clip negative timestamps by default."""
 
     def __init__(
-        self, std=1, integer_jitter=False, clip_negative=False, sort_timestamps=False, shift_first_as_zero=False,
+        self, std=1, integer_jitter=False, clip_negative=False, shift_first_as_zero=False, sort_timestamps=False,
     ):
         self.std = std
         self.integer_jitter = integer_jitter
