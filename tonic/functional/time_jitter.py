@@ -7,6 +7,7 @@ def time_jitter_numpy(
     std=1,
     integer_jitter=False,
     clip_negative=False,
+    shift_first_as_zero=False,
     sort_timestamps=False,
 ):
     """Changes timestamp for each event by drawing samples from a
@@ -44,6 +45,9 @@ def time_jitter_numpy(
         times += shifts.astype(np.int)
     else:
         times += shifts
+    
+    if shift_first_as_zero:
+        events[:,t_index] -= np.min(events[:, t_index])
 
     if clip_negative:
         events = np.delete(events, (np.where(times < 0)), axis=0)
