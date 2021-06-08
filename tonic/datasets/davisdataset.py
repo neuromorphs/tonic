@@ -89,7 +89,7 @@ class DAVISDATA(VisionDataset):
 
     def __getitem__(self, index):
         filename = os.path.join(self.location_on_system, self.selection[index] + ".bag")
-        topics = importRosbag(filename)
+        topics = importRosbag(filename, log="ERROR")
         events = topics["/dvs/events"]
         events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
         imu = topics["/dvs/imu"]
