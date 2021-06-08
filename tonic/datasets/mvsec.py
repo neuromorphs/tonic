@@ -88,9 +88,9 @@ class MVSEC(VisionDataset):
         filename = os.path.join(self.location_on_system, self.scene, self.resources[self.scene][index*2][0])
         topics = importRosbag(filename)
         events_left = topics["/davis/left/events"]
-        events_left = np.stack((events_left["ts"], events_left["x"], events_left["y"], events_left["pol"])).T
+        events_left = np.stack((events_left["x"], events_left["y"], events_left["ts"], events_left["pol"])).T
         events_right = topics["/davis/right/events"]
-        events_right = np.stack((events_right["ts"], events_right["x"], events_right["y"], events_right["pol"])).T
+        events_right = np.stack((events_right["x"], events_right["y"], events_right["ts"], events_right["pol"])).T
         imu_left = topics["/davis/left/imu"]
         imu_right = topics["/davis/right/imu"]
         images_left = topics["/davis/left/image_raw"]
