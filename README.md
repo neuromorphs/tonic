@@ -4,9 +4,9 @@
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 
-Tonic provides publicly available spike-based datasets and data transformations based on [PyTorch](https://pytorch.org/).
-
-Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
+Battling with all the different file formats of publicly available neuromorphic datasets? No more! 
+**Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
+It's based on PyTorch Vision for an intuitive interface, so that you spend less time worrying about how to read files and more time on things that matter.
 
 ## Install
 ```bash
@@ -29,7 +29,5 @@ testloader = tonic.datasets.DataLoader(testset, shuffle=True)
 
 events, target = next(iter(testloader))
 ```
-![dataset-summary](https://www.neuromorphic-vision.com/public/downloads/dataset-classification-summary.png)
-
 ## Documentation
-You can find the full documentation on Tonic [here](https://tonic.readthedocs.io/en/latest/index.html).
+You can find the full documentation on Tonic  including examples [on this site](https://tonic.readthedocs.io/en/latest/index.html).
