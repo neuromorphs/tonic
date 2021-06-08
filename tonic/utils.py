@@ -49,6 +49,16 @@ def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False
 
 
 def pad_events(batch):
+    """This is a custom collate function for a pytorch dataloader to load multiple
+    event samples at once and pad the recordings with the fewest events.
+
+    Example:
+        >>> dataloader = tonic.datasets.DataLoader(dataset,
+        >>>                                        batch_size=10,
+        >>>                                        collate_fn=tonic.utils.pad_events,
+        >>>                                        shuffle=True)
+
+    """
     max_length = 0
     for sample, target in batch:
         if len(sample) > max_length:
