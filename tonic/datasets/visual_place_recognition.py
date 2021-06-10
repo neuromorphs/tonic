@@ -1,7 +1,6 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from PIL import Image
 from torchvision.datasets.vision import VisionDataset
 from torchvision.datasets.utils import check_integrity, download_url
 
@@ -30,9 +29,7 @@ class VisualPlaceRecognition(VisionDataset):
     sensor_size = (260, 346)
     ordering = "txyp"
 
-    def __init__(
-        self, save_to, download=True, transform=None, target_transform=None,
-    ):
+    def __init__(self, save_to, download=True, transform=None, target_transform=None):
         super(VisualPlaceRecognition, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
@@ -64,8 +61,6 @@ class VisualPlaceRecognition(VisionDataset):
             events = self.transform(
                 events, self.sensor_size, self.ordering, images=images
             )
-        if self.target_transform is not None:
-            target = self.target_transform(target)
         return events, imu, images
 
     def __len__(self):
