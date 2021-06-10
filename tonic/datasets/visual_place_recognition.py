@@ -55,7 +55,7 @@ class VisualPlaceRecognition(VisionDataset):
         file_path = os.path.join(self.location_on_system, self.recordings[index][0])
         topics = importRosbag(filePathOrName=file_path)
         events = topics["/dvs/events"]
-        events = np.stack((events["ts"], events["x"], events["y"], events["polarity"])).T
+        events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
         images["frames"] = np.stack(images["frames"])
