@@ -5,7 +5,7 @@ from torchvision.datasets.vision import VisionDataset
 from torchvision.datasets.utils import check_integrity, download_url
 
 
-class VisualPlaceRecognition(VisionDataset):
+class VPR(VisionDataset):
     """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805> data set.
 
     arguments:
@@ -30,7 +30,7 @@ class VisualPlaceRecognition(VisionDataset):
     ordering = "txyp"
 
     def __init__(self, save_to, download=True, transform=None, target_transform=None):
-        super(VisualPlaceRecognition, self).__init__(
+        super(VPR, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
         folder_name = "visual_place_recognition"

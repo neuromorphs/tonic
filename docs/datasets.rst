@@ -66,3 +66,7 @@ Spiking Speech Commands (SSC)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: SSC
 
+Visual Place Recognition
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: VPR
+
