@@ -19,15 +19,15 @@ class VisualPlaceRecognition(VisionDataset):
     base_url = "https://zenodo.org/record/4302805/files/"
 
     recordings = [  # recording names and their md5 hash
-        ["dvs_vpr_2020-04-21-17-03-03.bag", "02f5156504d7780ceb4ebb461ab12788"],
-        ["dvs_vpr_2020-04-22-17-24-21.bag", "81cdd7628c551e50a474b1b1e0b2890b"],
-        ["dvs_vpr_2020-04-24-15-12-03.bag", "9e4a1d60c2f637f605cfbcdbda668347"],
-        ["dvs_vpr_2020-04-27-18-13-29.bag", "b37b720c009611be4bda1bc18147e9db"],
-        ["dvs_vpr_2020-04-28-09-14-11.bag", "f4acf1547affdd5c1367385721ca8509"],
-        ["dvs_vpr_2020-04-29-06-20-23.bag", "25759c42f7cd77010390231bc2910e22"],
+        ["dvs_vpr_2020-04-21-17-03-03.bag", "04473f623aec6bda3d7eadfecfc1b2ce"],
+        ["dvs_vpr_2020-04-22-17-24-21.bag", "ca6db080a4054196fe65825bce3db351"],
+        ["dvs_vpr_2020-04-24-15-12-03.bag", "909569732e323ff04c94379a787f2a69"],
+        ["dvs_vpr_2020-04-27-18-13-29.bag", "e80b6c0434690908d855445792d4de3b"],
+        ["dvs_vpr_2020-04-28-09-14-11.bag", "7854ede61c0947adb0f072a041dc3bad"],
+        ["dvs_vpr_2020-04-29-06-20-23.bag", "d7ccfeb6539f1e7b077ab4fe6f45193c"],
     ]
 
-    sensor_size = (180, 240)
+    sensor_size = (260, 346)
     ordering = "txyp"
 
     def __init__(
@@ -55,7 +55,7 @@ class VisualPlaceRecognition(VisionDataset):
         file_path = os.path.join(self.location_on_system, self.recordings[index][0])
         topics = importRosbag(filePathOrName=file_path)
         events = topics["/dvs/events"]
-        events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
+        events = np.stack((events["ts"], events["x"], events["y"], events["polarity"])).T
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
         images["frames"] = np.stack(images["frames"])
