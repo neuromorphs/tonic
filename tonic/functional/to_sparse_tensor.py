@@ -4,9 +4,12 @@ import torch
 
 def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=False):
     """Sparse Tensor PyTorch representation. See https://pytorch.org/docs/stable/sparse.html for details.
+    A sparse tensor will convert the events to indices of (txy) and values of (p). Note that the indices will
+    always be in this order regardless of original events ordering. 
 
     Args:
-        merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
+        merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not. 
+                                If True, all values in the sparse Tensor will be 1, otherwise -1 or 1. 
 
     Returns:
         sparse tensor in TxWxH format
@@ -24,17 +27,15 @@ def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=Fal
         )
 
     if merge_polarities:
-        events[:, p_index] = np.zeros(n_of_events)
+        events[:, p_index] = 1
     else:
         pols = events[:, p_index]
         pols[pols == 0] = -1
 
     max_time = int(max(events[:, t_index]) + 1)
-    max_x = int(max(events[:, x_index]) + 1)
-    max_y = int(max(events[:, y_index]) + 1)
 
     indices = torch.LongTensor(events[:, [t_index, x_index, y_index]]).T
     values = torch.FloatTensor(events[:, p_index])
     return torch.sparse.FloatTensor(
-        indices, values, torch.Size([max_time, max_x, max_y])
+        indices, values, torch.Size([max_time, *sensor_size])
     )
