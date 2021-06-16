@@ -26,16 +26,19 @@ def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=Fal
             " dimension."
         )
 
-    if merge_polarities:
-        events[:, p_index] = 1
-    else:
-        pols = events[:, p_index]
-        pols[pols == 0] = -1
+    # in any case, all the values in the sparse tensor will be 1, signifying a spike
+    values = torch.ones(events.shape[0])
+
+    if merge_polarities: # the indices need to start at 0
+        events[:, p_index] = 0
+        n_channels = 1
+    else: # avoid any negative indices
+        events[events[:,p_index]==-1, p_index] = 0
+        n_channels = 2
 
     max_time = int(max(events[:, t_index]) + 1)
-
-    indices = torch.LongTensor(events[:, [t_index, x_index, y_index]]).T
-    values = torch.FloatTensor(events[:, p_index])
+    indices = torch.LongTensor(events[:, [t_index, p_index, x_index, y_index]]).T
+    
     return torch.sparse.FloatTensor(
-        indices, values, torch.Size([max_time, *sensor_size])
+        indices, values, torch.Size([max_time, n_channels, *sensor_size])
     )
