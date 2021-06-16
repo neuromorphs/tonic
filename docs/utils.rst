@@ -14,4 +14,4 @@ See :doc:`Examples <examples>` for an example.
 Pad events for batching
 -----------------------
 
-.. autofunction:: pad_events
+.. autofunction:: pad_tensors
