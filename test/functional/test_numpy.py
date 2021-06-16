@@ -6,7 +6,7 @@ import utils
 import math
 
 
-class TestFunctionalAPI(unittest.TestCase):
+class TestFunctionalNumpy(unittest.TestCase):
     def findXytpPermutation(self, ordering):
         x_index = ordering.find("x")
         y_index = ordering.find("y")
