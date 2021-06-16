@@ -39,6 +39,7 @@ class VPR(VisionDataset):
         if download:
             self.download()
         else:
+            print("Verifying existing files.")
             for (recording, md5_hash) in self.recordings:
                 if not check_integrity(
                     os.path.join(self.location_on_system, recording), md5_hash
@@ -50,12 +51,12 @@ class VPR(VisionDataset):
 
     def __getitem__(self, index):
         file_path = os.path.join(self.location_on_system, self.recordings[index][0])
-        topics = importRosbag(filePathOrName=file_path)
+        topics = importRosbag(filePathOrName=file_path, log="ERROR")
         events = topics["/dvs/events"]
         events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
-        images["frames"] = np.stack(images["frames"])
+#         images["frames"] = np.stack(images["frames"])
 
         if self.transform is not None:
             events = self.transform(
