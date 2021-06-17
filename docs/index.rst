@@ -7,7 +7,7 @@ Spike-based datasets are published in numerous data formats, scattered around th
 **Tonic** tries to streamline the download, manipulation and loading of such data, to give you more time on the important things.
 In addition to downloading datasets, you can also apply custom transforms to events and images to pre-process data before you feed them to your algorithm. We hope that you find it useful!
 
-To get you started, have a look at the :doc:`install <install>` and :doc:`examples <examples>` pages.
+To get you started, have a look at the :doc:`install <install>` and :doc:`quickstart <quickstart>` pages.
 
 Package reference
 -----------------
@@ -16,6 +16,7 @@ Package reference
 
    about
    install
+   quickstart
    examples
    transformations
    datasets

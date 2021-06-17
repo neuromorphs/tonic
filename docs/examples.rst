@@ -9,7 +9,7 @@ Denoise events and transform to time surfaces
     import tonic
     import tonic.transforms as transforms
 
-    transform = transforms.Compose([transforms.Denoise(time_filter=10000),
+    transform = transforms.Compose([transforms.Denoise(filter_time=10000),
                                     transforms.ToTimesurface(surface_dimensions=(7,7), tau=5e3),])
 
     dataset = tonic.datasets.NMNIST(save_to='./data',
@@ -39,20 +39,23 @@ Load batches of event recordings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Since the package is built on top of PyTorch, we can make use of multithreaded dataloading
 and shuffling as well as batching.
-Using a custom collate function from ``tonic.utils.pad_events``, we can retrieve
-batches of events by padding shorter event recordings with 0s like so:
+Using a custom collate function from ``tonic.utils.pad_tensors``, we can retrieve
+batches of sparse event tensors by padding shorter tensors like so:
 ::
 
     import tonic
     import tonic.transforms as transforms
 
-    dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
+    transform = tonic.transforms.Compose([
+            tonic.transforms.ToSparseTensor(merge_polarities=True),
+            ])
+    dataset = tonic.datasets.NMNIST(save_to='./data', transform=transform)
     dataloader = tonic.datasets.DataLoader(dataset,
                                            batch_size=10,
-                                           collate_fn=tonic.utils.pad_events,
+                                           collate_fn=tonic.utils.pad_tensors,
                                            shuffle=True)
 
-    events, target = next(iter(dataloader))
+    tensors, target = next(iter(dataloader))
 
 Plot events in a grid
 ~~~~~~~~~~~~~~~~~~~~~

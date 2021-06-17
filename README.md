@@ -4,7 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 
-Battling with all the different file formats of publicly available neuromorphic datasets? No more! 
+Battling with all the different file formats of publicly available neuromorphic datasets? No more!
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
 It's based on PyTorch Vision for an intuitive interface, so that you spend less time worrying about how to read files and more time on things that matter.
 
@@ -18,7 +18,7 @@ pip install tonic
 import tonic
 import tonic.transforms as transforms
 
-transform = transforms.Compose([transforms.Denoise(time_filter=10000),
+transform = transforms.Compose([transforms.Denoise(filter_time=10000),
                                 transforms.TimeJitter(std=10),])
 
 testset = tonic.datasets.NMNIST(save_to='./data',
