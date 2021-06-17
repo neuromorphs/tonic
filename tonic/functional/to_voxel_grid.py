@@ -37,7 +37,7 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     if deltaT == 0:
         deltaT = 1.0
 
-    events[:, t_loc] = (num_time_bins - 1) * (events[:, t_loc] - first_stamp) / deltaT
+    events[:, t_loc] = (num_time_bins) * (events[:, t_loc] - first_stamp) / deltaT
     ts = events[:, t_loc]
     xs = events[:, x_loc].astype(np.int)
     ys = events[:, y_loc].astype(np.int)
