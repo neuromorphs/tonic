@@ -47,6 +47,7 @@ def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False
                 if plot_frame_number:
                     axes_array[i, j].title.set_text(str(i * axis_array[1] + j))
     plt.tight_layout()
+    plt.show()
 
 
 def pad_tensors(batch):
