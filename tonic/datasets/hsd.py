@@ -14,43 +14,14 @@ class HSD(VisionDataset):
 
     base_url = "https://zenkelab.org/datasets/"
     sensor_size = (700,)
-    ordering = "tx"
-
-    def __init__(
-        self, save_to, train=True, download=True, transform=None, target_transform=None
-    ):
-        super(HSD, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
-        )
-        self.location_on_system = save_to
-
-        if train:
-            self.url = self.base_url + self.train_zip
-            self.zipfile = self.train_zip
-            self.file_md5 = self.train_md5
-        else:
-            self.url = self.base_url + self.test_zip
-            self.zipfile = self.test_zip
-            self.file_md5 = self.test_md5
-        self.filename = self.zipfile[:-4]
-
-        if download:
-            self.download()
-
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.zipfile), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
-
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
-        self.classes = file["extra/keys"]
+    ordering = "txp"
 
     def __getitem__(self, index):
         file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
-        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index])).T
+        # adding artificial polarity of 1
+        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
+        # convert to microseconds
+        events[:,0] *= 1e6
         target = file["labels"][index].astype(np.int)
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
@@ -86,6 +57,38 @@ class SHD(HSD):
     train_zip = "shd_train.h5.zip"
     test_md5 = "1503a5064faa34311c398fb0a1ed0a6f"
     train_md5 = "f3252aeb598ac776c1b526422d90eecb"
+
+    def __init__(
+        self, save_to, train=True, download=True, transform=None, target_transform=None
+    ):
+        super(HSD, self).__init__(
+            save_to, transform=transform, target_transform=target_transform
+        )
+        self.location_on_system = save_to
+
+        if train:
+            self.url = self.base_url + self.train_zip
+            self.zipfile = self.train_zip
+            self.file_md5 = self.train_md5
+        else:
+            self.url = self.base_url + self.test_zip
+            self.zipfile = self.test_zip
+            self.file_md5 = self.test_md5
+        self.filename = self.zipfile[:-4]
+
+        if download:
+            self.download()
+
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.zipfile), self.file_md5
+        ):
+            raise RuntimeError(
+                "Dataset not found or corrupted."
+                + " You can use download=True to download it"
+            )
+
+        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        self.classes = file["extra/keys"]
 
 
 class SSC(HSD):
