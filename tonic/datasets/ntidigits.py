@@ -25,7 +25,7 @@ class NTIDIGITS(VisionDataset):
     filename = "n-tidigits.hdf5"
 
     sensor_size = (64,)
-    ordering = "tx"
+    ordering = "txp"
 
     def __init__(
         self, save_to, train=True, download=True, transform=None, target_transform=None,
@@ -57,7 +57,9 @@ class NTIDIGITS(VisionDataset):
             target = bytes.decode(file["test_labels"][index])
             timestamps = np.array(file["test_timestamps/" + target])
             addresses = np.array(file["test_addresses/" + target])
-        events = np.vstack((timestamps, addresses)).T
+        # convert timestamps to microseconds
+        timestamps *= 10e5
+        events = np.vstack((timestamps, addresses, np.ones(timestamps.shape[0]))).T
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
