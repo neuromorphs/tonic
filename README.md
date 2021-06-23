@@ -12,8 +12,14 @@ It's based on PyTorch Vision for an intuitive interface, so that you spend less 
 ```bash
 pip install tonic
 ```
+If you prefer conda, please check out the [forge repository](https://github.com/conda-forge/tonic-feedstock). 
+
+## Getting started
+Have a look at our [introduction](https://tonic.readthedocs.io/en/latest/getting_started.html) page to see how some of the moving parts work. There are some more short examples available [here](https://tonic.readthedocs.io/en/latest/examples.html).
 
 ## Quickstart
+If you're looking for a minimal example to run, this is it!
+
 ```python
 import tonic
 import tonic.transforms as transforms
@@ -30,4 +36,4 @@ testloader = tonic.datasets.DataLoader(testset, shuffle=True)
 events, target = next(iter(testloader))
 ```
 ## Documentation
-You can find the full documentation on Tonic  including examples [on this site](https://tonic.readthedocs.io/en/latest/index.html).
+You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
