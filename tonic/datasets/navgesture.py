@@ -10,12 +10,13 @@ from torchvision.datasets.utils import (
 
 
 class NavGesture(VisionDataset):
-    """NavGesture <https://www.neuromorphic-vision.com/public/downloads/navgesture/> data set
+    """NavGesture dataset <https://www.neuromorphic-vision.com/public/downloads/navgesture/>. Events have (txyp) ordering.
 
     Args:
         save_to (string): Location to save files to on disk.
         walk_subset (bool): Choose either NavGesture-sit (default) or NavGesture-walk dataset. No train/test split provided.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         

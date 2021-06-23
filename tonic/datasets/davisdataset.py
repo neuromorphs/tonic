@@ -6,14 +6,15 @@ from torchvision.datasets.utils import check_integrity, download_url
 
 
 class DAVISDATA(VisionDataset):
-    """DAVIS Event Camera Dataset <http://rpg.ifi.uzh.ch/davis_data.html> data set.
+    """DAVIS Event Camera dataset <http://rpg.ifi.uzh.ch/davis_data.html>. Events have (txyp) ordering.
 
     Args:
         save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
         recording (string): Use the name of the recording or a list thereof to load it, for example 'dynamic_6dof'
                             or ['slider_far', 'urban']. See project homepage for a list of available recordings.
                             Can use 'all' to load every recording.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to events and/or images.
         
     Returns:

@@ -1,5 +1,5 @@
 Datasets
-==========================
+========
 
 All datasets are subclasses of :class:`torch.utils.data.Dataset`
 i.e, they have ``__getitem__`` and ``__len__`` methods implemented.
@@ -16,57 +16,60 @@ All the datasets have almost similar API. They all have two common arguments:
 
 .. currentmodule:: tonic.datasets
 
-ASL-DVS
-~~~~~~~
-.. autoclass:: ASLDVS
-
-DAVIS Event Camera Dataset
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: DAVISDATA
-
-DVS gestures
-~~~~~~~~~~~~
-.. autoclass:: DVSGesture
-
-MVSEC
-~~~~~
-.. autoclass:: MVSEC
-
-N-CALTECH 101
-~~~~~~~~~~~~~
-.. autoclass:: NCALTECH101
-
-N-CARS
-~~~~~~
-.. autoclass:: NCARS
-
-N-MNIST
-~~~~~~~
-.. autoclass:: NMNIST
-
-N-TIDIGITS
-~~~~~~~~~~~
-.. autoclass:: NTIDIGITS
-
-NavGesture
-~~~~~~~~~~
-.. autoclass:: NavGesture
-
-POKER DVS
-~~~~~~~~~
-.. autoclass:: POKERDVS
-
+Audio datasets
+--------------
 Heidelberg Spiking Datasets
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Spiking Heidelberg Dataset (SHD)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""
 .. autoclass:: SHD
 
 Spiking Speech Commands (SSC)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""
 .. autoclass:: SSC
 
-Visual Place Recognition
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: VPR
+N-TIDIGITS
+^^^^^^^^^^
+.. autoclass:: NTIDIGITS
 
+Vision datasets
+---------------
+ASL-DVS
+^^^^^^^
+.. autoclass:: ASLDVS
+
+DAVIS Event Camera Dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: DAVISDATA
+
+DVS gestures
+^^^^^^^^^^^^
+.. autoclass:: DVSGesture
+
+MVSEC
+^^^^^
+.. autoclass:: MVSEC
+
+N-CALTECH 101
+^^^^^^^^^^^^^
+.. autoclass:: NCALTECH101
+
+N-CARS
+^^^^^^
+.. autoclass:: NCARS
+
+N-MNIST
+^^^^^^^
+.. autoclass:: NMNIST
+
+NavGesture
+^^^^^^^^^^
+.. autoclass:: NavGesture
+
+POKER DVS
+^^^^^^^^^
+.. autoclass:: POKERDVS
+
+Visual Place Recognition
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: VPR

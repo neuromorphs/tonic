@@ -6,8 +6,8 @@ from torchvision.datasets.utils import check_integrity, download_url
 
 
 class MVSEC(VisionDataset):
-    """The Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>.
-
+    """The Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>. Events have (xytp) ordering.
+    
     Args:
         save_to (string): Location to save files to on disk.
         scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle

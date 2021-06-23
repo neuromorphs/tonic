@@ -10,7 +10,8 @@ from torchvision.datasets.utils import (
 
 
 class HSD(VisionDataset):
-    """Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407> data set contains the Spiking Heidelberg Dataset (SHD) and the Spiking Speech Commands dataset (SSC)"""
+    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Dataset (SHD) 
+    and the Spiking Speech Commands dataset (SSC)."""
 
     base_url = "https://zenkelab.org/datasets/"
     sensor_size = (700,)
@@ -41,11 +42,13 @@ class HSD(VisionDataset):
 
 class SHD(HSD):
     """Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
+    Events have (txp) ordering.
 
     Args:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         
@@ -93,11 +96,13 @@ class SHD(HSD):
 
 class SSC(HSD):
     """Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
+    Events have (txp) ordering.
 
     Args:
         save_to (string): Location to save files to on disk.
         split (string): One of 'train', 'test' or 'valid'
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         

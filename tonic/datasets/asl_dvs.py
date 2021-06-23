@@ -10,11 +10,12 @@ from torchvision.datasets.utils import (
 
 
 class ASLDVS(VisionDataset):
-    """ASLDVS <https://github.com/PIX2NVS/NVS2Graph> data set
+    """ASL-DVS dataset <https://github.com/PIX2NVS/NVS2Graph>. Events have (txyp) ordering.
 
     Args:
         save_to (string): Location to save files to on disk.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     
