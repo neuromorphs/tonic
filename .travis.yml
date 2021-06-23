@@ -6,7 +6,7 @@ jobs:
       python: 3.8           # this works for Linux but is ignored on macOS or Windows
 
 before_install:
-  - pip install pytest parameterized matplotlib loris importRosbag
+  - pip install -r requirements.txt
 
 install:
   - python setup.py install

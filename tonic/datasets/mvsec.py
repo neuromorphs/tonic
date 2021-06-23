@@ -1,14 +1,14 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_url
+from .dataset import Dataset
+from .download_utils import check_integrity, download_url
 
 
-class MVSEC(VisionDataset):
+class MVSEC(Dataset):
     """The Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>. Events have (xytp) ordering.
     
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
         scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle
         download (bool): Choose to download data or verify existing files. If True and a file with the same name is in the directory, 

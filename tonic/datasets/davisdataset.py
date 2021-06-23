@@ -1,14 +1,14 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_url
+from .dataset import Dataset
+from .download_utils import check_integrity, download_url
 
 
-class DAVISDATA(VisionDataset):
+class DAVISDATA(Dataset):
     """DAVIS Event Camera dataset <http://rpg.ifi.uzh.ch/davis_data.html>. Events have (txyp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
         recording (string): Use the name of the recording or a list thereof to load it, for example 'dynamic_6dof'
                             or ['slider_far', 'urban']. See project homepage for a list of available recordings.

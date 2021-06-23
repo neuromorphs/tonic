@@ -1,5 +1,4 @@
 import numpy as np
-import torch
 
 
 def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=False):
@@ -17,6 +16,11 @@ def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=Fal
         sparse tensor in TxCxWxH format, where T is timesteps, C is the number of channels for each polarity,
         and W and H are always the size of the sensor.
     """
+    try:
+        import torch
+    except ImportError:
+        raise ImportError('The sparse tensor transform needs PyTorch installed. Please install a stable version of PyTorch or alternatively install Tonic with optional PyTorch dependencies.')
+        
     assert "x" and "t" and "p" in ordering
     x_index = ordering.find("x")
     t_index = ordering.find("t")

@@ -13,11 +13,14 @@ For example: ::
 All the datasets have almost similar API. They all have two common arguments:
 ``transform`` and  ``target_transform`` to transform the input and target respectively.
 
+Events for a sample in both audio and vision datasets are output as numpy arrays with shape (N,E), where N is the number of events and E is the number of event channels. 
 
 .. currentmodule:: tonic.datasets
 
 Audio datasets
 --------------
+Audio events typically have 3 event channels: time, frequency channel number and polarity.
+
 Heidelberg Spiking Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Spiking Heidelberg Dataset (SHD)
@@ -34,6 +37,8 @@ N-TIDIGITS
 
 Vision datasets
 ---------------
+Vision events typically have 4 event channels: time, x and y pixel coordinates and polarity.
+
 ASL-DVS
 ^^^^^^^
 .. autoclass:: ASLDVS

@@ -1,6 +1,5 @@
 import numpy as np
 import tonic.transforms as transforms
-import torch
 
 
 def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False):
@@ -66,6 +65,8 @@ def pad_tensors(batch):
         >>>                                        shuffle=True)
 
     """
+    import torch
+
     if not isinstance(batch[0][0], torch.Tensor):
         print("tonic.utils.pad_tensors expects a PyTorch Tensor of events. Please use ToSparseTensor or similar transform to convert the events.")
         return None, None

@@ -1,24 +1,26 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_url
+from .dataset import Dataset
+from .download_utils import check_integrity, download_url
 
 
-class VPR(VisionDataset):
+class VPR(Dataset):
     """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805>. 
     Events have (txyp) ordering.
 
-    arguments:
+    Parameters:
         save_to (string): Location to save files to on disk.
         download (bool): Choose to download data or verify existing files. If True and a file with the same 
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        
+    Returns:
+        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images).
     """
 
     base_url = "https://zenodo.org/record/4302805/files/"
-
     recordings = [  # recording names and their md5 hash
         ["dvs_vpr_2020-04-21-17-03-03.bag", "04473f623aec6bda3d7eadfecfc1b2ce"],
         ["dvs_vpr_2020-04-22-17-24-21.bag", "ca6db080a4054196fe65825bce3db351"],
@@ -27,7 +29,7 @@ class VPR(VisionDataset):
         ["dvs_vpr_2020-04-28-09-14-11.bag", "7854ede61c0947adb0f072a041dc3bad"],
         ["dvs_vpr_2020-04-29-06-20-23.bag", "d7ccfeb6539f1e7b077ab4fe6f45193c"],
     ]
-
+    
     sensor_size = (260, 346)
     ordering = "txyp"
 

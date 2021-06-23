@@ -1,15 +1,15 @@
 import os
 import numpy as np
 import h5py
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import (
+from .dataset import Dataset
+from .download_utils import (
     check_integrity,
     download_and_extract_archive,
     extract_archive,
 )
 
 
-class HSD(VisionDataset):
+class HSD(Dataset):
     """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Dataset (SHD) 
     and the Spiking Speech Commands dataset (SSC)."""
 
@@ -23,7 +23,7 @@ class HSD(VisionDataset):
         events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
         # convert to microseconds
         events[:,0] *= 1e6
-        target = file["labels"][index].astype(np.int)
+        target = file["labels"][index].astype(int)
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
@@ -44,7 +44,7 @@ class SHD(HSD):
     """Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
     Events have (txp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
         download (bool): Choose to download data or verify existing files. If True and a file with the same 
@@ -98,7 +98,7 @@ class SSC(HSD):
     """Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
     Events have (txp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
         split (string): One of 'train', 'test' or 'valid'
         download (bool): Choose to download data or verify existing files. If True and a file with the same 

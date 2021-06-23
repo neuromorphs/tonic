@@ -1,6 +1,7 @@
+numpy
 torch
-torchvision
 importRosbag
 loris
 parameterized
+pytest
 h5py

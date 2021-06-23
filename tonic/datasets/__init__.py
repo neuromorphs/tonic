@@ -10,7 +10,6 @@ from .ntidigits import NTIDIGITS
 from .pokerdvs import POKERDVS
 from .navgesture import NavGesture
 from .visual_place_recognition import VPR
-from torch.utils.data import DataLoader
 
 __all__ = [
     "ASLDVS",
@@ -26,5 +25,4 @@ __all__ = [
     "SHD",
     "SSC",
     "VPR",
-    "DataLoader",
 ]

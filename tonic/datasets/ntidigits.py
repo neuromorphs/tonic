@@ -1,15 +1,15 @@
 import os
 import numpy as np
 import h5py
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_url
+from .dataset import Dataset
+from .download_utils import check_integrity, download_url
 
 
-class NTIDIGITS(VisionDataset):
+class NTIDIGITS(Dataset):
     """N-TIDIGITS <https://docs.google.com/document/d/1Uxe7GsKKXcy6SlDUX4hoJVAC0-UkH-8kr5UXp0Ndi1M/edit>.
     Events have (txp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
         download (bool): Choose to download data or verify existing files. If True and a file with the same 
