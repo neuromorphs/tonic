@@ -1,6 +1,4 @@
 import numpy as np
-from matplotlib import animation, rc
-import matplotlib.pyplot as plt
 import tonic.transforms as transforms
 import torch
 
@@ -19,6 +17,12 @@ def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False
     Returns:
         None
     """
+    try:
+        from matplotlib import animation, rc
+        import matplotlib.pyplot as plt
+    except ImportError:
+        raise ImportError('Please install the matplotlib package to plot events. This is an optional dependency.')
+
     events = events.squeeze()
     events = np.array(events)
     transform = transforms.Compose(
