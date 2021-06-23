@@ -1,5 +1,5 @@
-Quickstart
-==========
+Getting started
+===============
 
 With Tonic you can do 2 major things:
 
@@ -31,7 +31,7 @@ Let's visualise those events by making use of a util function:
 .. image:: _static/nmnist-events.png
     :alt: N-MNIST events plot
 
-You can see nicely the three saccades for this sample.
+You can see nicely the three saccades for this sample. The bright and dark version of the digit is because an event camera outputs two polarities, one for ON events that signify an increase in illuminance, and one for OFF events that signify a decrease.
 
 Applying a transform manually
 -----------------------------
@@ -40,7 +40,7 @@ In the previous plot we can see some isolated noise events, let's try to get rid
 
   import tonic.transforms as transforms
 
-  transform = tonic.transforms.Compose([tonic.transforms.Denoise(10000)])
+  transform = tonic.transforms.Compose([tonic.transforms.Denoise(filter_time=10000)])
   events_denoised = transform(events, dataset.sensor_size, dataset.ordering)
 
 .. image:: _static/nmnist-events-denoised.png
