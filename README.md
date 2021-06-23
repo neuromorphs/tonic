@@ -35,5 +35,9 @@ testloader = tonic.datasets.DataLoader(testset, shuffle=True)
 
 events, target = next(iter(testloader))
 ```
+
+## Discussion
+Have a question about how something works? Ideas for improvement? Feature request? Please get in touch here on GitHub via the [Discussions](https://github.com/neuromorphs/tonic/discussions) page!
+
 ## Documentation
 You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
