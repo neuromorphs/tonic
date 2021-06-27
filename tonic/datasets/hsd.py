@@ -19,15 +19,23 @@ class HSD(Dataset):
 
     def __getitem__(self, index):
         file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
-        # adding artificial polarity of 1
-        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
-        # convert to microseconds
-        events[:,0] *= 1e6
+        try:
+            iter(index)
+            events = [np.vstack((t, u,  np.ones(t.shape))).T
+                      for t, u in zip(file["spikes/times"][index], file["spikes/units"][index])]
+            
+            for e in events:
+                self._process_events(e)
+
+        except TypeError:
+            # adding artificial polarity of 1
+            events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
+            self._process_events(events)
+        
         target = file["labels"][index].astype(int)
-        if self.transform is not None:
-            events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
             target = self.target_transform(target)
+
         return events, target
 
     def __len__(self):
@@ -38,6 +46,12 @@ class HSD(Dataset):
         download_and_extract_archive(
             self.url, self.location_on_system, filename=self.zipfile, md5=self.file_md5
         )
+    
+    def _process_events(self, events):
+        # convert to microseconds
+        events[:,0] *= 1e6
+        if self.transform is not None:
+            events = self.transform(events, self.sensor_size, self.ordering)
 
 
 class SHD(HSD):
