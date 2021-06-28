@@ -24,8 +24,9 @@ class DataLoader:
         else:
             begin = self.iteration
             end = self.iteration + self.batch_size
-            data = self.dataset[self.indices[begin:end]]
-            self.iteration += len(data)
+            inds = self.indices[begin:end]
+            data = self.dataset[inds]
+            self.iteration += len(inds)
             return data
 
     def __len__(self):
