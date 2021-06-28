@@ -19,17 +19,24 @@ class HSD(Dataset):
 
     def __getitem__(self, index):
         file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        # If index is iterable
         try:
             iter(index)
-            events = [np.vstack((t, u,  np.ones(t.shape))).T
-                      for t, u in zip(file["spikes/times"][index], file["spikes/units"][index])]
+            # Build list of numpy arrays containing events 
+            # in each batch (with artificial polarity of 1)
+            events = [np.vstack((t, u, np.ones(t.shape))).T
+                      for t, u in zip(file["spikes/times"][index], 
+                                      file["spikes/units"][index])]
             
+            # Process events across batch
             for e in events:
                 self._process_events(e)
-
+        # Otherwise (assume it's a scalar)
         except TypeError:
             # adding artificial polarity of 1
-            events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
+            events = np.vstack((file["spikes/times"][index], 
+                                file["spikes/units"][index], 
+                                np.ones(file["spikes/times"][index].shape[0]))).T
             self._process_events(events)
         
         target = file["labels"][index].astype(int)
@@ -50,6 +57,8 @@ class HSD(Dataset):
     def _process_events(self, events):
         # convert to microseconds
         events[:,0] *= 1e6
+        
+        # Apply transform to events
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
 
