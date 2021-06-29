@@ -22,24 +22,36 @@ class HSD(Dataset):
         # If index is iterable
         try:
             iter(index)
-            # Build list of numpy arrays containing events 
-            # in each batch (with artificial polarity of 1)
-            events = [np.vstack((t, u, np.ones(t.shape))).T
-                      for t, u in zip(file["spikes/times"][index], 
-                                      file["spikes/units"][index])]
             
-            # Process events across batch
-            for e in events:
-                self._process_events(e)
+            # Loop through indices
+            # **NOTE** h5py doesn't support fancy-indexing so 
+            # this seems best approach to handle shufflinge etc
+            events = []
+            target = np.empty(len(index), dtype=int)
+            for i, idx in enumerate(index):
+                # Read times and neuron ids and create artificial polarity
+                times = file["spikes/times"][idx]
+                neurons = file["spikes/units"][idx]
+                polarity = np.ones_like(times)
+                
+                # Stack together and add to events
+                events.append(np.vstack((times, neurons, polarity)).T)
+                
+                # Process new event
+                self._process_events(events[-1])
+                
+                # Also read target into array
+                target[i] = file["labels"][idx]
         # Otherwise (assume it's a scalar)
-        except TypeError:
+        except TypeError as e:
             # adding artificial polarity of 1
             events = np.vstack((file["spikes/times"][index], 
                                 file["spikes/units"][index], 
                                 np.ones(file["spikes/times"][index].shape[0]))).T
             self._process_events(events)
+            target = file["labels"][index].astype(int)
         
-        target = file["labels"][index].astype(int)
+        # Transform targets
         if self.target_transform is not None:
             target = self.target_transform(target)
 
