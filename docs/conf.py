@@ -25,7 +25,7 @@ author = "the Neuromorphs"
 try:
     import tonic
 
-    version = ".".join(tonic.__version__.split(".")[:2])
+    version = ".".join(tonic.__version__.split("."))
     release = tonic.__version__
 except ImportError:
     version = ""

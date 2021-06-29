@@ -1,17 +1,19 @@
 import os
 import numpy as np
 import h5py
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_url
+from .dataset import Dataset
+from .download_utils import check_integrity, download_url
 
 
-class NTIDIGITS(VisionDataset):
-    """N-TIDIGITS <https://docs.google.com/document/d/1Uxe7GsKKXcy6SlDUX4hoJVAC0-UkH-8kr5UXp0Ndi1M/edit> data set.
+class NTIDIGITS(Dataset):
+    """N-TIDIGITS <https://docs.google.com/document/d/1Uxe7GsKKXcy6SlDUX4hoJVAC0-UkH-8kr5UXp0Ndi1M/edit>.
+    Events have (txp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         
@@ -25,7 +27,7 @@ class NTIDIGITS(VisionDataset):
     filename = "n-tidigits.hdf5"
 
     sensor_size = (64,)
-    ordering = "tx"
+    ordering = "txp"
 
     def __init__(
         self, save_to, train=True, download=True, transform=None, target_transform=None,
@@ -57,7 +59,9 @@ class NTIDIGITS(VisionDataset):
             target = bytes.decode(file["test_labels"][index])
             timestamps = np.array(file["test_timestamps/" + target])
             addresses = np.array(file["test_addresses/" + target])
-        events = np.vstack((timestamps, addresses)).T
+        # convert timestamps to microseconds
+        timestamps *= 10e5
+        events = np.vstack((timestamps, addresses, np.ones(timestamps.shape[0]))).T
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:

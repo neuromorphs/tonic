@@ -1,7 +1,7 @@
 import os
 import numpy as np
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import (
+from .dataset import Dataset
+from .download_utils import (
     check_integrity,
     download_and_extract_archive,
     extract_archive,
@@ -10,13 +10,14 @@ from numpy.lib.recfunctions import structured_to_unstructured
 import loris
 
 
-class NCARS(VisionDataset):
-    """N-Cars <https://www.prophesee.ai/dataset-n-cars-download/> data set.
+class NCARS(Dataset):
+    """N-Cars dataset <https://www.prophesee.ai/dataset-n-cars-download/>. Events have (txyp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         
@@ -84,7 +85,7 @@ class NCARS(VisionDataset):
 
     def __getitem__(self, index):
         events = loris.read_file(self.samples[index])["events"]
-        events = np.array(structured_to_unstructured(events, dtype=np.float))
+        events = np.array(structured_to_unstructured(events, dtype=float))
         events[:, 2] -= self.minimum_y_value
         target = self.targets[index]
         if self.transform is not None:

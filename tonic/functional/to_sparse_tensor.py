@@ -1,40 +1,57 @@
 import numpy as np
-import torch
 
 
 def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=False):
-    """Sparse Tensor PyTorch representation. See https://pytorch.org/docs/stable/sparse.html for details.
+    """Sparse Tensor PyTorch representation. See https://pytorch.org/docs/stable/sparse.html for details
+    about sparse tensors. A sparse tensor will use the events as indices in the order (tpxy) and values
+    of 1 for each index, which signify a spike. The shape of the tensor will be (TCWH).
 
     Args:
-        merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
+        merge_polarities (bool): flag that decides whether to combine polarities into a single channel
+                                or split them into separate channels. If True, the number of channels for
+                                indices is 1, otherwise it's the number of different polarities. Regardless 
+                                of this flag, all values assigned to indices will be 1, which signify a spike.
 
     Returns:
-        sparse tensor in TxWxH format
+        sparse tensor in TxCxWxH format, where T is timesteps, C is the number of channels for each polarity,
+        and W and H are always the size of the sensor.
     """
-    assert "x" and "y" and "t" and "p" in ordering
+    try:
+        import torch
+    except ImportError:
+        raise ImportError('The sparse tensor transform needs PyTorch installed. Please install a stable version of PyTorch or alternatively install Tonic with optional PyTorch dependencies.')
+        
+    assert "x" and "t" and "p" in ordering
     x_index = ordering.find("x")
-    y_index = ordering.find("y")
     t_index = ordering.find("t")
     p_index = ordering.find("p")
 
     if len(events.shape) != 2:
         raise RuntimeError(
-            "Will only convert to sparse tensor from (N,E) (i.e., a list of events)"
-            " dimension."
+            "Will only convert to sparse tensor from array of shape (N,E)."
         )
 
-    if merge_polarities:
-        events[:, p_index] = np.zeros(n_of_events)
-    else:
-        pols = events[:, p_index]
-        pols[pols == 0] = -1
+    # in any case, all the values in the sparse tensor will be 1, signifying a spike
+    values = torch.ones(events.shape[0])
+
+    # prevents polarities used as indices that are not 0
+    if len(np.unique(events[:, p_index])) == 1: merge_polarities = True
+        
+    if merge_polarities:  # the indices need to start at 0
+        events[:, p_index] = 0
+        n_channels = 1
+    else:  # avoid any negative indices
+        events[events[:, p_index] == -1, p_index] = 0
+        n_channels = len(np.unique(events[:, p_index]))
 
     max_time = int(max(events[:, t_index]) + 1)
-    max_x = int(max(events[:, x_index]) + 1)
-    max_y = int(max(events[:, y_index]) + 1)
+    
+    if "y" in ordering:   
+        y_index = ordering.find("y")
+        indices = torch.LongTensor(events[:, [t_index, p_index, x_index, y_index]]).T
+    else:
+        indices = torch.LongTensor(events[:, [t_index, p_index, x_index]]).T
 
-    indices = torch.LongTensor(events[:, [t_index, x_index, y_index]]).T
-    values = torch.FloatTensor(events[:, p_index])
     return torch.sparse.FloatTensor(
-        indices, values, torch.Size([max_time, max_x, max_y])
+        indices, values, torch.Size([max_time, n_channels, *sensor_size])
     )

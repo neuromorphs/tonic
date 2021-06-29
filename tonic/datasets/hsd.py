@@ -1,20 +1,65 @@
 import os
 import numpy as np
 import h5py
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import (
+from .dataset import Dataset
+from .download_utils import (
     check_integrity,
     download_and_extract_archive,
     extract_archive,
 )
 
 
-class HSD(VisionDataset):
-    """Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407> data set contains the Spiking Heidelberg Dataset (SHD) and the Spiking Speech Commands dataset (SSC)"""
+class HSD(Dataset):
+    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Dataset (SHD) 
+    and the Spiking Speech Commands dataset (SSC)."""
 
     base_url = "https://zenkelab.org/datasets/"
     sensor_size = (700,)
-    ordering = "tx"
+    ordering = "txp"
+
+    def __getitem__(self, index):
+        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        # adding artificial polarity of 1
+        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
+        # convert to microseconds
+        events[:,0] *= 1e6
+        target = file["labels"][index].astype(int)
+        if self.transform is not None:
+            events = self.transform(events, self.sensor_size, self.ordering)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+        return events, target
+
+    def __len__(self):
+        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
+        return len(file["labels"])
+
+    def download(self):
+        download_and_extract_archive(
+            self.url, self.location_on_system, filename=self.zipfile, md5=self.file_md5
+        )
+
+
+class SHD(HSD):
+    """Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
+    Events have (txp) ordering.
+
+    Parameters:
+        save_to (string): Location to save files to on disk.
+        train (bool): If True, uses training subset, otherwise testing subset.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        
+    Returns:
+        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
+    """
+
+    test_zip = "shd_test.h5.zip"
+    train_zip = "shd_train.h5.zip"
+    test_md5 = "1503a5064faa34311c398fb0a1ed0a6f"
+    train_md5 = "f3252aeb598ac776c1b526422d90eecb"
 
     def __init__(
         self, save_to, train=True, download=True, transform=None, target_transform=None
@@ -48,53 +93,16 @@ class HSD(VisionDataset):
         file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
         self.classes = file["extra/keys"]
 
-    def __getitem__(self, index):
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
-        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index])).T
-        target = file["labels"][index].astype(np.int)
-        if self.transform is not None:
-            events = self.transform(events, self.sensor_size, self.ordering)
-        if self.target_transform is not None:
-            target = self.target_transform(target)
-        return events, target
-
-    def __len__(self):
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
-        return len(file["labels"])
-
-    def download(self):
-        download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.zipfile, md5=self.file_md5
-        )
-
-
-class SHD(HSD):
-    """Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
-
-    Args:
-        save_to (string): Location to save files to on disk.
-        train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
-        transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
-    """
-
-    test_zip = "shd_test.h5.zip"
-    train_zip = "shd_train.h5.zip"
-    test_md5 = "1503a5064faa34311c398fb0a1ed0a6f"
-    train_md5 = "f3252aeb598ac776c1b526422d90eecb"
-
 
 class SSC(HSD):
     """Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
+    Events have (txp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
         split (string): One of 'train', 'test' or 'valid'
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         

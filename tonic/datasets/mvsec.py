@@ -1,22 +1,21 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_url
+from .dataset import Dataset
+from .download_utils import check_integrity, download_url
 
 
-class MVSEC(VisionDataset):
-    """The Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>.
-
-    Args:
+class MVSEC(Dataset):
+    """The Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>. Events have (xytp) ordering.
+    
+    Parameters:
         save_to (string): Location to save files to on disk.
         scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle
         download (bool): Choose to download data or verify existing files. If True and a file with the same name is in the directory, 
                         it will be verified and re-download is automatically skipped. If False, existing files will be
                         be verified. If you already have the data on your system, make sure to place it in a subfolder
                         'MVSEC/{scene}', where {scene} is one of the available strings (see parameter above).
-        transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transform (callable, optional): A callable of transforms to apply to events and / or images for both left and right cameras.
         
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a mix of data and ground truth in a tuple of 
@@ -87,25 +86,29 @@ class MVSEC(VisionDataset):
     def __getitem__(self, index):
         # decode data file
         filename = os.path.join(self.location_on_system, self.scene, self.resources[self.scene][index*2][0])
-        topics = importRosbag(filename)
+        topics = importRosbag(filename, log="ERROR")
         events_left = topics["/davis/left/events"]
-        events_left = np.stack((events_left["ts"], events_left["x"], events_left["y"], events_left["pol"])).T
+        events_left = np.stack((events_left["x"], events_left["y"], events_left["ts"]-events_left["ts"][0], events_left["pol"])).T
         events_right = topics["/davis/right/events"]
-        events_right = np.stack((events_right["ts"], events_right["x"], events_right["y"], events_right["pol"])).T
+        events_right = np.stack((events_right["x"], events_right["y"], events_right["ts"]-events_right["ts"][0], events_right["pol"])).T
         imu_left = topics["/davis/left/imu"]
         imu_right = topics["/davis/right/imu"]
         images_left = topics["/davis/left/image_raw"]
-        images_left["frames"] = np.stack(images_left["frames"])
+        images_left = np.stack(images_left["frames"])
         images_right = topics["/davis/right/image_raw"]
-        images_right["frames"] = np.stack(images_right["frames"])
+        images_right = np.stack(images_right["frames"])
         
         # decode ground truth file
         filename = os.path.join(self.location_on_system, self.scene, self.resources[self.scene][index*2+1][0])
-        topics = importRosbag(filename)
+        topics = importRosbag(filename, log="ERROR")
         depth_left = topics["/davis/left/depth_image_raw"]
+        depth_left = np.stack(depth_left["frames"])
         depth_right = topics["/davis/right/depth_image_raw"]
+        depth_right = np.stack(depth_right["frames"])
         depth_rect_left = topics["/davis/left/depth_image_rect"]
+        depth_rect_left = np.stack(depth_rect_left["frames"])
         depth_rect_right = topics["/davis/right/depth_image_rect"]
+        depth_rect_right = np.stack(depth_rect_right["frames"])
         pose = topics["/davis/left/pose"]
 
         if self.transform is not None:

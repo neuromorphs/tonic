@@ -1,20 +1,21 @@
 import os
 import numpy as np
 import scipy.io as scio
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import (
+from .dataset import Dataset
+from .download_utils import (
     check_integrity,
     download_and_extract_archive,
     extract_archive,
 )
 
 
-class ASLDVS(VisionDataset):
-    """ASLDVS <https://github.com/PIX2NVS/NVS2Graph> data set
+class ASLDVS(Dataset):
+    """ASL-DVS dataset <https://github.com/PIX2NVS/NVS2Graph>. Events have (txyp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     
@@ -79,7 +80,7 @@ class ASLDVS(VisionDataset):
                 ]
             )
             .squeeze()
-            .T.astype(np.float)
+            .T.astype(float)
         )
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)

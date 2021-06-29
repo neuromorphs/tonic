@@ -1,19 +1,20 @@
 import os
 import numpy as np
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import (
+from .dataset import Dataset
+from .download_utils import (
     check_integrity,
     download_and_extract_archive,
     extract_archive,
 )
 
 
-class NCALTECH101(VisionDataset):
-    """NCALTECH101 <https://www.garrickorchard.com/datasets/n-caltech101> data set.
+class NCALTECH101(Dataset):
+    """N-CALTECH101 dataset <https://www.garrickorchard.com/datasets/n-caltech101>. Events have (xytp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         
@@ -39,8 +40,8 @@ class NCALTECH101(VisionDataset):
         self.location_on_system = os.path.join(save_to, "ncaltech-101/")
         self.samples = []
         self.targets = []
-        self.x_index = ordering.find("x")
-        self.y_index = ordering.find("y")
+        self.x_index = self.ordering.find("x")
+        self.y_index = self.ordering.find("y")
 
         if download:
             self.download()

@@ -120,17 +120,17 @@ class FlipUD:
 
 class Denoise:
     """Cycles through all events and drops it if there is no other event within
-    a time of time_filter and a spatial neighbourhood of 1."""
+    a time of filter_time and a spatial neighbourhood of 1."""
 
-    def __init__(self, time_filter=10000):
-        self.time_filter = time_filter
+    def __init__(self, filter_time=10000):
+        self.filter_time = filter_time
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.denoise_numpy(
             events=events,
             sensor_size=sensor_size,
             ordering=ordering,
-            time_filter=self.time_filter,
+            filter_time=self.filter_time,
         )
         return events, images
 

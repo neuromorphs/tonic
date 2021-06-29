@@ -1,21 +1,21 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import check_integrity, download_url
+from .dataset import Dataset
+from .download_utils import check_integrity, download_url
 
 
-class DAVISDATA(VisionDataset):
-    """DAVIS Event Camera Dataset <http://rpg.ifi.uzh.ch/davis_data.html> data set.
+class DAVISDATA(Dataset):
+    """DAVIS Event Camera dataset <http://rpg.ifi.uzh.ch/davis_data.html>. Events have (txyp) ordering.
 
-    Args:
+    Parameters:
         save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
         recording (string): Use the name of the recording or a list thereof to load it, for example 'dynamic_6dof'
                             or ['slider_far', 'urban']. See project homepage for a list of available recordings.
                             Can use 'all' to load every recording.
-        download (bool): Choose to download data or not. If True and a file with the same name is in the directory, it will be verified and re-download is automatically skipped.
-        transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+                    name and correct hash is already in the directory, download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to events and/or images.
         
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images, opti_track_ground_truth).
@@ -90,7 +90,7 @@ class DAVISDATA(VisionDataset):
 
     def __getitem__(self, index):
         filename = os.path.join(self.location_on_system, self.selection[index] + ".bag")
-        topics = importRosbag(filename)
+        topics = importRosbag(filename, log="ERROR")
         events = topics["/dvs/events"]
         events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
         imu = topics["/dvs/imu"]
@@ -102,9 +102,6 @@ class DAVISDATA(VisionDataset):
             events = self.transform(
                 events, self.sensor_size, self.ordering, images=images
             )
-        if self.target_transform is not None:
-            target = self.target_transform(target)
-
         return events, imu, images, target
 
     def __len__(self):
