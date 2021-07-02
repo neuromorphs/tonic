@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=False):
+def get_indices_values(events, sensor_size, ordering, merge_polarities):
     """Sparse Tensor PyTorch representation. See https://pytorch.org/docs/stable/sparse.html for details
     about sparse tensors. A sparse tensor will use the events as indices in the order (tpxy) and values
     of 1 for each index, which signify a spike. The shape of the tensor will be (TCWH).
@@ -15,12 +15,7 @@ def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=Fal
     Returns:
         sparse tensor in TxCxWxH format, where T is timesteps, C is the number of channels for each polarity,
         and W and H are always the size of the sensor.
-    """
-    try:
-        import torch
-    except ImportError:
-        raise ImportError('The sparse tensor transform needs PyTorch installed. Please install a stable version of PyTorch or alternatively install Tonic with optional PyTorch dependencies.')
-        
+    """ 
     assert "x" and "t" and "p" in ordering
     x_index = ordering.find("x")
     t_index = ordering.find("t")
@@ -32,7 +27,7 @@ def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=Fal
         )
 
     # in any case, all the values in the sparse tensor will be 1, signifying a spike
-    values = torch.ones(events.shape[0])
+    values = np.ones(events.shape[0])
 
     # prevents polarities used as indices that are not 0
     if len(np.unique(events[:, p_index])) == 1: merge_polarities = True
@@ -48,10 +43,32 @@ def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities=Fal
     
     if "y" in ordering:   
         y_index = ordering.find("y")
-        indices = torch.LongTensor(events[:, [t_index, p_index, x_index, y_index]]).T
+        indices = events[:, [t_index, p_index, x_index, y_index]]
     else:
-        indices = torch.LongTensor(events[:, [t_index, p_index, x_index]]).T
+        indices = events[:, [t_index, p_index, x_index]]
 
+    return indices, values, max_time, n_channels
+
+def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities):
+    try:
+        import torch
+    except ImportError:
+        raise ImportError('The sparse tensor transform needs PyTorch installed. Please install a stable version ' +
+                          'of PyTorch or alternatively install Tonic with optional PyTorch dependencies.')
+    indices, values, max_time, n_channels = get_indices_values(events, sensor_size, ordering, merge_polarities)
+    indices = torch.LongTensor(indices).T
+    values = torch.LongTensor(values)
     return torch.sparse.FloatTensor(
+        indices, values, torch.Size([max_time, n_channels, *sensor_size])
+    )
+
+def to_sparse_tensor_tensorflow(events, sensor_size, ordering, merge_polarities):
+    indices, values, max_time, n_channels = get_indices_values(events, sensor_size, ordering, merge_polarities)
+    try:
+        import tensorflow
+    except ImportError:
+        raise ImportError('The sparse tensor transform needs PyTorch installed. Please install a stable version ' +
+                          'of PyTorch or alternatively install Tonic with optional PyTorch dependencies.')
+    return tensorflow.sparse.SparseTensor(
         indices, values, torch.Size([max_time, n_channels, *sensor_size])
     )

@@ -340,16 +340,27 @@ class ToRatecodedFrame:
 class ToSparseTensor:
     """Turn event array (N,E) into sparse Tensor (B,T,W,H)."""
 
-    def __init__(self, merge_polarities=False):
+    def __init__(self, type='pytorch', merge_polarities=False):
         self.merge_polarities = merge_polarities
+        self.type = type
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        tensor = functional.to_sparse_tensor_pytorch(
-            events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            merge_polarities=self.merge_polarities,
-        )
+        if self.type == 'pytorch' or 'pt' or 'torch':
+            tensor = functional.to_sparse_tensor_pytorch(
+                events=events,
+                sensor_size=sensor_size,
+                ordering=ordering,
+                merge_polarities=self.merge_polarities,
+            )
+        elif self.type == 'tensorflow' or 'tf':
+            tensor = functional.to_sparse_tensor_tensorflow(
+                events=events,
+                sensor_size=sensor_size,
+                ordering=ordering,
+                merge_polarities=self.merge_polarities,
+            )
+        else:
+            raise NotImplementedError
         return tensor, images
 
 
