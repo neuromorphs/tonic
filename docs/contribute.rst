@@ -25,7 +25,7 @@ If you want to add a new dataset, there are 2 main questions to consider:
 * Where is the dataset hosted?
 * What format is it in?
 
-To download a dataset, Tonic makes use of pytorch vision's tools that can be found `here <https://github.com/pytorch/vision/blob/master/torchvision/datasets/utils.py>`_.
+To download a dataset, Tonic makes use of a copy of pytorch vision's tools that can be found `here <https://github.com/neuromorphs/tonic/blob/develop/tonic/datasets/download_utils.py>`_.
 Cloud providers such as Dropbox, Google Drive, OneDrive etc. are usually not straightforward to automatically download from, so if the dataset owner provides multiple mirrors,
 prefer a simple REST-like webpage such as https://www.neuromorphic-vision.com/public/downloads/.
 
@@ -37,7 +37,7 @@ Ordered by degree of easiness to decode a file format, here is one subjective ra
 2. **rosbag**. This is a popular format used by roboticists which similarly bundles everything in a single file. The downside however that there is lacking support for a stand-alone python package to decode these files. Tonic builds on the `importRosbag <https://github.com/event-driven-robotics/importRosbag>`_ package which does a great job at decoding, unless your .rosbags are compressed (as of v1.0.3). Plus it might not be able to decode all the topics in there. Good with potential hickups!
 3. **npy** and **mat**. These are file formats that can be handled with ubiquitious numpy and scipy packges. Although they might not be the most compact format, they are still a good solution due to easiness of decoding.
 4. **aedat**, **dat** and **es**. Every lab has their own file format because why not! But support to decode those files in a reliable python package is often scarce. The `Loris <https://github.com/neuromorphic-paris/loris>`_ and `aedat <https://github.com/neuromorphicsystems/aedat>`_ packages are trying their best, but might not be maintained at all times... Plus when a dataset is published, there is no reason why it has to be split in single files. Avoid if possible
-5. **txt**. Ever tried decoding 1 million events by splitting strings and converting them to floats? No? Better keep it that way...
+5. **txt**. Ever tried decoding 1 million events by splitting strings and converting them to floats? No? I did it and I can tell you that it's incredibly slow... Avoid at all costs.
 
 The way a dataset class is organised generally follows this structure:
 

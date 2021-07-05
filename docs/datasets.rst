@@ -1,19 +1,11 @@
 Datasets
 ========
 
-All datasets are subclasses of :class:`torch.utils.data.Dataset`
-i.e, they have ``__getitem__`` and ``__len__`` methods implemented.
-Hence, they can all be passed to a :class:`torch.utils.data.DataLoader`
-which can load multiple samples parallelly using ``torch.multiprocessing`` workers.
-For example: ::
+All datasets are subclasses of :class:`tonic.datasets.Dataset` and need certain methods implemented: ``__init__``,  ``__getitem__`` and ``__len__``. This design is inspired by torchvision's way to provide datasets.
+Even though the arguments that can be passed to a dataset might differ a bit from case to case, they all have two common arguments:
+``transform`` and  ``target_transform`` to transform the input and targets respectively.
 
-    dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
-    dataloader = tonic.datasets.DataLoader(dataset, shuffle=True, num_workers=4)
-
-All the datasets have almost similar API. They all have two common arguments:
-``transform`` and  ``target_transform`` to transform the input and target respectively.
-
-Events for a sample in both audio and vision datasets are output as numpy arrays with shape (N,E), where N is the number of events and E is the number of event channels. 
+Events for a sample in both audio and vision datasets are output as numpy arrays with shape (N,E), where N is the number of events and E is the number of event channels.
 
 .. currentmodule:: tonic.datasets
 

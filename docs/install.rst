@@ -11,13 +11,8 @@ the instructions as `outlined here <https://github.com/conda-forge/tonic-feedsto
 
 Requirements
 ------------
-Tonic is based on PyTorch Vision, which in turn is based on PyTorch. This is by far the largest
-dependency. Apart from that, there are a few minor packages that help with decoding file formats,
-such as h5py, importRosbag, aedat, loris and others.
+Even though Tonic is modeled after PyTorch Vision, it does not depend on it or PyTorch for that matter. We want to keep our package lightweight to provide a minimum set of functionality, while at the same time being compatible with mature dataloading classes in larger frameworks. We keep dependencies to a minimum set of packages that help with decoding different file formats such as h5py, importRosbag, aedat, loris and others.
 
 Supported platforms
 --------------------
-This being a Python only package, support across platforms should be without issues
-for the most part. 
-If you run into any problems installing it on your system, please open a Github issue and
-we'll look into it.
+Tonic being a Python only package, support across platforms should be without issues for the most part. If you run into any problems installing it on your system, please open a Github issue and we'll look into it.

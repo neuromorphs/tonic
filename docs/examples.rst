@@ -16,7 +16,8 @@ Denoise events and transform to time surfaces
                                     train=False,
                                     transform=transform)
 
-    dataloader = tonic.datasets.DataLoader(dataset, shuffle=True)
+    import torch
+    dataloader = torch.utils.data.DataLoader(dataset, shuffle=True)
     for surfaces, target in iter(dataloader):
         print("{} surfaces for target {}".format(len(surfaces), target))
 
@@ -30,15 +31,12 @@ Load DAVIS data that includes images and IMU measurements
     dataset = tonic.datasets.DAVISDATA(save_to='./data',
                                        recording='shapes_6dof')
 
-    dataloader = tonic.datasets.DataLoader(dataset, shuffle=False)
-
-    events, imu, images, target = next(iter(dataloader))
+    events, imu, images, target = dataset[100]
 
 
 Load batches of event recordings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Since the package is built on top of PyTorch, we can make use of multithreaded dataloading
-and shuffling as well as batching.
+Since the package is compatible with PyTorch, we can make use of multithreaded dataloading and shuffling as well as batching.
 Using a custom collate function from ``tonic.utils.pad_tensors``, we can retrieve
 batches of sparse event tensors by padding shorter tensors like so:
 ::
@@ -50,7 +48,9 @@ batches of sparse event tensors by padding shorter tensors like so:
             tonic.transforms.ToSparseTensor(merge_polarities=True),
             ])
     dataset = tonic.datasets.NMNIST(save_to='./data', transform=transform)
-    dataloader = tonic.datasets.DataLoader(dataset,
+
+    import torch
+    dataloader = torch.utils.data.DataLoader(dataset,
                                            batch_size=10,
                                            collate_fn=tonic.utils.pad_tensors,
                                            shuffle=True)
@@ -67,8 +67,6 @@ the parameters of the function used in :doc:`utils <utils>`.
     import tonic.transforms as transforms
 
     dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
-    dataloader = tonic.datasets.DataLoader(dataset, shuffle=True)
-
-    events, target = next(iter(dataloader))
+    events, target = dataset[100]
 
     tonic.utils.plot_event_grid(events, dataset.ordering)
