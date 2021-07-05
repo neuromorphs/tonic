@@ -1,6 +1,7 @@
 from .asl_dvs import ASLDVS
 from .dvsgesture import DVSGesture
 from .davisdataset import DAVISDATA
+from .dataset import Dataset
 from .hsd import SHD, SSC
 from .mvsec import MVSEC
 from .nmnist import NMNIST

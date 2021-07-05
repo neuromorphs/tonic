@@ -6,13 +6,13 @@
 
 Battling with all the different file formats of publicly available neuromorphic datasets? No more!
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
-It's based on PyTorch Vision for an intuitive interface, so that you spend less time worrying about how to read files and more time on things that matter.
+It's somewhat modeled after PyTorch Vision for an intuitive interface, so that you spend less time worrying about how to read files and more time on things that matter.
 
 ## Install
 ```bash
 pip install tonic
 ```
-If you prefer conda, please check out the [forge repository](https://github.com/conda-forge/tonic-feedstock). 
+If you prefer conda, please check out the [forge repository](https://github.com/conda-forge/tonic-feedstock).
 
 ## Getting started
 Have a look at our [introduction](https://tonic.readthedocs.io/en/latest/getting_started.html) page to see how some of the moving parts work. There are some more short examples available [here](https://tonic.readthedocs.io/en/latest/examples.html).
@@ -31,7 +31,8 @@ testset = tonic.datasets.NMNIST(save_to='./data',
                                 train=False,
                                 transform=transform)
 
-testloader = tonic.datasets.DataLoader(testset, shuffle=True)
+import torch
+testloader = torch.utils.data.DataLoader(testset, shuffle=True)
 
 events, target = next(iter(testloader))
 ```
