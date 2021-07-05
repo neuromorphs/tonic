@@ -14,10 +14,10 @@ Package reference
    install
    getting_started
    examples
-   wrapping_own_data
    transformations
    datasets
    dataloading
+   wrapping_own_data
    utils
    contribute
    release_notes

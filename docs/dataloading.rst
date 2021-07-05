@@ -14,3 +14,15 @@ Tonic datasets can be passed directly to a :class:`torch.utils.data.DataLoader`.
 
     dataset = tonic.datasets.NMNIST(save_to='./data', train=False)
     dataloader = torch.utils.data.DataLoader(dataset, shuffle=True, num_workers=4, pin_memory=True)
+
+We can then load a single sample ::
+
+    events, target = next(iter(dataloader))
+
+Or loop over all samples available in the dataset ::
+
+    for events, target in iter(dataloader):
+        # do something with events
+        # do something with targets
+
+Note that when using the PyTorch dataloader, an additional batch dimension will be prepended to your data. 

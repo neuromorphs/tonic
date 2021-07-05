@@ -1,6 +1,6 @@
 How do I wrap my own recordings?
 ================================
-If you have your own local recordings and want to make use of Tonic for quick dataloading and applying transformations, then you can wrap them in a custom class. You just need to provide a minimum set of methods ``__init__``, ``__getitem__`` and ``__len__`` and you are good to go. Here is a template class that reads events from a local hdf5 file:
+If you have your own local recordings and want to make use of Tonic for quick dataloading and applying transformations, then you can wrap them in a custom class. You just need to provide a minimum set of methods ``__init__``, ``__getitem__`` and ``__len__`` and you are good to go. Here is a template class that reads event recordings from a local hdf5 file:
 ::
 
   import numpy as np
@@ -45,9 +45,9 @@ If you have your own local recordings and want to make use of Tonic for quick da
           file = h5py.File(self.filename, "r")
           return len(file["labels"])
 
-Depending on the format of your recording files, your implementation might look a bit different. You can have a look at already existing datasets for some inspiration. :class:`DVSGesture` loads from numpy files, :class:`DAVISDATA` or :class:`VPR` load events and other data from rosbag files, :class:`NCARS` loads eventstream files and :class:`ASLDVS` reads from matlab files.
+Depending on the format of your recording files, your implementation might look a bit different. Oftentimes you will have a separate file for each recording. Or you might want to also load some image or IMU data. You can have a look at already existing datasets for some inspiration. :class:`DVSGesture` loads from multiple numpy files, :class:`DAVISDATA` or :class:`VPR` load events and other data from rosbag files, :class:`NCARS` loads eventstream files and :class:`ASLDVS` reads from matlab files.
 
-Afterwards you can call certain samples from the dataset or use a DataLoader wrapper:
+Afterwards you can call certain samples from the dataset or use a DataLoader wrapper, which will make use of ``__getitem__`` and ``__len__`` functions internally.
 ::
 
   dataset = MyRecordings(train=True)
