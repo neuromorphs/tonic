@@ -33,8 +33,8 @@ testset = tonic.datasets.NMNIST(save_to='./data',
                                 train=False,
                                 transform=transform)
 
-import torch
-testloader = torch.utils.data.DataLoader(testset, shuffle=True)
+from torch.utils.data import DataLoader
+testloader = DataLoader(testset, shuffle=True)
 
 events, target = next(iter(testloader))
 ```
