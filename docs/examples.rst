@@ -16,8 +16,8 @@ Denoise events and transform to time surfaces
                                     train=False,
                                     transform=transform)
 
-    import torch
-    dataloader = torch.utils.data.DataLoader(dataset, shuffle=True)
+    from torch.utils.data import DataLoader
+    dataloader = DataLoader(dataset, shuffle=True)
     for surfaces, target in iter(dataloader):
         print("{} surfaces for target {}".format(len(surfaces), target))
 
@@ -49,11 +49,11 @@ batches of sparse event tensors by padding shorter tensors like so:
             ])
     dataset = tonic.datasets.NMNIST(save_to='./data', transform=transform)
 
-    import torch
-    dataloader = torch.utils.data.DataLoader(dataset,
-                                           batch_size=10,
-                                           collate_fn=tonic.utils.pad_tensors,
-                                           shuffle=True)
+    from torch.utils.data import DataLoader
+    dataloader = DataLoader(dataset,
+                            batch_size=10,
+                            collate_fn=tonic.utils.pad_tensors,
+                            shuffle=True)
 
     tensors, target = next(iter(dataloader))
 
