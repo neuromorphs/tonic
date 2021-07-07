@@ -3,6 +3,8 @@
 [![Travis Build Status](https://travis-ci.com/neuromorphs/tonic.svg?branch=master)](https://travis-ci.com/neuromorphs/tonic)
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
+
 
 Battling with all the different file formats of publicly available neuromorphic datasets? No more!
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
@@ -42,3 +44,26 @@ Have a question about how something works? Ideas for improvement? Feature reques
 
 ## Documentation
 You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
+
+## Citation
+If you find this package helpful, please use the following citation:
+
+```BibTex
+@software{lenz_gregor_2021_5079802,
+  author       = {Lenz, Gregor and
+                  Chaney, Kenneth and
+                  Shrestha, Sumit Bam and
+                  Oubari, Omar and
+                  Picaud, Serge and
+                  Zarrella, Guido},
+  title        = {Tonic: event-based datasets and transformations.},
+  month        = jul,
+  year         = 2021,
+  note         = {{Documentation available under 
+                   https://tonic.readthedocs.io}},
+  publisher    = {Zenodo},
+  version      = {0.4.0},
+  doi          = {10.5281/zenodo.5079802},
+  url          = {https://doi.org/10.5281/zenodo.5079802}
+}
+```
