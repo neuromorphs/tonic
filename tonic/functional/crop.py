@@ -49,7 +49,8 @@ def crop_numpy(
     x_end_ind = x_start_ind + target_size[0]
     y_end_ind = y_start_ind + target_size[1]
 
-    images = images[..., y_start_ind:y_end_ind, x_start_ind:x_end_ind]
+    if images is not None:
+        images = images[..., y_start_ind:y_end_ind, x_start_ind:x_end_ind]
 
     x_loc = ordering.index("x")
     y_loc = ordering.index("y")
