@@ -9,6 +9,7 @@ from .ncars import NCARS
 from .ntidigits import NTIDIGITS
 from .pokerdvs import POKERDVS
 from .navgesture import NavGesture
+from .s_mnist import SMNIST
 from .visual_place_recognition import VPR
 
 __all__ = [
@@ -24,5 +25,6 @@ __all__ = [
     "NavGesture",
     "SHD",
     "SSC",
+    "SMNIST",
     "VPR",
 ]
