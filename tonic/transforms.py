@@ -319,19 +319,41 @@ class ToAveragedTimesurface:
         return surfaces, images
 
 
-class ToRatecodedFrame:
-    """Bin events to rate-coded frames. Sensitive to hot (constantly firing) pixels."""
+class ToFrame:
+    """Accumulate events to frames by slicing along constant time (time_window), 
+    constant number of events (spike_count) or constant number of frames (time_bin_count / event_bin_count).
 
-    def __init__(self, frame_time=5000, merge_polarities=True):
-        self.frame_time = frame_time
+    Parameters:
+        events: ndarray of shape [num_events, num_event_channels]
+        sensor_size: size of the sensor that was used [W,H]
+        ordering: ordering of the event tuple inside of events.
+        time_window (None): time window length for one frame.
+        spike_count (None): number of events per frame.
+        time_bin_count (None): fixed number of frames, sliced along time axis.
+        event_bin_count (None): fixed number of frames, sliced along number of events in the recording.
+        overlap (0.): overlap between frames defined either in time in us, number of events or number of bins.
+        include_incomplete (False): if True, includes overhang slice when time_window or spike_count is specified. Not valid for bin_count methods.
+        merge_polarities (False): if True, merge polarity channels to a single channel.
+
+    Returns:
+        Callable that can transform events given ordering and sensor_size parameters.
+    """
+    def __init__(self, time_window=None, spike_count=None, time_bin_count=None, event_bin_count=None, merge_polarities=True):
+        self.time_window = time_window
+        self.spike_count = spike_count
+        self.time_bin_count = time_bin_count
+        self.event_bin_count = event_bin_count
         self.merge_polarities = merge_polarities
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        frames = functional.to_ratecoded_frame_numpy(
+        frames = functional.to_frame_numpy(
             events=events,
             sensor_size=sensor_size,
             ordering=ordering,
-            frame_time=self.frame_time,
+            time_window=self.time_window,
+            spike_count=self.spike_count,
+            time_bin_count=self.time_bin_count,
+            event_bin_count=self.event_bin_count,
             merge_polarities=self.merge_polarities,
         )
         return frames, images

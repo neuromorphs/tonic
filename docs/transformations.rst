@@ -69,9 +69,9 @@ Averaged time surfaces
 ^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: ToAveragedTimesurface
 
-Rate-coded frames
-^^^^^^^^^^^^^^^^^
-.. autoclass:: ToRatecodedFrame
+Frames
+^^^^^^
+.. autoclass:: ToFrame
 
 Sparse tensor
 ^^^^^^^^^^^^^

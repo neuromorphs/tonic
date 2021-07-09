@@ -454,8 +454,21 @@ class TestFunctionalNumpy(unittest.TestCase):
                 (events[:, t_index] - offset < orig_events[:, t_index]).all()
             )
 
-    @parameterized.expand([("xytp", 1000), ("typx", 500)])
-    def testToRatecodedFrame(self, ordering, frame_time):
+    @parameterized.expand([
+        ("xytp", 2000, None, None, None,   0, False,  True),
+        ("txyp", 2000, None, None, None, 200,  True, False),
+        ("xytp", 1000, None, None, None, 100,  True,  True),
+        ("txyp", None, 2000, None, None,   0, False,  True),
+        ("xytp", None, 2000, None, None, 200,  True, False),
+        ("txyp", None, 2000, None, None, 100,  True,  True),
+        ("xytp", None, None,    5, None,    0, False, False),
+        ("xytp", None, None,    5, None,  0.1, False, False),
+        ("xytp", None, None,    5, None, 0.25, False, False),
+        ("xytp", None, None, None,    5,    0, False, False),
+        ("xytp", None, None, None,    5,  0.1, False, False),
+        ("xytp", None, None, None,    5, 0.25, False, False),
+    ])
+    def testToFrame(self, ordering, time_window, spike_count, time_bin_count, event_bin_count, overlap, include_incomplete, merge_polarities):
         (
             orig_events,
             images,
@@ -464,21 +477,45 @@ class TestFunctionalNumpy(unittest.TestCase):
         ) = utils.create_random_input_with_ordering(ordering)
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
-        frames = F.to_ratecoded_frame_numpy(
+        frames = F.to_frame_numpy(
             events=orig_events.copy(),
             sensor_size=sensor_size,
             ordering=ordering,
-            frame_time=frame_time,
-        )
-        self.assertEqual(
-            frames.shape,
-            (
-                math.ceil(orig_events[-1, t_index] / frame_time),
-                sensor_size[1],
-                sensor_size[0],
-            ),
+            time_window=time_window,
+            spike_count=spike_count,
+            time_bin_count=time_bin_count,
+            event_bin_count=event_bin_count,
+            overlap=overlap,
+            include_incomplete=include_incomplete,
+            merge_polarities=merge_polarities,
         )
 
+        if time_window is not None:
+            stride = time_window - overlap
+            times = orig_events[:,t_index]
+            if include_incomplete:
+                self.assertEqual(frames.shape[0], int(np.ceil(((times[-1] - times[0]) - time_window) / stride) + 1))
+            else:
+                self.assertEqual(frames.shape[0], int(np.floor(((times[-1] - times[0]) - time_window) / stride) + 1))
+
+        if spike_count is not None:
+            stride = spike_count - overlap
+            n_events = orig_events.shape[0]
+            if include_incomplete:
+                self.assertEqual(frames.shape[0], int(np.ceil((n_events - spike_count) / stride) + 1))
+            else:
+                self.assertEqual(frames.shape[0], int(np.floor((n_events - spike_count) / stride) + 1))
+            
+        if time_bin_count is not None:
+            self.assertEqual(frames.shape[0], time_bin_count)
+            
+        if event_bin_count is not None:
+            self.assertEqual(frames.shape[0], event_bin_count)
+            
+        if merge_polarities:
+            self.assertEqual(frames.shape[1], 1)
+            
+            
     @parameterized.expand([("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False)])
     def testToTimesurface(self, ordering, surface_dimensions, tau, merge_polarities):
         (

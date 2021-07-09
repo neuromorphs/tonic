@@ -2,9 +2,9 @@ import numpy as np
 from .utils import is_multi_image
 
 
+# Code taken from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
 def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
-    Code taken from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
 
     Args:
         events: ndarray of shape [num_events, num_event_channels]
@@ -39,12 +39,12 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
 
     events[:, t_loc] = (num_time_bins) * (events[:, t_loc] - first_stamp) / deltaT
     ts = events[:, t_loc]
-    xs = events[:, x_loc].astype(np.int)
-    ys = events[:, y_loc].astype(np.int)
+    xs = events[:, x_loc].astype(int)
+    ys = events[:, y_loc].astype(int)
     pols = events[:, p_loc]
     pols[pols == 0] = -1  # polarity should be +1 / -1
 
-    tis = ts.astype(np.int)
+    tis = ts.astype(int)
     dts = ts - tis
     vals_left = pols * (1.0 - dts)
     vals_right = pols * dts
