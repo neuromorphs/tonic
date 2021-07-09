@@ -15,14 +15,17 @@ class SMNIST(Dataset):
     train_labels_file = "train-labels-idx1-ubyte"
     test_images_file = "t10k-images-idx3-ubyte"
     test_labels_file = "t10k-labels-idx1-ubyte"
-    sensor_size = (100,)
+    sensor_size = (99,)
     ordering = "txp"
     
-    def __init__(self, save_to, train=True, download=True, transform=None, target_transform=None):
+    def __init__(self, save_to, train=True, duplicate=True, dt=1000.0, 
+                 download=True, transform=None, target_transform=None):
         super(SMNIST, self).__init__(save_to, transform=transform, 
                                      target_transform=target_transform)
         self.location_on_system = save_to
         self.train = train
+        self.duplicate = duplicate
+        self.dt = dt
 
         self.images_file = self.train_images_file if train else self.test_images_file
         self.labels_file = self.train_labels_file if train else self.test_labels_file
@@ -31,7 +34,7 @@ class SMNIST(Dataset):
             self.download()
 
         # Open images file
-        with open(self.images_file, "rb") as f:
+        with open(os.path.join(self.location_on_system, self.images_file), "rb") as f:
             image_data = f.read()
 
             # Unpack header from first 16 bytes of buffer and verify
@@ -49,7 +52,7 @@ class SMNIST(Dataset):
                                          (num_items, 28 * 28))
 
         # Open labels file
-        with open(self.labels_file, "rb") as f:
+        with open(os.path.join(self.location_on_system, self.labels_file), "rb") as f:
             label_data = f.read()
 
             # Unpack header from first 8 bytes of buffer and verify
@@ -64,11 +67,10 @@ class SMNIST(Dataset):
         image = self.image_data[index]
 
         # Determine how many neurons should encode onset and offset
-        max_neuron = self.sensor_size[0] - 1
-        mirrored_size = max_neuron // 2
+        half_size = self.sensor_size[0] // 2
 
         # Determine thresholds of each neuron
-        thresholds = np.linspace(0., 254., mirrored_size).astype(np.uint8)
+        thresholds = np.linspace(0., 254., half_size).astype(np.uint8)
 
         # Determine for which pixels each neuron is above or below its threshol
         lower = image[:, None] < thresholds[None, :]
@@ -77,60 +79,47 @@ class SMNIST(Dataset):
         # Get onsets and offset (transitions between lower and higher) spike times and ids
         on_spike_time, on_spike_idx = np.where(np.logical_and(lower[:-1], higher[1:]))
         off_spike_time, off_spike_idx = np.where(np.logical_and(higher[:-1], lower[1:]))
-        off_spike_idx += mirrored_size
+        off_spike_idx += half_size
 
         # Get times when image is 255 and create matching neuron if
         touch_spike_time = np.where(image == 255)[0]
-        touch_spike_idx = np.ones(touch_spike_time.shape, dtype=np.int64) * max_neuron
+        touch_spike_idx = np.ones(touch_spike_time.shape, dtype=np.int64) * self.sensor_size[0]
 
         # Combine all spike times and ids together
         spike_time = np.concatenate((on_spike_time, off_spike_time, touch_spike_time))
         spike_idx = np.concatenate((on_spike_idx, off_spike_idx, touch_spike_idx))
+        spike_idx = self.sensor_size[0] - spike_idx
 
         # Sort, first by spike time and then by spike index
         spike_order = np.lexsort((spike_idx, spike_time))
         spike_time = spike_time[spike_order]
         spike_idx = spike_idx[spike_order]
 
-        return spike_idx, spike_time
-        """"// If we should be presenting the image\n"
-        "if(timestep < (28 * 28 * 2)) {\n"
-        "   const int mirroredTimestep = timestep / 2;\n"
-            "if($(id) == 98) {\n"
-        "       spike = (imgData[mirroredTimestep] == 255);\n"
-        "   }\n"
-        "   else if($(id) < 98 && mirroredTimestep < ((28 * 28) - 1)){\n"
-        "       const int threshold = (int)((float)($(id) % 49) * (254.0 / 48.0));\n"
-        "       // If this is an 'onset' neuron\n"
-        "       if($(id) < 49) {\n"
-        "           spike = ((imgData[mirroredTimestep] < threshold) && (imgData[mirroredTimestep + 1] >= threshold));\n"
-        "       }\n"
-        "       // If this is an 'offset' neuron\n"
-        "       else {\n"
-        "           spike = ((imgData[mirroredTimestep] >= threshold) && (imgData[mirroredTimestep + 1] < threshold));\n"
-        "       }\n"
-        "   }\n"
-        "}\n"
-        "// Otherwise, spike if this is the last 'touch' neuron\n"
-        "else {\n"
-        "   spike = ($(id) == 99);\n"
-        "}\n");
- 
-        # adding artificial polarity of 1
-        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
-        # convert to microseconds
-        events[:,0] *= 1e6
-        target = file["labels"][index].astype(int)
+        # If we should duplicate each spike
+        if self.duplicate:
+            # Repeat spike indices
+            spike_idx = np.repeat(spike_idx, 2)
+
+            # Double spike times
+            double_spike_time = spike_time * 2
+
+            # Interleave
+            spike_time = np.empty(2 * double_spike_time.shape[0], dtype=np.int64)
+            spike_time[0::2] = double_spike_time
+            spike_time[1::2] = double_spike_time + 1
+
+        # stack and add artificial polarity of 1
+        events = np.vstack((spike_time * self.dt, spike_idx, np.ones(spike_idx.shape[0]))).T
+        target = self.label_data[index]
+
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
         if self.target_transform is not None:
             target = self.target_transform(target)
         return events, target
-        """
 
     def __len__(self):
-        file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
-        return len(file["labels"])
+        return self.image_data.shape[0]
 
     def download(self):
         for f in [self.images_file, self.labels_file]:
