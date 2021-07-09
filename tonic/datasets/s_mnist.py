@@ -26,14 +26,14 @@ class SMNIST(Dataset):
 
         self.images_file = self.train_images_file if train else self.test_images_file
         self.labels_file = self.train_labels_file if train else self.test_labels_file
-            
+
         if download:
             self.download()
-        
+
         # Open images file
         with open(self.images_file, "rb") as f:
             image_data = f.read()
-            
+
             # Unpack header from first 16 bytes of buffer and verify
             magic, num_items, num_rows, num_cols = unpack('>IIII', 
                                                           image_data[:16])
@@ -47,7 +47,7 @@ class SMNIST(Dataset):
             # Reshape data into individual (flattened) images
             self.image_data = np.reshape(self.image_data, 
                                          (num_items, 28 * 28))
-        
+
         # Open labels file
         with open(self.labels_file, "rb") as f:
             label_data = f.read()
@@ -59,26 +59,26 @@ class SMNIST(Dataset):
             # Convert remainder of buffer to numpy bytes
             self.label_data = np.frombuffer(label_data[8:], dtype=np.uint8)
             assert self.label_data.shape == (self.image_data.shape[0],)
-            
+
     def __getitem__(self, index):
         image = self.image_data[index]
-        
+
         # Determine how many neurons should encode onset and offset
         max_neuron = self.sensor_size[0] - 1
         mirrored_size = max_neuron // 2
-        
+
         # Determine thresholds of each neuron
         thresholds = np.linspace(0., 254., mirrored_size).astype(np.uint8)
-        
+
         # Determine for which pixels each neuron is above or below its threshol
         lower = image[:, None] < thresholds[None, :]
         higher = image[:, None] >= thresholds[None, :]
-        
+
         # Get onsets and offset (transitions between lower and higher) spike times and ids
         on_spike_time, on_spike_idx = np.where(np.logical_and(lower[:-1], higher[1:]))
         off_spike_time, off_spike_idx = np.where(np.logical_and(higher[:-1], lower[1:]))
         off_spike_idx += mirrored_size
-        
+
         # Get times when image is 255 and create matching neuron if
         touch_spike_time = np.where(image == 255)[0]
         touch_spike_idx = np.ones(touch_spike_time.shape, dtype=np.int64) * max_neuron
@@ -86,12 +86,12 @@ class SMNIST(Dataset):
         # Combine all spike times and ids together
         spike_time = np.concatenate((on_spike_time, off_spike_time, touch_spike_time))
         spike_idx = np.concatenate((on_spike_idx, off_spike_idx, touch_spike_idx))
-        
+
         # Sort, first by spike time and then by spike index
         spike_order = np.lexsort((spike_idx, spike_time))
         spike_time = spike_time[spike_order]
         spike_idx = spike_idx[spike_order]
-        
+
         return spike_idx, spike_time
         """"// If we should be presenting the image\n"
         "if(timestep < (28 * 28 * 2)) {\n"
