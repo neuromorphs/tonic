@@ -45,7 +45,7 @@ class SHD(HSD):
     Events have (txp) ordering.
 
     Parameters:
-        save_to (string): Location to save files to on disk.
+        save_to (string): Location to save files to on disk. Will put files in an 'hsd' subfolder.
         train (bool): If True, uses training subset, otherwise testing subset.
         download (bool): Choose to download data or verify existing files. If True and a file with the same 
                     name and correct hash is already in the directory, download is automatically skipped.
@@ -67,7 +67,7 @@ class SHD(HSD):
         super(HSD, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        self.location_on_system = save_to
+        self.location_on_system = os.path.join(save_to, "hsd")
 
         if train:
             self.url = self.base_url + self.train_zip
@@ -99,8 +99,8 @@ class SSC(HSD):
     Events have (txp) ordering.
 
     Parameters:
-        save_to (string): Location to save files to on disk.
-        split (string): One of 'train', 'test' or 'valid'
+        save_to (string): Location to save files to on disk. Will put files in an 'hsd' subfolder.
+        split (string): One of 'train', 'test' or 'valid'.
         download (bool): Choose to download data or verify existing files. If True and a file with the same 
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
@@ -128,7 +128,7 @@ class SSC(HSD):
         super(HSD, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        self.location_on_system = save_to
+        self.location_on_system = os.path.join(save_to, "hsd")
 
         if split == "train":
             self.url = self.base_url + self.train_zip
