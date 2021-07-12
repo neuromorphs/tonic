@@ -338,11 +338,13 @@ class ToFrame:
     Returns:
         Callable that can transform events given ordering and sensor_size parameters.
     """
-    def __init__(self, time_window=None, spike_count=None, time_bin_count=None, event_bin_count=None, merge_polarities=True):
+    def __init__(self, time_window=None, spike_count=None, time_bin_count=None, event_bin_count=None, overlap=0., include_incomplete=False, merge_polarities=False):
         self.time_window = time_window
         self.spike_count = spike_count
         self.time_bin_count = time_bin_count
         self.event_bin_count = event_bin_count
+        self.overlap = overlap
+        self.include_incomplete = include_incomplete
         self.merge_polarities = merge_polarities
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
@@ -354,6 +356,8 @@ class ToFrame:
             spike_count=self.spike_count,
             time_bin_count=self.time_bin_count,
             event_bin_count=self.event_bin_count,
+            overlap=self.overlap,
+            include_incomplete=self.include_incomplete,
             merge_polarities=self.merge_polarities,
         )
         return frames, images
