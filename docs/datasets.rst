@@ -59,6 +59,10 @@ N-MNIST
 ^^^^^^^
 .. autoclass:: NMNIST
 
+Spiking MNIST
+^^^^^^^^^^^^^
+.. autoclass:: SMNIST
+
 NavGesture
 ^^^^^^^^^^
 .. autoclass:: NavGesture
