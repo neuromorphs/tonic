@@ -9,10 +9,36 @@ from .download_utils import (
 
 class SMNIST(Dataset):
     """Spiking sequential MNIST
-    The input consisted of sequences of 784 pixel values created by unrolling the
-    handwritten digits of the MNIST dataset, one pixel after the other in a scanline manner. 
-    We used 1 ms presentation time for each pixel gray value. Each of the 80 input neurons was associated with a particular threshold for the grey value, and this input neuron
-    fired whenever the grey value crossed its threshold in the transition from the previous to the current pixel.
+    Sequential MNIST (sMNIST) is a standard benchmark task for time series
+    classification where each input consists of sequences of 784 pixel
+    values created by unrolling the MNIST digits, pixel by pixel. In this
+    spiking version, each of the 99 input neurons is associated with a
+    particular threshold for the grey value, and this input neuron fires
+    whenever the grey value crosses its threshold in the transition from
+    the previous to the current pixel.
+
+    Parameters: 
+        save_to (string):                       Location to save files to on disk.
+        train (bool):                           If True, uses training subset,
+                                                otherwise testing subset.
+        duplicate (bool):                       If True, emits two spikes 
+                                                per threshold crossing
+        dt (float):                             Duration(in microseconds)
+                                                of each timestep
+        download (bool):                        Choose to download data or
+                                                verify existing files. If True
+                                                and a file with the same name
+                                                and correct hash is already
+                                                in the directory, download is
+                                                automatically skipped.
+        transform (callable, optional):         A callable of transforms
+                                                to apply to the data.
+        target_transform (callable, optional):  A callable of transforms to
+                                                apply to the targets/labels.
+
+     Returns: 
+         A dataset object that can be indexed or iterated over.
+         One sample returns a tuple of (events, targets).
     """
     base_url = "https://storage.googleapis.com/cvdf-datasets/mnist/"
     train_images_file = "train-images-idx3-ubyte"
@@ -141,5 +167,3 @@ class SMNIST(Dataset):
         for f in [self.images_file, self.labels_file]:
             download_and_extract_archive(
                 self.base_url + f + ".gz", self.location_on_system, filename=f + ".gz")
-    
-    
