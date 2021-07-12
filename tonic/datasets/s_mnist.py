@@ -8,8 +8,12 @@ from .download_utils import (
 )
 
 class SMNIST(Dataset):
-    """Spiking sequential MNIST"""
-
+    """Spiking sequential MNIST
+    The input consisted of sequences of 784 pixel values created by unrolling the
+    handwritten digits of the MNIST dataset, one pixel after the other in a scanline manner. 
+    We used 1 ms presentation time for each pixel gray value. Each of the 80 input neurons was associated with a particular threshold for the grey value, and this input neuron
+    fired whenever the grey value crossed its threshold in the transition from the previous to the current pixel.
+    """
     base_url = "https://storage.googleapis.com/cvdf-datasets/mnist/"
     train_images_file = "train-images-idx3-ubyte"
     train_labels_file = "train-labels-idx1-ubyte"
@@ -34,7 +38,7 @@ class SMNIST(Dataset):
                  download=True, transform=None, target_transform=None):
         super(SMNIST, self).__init__(save_to, transform=transform, 
                                      target_transform=target_transform)
-        self.location_on_system = save_to
+        self.location_on_system = os.path.join(save_to, "smnist")
         self.train = train
         self.duplicate = duplicate
         self.dt = dt
