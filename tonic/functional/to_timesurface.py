@@ -10,9 +10,11 @@ def to_timesurface_numpy(
     decay="lin",
     merge_polarities=False,
 ):
-    """Representation that creates timesurfaces for each event for one recording.
+    """Representation that creates timesurfaces for each event in the recording. Modeled after the paper 
+    Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
+    https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476
 
-    Args:
+    Parameters:
         surface_dimensions (int, int): width does not have to be equal to height, however both numbers have to be odd.
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
@@ -30,6 +32,7 @@ def to_timesurface_numpy(
     t_index = ordering.find("t")
     p_index = ordering.find("p")
     n_of_events = len(events)
+    
     if merge_polarities:
         events[:, p_index] = np.zeros(n_of_events)
     n_of_pols = len(np.unique(events[:, p_index]))

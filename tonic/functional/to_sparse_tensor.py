@@ -6,7 +6,7 @@ def get_indices_values(events, sensor_size, ordering, merge_polarities):
     about sparse tensors. A sparse tensor will use the events as indices in the order (tpxy) and values
     of 1 for each index, which signify a spike. The shape of the tensor will be (TCWH).
 
-    Args:
+    Parameters:
         merge_polarities (bool): flag that decides whether to combine polarities into a single channel
                                 or split them into separate channels. If True, the number of channels for
                                 indices is 1, otherwise it's the number of different polarities. Regardless 

@@ -4,7 +4,7 @@ import numpy as np
 def drop_events_numpy(events, drop_probability=0.5, random_drop_probability=False):
     """Randomly drops events with drop_probability.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels].
         drop_probability: probability of dropping out event.
         random_drop_probability: randomize the dropout probability

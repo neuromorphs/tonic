@@ -7,7 +7,7 @@ def denoise_numpy(events, sensor_size, ordering, filter_time=10000):
     of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to filter noisy recordings
     where events occur isolated in time.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
         ordering: ordering of the event tuple inside of events. This function requires 'x',

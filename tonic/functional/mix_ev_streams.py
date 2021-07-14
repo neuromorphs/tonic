@@ -4,12 +4,11 @@ import numpy as np
 def mix_ev_streams_numpy(
     events, sensor_size, ordering, offsets=None, check_conflicts=False
 ):
-
     """Combine two or more event streams into a single stream. Event collisions result in a single spike
     or none if polarities are opposite. Collisions numbering greater than two are handled by consensus.
     While not technically required, it is recommended that all event streams be the same [x,y] dimension.
 
-    Args:
+    Parameters:
         events: tuple of event streams which are ndarrays of shape [num_events, num_event_channels]
         offsets: tuple of start time offsets for each event stream:
                     - Default all streams start at the same time

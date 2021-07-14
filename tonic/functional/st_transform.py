@@ -8,7 +8,7 @@ def st_transform(
     """Transform all events spatial and temporal locations based on
     given spatial transform matrix and temporal transform vector.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         ordering: ordering of the event tuple inside of events. This function requires 't', 'x', 'y'
                   to be in the ordering

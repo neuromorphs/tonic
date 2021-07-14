@@ -6,7 +6,7 @@ from .utils import is_multi_image
 def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H].
         ordering: ordering of the event tuple inside of events. This function requires 'x', 'y',

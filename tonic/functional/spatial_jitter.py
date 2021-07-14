@@ -19,7 +19,7 @@ def spatial_jitter_numpy(
 
     Jittered events that lie outside the focal plane will be dropped if clip_outliers is True.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         ordering: ordering of the event tuple inside of events. This function requires 'x'
                   and 'y' to be in the ordering

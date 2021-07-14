@@ -6,7 +6,7 @@ def time_skew_numpy(events, ordering, coefficient=0.9, offset=0):
     """Skew all event timestamps according to a linear transform,
     potentially sampled from a distribution of acceptable functions.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         ordering: ordering of the event tuple inside of events. This function requires 't'
                   to be in the ordering

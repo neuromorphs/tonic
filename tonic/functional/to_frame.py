@@ -10,7 +10,7 @@ def to_frame_numpy(
     """Accumulate events to frames by slicing along constant time (time_window), 
     constant number of events (spike_count) or constant number of frames (time_bin_count / event_bin_count).
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
         ordering: ordering of the event tuple inside of events.

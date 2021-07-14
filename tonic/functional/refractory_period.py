@@ -8,7 +8,7 @@ def refractory_period_numpy(events, sensor_size, ordering, refractory_period=0.5
         .. math::
             t_n - t_{n-1} > t_{refrac}
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
         ordering: ordering of the event tuple inside of events. This function requires 't', 'x'

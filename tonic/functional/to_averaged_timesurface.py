@@ -34,9 +34,11 @@ def to_averaged_timesurface(
     decay="lin",
     merge_polarities=False,
 ):
-    """Representation that creates averaged timesurfaces for each event for one recording.
+    """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper 
+    Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
+    https://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf
 
-    Args:
+    Parameters:
         cell_size (int): size of each square in the grid
         surface_size (int): has to be odd
         time_window (float): how far back to look for past events for the time averaging

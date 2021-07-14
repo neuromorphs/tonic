@@ -1,7 +1,7 @@
 def mask_hot_pixel(events, sensor_size, coordinates, ordering):
     """Drops events for certain pixel locations, to suppress pixels that constantly fire (e.g. due to faulty hardware).
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         coordinates: list of (x,y) coordinates for which all events will be deleted.
         sensor_size: size of the sensor that was used [W,H]

@@ -9,7 +9,7 @@ def uniform_noise_numpy(
     Introduces a fixed number of noise depending on sensor size and noise
     density factor, uniformly distributed across the focal plane and in time.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
         ordering: ordering of the event tuple inside of events. This function requires 'x', 'y'

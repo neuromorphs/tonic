@@ -14,7 +14,7 @@ def time_reversal_numpy(
 
            p_i' = -1 * p_i
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         images: ndarray of these possible shapes:
                 [num_images, height, width, num_channels],

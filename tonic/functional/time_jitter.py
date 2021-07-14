@@ -17,7 +17,7 @@ def time_jitter_numpy(
 
     Will clip negative timestamps by default.
 
-    Args:
+    Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         ordering: ordering of the event tuple inside of events. This function requires 't'
                   to be in the ordering
