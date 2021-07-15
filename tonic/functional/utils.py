@@ -3,9 +3,15 @@ import numpy as np
 
 
 # slicing functions adapted from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/preprocess.py
-def slice_by_time(events:np.ndarray, ordering:str, time_window:int, overlap:int = 0, include_incomplete=False):
+def slice_by_time(
+    events: np.ndarray,
+    ordering: str,
+    time_window: int,
+    overlap: int = 0,
+    include_incomplete=False,
+):
     """
-    Slices an event array along fixed time window and overlap size. 
+    Slices an event array along fixed time window and overlap size.
     The number of bins depends on the length of the recording.
              <overlap>
     |   window1      |
@@ -23,7 +29,7 @@ def slice_by_time(events:np.ndarray, ordering:str, time_window:int, overlap:int 
     """
     assert "t" in ordering
     t_index = ordering.find("t")
-    times = events[:,t_index]
+    times = events[:, t_index]
     stride = time_window - overlap
 
     if include_incomplete:
@@ -31,24 +37,26 @@ def slice_by_time(events:np.ndarray, ordering:str, time_window:int, overlap:int 
     else:
         n_slices = int(np.floor(((times[-1] - times[0]) - time_window) / stride) + 1)
 
-    window_start_times = np.arange(n_slices)*stride + times[0]
+    window_start_times = np.arange(n_slices) * stride + times[0]
     window_end_times = window_start_times + time_window
     indices_start = np.searchsorted(times, window_start_times)
     indices_end = np.searchsorted(times, window_end_times)
-    return [events[indices_start[i]:indices_end[i],:] for i in range(n_slices)]
+    return [events[indices_start[i] : indices_end[i], :] for i in range(n_slices)]
 
 
-def slice_by_time_bins(events: np.ndarray, ordering:str, bin_count:int, overlap:float = 0.):
+def slice_by_time_bins(
+    events: np.ndarray, ordering: str, bin_count: int, overlap: float = 0.0
+):
     """
     Slices an event array along fixed number of bins of time length max_time / bin_count * (1+overlap).
-    This method is good if your recordings all have roughly the same time length and you want an equal 
+    This method is good if your recordings all have roughly the same time length and you want an equal
     number of bins for each recording.
 
     Parameters:
         events: numpy array of events
         ordering (str): ordering of the events, i.e. "xytp"
         bin_count (int): number of bins
-        overlap (float): overlap in number of bins, needs to be smaller than 1. An overlap of 0.1 
+        overlap (float): overlap in number of bins, needs to be smaller than 1. An overlap of 0.1
                     signifies that the bin will be enlarged by 10%. Amount of bins stays the same.
 
     Returns:
@@ -57,18 +65,24 @@ def slice_by_time_bins(events: np.ndarray, ordering:str, bin_count:int, overlap:
     assert "t" in ordering
     assert overlap < 1
     t_index = ordering.find("t")
-    times = events[:,t_index]
-    time_window = times[-1] // bin_count * (1+overlap)
+    times = events[:, t_index]
+    time_window = times[-1] // bin_count * (1 + overlap)
     stride = time_window * (1 - overlap)
-    
-    window_start_times = np.arange(bin_count)*stride + times[0]
+
+    window_start_times = np.arange(bin_count) * stride + times[0]
     window_end_times = window_start_times + time_window
     indices_start = np.searchsorted(times, window_start_times)
     indices_end = np.searchsorted(times, window_end_times)
-    return [events[indices_start[i]:indices_end[i],:] for i in range(bin_count)]
+    return [events[indices_start[i] : indices_end[i], :] for i in range(bin_count)]
 
 
-def slice_by_spike_count(events: np.ndarray, ordering:str, spike_count: int, overlap: int = 0, include_incomplete=False):
+def slice_by_spike_count(
+    events: np.ndarray,
+    ordering: str,
+    spike_count: int,
+    overlap: int = 0,
+    include_incomplete=False,
+):
     """
     Slices an event array along fixed number of events and overlap size.
     The number of bins depends on the amount of events in the recording.
@@ -91,12 +105,14 @@ def slice_by_spike_count(events: np.ndarray, ordering:str, spike_count: int, ove
     else:
         n_slices = int(np.floor((n_events - spike_count) / stride) + 1)
 
-    indices_start = np.arange(n_slices)*stride
+    indices_start = (np.arange(n_slices) * stride).astype(int)
     indices_end = indices_start + spike_count
-    return [events[indices_start[i]:indices_end[i],:] for i in range(n_slices)]
+    return [events[indices_start[i] : indices_end[i], :] for i in range(n_slices)]
 
 
-def slice_by_event_bins(events: np.ndarray, ordering:str, bin_count:int, overlap:float = 0.):
+def slice_by_event_bins(
+    events: np.ndarray, ordering: str, bin_count: int, overlap: float = 0.0
+):
     """
     Slices an event array along fixed number of bins that each have n_events // bin_count * (1 + overlap) events.
     This slicing method is good if you recordings have all roughly the same amount of overall activity in the scene
@@ -106,19 +122,19 @@ def slice_by_event_bins(events: np.ndarray, ordering:str, bin_count:int, overlap
         events: numpy array of events
         ordering (str): ordering of the events, i.e. "xytp"
         bin_count (int): number of bins
-        overlap (float): overlap in number of bins, needs to be smaller than 1. An overlap of 0.1 
+        overlap (float): overlap in number of bins, needs to be smaller than 1. An overlap of 0.1
                     signifies that the bin will be enlarged by 10%. Amount of bins stays the same.
 
     Returns:
         list of event slices (np.ndarray)
     """
     n_events = len(events)
-    spike_count = int(n_events // bin_count * (1+overlap))
+    spike_count = int(n_events // bin_count * (1 + overlap))
     stride = int(spike_count * (1 - overlap))
 
-    indices_start = np.arange(bin_count)*stride
+    indices_start = np.arange(bin_count) * stride
     indices_end = indices_start + spike_count
-    return [events[indices_start[i]:indices_end[i],:] for i in range(bin_count)]
+    return [events[indices_start[i] : indices_end[i], :] for i in range(bin_count)]
 
 
 def is_multi_image(images, sensor_size):

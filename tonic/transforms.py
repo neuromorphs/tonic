@@ -51,7 +51,7 @@ class Crop:
     Parameters:
         target_size: size of the sensor that was used [W',H']
     """
-    
+
     def __init__(self, target_size):
         self.target_size = target_size
 
@@ -76,6 +76,7 @@ class Denoise:
         filter_time (float): maximum temporal distance to next event, otherwise dropped.
                     Lower values will mean higher constraints, therefore less events.
     """
+
     def __init__(self, filter_time=10000):
         self.filter_time = filter_time
 
@@ -96,7 +97,8 @@ class DropEvents:
         drop_probability (float): probability of dropping out event.
         random_drop_probability (bool): randomize the dropout probability
                                  between 0 and drop_probability.
-    """    
+    """
+
     def __init__(self, drop_probability=0.5, random_drop_probability=False):
         self.drop_probability = drop_probability
         self.random_drop_probability = random_drop_probability
@@ -116,6 +118,7 @@ class FlipLR:
     Parameters:
         flip_probability (float): probability of performing the flip
     """
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_lr = flip_probability
 
@@ -137,6 +140,7 @@ class FlipPolarity:
     Parameters:
         flip_probability (float): probability of flipping individual event polarities
     """
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_pol = flip_probability
 
@@ -156,6 +160,7 @@ class FlipUD:
     Parameters:
         flip_probability (float): probability of performing the flip
     """
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_ud = flip_probability
 
@@ -176,6 +181,7 @@ class MaskHotPixel:
     Parameters:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
     """
+
     def __init__(self, coordinates):
         self.coordinates = coordinates
 
@@ -226,6 +232,7 @@ class SpatialJitter:
         integer_coordinates (bool): when True, shifted x and y values will be integer coordinates
         clip_outliers (bool): when True, events that have been jittered outside the focal plane will be dropped.
     """
+
     def __init__(
         self,
         variance_x=1,
@@ -266,6 +273,7 @@ class SpatioTemporalTransform:
         roll: boolean input to determine if transformed events will be translated across sensor boundaries (True).
               Otherwise, events will be clipped at sensor boundaries.
     """
+
     def __init__(self, spatial_transform, temporal_transform, roll=False):
         self.spatial_transform = spatial_transform
         self.temporal_transform = temporal_transform
@@ -298,6 +306,7 @@ class TimeJitter:
         clip_negative (bool): drops events that have negative timestamps
         sort_timestamps (bool): sort the events by timestamps
     """
+
     def __init__(
         self, std=1, integer_jitter=False, clip_negative=False, sort_timestamps=False
     ):
@@ -329,6 +338,7 @@ class TimeReversal:
     Parameters:
         flip_probability (float): probability of performing the flip
     """
+
     def __init__(self, flip_probability=0.5):
         self.flip_probability_t = flip_probability
 
@@ -355,6 +365,7 @@ class TimeSkew:
                 the coefficient. Negative offsets are permissible but may result in
                 in an exception if timestamps are shifted below 0.
     """
+
     def __init__(self, coefficient, offset=0):
         self.coefficient = coefficient
         self.offset = offset
@@ -378,19 +389,24 @@ class UniformNoise:
         noise_density: A noise density of 1 will mean one noise event for every
                        pixel of the sensor size for every micro second.
     """
+
     def __init__(self, scaling_factor_to_micro_sec=1, noise_density=1e-8):
         self.scaling_factor_to_micro_sec = scaling_factor_to_micro_sec
         self.noise_density = noise_density
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         surfaces = functional.uniform_noise_numpy(
-            events, sensor_size, ordering, self.scaling_factor_to_micro_sec, self.noise_density
+            events,
+            sensor_size,
+            ordering,
+            self.scaling_factor_to_micro_sec,
+            self.noise_density,
         )
         return events, images
 
 
 class ToAveragedTimesurface:
-    """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper 
+    """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
     https://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf
 
@@ -402,6 +418,7 @@ class ToAveragedTimesurface:
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
+
     def __init__(
         self,
         cell_size=10,
@@ -435,40 +452,52 @@ class ToAveragedTimesurface:
 
 
 class ToFrame:
-    """Accumulate events to frames by slicing along constant time (time_window), 
+    """Accumulate events to frames by slicing along constant time (time_window),
     constant number of events (spike_count) or constant number of frames (n_time_bins / n_event_bins).
     You can set one of the first 4 parameters to choose the slicing method. Depending on which method you choose,
     overlap will assume different functionality, whether that might be temporal overlap, number of events
     or fraction of a bin. As a rule of thumb, here are some considerations if you are unsure which slicing
     method to choose:
-    
+
     * If your recordings are of roughly the same length, a safe option is to set time_window. Bare in mind
-    that the number of events can vary greatly from slice to slice, but will give you some consistency when
-    training RNNs or other algorithms that have time steps.
+      that the number of events can vary greatly from slice to slice, but will give you some consistency when
+      training RNNs or other algorithms that have time steps.
+
     * If your recordings have roughly the same amount of activity / number of events and you are more interested
-    in the spatial composition, then setting spike_count will give you frames that are visually more consistent.
-    * The previous time_window and spike_count methods will likely result in a different amount of frames for each 
-    recording. If your training method benefits from consistent number of frames across a dataset (for easier 
-    batching for example), or you want a parameter that is easier to set than the exact window length or number 
-    of events per slice, consider fixing the number of frames by setting n_time_bins or n_event_bins. The two
-    methods slightly differ with respect to how the slices are distributed across the recording. You can define
-    an overlap between 0 and 1 to provide some robustness. 
-    
+      in the spatial composition, then setting spike_count will give you frames that are visually more consistent.
+
+    * The previous time_window and spike_count methods will likely result in a different amount of frames for each
+      recording. If your training method benefits from consistent number of frames across a dataset (for easier
+      batching for example), or you want a parameter that is easier to set than the exact window length or number
+      of events per slice, consider fixing the number of frames by setting n_time_bins or n_event_bins. The two
+      methods slightly differ with respect to how the slices are distributed across the recording. You can define
+      an overlap between 0 and 1 to provide some robustness.
+
     Parameters:
         time_window (float): time window length for one frame. Use the same time unit as timestamps in the event recordings.
                              Good if you want temporal consistency in your training, bad if you need some visual consistency
                              for every frame if the recording's activity is not consistent.
         spike_count (int): number of events per frame. Good for training CNNs which do not care about temporal consistency.
-        n_time_bins (int): fixed number of frames, sliced along time axis. Good for generating a pre-determined number of 
+        n_time_bins (int): fixed number of frames, sliced along time axis. Good for generating a pre-determined number of
                            frames which might help with batching.
-        n_event_bins (int): fixed number of frames, sliced along number of events in the recording. Good for generating a 
+        n_event_bins (int): fixed number of frames, sliced along number of events in the recording. Good for generating a
                             pre-determined number of frames which might help with batching.
         overlap (float): overlap between frames defined either in time units, number of events or number of bins between 0 and 1.
-        include_incomplete (bool): if True, includes overhang slice when time_window or spike_count is specified. 
+        include_incomplete (bool): if True, includes overhang slice when time_window or spike_count is specified.
                                    Not valid for bin_count methods.
         merge_polarities (bool): if True, merge polarity channels to a single channel.
     """
-    def __init__(self, time_window=None, spike_count=None, n_time_bins=None, n_event_bins=None, overlap=0., include_incomplete=False, merge_polarities=False):
+
+    def __init__(
+        self,
+        time_window=None,
+        spike_count=None,
+        n_time_bins=None,
+        n_event_bins=None,
+        overlap=0.0,
+        include_incomplete=False,
+        merge_polarities=False,
+    ):
         self.time_window = time_window
         self.spike_count = spike_count
         self.n_time_bins = n_time_bins
@@ -497,19 +526,19 @@ class ToSparseTensor:
     """Turn event array (N,E) into sparse Tensor (B,T,W,H) if E is 4 (mostly event camera recordings),
     otherwise into sparse tensor (B,T,W) for mostly audio recordings."""
 
-    def __init__(self, type='pytorch', merge_polarities=False):
+    def __init__(self, type="pytorch", merge_polarities=False):
         self.merge_polarities = merge_polarities
         self.type = type
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        if self.type == 'pytorch' or 'pt' or 'torch':
+        if self.type == "pytorch" or "pt" or "torch":
             tensor = functional.to_sparse_tensor_pytorch(
                 events=events,
                 sensor_size=sensor_size,
                 ordering=ordering,
                 merge_polarities=self.merge_polarities,
             )
-        elif self.type == 'tensorflow' or 'tf':
+        elif self.type == "tensorflow" or "tf":
             tensor = functional.to_sparse_tensor_tensorflow(
                 events=events,
                 sensor_size=sensor_size,
@@ -522,7 +551,7 @@ class ToSparseTensor:
 
 
 class ToTimesurface:
-    """Representation that creates timesurfaces for each event in the recording. Modeled after the paper 
+    """Representation that creates timesurfaces for each event in the recording. Modeled after the paper
     Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
     https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476
 
@@ -532,6 +561,7 @@ class ToTimesurface:
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
+
     def __init__(
         self, surface_dimensions=(7, 7), tau=5e3, decay="lin", merge_polarities=False
     ):
