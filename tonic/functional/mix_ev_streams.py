@@ -29,9 +29,9 @@ def mix_ev_streams_numpy(
     p_loc = ordering.find("p")
 
     # shift events to zero
-    events = np.array(events)
+    events = np.array(events, dtype=object)
 
-    if events.dtype != np.object:
+    if events.dtype != object:
         # event streams are all of same size
         events[:, :, t_loc] -= np.tile(events[:, 0, t_loc], (events.shape[1], 1)).T
 

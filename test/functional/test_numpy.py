@@ -468,7 +468,7 @@ class TestFunctionalNumpy(unittest.TestCase):
         ("xytp", None, None, None,    5,  0.1, False, False),
         ("xytp", None, None, None,    5, 0.25, False, False),
     ])
-    def testToFrame(self, ordering, time_window, spike_count, time_bin_count, event_bin_count, overlap, include_incomplete, merge_polarities):
+    def testToFrame(self, ordering, time_window, spike_count, n_time_bins, n_event_bins, overlap, include_incomplete, merge_polarities):
         (
             orig_events,
             images,
@@ -483,8 +483,8 @@ class TestFunctionalNumpy(unittest.TestCase):
             ordering=ordering,
             time_window=time_window,
             spike_count=spike_count,
-            time_bin_count=time_bin_count,
-            event_bin_count=event_bin_count,
+            n_time_bins=n_time_bins,
+            n_event_bins=n_event_bins,
             overlap=overlap,
             include_incomplete=include_incomplete,
             merge_polarities=merge_polarities,
@@ -506,11 +506,11 @@ class TestFunctionalNumpy(unittest.TestCase):
             else:
                 self.assertEqual(frames.shape[0], int(np.floor((n_events - spike_count) / stride) + 1))
             
-        if time_bin_count is not None:
-            self.assertEqual(frames.shape[0], time_bin_count)
+        if n_time_bins is not None:
+            self.assertEqual(frames.shape[0], n_time_bins)
             
-        if event_bin_count is not None:
-            self.assertEqual(frames.shape[0], event_bin_count)
+        if n_event_bins is not None:
+            self.assertEqual(frames.shape[0], n_event_bins)
             
         if merge_polarities:
             self.assertEqual(frames.shape[1], 1)
@@ -585,7 +585,7 @@ class TestFunctionalNumpy(unittest.TestCase):
         self.assertTrue(np.isin(orig_events, noisy_events).all())
 
     @parameterized.expand([("xytp", 10), ("typx", 1)])
-    def testToVoxelGrid(self, ordering, num_time_bins):
+    def testToVoxelGrid(self, ordering, n_time_bins):
         (
             orig_events,
             images,
@@ -597,6 +597,6 @@ class TestFunctionalNumpy(unittest.TestCase):
             events=orig_events.copy(),
             sensor_size=sensor_size,
             ordering=ordering,
-            num_time_bins=num_time_bins,
+            n_time_bins=n_time_bins,
         )
-        self.assertEqual(volumes.shape, (num_time_bins, *sensor_size[::-1]))
+        self.assertEqual(volumes.shape, (n_time_bins, *sensor_size[::-1]))

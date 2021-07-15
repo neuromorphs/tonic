@@ -73,7 +73,7 @@ class Denoise:
     where events occur isolated in time.
 
     Parameters:
-        filter_time: maximum temporal distance to next event, otherwise dropped.
+        filter_time (float): maximum temporal distance to next event, otherwise dropped.
                     Lower values will mean higher constraints, therefore less events.
     """
     def __init__(self, filter_time=10000):
@@ -93,8 +93,8 @@ class DropEvents:
     """Randomly drops events with drop_probability.
 
     Parameters:
-        drop_probability: probability of dropping out event.
-        random_drop_probability: randomize the dropout probability
+        drop_probability (float): probability of dropping out event.
+        random_drop_probability (bool): randomize the dropout probability
                                  between 0 and drop_probability.
     """    
     def __init__(self, drop_probability=0.5, random_drop_probability=False):
@@ -114,7 +114,7 @@ class FlipLR:
         x' = width - x
 
     Parameters:
-        flip_probability: probability of performing the flip
+        flip_probability (float): probability of performing the flip
     """
     def __init__(self, flip_probability=0.5):
         self.flip_probability_lr = flip_probability
@@ -135,7 +135,7 @@ class FlipPolarity:
     Changes polarities 1 to -1 and polarities [-1, 0] to 1
 
     Parameters:
-        flip_probability: probability of flipping individual event polarities
+        flip_probability (float): probability of flipping individual event polarities
     """
     def __init__(self, flip_probability=0.5):
         self.flip_probability_pol = flip_probability
@@ -154,7 +154,7 @@ class FlipUD:
         y' = height - y
 
     Parameters:
-        flip_probability: probability of performing the flip
+        flip_probability (float): probability of performing the flip
     """
     def __init__(self, flip_probability=0.5):
         self.flip_probability_ud = flip_probability
@@ -197,10 +197,10 @@ class RefractoryPeriod:
             t_n - t_{n-1} > t_{refrac}
 
     Parameters:
-        refractory_period: refractory period for each pixel in seconds
+        refractory_period (float): refractory period for each pixel in time unit
     """
 
-    def __init__(self, refractory_period=0.5):
+    def __init__(self, refractory_period):
         self.refractory_period = refractory_period
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
@@ -220,11 +220,11 @@ class SpatialJitter:
     Jittered events that lie outside the focal plane will be dropped if clip_outliers is True.
 
     Parameters:
-        variance_x: squared sigma value for the distribution in the x direction
-        variance_y: squared sigma value for the distribution in the y direction
-        sigma_x_y: changes skewness of distribution, only change if you want shifts along diagonal axis.
-        integer_coordinates: when True, shifted x and y values will be integer coordinates
-        clip_outliers: when True, events that have been jittered outside the focal plane will be dropped.
+        variance_x (float): squared sigma value for the distribution in the x direction
+        variance_y (float): squared sigma value for the distribution in the y direction
+        sigma_x_y (float): changes skewness of distribution, only change if you want shifts along diagonal axis.
+        integer_coordinates (bool): when True, shifted x and y values will be integer coordinates
+        clip_outliers (bool): when True, events that have been jittered outside the focal plane will be dropped.
     """
     def __init__(
         self,
@@ -293,10 +293,10 @@ class TimeJitter:
     Will clip negative timestamps by default.
 
     Parameters:
-        std: change the standard deviation of the time jitter
-        integer_jitter: will round the jitter that is added to timestamps
-        clip_negative: drops events that have negative timestamps
-        sort_timestamps: sort the events by timestamps
+        std (float): change the standard deviation of the time jitter
+        integer_jitter (bool): will round the jitter that is added to timestamps
+        clip_negative (bool): drops events that have negative timestamps
+        sort_timestamps (bool): sort the events by timestamps
     """
     def __init__(
         self, std=1, integer_jitter=False, clip_negative=False, sort_timestamps=False
@@ -327,7 +327,7 @@ class TimeReversal:
            p_i' = -1 * p_i
 
     Parameters:
-        flip_probability: probability of performing the flip
+        flip_probability (float): probability of performing the flip
     """
     def __init__(self, flip_probability=0.5):
         self.flip_probability_t = flip_probability
@@ -348,14 +348,14 @@ class TimeSkew:
     potentially sampled from a distribution of acceptable functions.
 
     Parameters:
-        coefficient: a real-valued multiplier applied to the timestamps of the events.
+        coefficient (float): a real-valued multiplier applied to the timestamps of the events.
                      E.g. a coefficient of 2.0 will double the effective delay between any
                      pair of events.
-        offset: value by which the timestamps will be shifted after multiplication by
+        offset (int): value by which the timestamps will be shifted after multiplication by
                 the coefficient. Negative offsets are permissible but may result in
                 in an exception if timestamps are shifted below 0.
     """
-    def __init__(self, coefficient=0.9, offset=0):
+    def __init__(self, coefficient, offset=0):
         self.coefficient = coefficient
         self.offset = offset
 
@@ -436,25 +436,43 @@ class ToAveragedTimesurface:
 
 class ToFrame:
     """Accumulate events to frames by slicing along constant time (time_window), 
-    constant number of events (spike_count) or constant number of frames (time_bin_count / event_bin_count).
-
+    constant number of events (spike_count) or constant number of frames (n_time_bins / n_event_bins).
+    You can set one of the first 4 parameters to choose the slicing method. Depending on which method you choose,
+    overlap will assume different functionality, whether that might be temporal overlap, number of events
+    or fraction of a bin. As a rule of thumb, here are some considerations if you are unsure which slicing
+    method to choose:
+    
+    * If your recordings are of roughly the same length, a safe option is to set time_window. Bare in mind
+    that the number of events can vary greatly from slice to slice, but will give you some consistency when
+    training RNNs or other algorithms that have time steps.
+    * If your recordings have roughly the same amount of activity / number of events and you are more interested
+    in the spatial composition, then setting spike_count will give you frames that are visually more consistent.
+    * The previous time_window and spike_count methods will likely result in a different amount of frames for each 
+    recording. If your training method benefits from consistent number of frames across a dataset (for easier 
+    batching for example), or you want a parameter that is easier to set than the exact window length or number 
+    of events per slice, consider fixing the number of frames by setting n_time_bins or n_event_bins. The two
+    methods slightly differ with respect to how the slices are distributed across the recording. You can define
+    an overlap between 0 and 1 to provide some robustness. 
+    
     Parameters:
-        events: ndarray of shape [num_events, num_event_channels]
-        sensor_size: size of the sensor that was used [W,H]
-        ordering: ordering of the event tuple inside of events.
-        time_window (None): time window length for one frame.
-        spike_count (None): number of events per frame.
-        time_bin_count (None): fixed number of frames, sliced along time axis.
-        event_bin_count (None): fixed number of frames, sliced along number of events in the recording.
-        overlap (0.): overlap between frames defined either in time in us, number of events or number of bins.
-        include_incomplete (False): if True, includes overhang slice when time_window or spike_count is specified. Not valid for bin_count methods.
-        merge_polarities (False): if True, merge polarity channels to a single channel.
+        time_window (float): time window length for one frame. Use the same time unit as timestamps in the event recordings.
+                             Good if you want temporal consistency in your training, bad if you need some visual consistency
+                             for every frame if the recording's activity is not consistent.
+        spike_count (int): number of events per frame. Good for training CNNs which do not care about temporal consistency.
+        n_time_bins (int): fixed number of frames, sliced along time axis. Good for generating a pre-determined number of 
+                           frames which might help with batching.
+        n_event_bins (int): fixed number of frames, sliced along number of events in the recording. Good for generating a 
+                            pre-determined number of frames which might help with batching.
+        overlap (float): overlap between frames defined either in time units, number of events or number of bins between 0 and 1.
+        include_incomplete (bool): if True, includes overhang slice when time_window or spike_count is specified. 
+                                   Not valid for bin_count methods.
+        merge_polarities (bool): if True, merge polarity channels to a single channel.
     """
-    def __init__(self, time_window=None, spike_count=None, time_bin_count=None, event_bin_count=None, overlap=0., include_incomplete=False, merge_polarities=False):
+    def __init__(self, time_window=None, spike_count=None, n_time_bins=None, n_event_bins=None, overlap=0., include_incomplete=False, merge_polarities=False):
         self.time_window = time_window
         self.spike_count = spike_count
-        self.time_bin_count = time_bin_count
-        self.event_bin_count = event_bin_count
+        self.n_time_bins = n_time_bins
+        self.n_event_bins = n_event_bins
         self.overlap = overlap
         self.include_incomplete = include_incomplete
         self.merge_polarities = merge_polarities
@@ -466,8 +484,8 @@ class ToFrame:
             ordering=ordering,
             time_window=self.time_window,
             spike_count=self.spike_count,
-            time_bin_count=self.time_bin_count,
-            event_bin_count=self.event_bin_count,
+            n_time_bins=self.n_time_bins,
+            n_event_bins=self.n_event_bins,
             overlap=self.overlap,
             include_incomplete=self.include_incomplete,
             merge_polarities=self.merge_polarities,
@@ -540,12 +558,12 @@ class ToTimesurface:
 class ToVoxelGrid(object):
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events."""
 
-    def __init__(self, num_time_bins=10):
-        self.num_time_bins = num_time_bins
+    def __init__(self, n_time_bins):
+        self.n_time_bins = n_time_bins
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         volume = functional.to_voxel_grid_numpy(
-            events, sensor_size, ordering, self.num_time_bins
+            events, sensor_size, ordering, self.n_time_bins
         )
         return volume, images
 

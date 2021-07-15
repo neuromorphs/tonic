@@ -3,7 +3,7 @@ from .utils import is_multi_image
 
 
 # Code taken from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
-def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
+def to_voxel_grid_numpy(events, sensor_size, ordering, n_time_bins=10):
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
 
     Parameters:
@@ -11,7 +11,7 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
         sensor_size: size of the sensor that was used [W,H].
         ordering: ordering of the event tuple inside of events. This function requires 'x', 'y',
                   't' and 'p' to be in the ordering.
-        num_time_bins: number of bins in the temporal axis of the voxel grid.
+        n_time_bins: number of bins in the temporal axis of the voxel grid.
 
     Returns:
         numpy array of n event volumes (n,w,h,t)
@@ -26,10 +26,10 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     p_loc = ordering.index("p")
 
     voxel_grid = np.zeros(
-        (num_time_bins, sensor_size[1], sensor_size[0]), np.float32
+        (n_time_bins, sensor_size[1], sensor_size[0]), np.float32
     ).ravel()
 
-    # normalize the event timestamps so that they lie between 0 and num_time_bins
+    # normalize the event timestamps so that they lie between 0 and n_time_bins
     last_stamp = events[-1, t_loc]
     first_stamp = events[0, t_loc]
     deltaT = last_stamp - first_stamp
@@ -37,7 +37,7 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     if deltaT == 0:
         deltaT = 1.0
 
-    events[:, t_loc] = (num_time_bins) * (events[:, t_loc] - first_stamp) / deltaT
+    events[:, t_loc] = (n_time_bins) * (events[:, t_loc] - first_stamp) / deltaT
     ts = events[:, t_loc]
     xs = events[:, x_loc].astype(int)
     ys = events[:, y_loc].astype(int)
@@ -49,7 +49,7 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
     vals_left = pols * (1.0 - dts)
     vals_right = pols * dts
 
-    valid_indices = tis < num_time_bins
+    valid_indices = tis < n_time_bins
     np.add.at(
         voxel_grid,
         xs[valid_indices]
@@ -58,7 +58,7 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
         vals_left[valid_indices],
     )
 
-    valid_indices = (tis + 1) < num_time_bins
+    valid_indices = (tis + 1) < n_time_bins
     np.add.at(
         voxel_grid,
         xs[valid_indices]
@@ -67,6 +67,6 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, num_time_bins=10):
         vals_right[valid_indices],
     )
 
-    voxel_grid = np.reshape(voxel_grid, (num_time_bins, sensor_size[1], sensor_size[0]))
+    voxel_grid = np.reshape(voxel_grid, (n_time_bins, sensor_size[1], sensor_size[0]))
 
     return voxel_grid
