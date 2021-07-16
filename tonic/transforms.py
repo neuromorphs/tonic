@@ -229,34 +229,34 @@ class SpatialJitter:
         variance_x (float): squared sigma value for the distribution in the x direction
         variance_y (float): squared sigma value for the distribution in the y direction
         sigma_x_y (float): changes skewness of distribution, only change if you want shifts along diagonal axis.
-        integer_coordinates (bool): when True, shifted x and y values will be integer coordinates
-        clip_outliers (bool): when True, events that have been jittered outside the focal plane will be dropped.
+        integer_jitter (bool): when True, x and y coordinates will be shifted by integer rather values instead of floats.
+        clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
     def __init__(
         self,
-        variance_x=1,
-        variance_y=1,
-        sigma_x_y=0,
-        integer_coordinates=True,
-        clip_outliers=True,
+        variance_x: float = 1,
+        variance_y: float = 1,
+        sigma_x_y: float = 0,
+        integer_jitter=False,
+        clip_outliers=False,
     ):
         self.variance_x = variance_x
         self.variance_y = variance_y
         self.sigma_x_y = sigma_x_y
-        self.integer_coordinates = integer_coordinates
+        self.integer_jitter = integer_jitter
         self.clip_outliers = clip_outliers
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.spatial_jitter_numpy(
-            events,
-            sensor_size,
-            ordering,
-            self.variance_x,
-            self.variance_y,
-            self.sigma_x_y,
-            self.integer_coordinates,
-            self.clip_outliers,
+            events=events,
+            sensor_size=sensor_size,
+            ordering=ordering,
+            variance_x=self.variance_x,
+            variance_y=self.variance_y,
+            sigma_x_y=self.sigma_x_y,
+            integer_jitter=self.integer_jitter,
+            clip_outliers=self.clip_outliers,
         )
         return events, images
 
@@ -308,7 +308,11 @@ class TimeJitter:
     """
 
     def __init__(
-        self, std=1, integer_jitter=False, clip_negative=False, sort_timestamps=False
+        self,
+        std: float = 1,
+        integer_jitter=False,
+        clip_negative=False,
+        sort_timestamps=False,
     ):
         self.std = std
         self.integer_jitter = integer_jitter
@@ -339,7 +343,7 @@ class TimeReversal:
         flip_probability (float): probability of performing the flip
     """
 
-    def __init__(self, flip_probability=0.5):
+    def __init__(self, flip_probability: float = 0.5):
         self.flip_probability_t = flip_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
@@ -366,7 +370,7 @@ class TimeSkew:
                 in an exception if timestamps are shifted below 0.
     """
 
-    def __init__(self, coefficient, offset=0):
+    def __init__(self, coefficient: float, offset=0):
         self.coefficient = coefficient
         self.offset = offset
 
@@ -390,7 +394,9 @@ class UniformNoise:
                        pixel of the sensor size for every micro second.
     """
 
-    def __init__(self, scaling_factor_to_micro_sec=1, noise_density=1e-8):
+    def __init__(
+        self, scaling_factor_to_micro_sec: float = 1, noise_density: float = 1e-8
+    ):
         self.scaling_factor_to_micro_sec = scaling_factor_to_micro_sec
         self.noise_density = noise_density
 

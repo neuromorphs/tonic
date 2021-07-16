@@ -2,12 +2,12 @@ import numpy as np
 
 
 def time_jitter_numpy(
-    events,
-    ordering,
-    std=1,
-    integer_jitter=False,
-    clip_negative=False,
-    sort_timestamps=False,
+    events: np.ndarray,
+    ordering: str,
+    std: float = 1,
+    integer_jitter: bool = False,
+    clip_negative: bool = False,
+    sort_timestamps: bool = False,
 ):
     """Changes timestamp for each event by drawing samples from a
     Gaussian distribution with the following properties:
@@ -24,7 +24,7 @@ def time_jitter_numpy(
         std: change the standard deviation of the time jitter
         integer_jitter: will round the jitter that is added to timestamps
         clip_negative: drops events that have negative timestamps
-        sort_timestamps: sort the events by timestamps
+        sort_timestamps: sort the events by timestamps after jittering
 
     Returns:
         temporally jittered set of events.
@@ -38,15 +38,10 @@ def time_jitter_numpy(
     if integer_jitter:
         shifts = shifts.round()
 
-    times = events[:, t_index]
-
-    if np.issubdtype(events.dtype, np.integer):
-        times += shifts.astype(np.int)
-    else:
-        times += shifts
+    events[:, t_index] = events[:, t_index] + shifts
 
     if clip_negative:
-        events = np.delete(events, (np.where(times < 0)), axis=0)
+        events = np.delete(events, (np.where(events[:, t_index] < 0)), axis=0)
 
     if sort_timestamps:
         events = events[np.argsort(events[:, t_index]), :]

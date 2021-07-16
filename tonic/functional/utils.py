@@ -8,7 +8,7 @@ def slice_by_time(
     ordering: str,
     time_window: int,
     overlap: int = 0,
-    include_incomplete=False,
+    include_incomplete: bool = False,
 ):
     """
     Slices an event array along fixed time window and overlap size.
@@ -81,7 +81,7 @@ def slice_by_spike_count(
     ordering: str,
     spike_count: int,
     overlap: int = 0,
-    include_incomplete=False,
+    include_incomplete: bool = False,
 ):
     """
     Slices an event array along fixed number of events and overlap size.
