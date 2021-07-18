@@ -120,7 +120,7 @@ class NMNIST(Dataset):
         f = open(filename, "rb")
         raw_data = np.fromfile(f, dtype=np.uint8)
         f.close()
-        raw_data = np.uint32(raw_data)
+        raw_data = raw_data.astype(int)
 
         all_y = raw_data[1::5]
         all_x = raw_data[0::5]
@@ -141,10 +141,5 @@ class NMNIST(Dataset):
         if self.first_saccade_only:
             td_indices = np.where(all_ts < 100000)[0]
 
-        td = np.empty([td_indices.size, 4], dtype=np.int32)
-        td[:, 0] = all_x[td_indices]
-        td[:, 1] = all_y[td_indices]
-        td[:, 2] = all_ts[td_indices]
-        td[:, 3] = all_p[td_indices]
-
-        return td
+        events = np.column_stack((all_x[td_indices], all_y[td_indices], all_ts[td_indices], all_p[td_indices]))
+        return events.astype(float)
