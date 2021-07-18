@@ -53,6 +53,10 @@ Reverse time
 ^^^^^^^^^^^^
 .. autoclass:: TimeReversal
 
+Subsample timestamps
+^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: Subsample
+
 Transform time
 ^^^^^^^^^^^^^^
 .. autoclass:: TimeSkew
