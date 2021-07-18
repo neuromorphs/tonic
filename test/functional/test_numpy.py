@@ -458,7 +458,9 @@ class TestFunctionalNumpy(unittest.TestCase):
         self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
         self.assertTrue(events.dtype == events.dtype)
 
-    @parameterized.expand([("xytp", 100, 3.1, True), ("typx", 0, 0.7, False)])
+    @parameterized.expand(
+        [("xytp", 100, 3.1, True), ("typx", 0, 0.7, False), ("ptyx", 10, 2.7, False)]
+    )
     def testTimeSkew(self, ordering, offset, coefficient, integer_time):
         (
             orig_events,
@@ -477,19 +479,19 @@ class TestFunctionalNumpy(unittest.TestCase):
         )
         self.assertTrue(len(events) == len(orig_events))
         self.assertTrue(np.min(events[:, t_index]) >= offset)
-        if coefficient > 1:
-            self.assertTrue(
-                (events[:, t_index] - offset > orig_events[:, t_index]).all()
-            )
-        elif coefficient < 1:
-            self.assertTrue(
-                (events[:, t_index] - offset < orig_events[:, t_index]).all()
-            )
         if integer_time:
             self.assertTrue(
                 (events[:, t_index] == (events[:, t_index]).astype(int)).all()
             )
         else:
+            if coefficient > 1:
+                self.assertTrue(
+                    (events[:, t_index] - offset > orig_events[:, t_index]).all()
+                )
+            if coefficient < 1:
+                self.assertTrue(
+                    (events[:, t_index] - offset < orig_events[:, t_index]).all()
+                )
             self.assertTrue(
                 (events[:, t_index] != (events[:, t_index]).astype(int)).any()
             )
@@ -502,11 +504,11 @@ class TestFunctionalNumpy(unittest.TestCase):
             ("txyp", None, 2000, None, None, 0, False, True),
             ("xytp", None, 2000, None, None, 200, True, False),
             ("txyp", None, 2000, None, None, 100, True, True),
-            ("xytp", None, None, 5, None, 0, False, False),
+            ("xytp", None, None, 5, None, 0, False, True),
             ("xytp", None, None, 5, None, 0.1, False, False),
-            ("xytp", None, None, 5, None, 0.25, False, False),
-            ("xytp", None, None, None, 5, 0, False, False),
-            ("xytp", None, None, None, 5, 0.1, False, False),
+            ("xytp", None, None, 5, None, 0.25, True, False),
+            ("xytp", None, None, None, 5, 0, True, False),
+            ("xytp", None, None, None, 5, 0.1, False, True),
             ("xytp", None, None, None, 5, 0.25, False, False),
         ]
     )
