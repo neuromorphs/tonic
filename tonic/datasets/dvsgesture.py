@@ -10,11 +10,20 @@ from .download_utils import (
 
 class DVSGesture(Dataset):
     """DVSGesture dataset <http://research.ibm.com/dvsgesture/>. Events have (xypt) ordering.
+    ::
+
+        @inproceedings{amir2017low,
+          title={A low power, fully event-based gesture recognition system},
+          author={Amir, Arnon and Taba, Brian and Berg, David and Melano, Timothy and McKinstry, Jeffrey and Di Nolfo, Carmelo and Nayak, Tapan and Andreopoulos, Alexander and Garreau, Guillaume and Mendoza, Marcela and others},
+          booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+          pages={7243--7252},
+          year={2017}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.

@@ -6,16 +6,28 @@ from .download_utils import check_integrity, download_url
 
 
 class VPR(Dataset):
-    """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805>. 
+    """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805>.
     Events have (txyp) ordering.
+    ::
+    
+        @article{fischer2020event,
+          title={Event-based visual place recognition with ensembles of temporal windows},
+          author={Fischer, Tobias and Milford, Michael},
+          journal={IEEE Robotics and Automation Letters},
+          volume={5},
+          number={4},
+          pages={6924--6931},
+          year={2020},
+          publisher={IEEE}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images).
     """
@@ -29,7 +41,7 @@ class VPR(Dataset):
         ["dvs_vpr_2020-04-28-09-14-11.bag", "7854ede61c0947adb0f072a041dc3bad"],
         ["dvs_vpr_2020-04-29-06-20-23.bag", "d7ccfeb6539f1e7b077ab4fe6f45193c"],
     ]
-    
+
     sensor_size = (260, 346)
     ordering = "txyp"
 
@@ -60,7 +72,7 @@ class VPR(Dataset):
         events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
-#         images["frames"] = np.stack(images["frames"])
+        #         images["frames"] = np.stack(images["frames"])
 
         if self.transform is not None:
             events = self.transform(

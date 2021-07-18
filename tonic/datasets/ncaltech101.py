@@ -10,14 +10,25 @@ from .download_utils import (
 
 class NCALTECH101(Dataset):
     """N-CALTECH101 dataset <https://www.garrickorchard.com/datasets/n-caltech101>. Events have (xytp) ordering.
+    ::
+
+        @article{orchard2015converting,
+          title={Converting static image datasets to spiking neuromorphic datasets using saccades},
+          author={Orchard, Garrick and Jayawant, Ajinkya and Cohen, Gregory K and Thakor, Nitish},
+          journal={Frontiers in neuroscience},
+          volume={9},
+          pages={437},
+          year={2015},
+          publisher={Frontiers}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """

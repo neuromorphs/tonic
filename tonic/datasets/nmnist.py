@@ -10,16 +10,27 @@ from .download_utils import (
 
 class NMNIST(Dataset):
     """N-MNIST dataset <https://www.garrickorchard.com/datasets/n-mnist>. Events have (xytp) ordering.
+    ::
+
+        @article{orchard2015converting,
+          title={Converting static image datasets to spiking neuromorphic datasets using saccades},
+          author={Orchard, Garrick and Jayawant, Ajinkya and Cohen, Gregory K and Thakor, Nitish},
+          journal={Frontiers in neuroscience},
+          volume={9},
+          pages={437},
+          year={2015},
+          publisher={Frontiers}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
@@ -141,5 +152,12 @@ class NMNIST(Dataset):
         if self.first_saccade_only:
             td_indices = np.where(all_ts < 100000)[0]
 
-        events = np.column_stack((all_x[td_indices], all_y[td_indices], all_ts[td_indices], all_p[td_indices]))
+        events = np.column_stack(
+            (
+                all_x[td_indices],
+                all_y[td_indices],
+                all_ts[td_indices],
+                all_p[td_indices],
+            )
+        )
         return events.astype(float)

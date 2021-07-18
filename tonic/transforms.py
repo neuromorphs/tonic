@@ -77,7 +77,7 @@ class Denoise:
                     Lower values will mean higher constraints, therefore less events.
     """
 
-    def __init__(self, filter_time: float=10000):
+    def __init__(self, filter_time: float = 10000):
         self.filter_time = filter_time
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
@@ -99,7 +99,9 @@ class DropEvents:
                                  between 0 and drop_probability.
     """
 
-    def __init__(self, drop_probability: float=0.5, random_drop_probability: bool=False):
+    def __init__(
+        self, drop_probability: float = 0.5, random_drop_probability: bool = False
+    ):
         self.drop_probability = drop_probability
         self.random_drop_probability = random_drop_probability
 
@@ -119,7 +121,7 @@ class FlipLR:
         flip_probability (float): probability of performing the flip
     """
 
-    def __init__(self, flip_probability: float=0.5):
+    def __init__(self, flip_probability: float = 0.5):
         self.flip_probability = flip_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
@@ -141,7 +143,7 @@ class FlipPolarity:
         flip_probability (float): probability of flipping individual event polarities
     """
 
-    def __init__(self, flip_probability: float=0.5):
+    def __init__(self, flip_probability: float = 0.5):
         self.flip_probability = flip_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
@@ -161,7 +163,7 @@ class FlipUD:
         flip_probability (float): probability of performing the flip
     """
 
-    def __init__(self, flip_probability: float=0.5):
+    def __init__(self, flip_probability: float = 0.5):
         self.flip_probability = flip_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
@@ -238,8 +240,8 @@ class SpatialJitter:
         variance_x: float = 1,
         variance_y: float = 1,
         sigma_x_y: float = 0,
-        integer_jitter: bool=False,
-        clip_outliers: bool=False,
+        integer_jitter: bool = False,
+        clip_outliers: bool = False,
     ):
         self.variance_x = variance_x
         self.variance_y = variance_y
@@ -290,21 +292,21 @@ class SpatioTemporalTransform:
         )
         return events, images
 
-    
+
 class Subsample:
     """Multiplies timestamps with a factor and truncates them to integer values.
-    Useful when the native temporal resolution of the original sensor is too high for 
+    Useful when the native temporal resolution of the original sensor is too high for
     downstream processing, notably when converting to dense representations of some sort.
     Uses TimeSkew functional transform under the hood.
-    
+
     Parameters:
         coefficient (float): value to multiply timestamps with. Afterwards, timestamps will
-                             be truncated to integer values. 
+                             be truncated to integer values.
     """
 
     def __init__(self, coefficient: float = 1e-3):
         self.coefficient = coefficient
-        
+
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.time_skew_numpy(
             events, ordering, coefficient=self.coefficient, integer_time=True
@@ -313,11 +315,8 @@ class Subsample:
 
 
 class TimeJitter:
-    """Changes timestamp for each event by drawing samples from a
-    Gaussian distribution with the following properties:
-
-        mean = [t]
-        std = std
+    """Changes timestamp for each event by drawing samples from a Gaussian
+    distribution and adding them to each timestamp.
 
     Parameters:
         std (float): change the standard deviation of the time jitter
@@ -329,9 +328,9 @@ class TimeJitter:
     def __init__(
         self,
         std: float = 1,
-        integer_jitter: bool=False,
-        clip_negative: bool=False,
-        sort_timestamps: bool=False,
+        integer_jitter: bool = False,
+        clip_negative: bool = False,
+        sort_timestamps: bool = False,
     ):
         self.std = std
         self.integer_jitter = integer_jitter
@@ -389,7 +388,9 @@ class TimeSkew:
                 in an exception if timestamps are shifted below 0.
     """
 
-    def __init__(self, coefficient: float, offset: float = 0, integer_time: bool = False,):
+    def __init__(
+        self, coefficient: float, offset: float = 0, integer_time: bool = False
+    ):
         self.coefficient = coefficient
         self.offset = offset
         self.integer_time = integer_time

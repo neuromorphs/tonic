@@ -9,19 +9,14 @@ def time_jitter_numpy(
     clip_negative: bool = False,
     sort_timestamps: bool = False,
 ):
-    """Changes timestamp for each event by drawing samples from a
-    Gaussian distribution with the following properties:
-
-        mean = [t]
-        std = std
-
-    Will clip negative timestamps by default.
+    """Changes timestamp for each event by drawing samples from a Gaussian
+    distribution and adding them to each timestamp.
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         ordering: ordering of the event tuple inside of events. This function requires 't'
                   to be in the ordering
-        std: change the standard deviation of the time jitter
+        std: the standard deviation of the time jitter
         integer_jitter: will round the jitter that is added to timestamps
         clip_negative: drops events that have negative timestamps
         sort_timestamps: sort the events by timestamps after jittering

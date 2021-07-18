@@ -12,15 +12,24 @@ import loris
 
 class NCARS(Dataset):
     """N-Cars dataset <https://www.prophesee.ai/dataset-n-cars-download/>. Events have (txyp) ordering.
+    ::
+
+        @inproceedings{sironi2018hats,
+          title={HATS: Histograms of averaged time surfaces for robust event-based object classification},
+          author={Sironi, Amos and Brambilla, Manuele and Bourdis, Nicolas and Lagorce, Xavier and Benosman, Ryad},
+          booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+          pages={1731--1740},
+          year={2018}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """

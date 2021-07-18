@@ -10,7 +10,7 @@ from .download_utils import (
 
 
 class HSD(Dataset):
-    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Dataset (SHD) 
+    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Dataset (SHD)
     and the Spiking Speech Commands dataset (SSC)."""
 
     base_url = "https://zenkelab.org/datasets/"
@@ -20,9 +20,15 @@ class HSD(Dataset):
     def __getitem__(self, index):
         file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
         # adding artificial polarity of 1
-        events = np.vstack((file["spikes/times"][index], file["spikes/units"][index], np.ones(file["spikes/times"][index].shape[0]))).T
+        events = np.vstack(
+            (
+                file["spikes/times"][index],
+                file["spikes/units"][index],
+                np.ones(file["spikes/times"][index].shape[0]),
+            )
+        ).T
         # convert to microseconds
-        events[:,0] *= 1e6
+        events[:, 0] *= 1e6
         target = file["labels"][index].astype(int)
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)
@@ -43,15 +49,24 @@ class HSD(Dataset):
 class SHD(HSD):
     """Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
     Events have (txp) ordering.
+    ::
+
+        @article{cramer2020heidelberg,
+          title={The heidelberg spiking data sets for the systematic evaluation of spiking neural networks},
+          author={Cramer, Benjamin and Stradmann, Yannik and Schemmel, Johannes and Zenke, Friedemann},
+          journal={IEEE Transactions on Neural Networks and Learning Systems},
+          year={2020},
+          publisher={IEEE}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk. Will put files in an 'hsd' subfolder.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
@@ -97,15 +112,24 @@ class SHD(HSD):
 class SSC(HSD):
     """Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
     Events have (txp) ordering.
+    ::
+
+        @article{cramer2020heidelberg,
+          title={The heidelberg spiking data sets for the systematic evaluation of spiking neural networks},
+          author={Cramer, Benjamin and Stradmann, Yannik and Schemmel, Johannes and Zenke, Friedemann},
+          journal={IEEE Transactions on Neural Networks and Learning Systems},
+          year={2020},
+          publisher={IEEE}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk. Will put files in an 'hsd' subfolder.
         split (string): One of 'train', 'test' or 'valid'.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """

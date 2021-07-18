@@ -7,16 +7,28 @@ from .download_utils import check_integrity, download_url
 
 class DAVISDATA(Dataset):
     """DAVIS Event Camera dataset <http://rpg.ifi.uzh.ch/davis_data.html>. Events have (txyp) ordering.
+    ::
+
+        @article{mueggler2017event,
+          title={The event-camera dataset and simulator: Event-based data for pose estimation, visual odometry, and SLAM},
+          author={Mueggler, Elias and Rebecq, Henri and Gallego, Guillermo and Delbruck, Tobi and Scaramuzza, Davide},
+          journal={The International Journal of Robotics Research},
+          volume={36},
+          number={2},
+          pages={142--149},
+          year={2017},
+          publisher={SAGE Publications Sage UK: London, England}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
         recording (string): Use the name of the recording or a list thereof to load it, for example 'dynamic_6dof'
                             or ['slider_far', 'urban']. See project homepage for a list of available recordings.
                             Can use 'all' to load every recording.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to events and/or images.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images, opti_track_ground_truth).
     """
@@ -54,7 +66,7 @@ class DAVISDATA(Dataset):
     ordering = "txyp"
 
     def __init__(
-        self, save_to, recording, download=True, transform=None, target_transform=None,
+        self, save_to, recording, download=True, transform=None, target_transform=None
     ):
         super(DAVISDATA, self).__init__(
             save_to, transform=transform, target_transform=target_transform

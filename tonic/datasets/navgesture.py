@@ -11,15 +11,26 @@ from .download_utils import (
 
 class NavGesture(Dataset):
     """NavGesture dataset <https://www.neuromorphic-vision.com/public/downloads/navgesture/>. Events have (txyp) ordering.
+    ::
+
+        @article{maro2020event,
+          title={Event-based gesture recognition with dynamic background suppression using smartphone computational capabilities},
+          author={Maro, Jean-Matthieu and Ieng, Sio-Hoi and Benosman, Ryad},
+          journal={Frontiers in neuroscience},
+          volume={14},
+          pages={275},
+          year={2020},
+          publisher={Frontiers}
+        }
 
     Parameters:
         save_to (string): Location to save files to on disk.
         walk_subset (bool): Choose either NavGesture-sit (default) or NavGesture-walk dataset. No train/test split provided.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same 
+        download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        
+
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
