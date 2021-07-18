@@ -1,12 +1,10 @@
-import unittest
-from parameterized import parameterized
+import pytest
 import numpy as np
 import tonic.functional as F
 import utils
-import math
 
 
-class TestFunctionalNumpy(unittest.TestCase):
+class TestFunctionalNumpy:
     def findXytpPermutation(self, ordering):
         x_index = ordering.find("x")
         y_index = ordering.find("y")
@@ -14,7 +12,9 @@ class TestFunctionalNumpy(unittest.TestCase):
         p_index = ordering.find("p")
         return x_index, y_index, t_index, p_index
 
-    @parameterized.expand([("xytp", (50, 50)), ("typx", (10, 5))])
+    @pytest.mark.parametrize(
+        "ordering, target_size", [("xytp", (50, 50)), ("typx", (10, 5))]
+    )
     def testCrop(self, ordering, target_size):
         (
             events,
@@ -32,18 +32,17 @@ class TestFunctionalNumpy(unittest.TestCase):
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
-        self.assertTrue(
-            np.all(events[:, x_index]) < target_size[0]
-            and np.all(events[:, y_index] < target_size[1]),
-            "Cropping needs to map the events into the new space",
-        )
+        assert np.all(events[:, x_index]) < target_size[0] and np.all(
+            events[:, y_index] < target_size[1]
+        ), "Cropping needs to map the events into the new space"
+        assert (
+            images.shape[2] == target_size[0] and images.shape[1] == target_size[1]
+        ), "Cropping needs to map the images into the new space"
 
-        self.assertTrue(
-            images.shape[2] == target_size[0] and images.shape[1] == target_size[1],
-            "Cropping needs to map the images into the new space",
-        )
-
-    @parameterized.expand([("xytp", 0.2, False), ("typx", 0.5, True)])
+    @pytest.mark.parametrize(
+        "ordering, drop_probability, random_drop_probability",
+        [("xytp", 0.2, False), ("typx", 0.5, True)],
+    )
     def testDropEvents(self, ordering, drop_probability, random_drop_probability):
         (
             orig_events,
@@ -59,27 +58,24 @@ class TestFunctionalNumpy(unittest.TestCase):
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
         if random_drop_probability:
-            self.assertTrue(
-                events.shape[0] >= (1 - drop_probability) * orig_events.shape[0],
-                "Event dropout with random drop probability should result in less than"
-                " drop_probability*len(original) events dropped out.",
+            assert events.shape[0] >= (1 - drop_probability) * orig_events.shape[0], (
+                "Event dropout with random drop probability should result in less than "
+                " drop_probability*len(original) events dropped out."
             )
         else:
-            self.assertTrue(
-                np.isclose(
-                    events.shape[0], (1 - drop_probability) * orig_events.shape[0]
-                ),
+            assert np.isclose(
+                events.shape[0], (1 - drop_probability) * orig_events.shape[0]
+            ), (
                 "Event dropout should result in drop_probability*len(original) events"
-                " dropped out.",
+                " dropped out."
             )
-        self.assertTrue(
-            np.isclose(
-                np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
-            ),
-            "Event dropout should maintain temporal order.",
-        )
+        assert np.isclose(
+            np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+        ), "Event dropout should maintain temporal order."
 
-    @parameterized.expand([("xytp", 1.0), ("typx", 1.0)])
+    @pytest.mark.parametrize(
+        "ordering, flip_probability", [("xytp", 1.0), ("typx", 1.0)]
+    )
     def testFlipLR(self, ordering, flip_probability):
         (
             orig_events,
@@ -96,15 +92,14 @@ class TestFunctionalNumpy(unittest.TestCase):
             flip_probability=flip_probability,
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
-        self.assertTrue(
-            (
-                (sensor_size[0] - 1) - orig_events[:, x_index] == events[:, x_index]
-            ).all(),
+        assert (
+            (sensor_size[0] - 1) - orig_events[:, x_index] == events[:, x_index]
+        ).all(), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x",
+            " sensor width - x"
         )
 
-    @parameterized.expand([("xytp", 1.0), ("typx", 0)])
+    @pytest.mark.parametrize("ordering, flip_probability", [("xytp", 1.0), ("typx", 0)])
     def testFlipPolarity(self, ordering, flip_probability):
         (
             orig_events,
@@ -118,19 +113,19 @@ class TestFunctionalNumpy(unittest.TestCase):
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
         if flip_probability == 1:
-            self.assertTrue(
-                np.array_equal(orig_events[:, p_index] * -1, events[:, p_index]),
+            assert np.array_equal(orig_events[:, p_index] * -1, events[:, p_index]), (
                 "When flipping polarity with probability 1, all event polarities must"
-                " flip",
+                " flip"
             )
         else:
-            self.assertTrue(
-                np.array_equal(orig_events[:, p_index], events[:, p_index]),
+            assert np.array_equal(orig_events[:, p_index], events[:, p_index]), (
                 "When flipping polarity with probability 0, no event polarities must"
-                " flip",
+                " flip"
             )
 
-    @parameterized.expand([("xytp", 1.0), ("typx", 1.0)])
+    @pytest.mark.parametrize(
+        "ordering, flip_probability", [("xytp", 1.0), ("typx", 1.0)]
+    )
     def testFlipUD(self, ordering, flip_probability):
         (
             orig_events,
@@ -147,15 +142,14 @@ class TestFunctionalNumpy(unittest.TestCase):
             flip_probability=flip_probability,
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
-        self.assertTrue(
-            (
-                (sensor_size[1] - 1) - orig_events[:, y_index] == events[:, y_index]
-            ).all(),
+        assert np.array_equal(
+            (sensor_size[1] - 1) - orig_events[:, y_index], events[:, y_index]
+        ), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x",
+            " sensor width - x"
         )
 
-    @parameterized.expand([("xytp", 1000), ("typx", 500)])
+    @pytest.mark.parametrize("ordering, filter_time", [("xytp", 1000), ("typx", 500)])
     def testDenoise(self, ordering, filter_time):
         (
             orig_events,
@@ -171,18 +165,16 @@ class TestFunctionalNumpy(unittest.TestCase):
             filter_time=filter_time,
         )
 
-        self.assertTrue(len(events) > 0, "Not all events should be filtered")
-        self.assertTrue(
-            len(events) < len(orig_events),
-            "Result should be fewer events than original event stream",
-        )
-        self.assertTrue(
-            np.isin(events, orig_events).all(),
+        assert len(events) > 0, "Not all events should be filtered"
+        assert len(events) < len(
+            orig_events
+        ), "Result should be fewer events than original event stream"
+        assert np.isin(events, orig_events).all(), (
             "Denoising should not add additional events that were not present in"
-            " original event stream",
+            " original event stream"
         )
 
-    @parameterized.expand(["xytp", "typx"])
+    @pytest.mark.parametrize("ordering", ["xytp", "typx"])
     def testMixEvents(self, ordering):
         (
             stream1,
@@ -252,16 +244,17 @@ class TestFunctionalNumpy(unittest.TestCase):
         )
         all_colisions_detected = len(stream1) == num_conflicts
 
-        self.assertTrue(
-            all_colisions_detected,
-            "Missed some event colisions, may cause processing problems.",
-        )
-        self.assertTrue(no_offset_monotonic, "Result was not monotonic.")
-        self.assertTrue(random_offset_monotonic, "Result was not monotonic.")
-        self.assertTrue(defined_offset_monotonic, "Result was not monotonic.")
-        self.assertTrue(conflict_offset_monotonic, "Result was not monotonic.")
+        assert (
+            all_colisions_detected
+        ), "Missed some event colisions, may cause processing problems."
+        assert no_offset_monotonic, "Result was not monotonic."
+        assert random_offset_monotonic, "Result was not monotonic."
+        assert defined_offset_monotonic, "Result was not monotonic."
+        assert conflict_offset_monotonic, "Result was not monotonic."
 
-    @parameterized.expand([("xytp", 1000), ("typx", 50)])
+    @pytest.mark.parametrize(
+        "ordering, refractory_period", [("xytp", 1000), ("typx", 50)]
+    )
     def testRefractoryPeriod(self, ordering, refractory_period):
         (
             orig_events,
@@ -277,24 +270,25 @@ class TestFunctionalNumpy(unittest.TestCase):
             refractory_period=refractory_period,
         )
 
-        self.assertTrue(len(events) > 0, "Not all events should be filtered")
-        self.assertTrue(
-            len(events) < len(orig_events),
-            "Result should be fewer events than original event stream",
+        assert len(events) > 0, "Not all events should be filtered"
+        assert len(events) < len(
+            orig_events
+        ), "Result should be fewer events than original event stream"
+        assert np.isin(
+            events, orig_events
+        ).all(), (
+            "Added additional events that were not present in original event stream"
         )
-        self.assertTrue(
-            np.isin(events, orig_events).all(),
-            "Added additional events that were not present in original event stream",
-        )
-        self.assertTrue(events.dtype == events.dtype)
+        assert events.dtype == events.dtype
 
-    @parameterized.expand(
+    @pytest.mark.parametrize(
+        "ordering, variance, integer_jitter, clip_outliers",
         [
             ("xytp", 30, True, False),
             ("typx", 100, True, True),
             ("typx", 3.5, False, True),
             ("typx", 0.8, False, False),
-        ]
+        ],
     )
     def testSpatialJitter(self, ordering, variance, integer_jitter, clip_outliers):
         (
@@ -317,42 +311,37 @@ class TestFunctionalNumpy(unittest.TestCase):
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
         if not clip_outliers:
-            self.assertTrue(len(events) == len(orig_events))
-            self.assertTrue((events[:, t_index] == orig_events[:, t_index]).all())
-            self.assertTrue((events[:, p_index] == orig_events[:, p_index]).all())
-            self.assertTrue((events[:, x_index] != orig_events[:, x_index]).any())
-            self.assertTrue((events[:, y_index] != orig_events[:, y_index]).any())
-            self.assertTrue(
-                np.isclose(
-                    events[:, x_index].all(),
-                    orig_events[:, x_index].all(),
-                    atol=2 * variance,
-                )
+            assert len(events) == len(orig_events)
+            assert (events[:, t_index] == orig_events[:, t_index]).all()
+            assert (events[:, p_index] == orig_events[:, p_index]).all()
+            assert (events[:, x_index] != orig_events[:, x_index]).any()
+            assert (events[:, y_index] != orig_events[:, y_index]).any()
+            assert np.isclose(
+                events[:, x_index].all(),
+                orig_events[:, x_index].all(),
+                atol=2 * variance,
             )
-            self.assertTrue(
-                np.isclose(
-                    events[:, y_index].all(),
-                    orig_events[:, y_index].all(),
-                    atol=2 * variance,
-                )
+            assert np.isclose(
+                events[:, y_index].all(),
+                orig_events[:, y_index].all(),
+                atol=2 * variance,
             )
-            if integer_jitter:
-                self.assertTrue(
-                    (
-                        events[:, x_index] - orig_events[:, x_index]
-                        == (events[:, x_index] - orig_events[:, x_index]).astype(int)
-                    ).all()
-                )
-                self.assertTrue(
-                    (
-                        events[:, y_index] - orig_events[:, y_index]
-                        == (events[:, y_index] - orig_events[:, y_index]).astype(int)
-                    ).all()
-                )
-        else:
-            self.assertTrue(len(events) < len(orig_events))
 
-    @parameterized.expand(["xytp"])
+            if integer_jitter:
+                assert (
+                    events[:, x_index] - orig_events[:, x_index]
+                    == (events[:, x_index] - orig_events[:, x_index]).astype(int)
+                ).all()
+
+                assert (
+                    events[:, y_index] - orig_events[:, y_index]
+                    == (events[:, y_index] - orig_events[:, y_index]).astype(int)
+                ).all()
+
+        else:
+            assert len(events) < len(orig_events)
+
+    @pytest.mark.parametrize("ordering", ["xytp"])
     def testStTransform(self, ordering):
         (
             orig_events,
@@ -373,18 +362,17 @@ class TestFunctionalNumpy(unittest.TestCase):
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
-        self.assertTrue(
-            np.all(events[:, x_index]) < sensor_size[0]
-            and np.all(events[:, y_index] < sensor_size[1]),
-            "Transformation does not map beyond sensor size",
-        )
+        assert np.all(events[:, x_index]) < sensor_size[0] and np.all(
+            events[:, y_index] < sensor_size[1]
+        ), "Transformation does not map beyond sensor size"
 
-    @parameterized.expand(
+    @pytest.mark.parametrize(
+        "ordering, std, integer_jitter, clip_negative, sort_timestamps",
         [
             ("xytp", 10, False, True, True),
             ("typx", 50, True, False, False),
             ("pxty", 0, True, True, False),
-        ]
+        ],
     )
     def testTimeJitter(
         self, ordering, std, integer_jitter, clip_negative, sort_timestamps
@@ -409,9 +397,9 @@ class TestFunctionalNumpy(unittest.TestCase):
             sort_timestamps=sort_timestamps,
         )
         if clip_negative:
-            self.assertTrue((events[:, t_index] >= 0).all())
+            assert (events[:, t_index] >= 0).all()
         else:
-            self.assertEqual(len(events), len(orig_events))
+            assert len(events) == len(orig_events)
         if sort_timestamps:
             np.testing.assert_array_equal(
                 events[:, t_index], np.sort(events[:, t_index])
@@ -421,14 +409,14 @@ class TestFunctionalNumpy(unittest.TestCase):
             np.testing.assert_array_equal(events[:, y_index], orig_events[:, y_index])
             np.testing.assert_array_equal(events[:, p_index], orig_events[:, p_index])
             if integer_jitter:
-                self.assertTrue(
-                    (
-                        events[:, t_index] - orig_events[:, t_index]
-                        == (events[:, t_index] - orig_events[:, t_index]).astype(int)
-                    ).all()
-                )
+                assert (
+                    events[:, t_index] - orig_events[:, t_index]
+                    == (events[:, t_index] - orig_events[:, t_index]).astype(int)
+                ).all()
 
-    @parameterized.expand([("xytp", 1000), ("typx", 50)])
+    @pytest.mark.parametrize(
+        "ordering, flip_probability", [("xytp", 1000), ("typx", 50)]
+    )
     def testTimeReversal(self, ordering, flip_probability):
         (
             orig_events,
@@ -454,12 +442,13 @@ class TestFunctionalNumpy(unittest.TestCase):
         same_time = np.isclose(max_t - original_t, events[0, t_index])
         same_polarity = np.isclose(events[0, p_index], -1.0 * original_p)
 
-        self.assertTrue(same_time, "When flipping time must map t_i' = max(t) - t_i")
-        self.assertTrue(same_polarity, "When flipping time polarity should be flipped")
-        self.assertTrue(events.dtype == events.dtype)
+        assert same_time, "When flipping time must map t_i' = max(t) - t_i"
+        assert same_polarity, "When flipping time polarity should be flipped"
+        assert events.dtype == events.dtype
 
-    @parameterized.expand(
-        [("xytp", 100, 3.1, True), ("typx", 0, 0.7, False), ("ptyx", 10, 2.7, False)]
+    @pytest.mark.parametrize(
+        "ordering, offset, coefficient, integer_time",
+        [("xytp", 100, 3.1, True), ("typx", 0, 0.7, False), ("ptyx", 10, 2.7, False)],
     )
     def testTimeSkew(self, ordering, offset, coefficient, integer_time):
         (
@@ -477,26 +466,23 @@ class TestFunctionalNumpy(unittest.TestCase):
             offset=offset,
             integer_time=integer_time,
         )
-        self.assertTrue(len(events) == len(orig_events))
-        self.assertTrue(np.min(events[:, t_index]) >= offset)
+        assert len(events) == len(orig_events)
+        assert np.min(events[:, t_index]) >= offset
         if integer_time:
-            self.assertTrue(
-                (events[:, t_index] == (events[:, t_index]).astype(int)).all()
-            )
+            assert (events[:, t_index] == (events[:, t_index]).astype(int)).all()
+
         else:
             if coefficient > 1:
-                self.assertTrue(
-                    (events[:, t_index] - offset > orig_events[:, t_index]).all()
-                )
-            if coefficient < 1:
-                self.assertTrue(
-                    (events[:, t_index] - offset < orig_events[:, t_index]).all()
-                )
-            self.assertTrue(
-                (events[:, t_index] != (events[:, t_index]).astype(int)).any()
-            )
+                assert (events[:, t_index] - offset > orig_events[:, t_index]).all()
 
-    @parameterized.expand(
+            if coefficient < 1:
+                assert (events[:, t_index] - offset < orig_events[:, t_index]).all()
+
+            assert (events[:, t_index] != (events[:, t_index]).astype(int)).any()
+
+    @pytest.mark.parametrize(
+        "ordering, time_window, spike_count, n_time_bins, n_event_bins, overlap,"
+        " include_incomplete, merge_polarities",
         [
             ("xytp", 2000, None, None, None, 0, False, True),
             ("txyp", 2000, None, None, None, 200, True, False),
@@ -510,7 +496,7 @@ class TestFunctionalNumpy(unittest.TestCase):
             ("xytp", None, None, None, 5, 0, True, False),
             ("xytp", None, None, None, 5, 0.1, False, True),
             ("xytp", None, None, None, 5, 0.25, False, False),
-        ]
+        ],
     )
     def testToFrame(
         self,
@@ -548,39 +534,39 @@ class TestFunctionalNumpy(unittest.TestCase):
             stride = time_window - overlap
             times = orig_events[:, t_index]
             if include_incomplete:
-                self.assertEqual(
-                    frames.shape[0],
-                    int(np.ceil(((times[-1] - times[0]) - time_window) / stride) + 1),
+                assert frames.shape[0] == int(
+                    np.ceil(((times[-1] - times[0]) - time_window) / stride) + 1
                 )
             else:
-                self.assertEqual(
-                    frames.shape[0],
-                    int(np.floor(((times[-1] - times[0]) - time_window) / stride) + 1),
+                assert frames.shape[0] == int(
+                    np.floor(((times[-1] - times[0]) - time_window) / stride) + 1
                 )
 
         if spike_count is not None:
             stride = spike_count - overlap
             n_events = orig_events.shape[0]
             if include_incomplete:
-                self.assertEqual(
-                    frames.shape[0], int(np.ceil((n_events - spike_count) / stride) + 1)
+                assert frames.shape[0] == int(
+                    np.ceil((n_events - spike_count) / stride) + 1
                 )
             else:
-                self.assertEqual(
-                    frames.shape[0],
-                    int(np.floor((n_events - spike_count) / stride) + 1),
+                assert frames.shape[0] == int(
+                    np.floor((n_events - spike_count) / stride) + 1
                 )
 
         if n_time_bins is not None:
-            self.assertEqual(frames.shape[0], n_time_bins)
+            assert frames.shape[0] == n_time_bins
 
         if n_event_bins is not None:
-            self.assertEqual(frames.shape[0], n_event_bins)
+            assert frames.shape[0] == n_event_bins
 
         if merge_polarities:
-            self.assertEqual(frames.shape[1], 1)
+            assert frames.shape[1] == 1
 
-    @parameterized.expand([("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False)])
+    @pytest.mark.parametrize(
+        "ordering, surface_dimensions, tau, merge_polarities",
+        [("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False)],
+    )
     def testToTimesurface(self, ordering, surface_dimensions, tau, merge_polarities):
         (
             orig_events,
@@ -597,11 +583,11 @@ class TestFunctionalNumpy(unittest.TestCase):
             tau=tau,
             merge_polarities=merge_polarities,
         )
-        self.assertEqual(surfaces.shape[0], len(orig_events))
-        self.assertEqual(surfaces.shape[1], 1 if merge_polarities else 2)
-        self.assertEqual(surfaces.shape[2:], surface_dimensions)
+        assert surfaces.shape[0] == len(orig_events)
+        assert surfaces.shape[1] == 1 if merge_polarities else 2
+        assert surfaces.shape[2:] == surface_dimensions
 
-    @parameterized.expand(["xytp", "typx"])
+    @pytest.mark.parametrize("ordering", ["xytp", "typx"])
     def testToAveragedTimesurfaceXytp(self, ordering):
         (
             orig_events,
@@ -625,11 +611,11 @@ class TestFunctionalNumpy(unittest.TestCase):
             tau=tau,
             merge_polarities=merge_polarities,
         )
-        self.assertEqual(surfaces.shape[0], len(orig_events))
-        self.assertEqual(surfaces.shape[1], 1)
-        self.assertEqual(surfaces.shape[2], surface_size)
+        assert surfaces.shape[0] == len(orig_events)
+        assert surfaces.shape[1] == 1
+        assert surfaces.shape[2] == surface_size
 
-    @parameterized.expand(["xytp", "typx"])
+    @pytest.mark.parametrize("ordering", ["xytp", "typx"])
     def testUniformNoiseXytp(self, ordering):
         (
             orig_events,
@@ -645,10 +631,10 @@ class TestFunctionalNumpy(unittest.TestCase):
             noise_density=1e-8,
         )
 
-        self.assertTrue(len(noisy_events) > len(orig_events))
-        self.assertTrue(np.isin(orig_events, noisy_events).all())
+        assert len(noisy_events) > len(orig_events)
+        assert np.isin(orig_events, noisy_events).all()
 
-    @parameterized.expand([("xytp", 10), ("typx", 1)])
+    @pytest.mark.parametrize("ordering, n_time_bins", [("xytp", 10), ("typx", 1)])
     def testToVoxelGrid(self, ordering, n_time_bins):
         (
             orig_events,
@@ -663,4 +649,4 @@ class TestFunctionalNumpy(unittest.TestCase):
             ordering=ordering,
             n_time_bins=n_time_bins,
         )
-        self.assertEqual(volumes.shape, (n_time_bins, *sensor_size[::-1]))
+        assert volumes.shape == (n_time_bins, *sensor_size[::-1])
