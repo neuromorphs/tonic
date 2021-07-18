@@ -37,6 +37,4 @@ def time_skew_numpy(
     if integer_time:
         events[:, t_index] = events[:, t_index].round()
 
-    assert np.min(events[:, t_index]) >= 0
-
     return events
