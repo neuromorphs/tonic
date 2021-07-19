@@ -422,7 +422,7 @@ class UniformNoise:
         self.noise_density = noise_density
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        surfaces = functional.uniform_noise_numpy(
+        events = functional.uniform_noise_numpy(
             events,
             sensor_size,
             ordering,

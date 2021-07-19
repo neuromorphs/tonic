@@ -1,207 +1,450 @@
-import unittest
+import pytest
 import numpy as np
 import tonic.transforms as transforms
 import utils
 
 
-class TestTransforms(unittest.TestCase):
-    def setUp(self):
-        self.ordering = "xytp"
-        self.random_xytp = utils.create_random_input_with_ordering(self.ordering)
-        self.original_events = self.random_xytp[0].copy()
-        self.original_images = self.random_xytp[1].copy()
+class TestTransforms:
+    @pytest.mark.parametrize(
+        "ordering, target_size", [("xytp", (50, 50)), ("typx", (10, 5))]
+    )
+    def test_transform_crop(self, ordering, target_size):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
-    def testTransformTimeJitter(self):
-        events = self.random_xytp[0].copy()
-        images = None
-        std = max(self.random_xytp[0][:, 2]) / 10
-        transform = transforms.Compose(
-            [transforms.TimeJitter(std=std, clip_negative=False)]
-        )
-        transform(
-            events=events, sensor_size=self.random_xytp[2], ordering=self.ordering
-        )
+        transform = transforms.Crop(target_size=target_size)
 
-        self.assertTrue(len(events) == len(self.original_events))
-        self.assertTrue((events[:, 0] == self.original_events[:, 0]).all())
-        self.assertTrue((events[:, 1] == self.original_events[:, 1]).all())
-        self.assertFalse((events[:, 2] == self.original_events[:, 2]).all())
-        self.assertTrue((events[:, 3] == self.original_events[:, 3]).all())
-        self.assertTrue(
-            np.isclose(events[:, 2].all(), self.original_events[:, 2].all(), atol=std)
-        )
-
-    def testTransformToTimesurfaces(self):
-        events = self.random_xytp[0].copy()
-        surf_dims = (7, 7)
-        transform = transforms.Compose(
-            [
-                transforms.ToTimesurface(
-                    surface_dimensions=surf_dims, tau=5e3, decay="lin"
-                )
-            ]
-        )
-        surfaces = transform(
-            events=events, sensor_size=self.random_xytp[2], ordering=self.ordering
-        )
-        self.assertEqual(surfaces.shape[0], len(self.original_events))
-        self.assertEqual(surfaces.shape[1], 2)
-        self.assertEqual(surfaces.shape[2:], surf_dims)
-
-    def testTimeReversalSpatialJitter(self):
-        events = self.random_xytp[0].copy()
-        images = self.random_xytp[1].copy()
-        flip_probability = 1
-        multi_image = self.random_xytp[3]
-        variance_x = 1
-        variance_y = 1
-        sigma_x_y = 0
-        transform = transforms.Compose(
-            [
-                transforms.TimeReversal(flip_probability=flip_probability),
-                transforms.SpatialJitter(
-                    variance_x=variance_x,
-                    variance_y=variance_y,
-                    sigma_x_y=sigma_x_y,
-                    clip_outliers=False,
-                ),
-            ]
-        )
         events, images = transform(
-            events=events,
-            images=images,
-            sensor_size=self.random_xytp[2],
-            ordering=self.ordering,
-            multi_image=multi_image,
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
         )
 
-        self.assertTrue(
-            len(events) == len(self.original_events),
-            "Number of events should be the same.",
-        )
-        spatial_var_x = np.isclose(
-            events[:, 0].all(), self.original_events[:, 0].all(), atol=variance_x
-        )
-        self.assertTrue(
-            spatial_var_x, "Spatial jitter should be within chosen variance x."
-        )
-        self.assertFalse(
-            (events[:, 0] == self.original_events[:, 0]).all(),
-            "X coordinates should be different.",
-        )
-        spatial_var_y = np.isclose(
-            events[:, 1].all(), self.original_events[:, 1].all(), atol=variance_y
-        )
-        self.assertTrue(
-            spatial_var_y, "Spatial jitter should be within chosen variance y."
-        )
-        self.assertFalse(
-            (events[:, 1] == self.original_events[:, 1]).all(),
-            "Y coordinates should be different.",
-        )
-        self.assertTrue(
-            (events[:, 3] == self.original_events[:, 3] * (-1)).all(),
-            "Polarities should be flipped.",
-        )
-        time_reversal = (
-            events[:, 2]
-            == np.max(self.original_events[:, 2]) - self.original_events[:, 2]
-        ).all()
-        self.assertTrue(
-            time_reversal,
-            "Condition of time reversal t_i' = max(t) - t_i has to be fullfilled",
-        )
-        self.assertTrue(
-            (images[::-1] == self.original_images).all(),
-            "Images should be in reversed order.",
-        )
+        assert np.all(events[:, x_index]) < target_size[0] and np.all(
+            events[:, y_index] < target_size[1]
+        ), "Cropping needs to map the events into the new space"
+        assert (
+            images.shape[2] == target_size[0] and images.shape[1] == target_size[1]
+        ), "Cropping needs to map the images into the new space"
 
-    def testDropoutFlipUD(self):
-        events = self.random_xytp[0].copy()
-        images = self.random_xytp[1].copy()
-        multi_image = self.random_xytp[3]
-        flip_probability = 1
-        drop_probability = 0.5
+    @pytest.mark.parametrize(
+        "ordering, drop_probability, random_drop_probability",
+        [("xytp", 0.2, False), ("typx", 0.5, True)],
+    )
+    def test_transform_drop_events(
+        self, ordering, drop_probability, random_drop_probability
+    ):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
 
-        transform = transforms.Compose(
-            [
-                transforms.DropEvents(drop_probability=drop_probability),
-                transforms.FlipUD(flip_probability=flip_probability),
-            ]
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        transform = transforms.DropEvents(
+            drop_probability=drop_probability,
+            random_drop_probability=random_drop_probability,
         )
 
         events, images = transform(
-            events=events,
-            images=images,
-            sensor_size=self.random_xytp[2],
-            ordering=self.ordering,
-            multi_image=multi_image,
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
         )
 
-        drop_events = np.isclose(
-            events.shape[0], (1 - drop_probability) * self.original_events.shape[0]
-        )
-        self.assertTrue(
-            drop_events,
-            "Event dropout should result in drop_probability*len(original) events"
-            " dropped out.",
-        )
+        if random_drop_probability:
+            assert events.shape[0] >= (1 - drop_probability) * orig_events.shape[0], (
+                "Event dropout with random drop probability should result in less than "
+                " drop_probability*len(original) events dropped out."
+            )
+        else:
+            assert np.isclose(
+                events.shape[0], (1 - drop_probability) * orig_events.shape[0]
+            ), (
+                "Event dropout should result in drop_probability*len(original) events"
+                " dropped out."
+            )
+        assert np.isclose(
+            np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+        ), "Event dropout should maintain temporal order."
 
-        temporal_order = np.isclose(
-            np.sum((events[:, 2] - np.sort(events[:, 2])) ** 2), 0
-        )
-        self.assertTrue(temporal_order, "Temporal order should be maintained.")
+    @pytest.mark.parametrize(
+        "ordering, flip_probability", [("xytp", 1.0), ("typx", 1.0)]
+    )
+    def test_transform_flip_lr(self, ordering, flip_probability):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
 
-        first_dropped_index = np.where(events[0, 2] == self.original_events[:, 2])[0][0]
-        flipped_events = (
-            self.random_xytp[2][1] - 1 - self.original_events[first_dropped_index, 1]
-            == events[0, 1]
-        )
-        self.assertTrue(
-            flipped_events,
-            "When flipping up and down y must map to the opposite pixel, i.e. y' ="
-            " sensor width - y",
-        )
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
-    def testTimeSkewFlipPolarityFlipLR(self):
-        events = self.random_xytp[0].copy()
-        images = self.random_xytp[1].copy()
-        multi_image = self.random_xytp[3]
-        coefficient = 1.5
-        offset = 0
-        flip_probability_pol = 1
-        flip_probability_lr = 1
-
-        transform = transforms.Compose(
-            [
-                transforms.TimeSkew(coefficient=coefficient, offset=offset),
-                transforms.FlipPolarity(flip_probability=flip_probability_pol),
-                transforms.FlipLR(flip_probability=flip_probability_lr),
-            ]
-        )
+        transform = transforms.FlipLR(flip_probability=flip_probability)
 
         events, images = transform(
-            events=events,
-            images=images,
-            sensor_size=self.random_xytp[2],
-            ordering=self.ordering,
-            multi_image=multi_image,
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
         )
 
-        self.assertTrue(len(events) == len(self.original_events))
-        self.assertTrue((events[:, 2] >= self.original_events[:, 2]).all())
-        self.assertTrue(np.min(events[:, 2]) >= 0)
-
-        self.assertTrue(
-            (events[:, 3] == self.original_events[:, 3] * (-1)).all(),
-            "Polarities should be flipped.",
-        )
-
-        same_pixel = np.isclose(
-            (self.random_xytp[2][0] - 1) - events[0, 0], self.original_events[0, 0]
-        )
-        self.assertTrue(
-            same_pixel,
+        assert (
+            (sensor_size[0] - 1) - orig_events[:, x_index] == events[:, x_index]
+        ).all(), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x",
+            " sensor width - x"
         )
+
+    @pytest.mark.parametrize("ordering, flip_probability", [("xytp", 1.0), ("typx", 0)])
+    def test_transform_flip_polarity(self, ordering, flip_probability):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+        transform = transforms.FlipPolarity(flip_probability=flip_probability)
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        if flip_probability == 1:
+            assert np.array_equal(orig_events[:, p_index] * -1, events[:, p_index]), (
+                "When flipping polarity with probability 1, all event polarities must"
+                " flip"
+            )
+        else:
+            assert np.array_equal(orig_events[:, p_index], events[:, p_index]), (
+                "When flipping polarity with probability 0, no event polarities must"
+                " flip"
+            )
+
+    @pytest.mark.parametrize(
+        "ordering, flip_probability", [("xytp", 1.0), ("typx", 1.0)]
+    )
+    def test_transform_flip_ud(self, ordering, flip_probability):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+        transform = transforms.FlipUD(flip_probability=flip_probability)
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        assert np.array_equal(
+            (sensor_size[1] - 1) - orig_events[:, y_index], events[:, y_index]
+        ), (
+            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
+            " sensor width - x"
+        )
+
+    @pytest.mark.parametrize("ordering, filter_time", [("xytp", 1000), ("typx", 500)])
+    def test_transform_denoise(self, ordering, filter_time):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        transform = transforms.Denoise(filter_time=filter_time)
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        assert len(events) > 0, "Not all events should be filtered"
+        assert len(events) < len(
+            orig_events
+        ), "Result should be fewer events than original event stream"
+        assert np.isin(events, orig_events).all(), (
+            "Denoising should not add additional events that were not present in"
+            " original event stream"
+        )
+
+    @pytest.mark.parametrize(
+        "ordering, refractory_period", [("xytp", 1000), ("typx", 50)]
+    )
+    def test_transform_refractory_period(self, ordering, refractory_period):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        transform = transforms.RefractoryPeriod(refractory_period=refractory_period)
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        assert len(events) > 0, "Not all events should be filtered"
+        assert len(events) < len(
+            orig_events
+        ), "Result should be fewer events than original event stream"
+        assert np.isin(
+            events, orig_events
+        ).all(), (
+            "Added additional events that were not present in original event stream"
+        )
+        assert events.dtype == events.dtype
+
+    @pytest.mark.parametrize(
+        "ordering, variance, integer_jitter, clip_outliers",
+        [
+            ("xytp", 30, True, False),
+            ("typx", 100, True, True),
+            ("typx", 3.5, False, True),
+            ("typx", 0.8, False, False),
+        ],
+    )
+    def test_transform_spatial_jitter(
+        self, ordering, variance, integer_jitter, clip_outliers
+    ):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+        transform = transforms.SpatialJitter(
+            variance_x=variance,
+            variance_y=variance,
+            sigma_x_y=0,
+            integer_jitter=integer_jitter,
+            clip_outliers=clip_outliers,
+        )
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        if not clip_outliers:
+            assert len(events) == len(orig_events)
+            assert (events[:, t_index] == orig_events[:, t_index]).all()
+            assert (events[:, p_index] == orig_events[:, p_index]).all()
+            assert (events[:, x_index] != orig_events[:, x_index]).any()
+            assert (events[:, y_index] != orig_events[:, y_index]).any()
+            assert np.isclose(
+                events[:, x_index].all(),
+                orig_events[:, x_index].all(),
+                atol=2 * variance,
+            )
+            assert np.isclose(
+                events[:, y_index].all(),
+                orig_events[:, y_index].all(),
+                atol=2 * variance,
+            )
+
+            if integer_jitter:
+                assert (
+                    events[:, x_index] - orig_events[:, x_index]
+                    == (events[:, x_index] - orig_events[:, x_index]).astype(int)
+                ).all()
+
+                assert (
+                    events[:, y_index] - orig_events[:, y_index]
+                    == (events[:, y_index] - orig_events[:, y_index]).astype(int)
+                ).all()
+
+        else:
+            assert len(events) < len(orig_events)
+
+    @pytest.mark.parametrize(
+        "ordering, std, integer_jitter, clip_negative, sort_timestamps",
+        [
+            ("xytp", 10, False, True, True),
+            ("typx", 50, True, False, False),
+            ("pxty", 0, True, True, False),
+        ],
+    )
+    def test_transform_time_jitter(
+        self, ordering, std, integer_jitter, clip_negative, sort_timestamps
+    ):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        # we do this to ensure integer timestamps before testing for int jittering
+        if integer_jitter:
+            orig_events[:, t_index] = orig_events[:, t_index].round()
+
+        transform = transforms.TimeJitter(
+            std=std,
+            integer_jitter=integer_jitter,
+            clip_negative=clip_negative,
+            sort_timestamps=sort_timestamps,
+        )
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        if clip_negative:
+            assert (events[:, t_index] >= 0).all()
+        else:
+            assert len(events) == len(orig_events)
+        if sort_timestamps:
+            np.testing.assert_array_equal(
+                events[:, t_index], np.sort(events[:, t_index])
+            )
+        if not sort_timestamps and not clip_negative:
+            np.testing.assert_array_equal(events[:, x_index], orig_events[:, x_index])
+            np.testing.assert_array_equal(events[:, y_index], orig_events[:, y_index])
+            np.testing.assert_array_equal(events[:, p_index], orig_events[:, p_index])
+            if integer_jitter:
+                assert (
+                    events[:, t_index] - orig_events[:, t_index]
+                    == (events[:, t_index] - orig_events[:, t_index]).astype(int)
+                ).all()
+
+    @pytest.mark.parametrize(
+        "ordering, flip_probability", [("xytp", 1000), ("typx", 50)]
+    )
+    def test_transform_time_reversal(self, ordering, flip_probability):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        original_t = orig_events[0, t_index]
+        original_p = orig_events[0, p_index]
+
+        max_t = np.max(orig_events[:, t_index])
+
+        transform = transforms.TimeReversal(flip_probability=flip_probability,)
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        same_time = np.isclose(max_t - original_t, events[0, t_index])
+        same_polarity = np.isclose(events[0, p_index], -1.0 * original_p)
+
+        assert same_time, "When flipping time must map t_i' = max(t) - t_i"
+        assert same_polarity, "When flipping time polarity should be flipped"
+        assert events.dtype == events.dtype
+
+    @pytest.mark.parametrize(
+        "ordering, offset, coefficient, integer_time",
+        [("xytp", 100, 3.1, True), ("typx", 0, 0.7, False), ("ptyx", 10, 2.7, False)],
+    )
+    def test_transform_time_skew(self, ordering, offset, coefficient, integer_time):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        transform = transforms.TimeSkew(
+            coefficient=coefficient, offset=offset, integer_time=integer_time,
+        )
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        assert len(events) == len(orig_events)
+        assert np.min(events[:, t_index]) >= offset
+        if integer_time:
+            assert (events[:, t_index] == (events[:, t_index]).astype(int)).all()
+
+        else:
+            if coefficient > 1:
+                assert (events[:, t_index] - offset > orig_events[:, t_index]).all()
+
+            if coefficient < 1:
+                assert (events[:, t_index] - offset < orig_events[:, t_index]).all()
+
+            assert (events[:, t_index] != (events[:, t_index]).astype(int)).any()
+
+    @pytest.mark.parametrize("ordering", ["xytp", "typx"])
+    def test_transform_uniform_noise(self, ordering):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        transform = transforms.UniformNoise(
+            scaling_factor_to_micro_sec=1000000, noise_density=1e-8,
+        )
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        assert len(events) > len(orig_events)
+        assert np.isin(orig_events, events).all()

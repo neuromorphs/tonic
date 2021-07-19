@@ -5,13 +5,6 @@ import utils
 
 
 class TestFunctionalNumpy:
-    def findXytpPermutation(self, ordering):
-        x_index = ordering.find("x")
-        y_index = ordering.find("y")
-        t_index = ordering.find("t")
-        p_index = ordering.find("p")
-        return x_index, y_index, t_index, p_index
-
     @pytest.mark.parametrize(
         "ordering, target_size", [("xytp", (50, 50)), ("typx", (10, 5))]
     )
@@ -30,7 +23,7 @@ class TestFunctionalNumpy:
             multi_image=is_multi_image,
             target_size=target_size,
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         assert np.all(events[:, x_index]) < target_size[0] and np.all(
             events[:, y_index] < target_size[1]
@@ -55,7 +48,7 @@ class TestFunctionalNumpy:
             drop_probability=drop_probability,
             random_drop_probability=random_drop_probability,
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         if random_drop_probability:
             assert events.shape[0] >= (1 - drop_probability) * orig_events.shape[0], (
@@ -91,7 +84,7 @@ class TestFunctionalNumpy:
             multi_image=is_multi_image,
             flip_probability=flip_probability,
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         assert (
             (sensor_size[0] - 1) - orig_events[:, x_index] == events[:, x_index]
         ).all(), (
@@ -111,7 +104,7 @@ class TestFunctionalNumpy:
         events = F.flip_polarity_numpy(
             orig_events.copy(), ordering=ordering, flip_probability=flip_probability
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         if flip_probability == 1:
             assert np.array_equal(orig_events[:, p_index] * -1, events[:, p_index]), (
                 "When flipping polarity with probability 1, all event polarities must"
@@ -141,7 +134,7 @@ class TestFunctionalNumpy:
             multi_image=is_multi_image,
             flip_probability=flip_probability,
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         assert np.array_equal(
             (sensor_size[1] - 1) - orig_events[:, y_index], events[:, y_index]
         ), (
@@ -188,7 +181,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         events = (stream1, stream2)
 
@@ -308,7 +301,7 @@ class TestFunctionalNumpy:
             integer_jitter=integer_jitter,
             clip_outliers=clip_outliers,
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         if not clip_outliers:
             assert len(events) == len(orig_events)
@@ -360,7 +353,7 @@ class TestFunctionalNumpy:
             temporal_transform=temporal_transform,
             roll=False,
         )
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         assert np.all(events[:, x_index]) < sensor_size[0] and np.all(
             events[:, y_index] < sensor_size[1]
@@ -383,7 +376,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         # we do this to ensure integer timestamps before testing for int jittering
         if integer_jitter:
@@ -424,7 +417,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         original_t = orig_events[0, t_index]
         original_p = orig_events[0, p_index]
@@ -457,7 +450,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         events = F.time_skew_numpy(
             orig_events.copy(),
@@ -515,7 +508,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         frames = F.to_frame_numpy(
             events=orig_events.copy(),
@@ -588,7 +581,7 @@ class TestFunctionalNumpy:
         assert surfaces.shape[2:] == surface_dimensions
 
     @pytest.mark.parametrize("ordering", ["xytp", "typx"])
-    def testToAveragedTimesurfaceXytp(self, ordering):
+    def testToAveragedTimesurface(self, ordering):
         (
             orig_events,
             images,
@@ -616,7 +609,7 @@ class TestFunctionalNumpy:
         assert surfaces.shape[2] == surface_size
 
     @pytest.mark.parametrize("ordering", ["xytp", "typx"])
-    def testUniformNoiseXytp(self, ordering):
+    def testUniformNoise(self, ordering):
         (
             orig_events,
             images,

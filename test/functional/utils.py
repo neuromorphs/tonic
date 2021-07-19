@@ -42,6 +42,13 @@ def create_random_input_with_ordering(ordering, sensor_size=(200, 100), datatype
 
     if datatype != None:
         events = events.astype(datatype)
-        
-    
+
     return events, images, sensor_size, is_multi_image
+
+
+def findXytpPermutation(ordering):
+    x_index = ordering.find("x")
+    y_index = ordering.find("y")
+    t_index = ordering.find("t")
+    p_index = ordering.find("p")
+    return x_index, y_index, t_index, p_index
