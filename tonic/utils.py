@@ -21,13 +21,14 @@ def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False
         import matplotlib.pyplot as plt
     except ImportError:
         raise ImportError(
-            "Please install the matplotlib package to plot events. This is an optional dependency."
+            "Please install the matplotlib package to plot events. This is an optional"
+            " dependency."
         )
 
     events = events.squeeze()
     events = np.array(events)
     transform = transforms.Compose(
-        [transforms.ToVoxelGrid(num_time_bins=np.product(axis_array))]
+        [transforms.ToVoxelGrid(n_time_bins=np.product(axis_array))]
     )
     x_index = ordering.find("x")
     y_index = ordering.find("y")
@@ -71,7 +72,8 @@ def pad_tensors(batch):
 
     if not isinstance(batch[0][0], torch.Tensor):
         print(
-            "tonic.utils.pad_tensors expects a PyTorch Tensor of events. Please use ToSparseTensor or similar transform to convert the events."
+            "tonic.utils.pad_tensors expects a PyTorch Tensor of events. Please use"
+            " ToSparseTensor or similar transform to convert the events."
         )
         return None, None
     max_length = max([sample.size()[0] for sample, target in batch])
