@@ -1,5 +1,7 @@
 import os
 import numpy as np
+from pathlib import Path
+
 from .dataset import Dataset
 from .download_utils import (
     check_integrity,
@@ -117,15 +119,26 @@ class NMNIST(Dataset):
     def __len__(self):
         return len(self.samples)
 
-    def download(self):
-        download_and_extract_archive(
-            self.url,
-            self.location_on_system,
-            filename=self.archive_filename,
-            md5=self.archive_md5,
+    def _check_exists(self) -> bool:
+        folder = Path(self.location_on_system, self.folder_name)
+        file = Path(self.location_on_system, self.filename)
+        return (
+            file.exists()
+            and folder.exists()
+            and folder.is_dir()
+            and len(list(folder.glob("*/*.bin"))) >= 10000
         )
-        extract_archive(os.path.join(self.location_on_system, self.train_filename))
-        extract_archive(os.path.join(self.location_on_system, self.test_filename))
+
+    def download(self):
+        if not self._check_exists():
+            download_and_extract_archive(
+                self.url,
+                self.location_on_system,
+                filename=self.archive_filename,
+                md5=self.archive_md5,
+            )
+            extract_archive(os.path.join(self.location_on_system, self.train_filename))
+            extract_archive(os.path.join(self.location_on_system, self.test_filename))
 
     def _read_dataset_file(self, filename):
         f = open(filename, "rb")
