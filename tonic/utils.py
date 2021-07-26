@@ -86,4 +86,4 @@ def pad_tensors(batch):
         )
         samples_output.append(sample)
         targets_output.append(target)
-    return torch.stack(samples_output), targets_output
+    return torch.stack(samples_output), torch.tensor(targets_output)
