@@ -20,42 +20,42 @@ Denoising
 ^^^^^^^^^
 .. autoclass:: Denoise
 
-Randomly dropping events
-^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: DropEvents
+Drop events randomly
+^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: DropEvent
 
-Flipping left/right and up/down
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Drop (hot) pixels
+^^^^^^^^^^^^^^^^^
+.. autoclass:: DropPixel
+
+Downsample timestamps and/or spatial coordinates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: Downsample
+
+Flip left/right and up/down
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: FlipLR
 .. autoclass:: FlipUD
 
-Flipping polarities
-^^^^^^^^^^^^^^^^^^^
+Flip polarities
+^^^^^^^^^^^^^^^
 .. autoclass:: FlipPolarity
 
-Masking hot pixels that fire excessively
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: MaskHotPixel
+Jitter events spatially
+^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: SpatialJitter
+
+Jitter events temporally
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: TimeJitter
 
 Refractory periods
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: RefractoryPeriod
 
-Jittering events spatially
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: SpatialJitter
-
-Jittering events temporally
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: TimeJitter
-
 Reverse time
 ^^^^^^^^^^^^
 .. autoclass:: TimeReversal
-
-Subsample timestamps
-^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: Subsample
 
 Transform time
 ^^^^^^^^^^^^^^
