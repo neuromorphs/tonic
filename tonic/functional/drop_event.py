@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def drop_events_numpy(events, drop_probability=0.5, random_drop_probability=False):
+def drop_event_numpy(events, drop_probability=0.5, random_drop_probability=False):
     """Randomly drops events with drop_probability.
 
     Parameters:

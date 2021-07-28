@@ -26,7 +26,7 @@ def time_skew_numpy(
                              nearest integer after skewing.
 
     Returns:
-        the input events with rewritten timestamps (rounded to nearest integer if timestamps used integers in the first place.)
+        the input events with rewritten timestamps.
     """
 
     assert "t" in ordering

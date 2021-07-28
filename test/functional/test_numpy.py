@@ -43,7 +43,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        events = F.drop_events_numpy(
+        events = F.drop_event_numpy(
             orig_events.copy(),
             drop_probability=drop_probability,
             random_drop_probability=random_drop_probability,

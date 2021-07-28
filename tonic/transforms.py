@@ -90,7 +90,7 @@ class Denoise:
         return events, images
 
 
-class DropEvents:
+class DropEvent:
     """Randomly drops events with drop_probability.
 
     Parameters:
@@ -106,8 +106,64 @@ class DropEvents:
         self.random_drop_probability = random_drop_probability
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.drop_events_numpy(
+        events = functional.drop_event_numpy(
             events, self.drop_probability, self.random_drop_probability
+        )
+        return events, images
+
+
+class DropPixel:
+    """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
+    list of x/y coordinates can be passed directly. Alternatively, a cutoff frequency for each pixel can be defined
+    above which pixels will be deactivated completely. This prevents so-called _hot pixels_ which fire constantly
+    (e.g. due to faulty hardware).
+
+    Parameters:
+        coordinates: list of (x,y) coordinates for which all events will be deleted.
+    """
+
+    def __init__(self, coordinates=None, hot_pixel_frequency=None):
+        self.coordinates = coordinates
+        self.hot_pixel_frequency = hot_pixel_frequency
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        if self.hot_pixel_frequency:
+            self.coordinates = functional.identify_hot_pixel(
+                events=events,
+                sensor_size=sensor_size,
+                ordering=ordering,
+                hot_pixel_frequency=self.hot_pixel_frequency,
+            )
+
+        print(f"Filtered {len(self.coordinates)} hot pixels.")
+
+        events = functional.drop_pixel_numpy(
+            events=events, ordering=ordering, coordinates=self.coordinates,
+        )
+        return events, images
+
+
+class Downsample:
+    """Multiplies timestamps and spatial pixel coordinates with separate factors.
+    Useful when the native temporal and/or spatial resolution of the original sensor is too
+    high for downstream processing, notably when converting to dense representations of some sort.
+    This transform does not drop any events.
+
+    Parameters:
+        time_factor (float): value to multiply timestamps with. Default is 0.001.
+        spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
+    """
+
+    def __init__(self, time_factor: float = 1e-3, spatial_factor: float = 1):
+        self.time_factor = time_factor
+        self.spatial_factor = spatial_factor
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        events = functional.time_skew_numpy(
+            events, ordering, coefficient=self.time_factor
+        )
+        events = functional.spatial_resize_numpy(
+            events, sensor_size, ordering, spatial_factor=self.spatial_factor
         )
         return events, images
 
@@ -175,26 +231,6 @@ class FlipUD:
             multi_image=multi_image,
             flip_probability=self.flip_probability,
         )
-
-
-class MaskHotPixel:
-    """Drops events for certain pixel locations, to suppress pixels that constantly fire (e.g. due to faulty hardware).
-
-    Parameters:
-        coordinates: list of (x,y) coordinates for which all events will be deleted.
-    """
-
-    def __init__(self, coordinates):
-        self.coordinates = coordinates
-
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.mask_hot_pixel(
-            events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            coordinates=self.coordinates,
-        )
-        return events, images
 
 
 class RefractoryPeriod:
@@ -293,27 +329,6 @@ class SpatioTemporalTransform:
         return events, images
 
 
-class Subsample:
-    """Multiplies timestamps with a factor and truncates them to integer values.
-    Useful when the native temporal resolution of the original sensor is too high for
-    downstream processing, notably when converting to dense representations of some sort.
-    Uses TimeSkew functional transform under the hood.
-
-    Parameters:
-        coefficient (float): value to multiply timestamps with. Afterwards, timestamps will
-                             be truncated to integer values.
-    """
-
-    def __init__(self, coefficient: float = 1e-3):
-        self.coefficient = coefficient
-
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.time_skew_numpy(
-            events, ordering, coefficient=self.coefficient, integer_time=True
-        )
-        return events, images
-
-
 class TimeJitter:
     """Changes timestamp for each event by drawing samples from a Gaussian
     distribution and adding them to each timestamp.
@@ -380,12 +395,14 @@ class TimeSkew:
     potentially sampled from a distribution of acceptable functions.
 
     Parameters:
-        coefficient (float): a real-valued multiplier applied to the timestamps of the events.
+        coefficient: a real-valued multiplier applied to the timestamps of the events.
                      E.g. a coefficient of 2.0 will double the effective delay between any
                      pair of events.
-        offset (int): value by which the timestamps will be shifted after multiplication by
+        offset: value by which the timestamps will be shifted after multiplication by
                 the coefficient. Negative offsets are permissible but may result in
                 in an exception if timestamps are shifted below 0.
+        integer_time: flag that specifies if timestamps should be rounded to
+                             nearest integer after skewing.
     """
 
     def __init__(
@@ -612,7 +629,7 @@ class ToTimesurface:
         return surfaces, images
 
 
-class ToVoxelGrid(object):
+class ToVoxelGrid:
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events."""
 
     def __init__(self, n_time_bins):

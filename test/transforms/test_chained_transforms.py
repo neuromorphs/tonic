@@ -82,7 +82,7 @@ class TestChainedTransforms:
 
         transform = transforms.Compose(
             [
-                transforms.DropEvents(drop_probability=drop_probability),
+                transforms.DropEvent(drop_probability=drop_probability),
                 transforms.FlipUD(flip_probability=flip_probability),
             ]
         )

@@ -50,7 +50,7 @@ class TestTransforms:
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
-        transform = transforms.DropEvents(
+        transform = transforms.DropEvent(
             drop_probability=drop_probability,
             random_drop_probability=random_drop_probability,
         )
@@ -78,6 +78,39 @@ class TestTransforms:
         assert np.isclose(
             np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
         ), "Event dropout should maintain temporal order."
+
+    @pytest.mark.parametrize(
+        "ordering, time_factor, spatial_factor", [("xytp", 1, 0.25), ("typx", 1e-3, 1)]
+    )
+    def test_transform_downsample(self, ordering, time_factor, spatial_factor):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        transform = transforms.Downsample(
+            time_factor=time_factor, spatial_factor=spatial_factor
+        )
+
+        events, images = transform(
+            events=orig_events.copy(),
+            images=orig_images.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            multi_image=is_multi_image,
+        )
+
+        assert np.array_equal(orig_events[:, t_index] * time_factor, events[:, t_index])
+        assert np.array_equal(
+            orig_events[:, x_index] * spatial_factor, events[:, x_index]
+        )
+        assert np.array_equal(
+            orig_events[:, y_index] * spatial_factor, events[:, y_index]
+        )
 
     @pytest.mark.parametrize(
         "ordering, flip_probability", [("xytp", 1.0), ("typx", 1.0)]
