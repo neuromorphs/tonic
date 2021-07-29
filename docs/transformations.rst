@@ -49,6 +49,10 @@ Jitter events temporally
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: TimeJitter
 
+Convert data type
+^^^^^^^^^^^^^^^^^
+.. autoclass:: NumpyAsType
+
 Refractory periods
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: RefractoryPeriod

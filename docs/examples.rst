@@ -2,6 +2,24 @@ Examples
 ==========================
 Here is some example code to get you started on downloading datasets and applying transforms to them:
 
+
+Downsample events temporally and spatially and convert to sparse tensor
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+    import tonic
+    import tonic.transforms as transforms
+
+    transform = transforms.Compose([transforms.Downsample(time_factor=1e-3, spatial_factor=0.75),
+                                    transforms.ToSparseTensor(),])
+
+    testset = tonic.datasets.NMNIST(save_to='./data',
+                                    train=True,
+                                    transform=transform)
+
+    tensor, target = testset[1000]
+
+
 Denoise events and transform to time surfaces
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ::

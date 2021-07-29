@@ -15,7 +15,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        events, images = F.crop_numpy(
+        events, images, sensor_size = F.crop_numpy(
             events,
             images=images,
             sensor_size=sensor_size,
@@ -76,7 +76,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        events, images = F.flip_lr_numpy(
+        events, images, sensor_size = F.flip_lr_numpy(
             orig_events.copy(),
             images=images,
             sensor_size=sensor_size,
@@ -126,7 +126,7 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        events, images = F.flip_ud_numpy(
+        events, images, sensor_size = F.flip_ud_numpy(
             orig_events.copy(),
             images=images,
             sensor_size=sensor_size,
@@ -424,7 +424,7 @@ class TestFunctionalNumpy:
 
         max_t = np.max(orig_events[:, t_index])
 
-        events, images = F.time_reversal_numpy(
+        events, images, sensor_size = F.time_reversal_numpy(
             orig_events,
             images=images,
             sensor_size=sensor_size,

@@ -30,7 +30,7 @@ class TestChainedTransforms:
                 ),
             ]
         )
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=original_images.copy(),
             sensor_size=sensor_size,
@@ -87,7 +87,7 @@ class TestChainedTransforms:
             ]
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=images,
             sensor_size=sensor_size,
@@ -140,7 +140,7 @@ class TestChainedTransforms:
             ]
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=images,
             sensor_size=sensor_size,

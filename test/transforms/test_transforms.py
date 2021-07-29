@@ -19,7 +19,7 @@ class TestTransforms:
 
         transform = transforms.Crop(target_size=target_size)
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -55,7 +55,7 @@ class TestTransforms:
             random_drop_probability=random_drop_probability,
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -96,7 +96,7 @@ class TestTransforms:
             time_factor=time_factor, spatial_factor=spatial_factor
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -127,7 +127,7 @@ class TestTransforms:
 
         transform = transforms.FlipLR(flip_probability=flip_probability)
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -154,7 +154,7 @@ class TestTransforms:
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.FlipPolarity(flip_probability=flip_probability)
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -187,7 +187,7 @@ class TestTransforms:
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.FlipUD(flip_probability=flip_probability)
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -213,7 +213,7 @@ class TestTransforms:
 
         transform = transforms.Denoise(filter_time=filter_time)
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -243,7 +243,7 @@ class TestTransforms:
 
         transform = transforms.RefractoryPeriod(refractory_period=refractory_period)
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -290,7 +290,7 @@ class TestTransforms:
             clip_outliers=clip_outliers,
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -359,7 +359,7 @@ class TestTransforms:
             sort_timestamps=sort_timestamps,
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -404,7 +404,7 @@ class TestTransforms:
 
         transform = transforms.TimeReversal(flip_probability=flip_probability,)
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -436,7 +436,7 @@ class TestTransforms:
             coefficient=coefficient, offset=offset, integer_time=integer_time,
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -471,7 +471,7 @@ class TestTransforms:
             scaling_factor_to_micro_sec=1000000, noise_density=1e-8,
         )
 
-        events, images = transform(
+        events, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,

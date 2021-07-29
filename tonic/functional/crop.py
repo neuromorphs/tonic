@@ -4,12 +4,7 @@ from .utils import is_multi_image
 
 
 def crop_numpy(
-    events,
-    sensor_size,
-    ordering,
-    images=None,
-    multi_image=None,
-    target_size=(256, 256),
+    events, sensor_size, ordering, target_size, images=None, multi_image=None,
 ):
     """Crops the sensor size to a smaller sensor.
     Removes events outsize of the target sensor and maps
@@ -66,4 +61,6 @@ def crop_numpy(
     events[:, x_loc] -= x_start_ind
     events[:, y_loc] -= y_start_ind
 
-    return events, images
+    sensor_size = target_size
+
+    return events, images, sensor_size

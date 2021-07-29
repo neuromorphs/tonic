@@ -52,7 +52,7 @@ class TestRepresentations:
             merge_polarities=merge_polarities,
         )
 
-        frames, images = transform(
+        frames, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -113,7 +113,7 @@ class TestRepresentations:
             merge_polarities=merge_polarities,
         )
 
-        surfaces, images = transform(
+        surfaces, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -136,7 +136,7 @@ class TestRepresentations:
 
         transform = transforms.ToVoxelGrid(n_time_bins=n_time_bins)
 
-        volumes, images = transform(
+        volumes, images, sensor_size = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
