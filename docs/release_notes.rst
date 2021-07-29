@@ -1,6 +1,11 @@
 Release notes
 =============
 
+0.4.6
+-----
+* sensor_size is now being passed from transform to transform, in case it is adjusted. Important for cropping and spatial resizing.
+* test suite improvements
+
 0.4.5
 -----
 * Dropped Subsample transform in favour of Downsample transform, which can now scale timestamps and spatial coordinates in one transform together. 
