@@ -163,7 +163,7 @@ class Downsample:
             events, ordering, coefficient=self.time_factor
         )
         events, sensor_size = functional.spatial_resize_numpy(
-            events, sensor_size, ordering, spatial_factor=self.spatial_factor
+            events, sensor_size, ordering, spatial_factor=self.spatial_factor, integer_coordinates=True
         )
         return events, images, sensor_size
 
