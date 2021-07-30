@@ -51,4 +51,4 @@ def time_reversal_numpy(
         events[:, t_loc] = np.max(events[:, t_loc]) - events[:, t_loc]
         events[:, p_loc] *= -1
 
-    return events, images
+    return events, images, sensor_size

@@ -7,6 +7,7 @@ from .download_utils import (
     extract_archive,
 )
 
+
 class SMNIST(Dataset):
     """Spiking sequential MNIST
     Sequential MNIST (sMNIST) is a standard benchmark task for time series
@@ -17,11 +18,11 @@ class SMNIST(Dataset):
     whenever the grey value crosses its threshold in the transition from
     the previous to the current pixel.
 
-    Parameters: 
+    Parameters:
         save_to (string):                       Location to save files to on disk.
         train (bool):                           If True, uses training subset,
                                                 otherwise testing subset.
-        duplicate (bool):                       If True, emits two spikes 
+        duplicate (bool):                       If True, emits two spikes
                                                 per threshold crossing
         num_neurons (integer):                  How many neurons to use to encode 
                                                 thresholds(must be odd)
@@ -38,10 +39,11 @@ class SMNIST(Dataset):
         target_transform (callable, optional):  A callable of transforms to
                                                 apply to the targets/labels.
 
-     Returns: 
+     Returns:
          A dataset object that can be indexed or iterated over.
          One sample returns a tuple of (events, targets).
     """
+
     base_url = "https://storage.googleapis.com/cvdf-datasets/mnist/"
     train_images_file = "train-images-idx3-ubyte"
     train_labels_file = "train-labels-idx1-ubyte"
@@ -59,12 +61,23 @@ class SMNIST(Dataset):
         "6 - six",
         "7 - seven",
         "8 - eight",
-        "9 - nine"]
+        "9 - nine",
+    ]
 
-    def __init__(self, save_to, train=True, duplicate=True, num_neurons=99, dt=1000.0, 
-                 download=True, transform=None, target_transform=None):
-        super(SMNIST, self).__init__(save_to, transform=transform, 
-                                     target_transform=target_transform)
+    def __init__(
+        self,
+        save_to,
+        train=True,
+        duplicate=True,
+        num_neurons=99,
+        dt=1000.0,
+        download=True,
+        transform=None,
+        target_transform=None,
+    ):
+        super(SMNIST, self).__init__(
+            save_to, transform=transform, target_transform=target_transform
+        )
         self.location_on_system = os.path.join(save_to, "smnist")
         self.train = train
         self.duplicate = duplicate
@@ -85,8 +98,7 @@ class SMNIST(Dataset):
             image_data = f.read()
 
             # Unpack header from first 16 bytes of buffer and verify
-            magic, num_items, num_rows, num_cols = unpack('>IIII', 
-                                                          image_data[:16])
+            magic, num_items, num_rows, num_cols = unpack(">IIII", image_data[:16])
             assert magic == 2051
             assert num_rows == 28
             assert num_cols == 28
@@ -95,15 +107,14 @@ class SMNIST(Dataset):
             self.image_data = np.frombuffer(image_data[16:], dtype=np.uint8)
 
             # Reshape data into individual (flattened) images
-            self.image_data = np.reshape(self.image_data, 
-                                         (num_items, 28 * 28))
+            self.image_data = np.reshape(self.image_data, (num_items, 28 * 28))
 
         # Open labels file
         with open(os.path.join(self.location_on_system, self.labels_file), "rb") as f:
             label_data = f.read()
 
             # Unpack header from first 8 bytes of buffer and verify
-            magic, num_items = unpack('>II', label_data[:8])
+            magic, num_items = unpack(">II", label_data[:8])
             assert magic == 2049
 
             # Convert remainder of buffer to numpy bytes
@@ -117,7 +128,7 @@ class SMNIST(Dataset):
         half_size = self.sensor_size[0] // 2
 
         # Determine thresholds of each neuron
-        thresholds = np.linspace(0., 254., half_size).astype(np.uint8)
+        thresholds = np.linspace(0.0, 254.0, half_size).astype(np.uint8)
 
         # Determine for which pixels each neuron is above or below its threshol
         lower = image[:, None] < thresholds[None, :]
@@ -130,7 +141,9 @@ class SMNIST(Dataset):
 
         # Get times when image is 255 and create matching neuron if
         touch_spike_time = np.where(image == 255)[0]
-        touch_spike_idx = np.ones(touch_spike_time.shape, dtype=np.int64) * self.sensor_size[0]
+        touch_spike_idx = (
+            np.ones(touch_spike_time.shape, dtype=np.int64) * self.sensor_size[0]
+        )
 
         # Combine all spike times and ids together
         spike_time = np.concatenate((on_spike_time, off_spike_time, touch_spike_time))
@@ -156,7 +169,9 @@ class SMNIST(Dataset):
             spike_time[1::2] = double_spike_time + 1
 
         # stack and add artificial polarity of 1
-        events = np.vstack((spike_time * self.dt, spike_idx, np.ones(spike_idx.shape[0]))).T
+        events = np.vstack(
+            (spike_time * self.dt, spike_idx, np.ones(spike_idx.shape[0]))
+        ).T
         target = self.label_data[index]
 
         if self.transform is not None:
@@ -171,4 +186,5 @@ class SMNIST(Dataset):
     def download(self):
         for f in [self.images_file, self.labels_file]:
             download_and_extract_archive(
-                self.base_url + f + ".gz", self.location_on_system, filename=f + ".gz")
+                self.base_url + f + ".gz", self.location_on_system, filename=f + ".gz"
+            )

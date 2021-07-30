@@ -19,7 +19,7 @@ class Compose:
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         for t in self.transforms:
-            events, images = t(
+            events, images, sensor_size = t(
                 events=events,
                 images=images,
                 sensor_size=sensor_size,
@@ -27,7 +27,7 @@ class Compose:
                 multi_image=multi_image,
             )
         if multi_image and images.all() != None:
-            return events, images
+            return events, images, sensor_size
         else:
             return events
 
@@ -87,7 +87,7 @@ class Denoise:
             ordering=ordering,
             filter_time=self.filter_time,
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class DropEvent:
@@ -109,7 +109,7 @@ class DropEvent:
         events = functional.drop_event_numpy(
             events, self.drop_probability, self.random_drop_probability
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class DropPixel:
@@ -140,7 +140,7 @@ class DropPixel:
         events = functional.drop_pixel_numpy(
             events=events, ordering=ordering, coordinates=self.coordinates,
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class Downsample:
@@ -162,10 +162,10 @@ class Downsample:
         events = functional.time_skew_numpy(
             events, ordering, coefficient=self.time_factor
         )
-        events = functional.spatial_resize_numpy(
+        events, sensor_size = functional.spatial_resize_numpy(
             events, sensor_size, ordering, spatial_factor=self.spatial_factor
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class FlipLR:
@@ -206,7 +206,7 @@ class FlipPolarity:
         events = functional.flip_polarity_numpy(
             events=events, ordering=ordering, flip_probability=self.flip_probability
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class FlipUD:
@@ -233,12 +233,34 @@ class FlipUD:
         )
 
 
+class NumpyAsType:
+    """
+    Change dtype of numpy ndarray to custom dtype.
+    
+    Parameters: 
+        dtype: data type that the array should be cast to
+    """
+
+    def __init__(self, dtype):
+        self.dtype = dtype
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        events = events.astype(self.dtype)
+
+        if images is not None:
+            images = images.astype(self.dtype)
+
+        return events, images, sensor_size
+
+
 class RefractoryPeriod:
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
 
         .. math::
             t_n - t_{n-1} > t_{refrac}
+    
+    for each pixel.
 
     Parameters:
         refractory_period (float): refractory period for each pixel in time unit
@@ -251,7 +273,7 @@ class RefractoryPeriod:
         events = functional.refractory_period_numpy(
             events, sensor_size, ordering, self.refractory_period
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class SpatialJitter:
@@ -296,7 +318,7 @@ class SpatialJitter:
             integer_jitter=self.integer_jitter,
             clip_outliers=self.clip_outliers,
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class SpatioTemporalTransform:
@@ -326,7 +348,7 @@ class SpatioTemporalTransform:
             self.temporal_transform,
             self.roll,
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class TimeJitter:
@@ -361,7 +383,7 @@ class TimeJitter:
             self.clip_negative,
             self.sort_timestamps,
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class TimeReversal:
@@ -416,7 +438,7 @@ class TimeSkew:
         events = functional.time_skew_numpy(
             events, ordering, self.coefficient, self.offset, self.integer_time
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class UniformNoise:
@@ -446,7 +468,7 @@ class UniformNoise:
             self.scaling_factor_to_micro_sec,
             self.noise_density,
         )
-        return events, images
+        return events, images, sensor_size
 
 
 class ToAveragedTimesurface:
@@ -563,7 +585,7 @@ class ToFrame:
             include_incomplete=self.include_incomplete,
             merge_polarities=self.merge_polarities,
         )
-        return frames, images
+        return frames, images, sensor_size
 
 
 class ToSparseTensor:
@@ -591,7 +613,7 @@ class ToSparseTensor:
             )
         else:
             raise NotImplementedError
-        return tensor, images
+        return tensor, images, sensor_size
 
 
 class ToTimesurface:
@@ -626,7 +648,7 @@ class ToTimesurface:
             self.decay,
             self.merge_polarities,
         )
-        return surfaces, images
+        return surfaces, images, sensor_size
 
 
 class ToVoxelGrid:
@@ -639,7 +661,7 @@ class ToVoxelGrid:
         volume = functional.to_voxel_grid_numpy(
             events, sensor_size, ordering, self.n_time_bins
         )
-        return volume, images
+        return volume, images, sensor_size
 
 
 class Repeat:
@@ -660,16 +682,3 @@ class ToOneHotEncoding:
 
     def __call__(self, target):
         return np.eye(self.n_classes)[target]
-
-
-class NumpyAsType:
-    def __init__(self, cast_to):
-        self.cast_to = cast_to
-
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = events.astype(self.cast_to)
-
-        if images is not None:
-            images = images.astype(self.cast_to)
-
-        return events, images

@@ -46,4 +46,4 @@ def flip_ud_numpy(
 
         events[:, y_loc] = sensor_size[1] - 1 - events[:, y_loc]
 
-    return events, images
+    return events, images, sensor_size
