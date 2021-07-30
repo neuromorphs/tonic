@@ -24,6 +24,8 @@ class SMNIST(Dataset):
                                                 otherwise testing subset.
         duplicate (bool):                       If True, emits two spikes
                                                 per threshold crossing
+        num_neurons (integer):                  How many neurons to use to encode 
+                                                thresholds(must be odd)
         dt (float):                             Duration(in microseconds)
                                                 of each timestep
         download (bool):                        Choose to download data or
@@ -47,7 +49,6 @@ class SMNIST(Dataset):
     train_labels_file = "train-labels-idx1-ubyte"
     test_images_file = "t10k-images-idx3-ubyte"
     test_labels_file = "t10k-labels-idx1-ubyte"
-    sensor_size = (99,)
     ordering = "txp"
 
     classes = [
@@ -68,6 +69,7 @@ class SMNIST(Dataset):
         save_to,
         train=True,
         duplicate=True,
+        num_neurons=99,
         dt=1000.0,
         download=True,
         transform=None,
@@ -79,7 +81,11 @@ class SMNIST(Dataset):
         self.location_on_system = os.path.join(save_to, "smnist")
         self.train = train
         self.duplicate = duplicate
+        self.sensor_size = (num_neurons,)
         self.dt = dt
+
+        if (num_neurons % 2) == 0:
+            raise Exception("Number of neurons must be odd")
 
         self.images_file = self.train_images_file if train else self.test_images_file
         self.labels_file = self.train_labels_file if train else self.test_labels_file
