@@ -37,7 +37,7 @@ def spatial_resize_numpy(
     ]
 
     if integer_coordinates:
-        events[:, x_index] = events[:, x_index].round()
-        events[:, y_index] = events[:, y_index].round()
+        events[:, x_index] = np.floor(events[:, x_index])
+        events[:, y_index] = np.floor(events[:, y_index])
 
     return events, sensor_size

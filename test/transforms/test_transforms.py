@@ -106,10 +106,10 @@ class TestTransforms:
 
         assert np.array_equal(orig_events[:, t_index] * time_factor, events[:, t_index])
         assert np.array_equal(
-            orig_events[:, x_index] * spatial_factor, events[:, x_index]
+            np.floor(orig_events[:, x_index] * spatial_factor), events[:, x_index]
         )
         assert np.array_equal(
-            orig_events[:, y_index] * spatial_factor, events[:, y_index]
+            np.floor(orig_events[:, y_index] * spatial_factor), events[:, y_index]
         )
 
     @pytest.mark.parametrize(
