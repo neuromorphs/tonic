@@ -502,4 +502,4 @@ class TestTransforms:
             multi_image=is_multi_image,
         )
 
-        assert np.min(events[:, t_index]) >= 0
+        assert np.min(events[:, t_index]) == 0
