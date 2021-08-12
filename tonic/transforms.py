@@ -623,6 +623,7 @@ class ToTimesurface:
 
     Parameters:
         surface_dimensions (int, int): width does not have to be equal to height, however both numbers have to be odd.
+            if surface_dimensions is None: the time surface is defined globally, on the whole sensor grid.
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
@@ -631,8 +632,11 @@ class ToTimesurface:
     def __init__(
         self, surface_dimensions=(7, 7), tau=5e3, decay="lin", merge_polarities=False
     ):
-        assert len(surface_dimensions) == 2
-        assert surface_dimensions[0] % 2 == 1 and surface_dimensions[1] % 2 == 1
+        if surface_dimensions:
+            assert len(surface_dimensions) == 2
+            assert surface_dimensions[0] % 2 == 1 and surface_dimensions[1] % 2 == 1
+        else:
+            pass
         self.surface_dimensions = surface_dimensions
         self.tau = tau
         self.decay = decay

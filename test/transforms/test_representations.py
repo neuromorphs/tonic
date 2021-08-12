@@ -95,7 +95,7 @@ class TestRepresentations:
 
     @pytest.mark.parametrize(
         "ordering, surface_dimensions, tau, merge_polarities",
-        [("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False)],
+        [("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False), ("txyp", None, 1e4, False)],
     )
     def test_representation_time_surface(
         self, ordering, surface_dimensions, tau, merge_polarities
@@ -123,7 +123,10 @@ class TestRepresentations:
 
         assert surfaces.shape[0] == len(orig_events)
         assert surfaces.shape[1] == 1 if merge_polarities else 2
-        assert surfaces.shape[2:] == surface_dimensions
+        if surface_dimensions:
+            assert surfaces.shape[2:] == surface_dimensions
+        else:
+            assert surfaces.shape[2:] == sensor_size
 
     @pytest.mark.parametrize("ordering, n_time_bins", [("xytp", 10), ("typx", 1)])
     def test_representation_voxel_grid(self, ordering, n_time_bins):
