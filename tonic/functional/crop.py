@@ -12,17 +12,10 @@ def crop_numpy(
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        images: ndarray of these possible shapes:
-                - [num_images, height, width, num_channels]
-                - [height, width, num_channels]
-                - [num_images, height, width]
-                - [height, width]
         sensor_size: size of the sensor that was used [W,H]
         ordering: ordering of the event tuple inside of events. This function requires 'x'
                  and 'y' to be in the ordering
         target_size: size of the sensor that was used [W',H']
-        multi_image: Fix whether or not the first dimension of images is
-                    num_images
 
     Returns:
         events - events within the crop box

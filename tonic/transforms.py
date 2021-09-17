@@ -68,19 +68,18 @@ class Denoise:
         filter_time (float): maximum temporal distance to next event, otherwise dropped.
                     Lower values will mean higher constraints, therefore less events.
     """
+    ordering: str
     filter_time: float = 10000
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.denoise_numpy(
+    def __call__(self, events):
+        return functional.denoise_numpy(
             events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
+            ordering=self.ordering,
             filter_time=self.filter_time,
         )
-        return events, images, sensor_size
 
 
-# @dataclass
+@dataclass
 class DropEvent:
     """Randomly drops events with drop_probability.
 
@@ -89,21 +88,17 @@ class DropEvent:
         random_drop_probability (bool): randomize the dropout probability
                                  between 0 and drop_probability.
     """
+    ordering: str
+    drop_probability: float = 0.5
+    random_drop_probability: bool = False
 
-    def __init__(
-        self, drop_probability: float = 0.5, random_drop_probability: bool = False
-    ):
-        self.drop_probability = drop_probability
-        self.random_drop_probability = random_drop_probability
-
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        events = functional.drop_event_numpy(
+    def __call__(self, events):
+        return functional.drop_event_numpy(
             events, self.drop_probability, self.random_drop_probability
         )
-        return events, images, sensor_size
 
 
-# @dataclass
+@dataclass
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
     list of x/y coordinates can be passed directly. Alternatively, a cutoff frequency for each pixel can be defined
@@ -113,12 +108,11 @@ class DropPixel:
     Parameters:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
     """
+    ordering: str
+    coordinates: Optional = None
+    hot_pixel_frequency: Optional = None
 
-    def __init__(self, coordinates=None, hot_pixel_frequency=None):
-        self.coordinates = coordinates
-        self.hot_pixel_frequency = hot_pixel_frequency
-
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         if self.hot_pixel_frequency:
             self.coordinates = functional.identify_hot_pixel(
                 events=events,
@@ -129,13 +123,12 @@ class DropPixel:
 
         print(f"Filtered {len(self.coordinates)} hot pixels.")
 
-        events = functional.drop_pixel_numpy(
+        return functional.drop_pixel_numpy(
             events=events, ordering=ordering, coordinates=self.coordinates,
         )
-        return events, images, sensor_size
 
 
-# @dataclass
+@dataclass
 class Downsample:
     """Multiplies timestamps and spatial pixel coordinates with separate factors.
     Useful when the native temporal and/or spatial resolution of the original sensor is too
@@ -151,14 +144,14 @@ class Downsample:
         self.time_factor = time_factor
         self.spatial_factor = spatial_factor
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.time_skew_numpy(
             events, ordering, coefficient=self.time_factor
         )
         events, sensor_size = functional.spatial_resize_numpy(
             events, sensor_size, ordering, spatial_factor=self.spatial_factor, integer_coordinates=True
         )
-        return events, images, sensor_size
+
 
     def __repr__(self):
         return self.__class__.__name__ + f'(time_factor={self.time_factor}, spatial_factor={self.spatial_factor})'
@@ -177,7 +170,7 @@ class FlipLR:
     def __init__(self, flip_probability: float = 0.5):
         self.flip_probability = flip_probability
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         return functional.flip_lr_numpy(
             events=events,
             sensor_size=sensor_size,
@@ -200,11 +193,11 @@ class FlipPolarity:
     def __init__(self, flip_probability: float = 0.5):
         self.flip_probability = flip_probability
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.flip_polarity_numpy(
             events=events, ordering=ordering, flip_probability=self.flip_probability
         )
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -221,7 +214,7 @@ class FlipUD:
     def __init__(self, flip_probability: float = 0.5):
         self.flip_probability = flip_probability
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         return functional.flip_ud_numpy(
             events=events,
             sensor_size=sensor_size,
@@ -244,13 +237,13 @@ class NumpyAsType:
     def __init__(self, dtype):
         self.dtype = dtype
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = events.astype(self.dtype)
 
         if images is not None:
             images = images.astype(self.dtype)
 
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -270,11 +263,11 @@ class RefractoryPeriod:
     def __init__(self, refractory_period: float):
         self.refractory_period = refractory_period
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.refractory_period_numpy(
             events, sensor_size, ordering, self.refractory_period
         )
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -309,7 +302,7 @@ class SpatialJitter:
         self.integer_jitter = integer_jitter
         self.clip_outliers = clip_outliers
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.spatial_jitter_numpy(
             events=events,
             sensor_size=sensor_size,
@@ -320,7 +313,7 @@ class SpatialJitter:
             integer_jitter=self.integer_jitter,
             clip_outliers=self.clip_outliers,
         )
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -342,7 +335,7 @@ class SpatioTemporalTransform:
         self.temporal_transform = temporal_transform
         self.roll = roll
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.st_transform(
             events,
             sensor_size,
@@ -351,7 +344,7 @@ class SpatioTemporalTransform:
             self.temporal_transform,
             self.roll,
         )
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -378,7 +371,7 @@ class TimeJitter:
         self.clip_negative = clip_negative
         self.sort_timestamps = sort_timestamps
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.time_jitter_numpy(
             events,
             ordering,
@@ -387,7 +380,7 @@ class TimeJitter:
             self.clip_negative,
             self.sort_timestamps,
         )
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -406,7 +399,7 @@ class TimeReversal:
     def __init__(self, flip_probability: float = 0.5):
         self.flip_probability = flip_probability
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         return functional.time_reversal_numpy(
             events=events,
             sensor_size=sensor_size,
@@ -440,11 +433,11 @@ class TimeSkew:
         self.offset = offset
         self.integer_time = integer_time
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.time_skew_numpy(
             events, ordering, self.coefficient, self.offset, self.integer_time
         )
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -467,7 +460,7 @@ class UniformNoise:
         self.scaling_factor_to_micro_sec = scaling_factor_to_micro_sec
         self.noise_density = noise_density
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         events = functional.uniform_noise_numpy(
             events,
             sensor_size,
@@ -475,7 +468,7 @@ class UniformNoise:
             self.scaling_factor_to_micro_sec,
             self.noise_density,
         )
-        return events, images, sensor_size
+
 
 
 # @dataclass
@@ -510,7 +503,7 @@ class ToAveragedTimesurface:
         self.decay = decay
         self.merge_polarities = merge_polarities
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         surfaces = functional.to_averaged_timesurface(
             events,
             sensor_size,
@@ -581,7 +574,7 @@ class ToFrame:
         self.include_incomplete = include_incomplete
         self.merge_polarities = merge_polarities
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         frames = functional.to_frame_numpy(
             events=events,
             sensor_size=sensor_size,
@@ -606,7 +599,7 @@ class ToSparseTensor:
         self.merge_polarities = merge_polarities
         self.type = type
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         if self.type == "pytorch" or "pt" or "torch":
             tensor = functional.to_sparse_tensor_pytorch(
                 events=events,
@@ -653,7 +646,7 @@ class ToTimesurface:
         self.decay = decay
         self.merge_polarities = merge_polarities
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         surfaces = functional.to_timesurface_numpy(
             events,
             sensor_size,
@@ -673,7 +666,7 @@ class ToVoxelGrid:
     def __init__(self, n_time_bins):
         self.n_time_bins = n_time_bins
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         volume = functional.to_voxel_grid_numpy(
             events, sensor_size, ordering, self.n_time_bins
         )

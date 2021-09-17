@@ -26,6 +26,28 @@ class TestTransforms:
         ), "Cropping needs to map the events into the new space"
 
 
+    @pytest.mark.parametrize("ordering, filter_time", [("xytp", 1000), ("typx", 500)])
+    def test_transform_denoise(self, ordering, filter_time):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+
+        transform = transforms.Denoise(filter_time=filter_time, ordering=ordering)
+
+        events = transform(events=orig_events.copy(),)
+
+        assert len(events) > 0, "Not all events should be filtered"
+        assert len(events) < len(
+            orig_events
+        ), "Result should be fewer events than original event stream"
+        assert np.isin(events, orig_events).all(), (
+            "Denoising should not add additional events that were not present in"
+            " original event stream"
+        )
+
     @pytest.mark.parametrize(
         "ordering, drop_probability, random_drop_probability",
         [("xytp", 0.2, False), ("typx", 0.5, True)],
@@ -45,15 +67,10 @@ class TestTransforms:
         transform = transforms.DropEvent(
             drop_probability=drop_probability,
             random_drop_probability=random_drop_probability,
+            ordering=ordering,
         )
 
-        events, images, sensor_size = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
-        )
+        events = transform(events=orig_events.copy())
 
         if random_drop_probability:
             assert events.shape[0] >= (1 - drop_probability) * orig_events.shape[0], (
@@ -71,6 +88,7 @@ class TestTransforms:
             np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
         ), "Event dropout should maintain temporal order."
 
+        
     @pytest.mark.parametrize(
         "ordering, time_factor, spatial_factor", [("xytp", 1, 0.25), ("typx", 1e-3, 1)]
     )
@@ -84,16 +102,12 @@ class TestTransforms:
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
-        transform = transforms.Downsample(
+        transform = transforms.Downsample(ordering=ordering,
             time_factor=time_factor, spatial_factor=spatial_factor
         )
 
-        events, images, sensor_size = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+        events = transform(
+            events=orig_events.copy()
         )
 
         assert np.array_equal(orig_events[:, t_index] * time_factor, events[:, t_index])
@@ -119,7 +133,7 @@ class TestTransforms:
 
         transform = transforms.FlipLR(flip_probability=flip_probability)
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -146,7 +160,7 @@ class TestTransforms:
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.FlipPolarity(flip_probability=flip_probability)
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -179,7 +193,7 @@ class TestTransforms:
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.FlipUD(flip_probability=flip_probability)
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -192,34 +206,6 @@ class TestTransforms:
         ), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
-        )
-
-    @pytest.mark.parametrize("ordering, filter_time", [("xytp", 1000), ("typx", 500)])
-    def test_transform_denoise(self, ordering, filter_time):
-        (
-            orig_events,
-            orig_images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-
-        transform = transforms.Denoise(filter_time=filter_time)
-
-        events, images, sensor_size = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
-        )
-
-        assert len(events) > 0, "Not all events should be filtered"
-        assert len(events) < len(
-            orig_events
-        ), "Result should be fewer events than original event stream"
-        assert np.isin(events, orig_events).all(), (
-            "Denoising should not add additional events that were not present in"
-            " original event stream"
         )
 
     @pytest.mark.parametrize(
@@ -235,7 +221,7 @@ class TestTransforms:
 
         transform = transforms.RefractoryPeriod(refractory_period=refractory_period)
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -282,7 +268,7 @@ class TestTransforms:
             clip_outliers=clip_outliers,
         )
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -351,7 +337,7 @@ class TestTransforms:
             sort_timestamps=sort_timestamps,
         )
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -396,7 +382,7 @@ class TestTransforms:
 
         transform = transforms.TimeReversal(flip_probability=flip_probability,)
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -428,7 +414,7 @@ class TestTransforms:
             coefficient=coefficient, offset=offset, integer_time=integer_time,
         )
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,
@@ -463,7 +449,7 @@ class TestTransforms:
             scaling_factor_to_micro_sec=1000000, noise_density=1e-8,
         )
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
             images=orig_images.copy(),
             sensor_size=sensor_size,

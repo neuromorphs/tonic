@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def denoise_numpy(events, sensor_size, ordering, filter_time=10000):
+def denoise_numpy(events, ordering, filter_time=10000):
     """Drops events that are 'not sufficiently connected to other events in the recording.'
     In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
     of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to filter noisy recordings
@@ -9,7 +9,6 @@ def denoise_numpy(events, sensor_size, ordering, filter_time=10000):
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        sensor_size: size of the sensor that was used [W,H]
         ordering: ordering of the event tuple inside of events. This function requires 'x',
                   'y' and 't' to be in the ordering
         filter_time: maximum temporal distance to next event, otherwise dropped.
@@ -27,8 +26,8 @@ def denoise_numpy(events, sensor_size, ordering, filter_time=10000):
 
     events_copy = np.zeros(events.shape, dtype=events.dtype)
     copy_index = 0
-    width = int(sensor_size[0])
-    height = int(sensor_size[1])
+    width = int(events[:,x_index].max()+1)
+    height = int(events[:,y_index].max()+1)
     timestamp_memory = np.zeros((width, height), dtype=events.dtype) + filter_time
 
     for event in events:
