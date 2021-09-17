@@ -1,13 +1,10 @@
 import numpy as np
 
-from .utils import is_multi_image
-
 
 def crop_numpy(
-    events, sensor_size, ordering, target_size, images=None, multi_image=None,
+    events, sensor_size, ordering, target_size
 ):
     """Crops the sensor size to a smaller sensor.
-    Removes events outsize of the target sensor and maps
 
     x' = x - new_sensor_start_x
 
@@ -35,17 +32,11 @@ def crop_numpy(
     assert target_size[0] <= sensor_size[0] and target_size[1] <= sensor_size[1]
     assert "x" and "y" in ordering
 
-    if images is not None and multi_image is None:
-        multi_image = is_multi_image(images, sensor_size)
-
     x_start_ind = int(np.random.rand() * (sensor_size[0] - target_size[0]))
     y_start_ind = int(np.random.rand() * (sensor_size[1] - target_size[1]))
 
     x_end_ind = x_start_ind + target_size[0]
     y_end_ind = y_start_ind + target_size[1]
-
-    if images is not None:
-        images = images[..., y_start_ind:y_end_ind, x_start_ind:x_end_ind]
 
     x_loc = ordering.index("x")
     y_loc = ordering.index("y")
@@ -63,4 +54,4 @@ def crop_numpy(
 
     sensor_size = target_size
 
-    return events, images, sensor_size
+    return events

@@ -8,7 +8,7 @@ class TestTransforms:
     @pytest.mark.parametrize(
         "ordering, target_size", [("xytp", (50, 50)), ("typx", (10, 5))]
     )
-    def test_transform_crop(self, ordering, target_size):
+    def test_transform_random_crop(self, ordering, target_size):
         (
             orig_events,
             orig_images,
@@ -17,22 +17,14 @@ class TestTransforms:
         ) = utils.create_random_input_with_ordering(ordering)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
-        transform = transforms.Crop(target_size=target_size)
+        transform = transforms.RandomCrop(target_size=target_size, sensor_size=sensor_size, ordering=ordering)
 
-        events, images, sensor_size = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
-        )
+        events = transform(events=orig_events.copy())
 
         assert np.all(events[:, x_index]) < target_size[0] and np.all(
             events[:, y_index] < target_size[1]
         ), "Cropping needs to map the events into the new space"
-        assert (
-            images.shape[2] == target_size[0] and images.shape[1] == target_size[1]
-        ), "Cropping needs to map the images into the new space"
+
 
     @pytest.mark.parametrize(
         "ordering, drop_probability, random_drop_probability",

@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from . import functional
+from typing import Callable, Optional, Tuple
 
 
 class Compose:
@@ -17,32 +19,23 @@ class Compose:
     def __init__(self, transforms):
         self.transforms = transforms
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         for t in self.transforms:
-            events, images, sensor_size = t(
-                events=events,
-                images=images,
-                sensor_size=sensor_size,
-                ordering=ordering,
-                multi_image=multi_image,
-            )
-        if multi_image and images.all() != None:
-            return events, images, sensor_size
-        else:
-            return events
+            events = t(events)
+        return img
 
     def __repr__(self):
-        format_string = self.__class__.__name__ + "("
+        format_string = self.__class__.__name__ + '('
         for t in self.transforms:
-            format_string += "\n"
-            format_string += "    {0}".format(t)
-        format_string += "\n)"
+            format_string += '\n'
+            format_string += '    {0}'.format(t)
+        format_string += '\n)'
         return format_string
 
 
-class Crop:
-    """Crops the sensor size to a smaller sensor.
-    Removes events outsize of the target sensor and maps.
+@dataclass
+class RandomCrop:
+    """Crops the sensor size to a smaller sensor in a random location.
 
     x' = x - new_sensor_start_x
 
@@ -51,21 +44,20 @@ class Crop:
     Parameters:
         target_size: size of the sensor that was used [W',H']
     """
+    target_size: Tuple[int, int]
+    sensor_size: Tuple[int, int]
+    ordering: str
 
-    def __init__(self, target_size):
-        self.target_size = target_size
-
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+    def __call__(self, events):
         return functional.crop_numpy(
             events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            images=images,
-            multi_image=multi_image,
+            sensor_size=self.sensor_size,
+            ordering=self.ordering,
             target_size=self.target_size,
         )
 
 
+@dataclass
 class Denoise:
     """Drops events that are 'not sufficiently connected to other events in the recording.'
     In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
@@ -76,9 +68,7 @@ class Denoise:
         filter_time (float): maximum temporal distance to next event, otherwise dropped.
                     Lower values will mean higher constraints, therefore less events.
     """
-
-    def __init__(self, filter_time: float = 10000):
-        self.filter_time = filter_time
+    filter_time: float = 10000
 
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         events = functional.denoise_numpy(
@@ -90,6 +80,7 @@ class Denoise:
         return events, images, sensor_size
 
 
+# @dataclass
 class DropEvent:
     """Randomly drops events with drop_probability.
 
@@ -112,6 +103,7 @@ class DropEvent:
         return events, images, sensor_size
 
 
+# @dataclass
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
     list of x/y coordinates can be passed directly. Alternatively, a cutoff frequency for each pixel can be defined
@@ -143,6 +135,7 @@ class DropPixel:
         return events, images, sensor_size
 
 
+# @dataclass
 class Downsample:
     """Multiplies timestamps and spatial pixel coordinates with separate factors.
     Useful when the native temporal and/or spatial resolution of the original sensor is too
@@ -167,7 +160,11 @@ class Downsample:
         )
         return events, images, sensor_size
 
+    def __repr__(self):
+        return self.__class__.__name__ + f'(time_factor={self.time_factor}, spatial_factor={self.spatial_factor})'
 
+
+# @dataclass
 class FlipLR:
     """Flips events and images in x. Pixels map as:
 
@@ -191,6 +188,7 @@ class FlipLR:
         )
 
 
+# @dataclass
 class FlipPolarity:
     """Flips polarity of individual events with flip_probability.
     Changes polarities 1 to -1 and polarities [-1, 0] to 1
@@ -209,6 +207,7 @@ class FlipPolarity:
         return events, images, sensor_size
 
 
+# @dataclass
 class FlipUD:
     """
     Flips events and images in y. Pixels map as:
@@ -233,6 +232,7 @@ class FlipUD:
         )
 
 
+# @dataclass
 class NumpyAsType:
     """
     Change dtype of numpy ndarray to custom dtype.
@@ -253,6 +253,7 @@ class NumpyAsType:
         return events, images, sensor_size
 
 
+# @dataclass
 class RefractoryPeriod:
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
@@ -276,6 +277,7 @@ class RefractoryPeriod:
         return events, images, sensor_size
 
 
+# @dataclass
 class SpatialJitter:
     """Changes position for each pixel by drawing samples from a multivariate
     Gaussian distribution with the following properties:
@@ -321,6 +323,7 @@ class SpatialJitter:
         return events, images, sensor_size
 
 
+# @dataclass
 class SpatioTemporalTransform:
     """Transform all events spatial and temporal locations based on
     given spatial transform matrix and temporal transform vector.
@@ -351,6 +354,7 @@ class SpatioTemporalTransform:
         return events, images, sensor_size
 
 
+# @dataclass
 class TimeJitter:
     """Changes timestamp for each event by drawing samples from a Gaussian
     distribution and adding them to each timestamp.
@@ -386,6 +390,7 @@ class TimeJitter:
         return events, images, sensor_size
 
 
+# @dataclass
 class TimeReversal:
     """Temporal flip is defined as:
 
@@ -412,6 +417,7 @@ class TimeReversal:
         )
 
 
+# @dataclass
 class TimeSkew:
     """Skew all event timestamps according to a linear transform,
     potentially sampled from a distribution of acceptable functions.
@@ -441,6 +447,7 @@ class TimeSkew:
         return events, images, sensor_size
 
 
+# @dataclass
 class UniformNoise:
     """
     Introduces a fixed number of noise depending on sensor size and noise
@@ -471,6 +478,7 @@ class UniformNoise:
         return events, images, sensor_size
 
 
+# @dataclass
 class ToAveragedTimesurface:
     """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
@@ -517,6 +525,7 @@ class ToAveragedTimesurface:
         return surfaces, images
 
 
+# @dataclass
 class ToFrame:
     """Accumulate events to frames by slicing along constant time (time_window),
     constant number of events (spike_count) or constant number of frames (n_time_bins / n_event_bins).
@@ -588,6 +597,7 @@ class ToFrame:
         return frames, images, sensor_size
 
 
+# @dataclass
 class ToSparseTensor:
     """Turn event array (N,E) into sparse Tensor (B,T,W,H) if E is 4 (mostly event camera recordings),
     otherwise into sparse tensor (B,T,W) for mostly audio recordings."""
@@ -616,6 +626,7 @@ class ToSparseTensor:
         return tensor, images, sensor_size
 
 
+# @dataclass
 class ToTimesurface:
     """Representation that creates timesurfaces for each event in the recording. Modeled after the paper
     Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
@@ -655,6 +666,7 @@ class ToTimesurface:
         return surfaces, images, sensor_size
 
 
+# @dataclass
 class ToVoxelGrid:
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events."""
 
@@ -668,6 +680,7 @@ class ToVoxelGrid:
         return volume, images, sensor_size
 
 
+# @dataclass
 class Repeat:
     """Copies target n times. Useful to transform sample labels into sequences."""
 
@@ -678,6 +691,7 @@ class Repeat:
         return np.tile(np.expand_dims(target, 0), [self.repetitions, 1])
 
 
+# @dataclass
 class ToOneHotEncoding:
     """Transforms one or more targets into a one hot encoding scheme."""
 
