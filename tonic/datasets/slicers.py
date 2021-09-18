@@ -19,7 +19,7 @@ class Slicer(Protocol):
         """
         ...
 
-    def slice_with_meta(self, data: Any, metadata: Any) -> List[Any]:
+    def slice_with_metadata(self, data: Any, metadata: Any) -> List[Any]:
         """
         Slice the data using the metadata.
         Args:
