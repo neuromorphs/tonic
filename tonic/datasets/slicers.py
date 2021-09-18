@@ -52,8 +52,6 @@ class SliceByTime:
              |   window2      |
 
     Args:
-        xytp: np.ndarray
-            Structured array of events
         time_window: int
             Length of time for each xytp (ms)
         overlap: int
@@ -67,7 +65,7 @@ class SliceByTime:
 
     def slice(self, data: np.ndarray) -> List[np.ndarray]:
         metadata = self.get_slice_metadata(data)
-        return self.slice_with_metadata(metadata)
+        return self.slice_with_metadata(data, metadata)
 
     def get_slice_metadata(self, data: np.ndarray) -> List[Tuple[int, int]]:
         t = data["t"]
@@ -109,7 +107,7 @@ class SliceByEventCount:
 
     def slice(self, data: np.ndarray) -> List[np.ndarray]:
         metadata = self.get_slice_metadata(data)
-        return self.slice_with_metadata(metadata)
+        return self.slice_with_metadata(data, metadata)
 
     def get_slice_metadata(self, data: np.ndarray) -> List[Tuple[int, int]]:
         n_spk = len(data)
@@ -135,7 +133,7 @@ class SliceByEventCount:
 @dataclass
 class SliceAtIndices:
     """
-    Return xytp sliced into equal number of events specified by spike_count
+    Slices data at the specified indices
 
     Args:
         start_indices: (List[Int]): List of start indices
@@ -146,7 +144,7 @@ class SliceAtIndices:
 
     def slice(self, data: np.ndarray) -> List[np.ndarray]:
         metadata = self.get_slice_metadata(data)
-        return self.slice_with_metadata(metadata)
+        return self.slice_with_metadata(data, metadata)
 
     def get_slice_metadata(self, _: np.ndarray) -> List[Tuple[int, int]]:
         return list(zip(self.start_indices, self.end_indices))
@@ -154,6 +152,34 @@ class SliceAtIndices:
     @classmethod
     def slice_with_metadata(cls, data: np.ndarray, metadata: List[Tuple[int, int]]):
         return [data[start:end] for start, end in metadata]
+
+
+@dataclass
+class SliceAtTimePoints:
+    """
+    Slice the data at the specified time points
+
+    Args:
+        tw_start: (List[Int]): List of start times
+        tw_end: (List[Int]): List of end times
+    """
+    start_tw: np.ndarray
+    end_tw: np.ndarray
+
+    def slice(self, data: np.ndarray) -> List[np.ndarray]:
+        metadata = self.get_slice_metadata(data)
+        return self.slice_with_metadata(data, metadata)
+
+    def get_slice_metadata(self, data: np.ndarray) -> List[Tuple[int, int]]:
+        t = data["t"]
+        indices_start = np.searchsorted(t, self.start_tw)
+        indices_end = np.searchsorted(t, self.end_tw)
+        return list(zip(indices_start, indices_end))
+
+    @classmethod
+    def slice_with_metadata(cls, data: np.ndarray, metadata: List[Tuple[int, int]]):
+        return [data[start:end] for start, end in metadata]
+
 
 ########################### Functional ###########################
 
@@ -201,9 +227,9 @@ def slice_by_count(xytp: np.ndarray, spike_count: int, overlap: int = 0, include
     return slicer.slice(xytp)
 
 
-def slice_by_indices(xytp: np.ndarray, start_indices, end_indices):
+def slice_at_indices(xytp: np.ndarray, start_indices, end_indices):
     """
-    Return xytp sliced into equal number of events specified by spike_count
+    Return xytp sliced at the specified indices
 
     Args:
     -----
@@ -215,4 +241,21 @@ def slice_by_indices(xytp: np.ndarray, start_indices, end_indices):
     slices (np.ndarray): Data slices
     """
     slicer = SliceAtIndices(start_indices=start_indices, end_indices=end_indices)
+    return slicer.slice(xytp)
+
+
+def slice_at_time_points(xytp: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray) -> List[np.ndarray]:
+    """
+    Return xytp sliced at the specified time windows
+
+    Args:
+    -----
+        xytp (np.ndarray):  Structured array of events
+        start_tw: (np.ndarray): List of start time points
+        end_tw: (np.ndarray): List of end time points
+    Returns:
+    --------
+    slices (np.ndarray): Data slices
+    """
+    slicer = SliceAtTimePoints(start_tw=start_tw, end_tw=end_tw)
     return slicer.slice(xytp)
