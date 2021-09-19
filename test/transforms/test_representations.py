@@ -43,6 +43,8 @@ class TestRepresentations:
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToFrame(
+            ordering=ordering,
+            sensor_size=sensor_size,
             time_window=time_window,
             spike_count=spike_count,
             n_time_bins=n_time_bins,
@@ -52,12 +54,8 @@ class TestRepresentations:
             merge_polarities=merge_polarities,
         )
 
-        frames, images, sensor_size = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+        frames = transform(
+            events=orig_events.copy()
         )
 
         if time_window is not None:
@@ -108,17 +106,15 @@ class TestRepresentations:
         ) = utils.create_random_input_with_ordering(ordering)
 
         transform = transforms.ToTimesurface(
+            ordering=ordering,
+            sensor_size=sensor_size,
             surface_dimensions=surface_dimensions,
             tau=tau,
             merge_polarities=merge_polarities,
         )
 
-        surfaces, images, sensor_size = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+        surfaces = transform(
+            events=orig_events.copy()
         )
 
         assert surfaces.shape[0] == len(orig_events)
@@ -137,13 +133,9 @@ class TestRepresentations:
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
 
-        transform = transforms.ToVoxelGrid(n_time_bins=n_time_bins)
+        transform = transforms.ToVoxelGrid(ordering=ordering, sensor_size=sensor_size,n_time_bins=n_time_bins)
 
-        volumes, images, sensor_size = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+        volumes = transform(
+            events=orig_events.copy()
         )
         assert volumes.shape == (n_time_bins, *sensor_size[::-1])
