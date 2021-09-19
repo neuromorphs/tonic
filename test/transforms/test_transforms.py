@@ -103,7 +103,7 @@ class TestTransforms:
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.Downsample(ordering=ordering,
-            time_factor=time_factor, spatial_factor=spatial_factor
+            time_factor=time_factor, spatial_factor=spatial_factor, sensor_size=sensor_size
         )
 
         events = transform(
@@ -131,14 +131,10 @@ class TestTransforms:
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
-        transform = transforms.FlipLR(flip_probability=flip_probability)
+        transform = transforms.RandomFlipLR(flip_probability=flip_probability, ordering=ordering, sensor_size=sensor_size)
 
         events = transform(
             events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
 
         assert (
@@ -158,14 +154,10 @@ class TestTransforms:
         ) = utils.create_random_input_with_ordering(ordering)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
-        transform = transforms.FlipPolarity(flip_probability=flip_probability)
+        transform = transforms.RandomFlipPolarity(ordering=ordering, flip_probability=flip_probability)
 
         events = transform(
             events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
 
         if flip_probability == 1:
@@ -191,16 +183,11 @@ class TestTransforms:
         ) = utils.create_random_input_with_ordering(ordering)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
-        transform = transforms.FlipUD(flip_probability=flip_probability)
+        transform = transforms.RandomFlipUD(flip_probability=flip_probability, ordering=ordering, sensor_size=sensor_size)
 
         events = transform(
             events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
-
         assert np.array_equal(
             (sensor_size[1] - 1) - orig_events[:, y_index], events[:, y_index]
         ), (

@@ -13,14 +13,4 @@ def flip_polarity_numpy(events, flip_probability=0.5, ordering=None):
     Returns:
         augmented events - returns every event with p' = -p at flip_probability or p' = p at 1 - flip_probability
     """
-    assert "p" in ordering
 
-    p_loc = ordering.index("p")
-
-    flips = np.ones(len(events))
-    probs = np.random.rand(len(events))
-    flips[probs < flip_probability] = -1
-
-    events[:, p_loc] = events[:, p_loc] * flips
-
-    return events

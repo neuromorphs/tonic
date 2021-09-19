@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from . import functional
 from typing import Callable, Optional, Tuple
+import numpy as np
 
 
 class Compose:
@@ -88,7 +89,6 @@ class DropEvent:
         random_drop_probability (bool): randomize the dropout probability
                                  between 0 and drop_probability.
     """
-    ordering: str
     drop_probability: float = 0.5
     random_drop_probability: bool = False
 
@@ -139,69 +139,67 @@ class Downsample:
         time_factor (float): value to multiply timestamps with. Default is 0.001.
         spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
     """
-
-    def __init__(self, time_factor: float = 1e-3, spatial_factor: float = 1):
-        self.time_factor = time_factor
-        self.spatial_factor = spatial_factor
+    ordering: str
+    sensor_size: Tuple[int, int]
+    time_factor: float = 1e-3
+    spatial_factor: float = 1
 
     def __call__(self, events):
         events = functional.time_skew_numpy(
-            events, ordering, coefficient=self.time_factor
+            events, self.ordering, coefficient=self.time_factor
         )
         events, sensor_size = functional.spatial_resize_numpy(
-            events, sensor_size, ordering, spatial_factor=self.spatial_factor, integer_coordinates=True
+            events, self.sensor_size, self.ordering, spatial_factor=self.spatial_factor, integer_coordinates=True
         )
+        return events
 
 
-    def __repr__(self):
-        return self.__class__.__name__ + f'(time_factor={self.time_factor}, spatial_factor={self.spatial_factor})'
-
-
-# @dataclass
-class FlipLR:
-    """Flips events and images in x. Pixels map as:
+@dataclass
+class RandomFlipLR:
+    """Flips events in x. Pixels map as:
 
         x' = width - x
 
     Parameters:
         flip_probability (float): probability of performing the flip
     """
-
-    def __init__(self, flip_probability: float = 0.5):
-        self.flip_probability = flip_probability
+    ordering: str
+    sensor_size: Tuple[int, int]
+    flip_probability: float = 0.5
 
     def __call__(self, events):
-        return functional.flip_lr_numpy(
+        events, sensor_size = functional.flip_lr_numpy(
             events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            images=images,
-            multi_image=multi_image,
+            sensor_size=self.sensor_size,
+            ordering=self.ordering,
             flip_probability=self.flip_probability,
         )
+        return events
 
 
-# @dataclass
-class FlipPolarity:
+@dataclass
+class RandomFlipPolarity:
     """Flips polarity of individual events with flip_probability.
     Changes polarities 1 to -1 and polarities [-1, 0] to 1
 
     Parameters:
         flip_probability (float): probability of flipping individual event polarities
     """
-
-    def __init__(self, flip_probability: float = 0.5):
-        self.flip_probability = flip_probability
+    ordering: str
+    flip_probability: float = 0.5
 
     def __call__(self, events):
-        events = functional.flip_polarity_numpy(
-            events=events, ordering=ordering, flip_probability=self.flip_probability
-        )
+        assert "p" in self.ordering
+        p_loc = self.ordering.index("p")
+        flips = np.ones(len(events))
+        probs = np.random.rand(len(events))
+        flips[probs < self.flip_probability] = -1
+        events[:, p_loc] = events[:, p_loc] * flips
+        return events
 
 
-
-# @dataclass
-class FlipUD:
+@dataclass
+class RandomFlipUD:
     """
     Flips events and images in y. Pixels map as:
 
@@ -210,19 +208,18 @@ class FlipUD:
     Parameters:
         flip_probability (float): probability of performing the flip
     """
-
-    def __init__(self, flip_probability: float = 0.5):
-        self.flip_probability = flip_probability
+    ordering: str
+    sensor_size: Tuple[int, int]
+    flip_probability: float = 0.5
 
     def __call__(self, events):
-        return functional.flip_ud_numpy(
+        events, sensor_size = functional.flip_ud_numpy(
             events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            images=images,
-            multi_image=multi_image,
+            sensor_size=self.sensor_size,
+            ordering=self.ordering,
             flip_probability=self.flip_probability,
         )
+        return events
 
 
 # @dataclass
