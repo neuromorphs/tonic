@@ -26,11 +26,11 @@ class Compose:
         return img
 
     def __repr__(self):
-        format_string = self.__class__.__name__ + '('
+        format_string = self.__class__.__name__ + "("
         for t in self.transforms:
-            format_string += '\n'
-            format_string += '    {0}'.format(t)
-        format_string += '\n)'
+            format_string += "\n"
+            format_string += "    {0}".format(t)
+        format_string += "\n)"
         return format_string
 
 
@@ -45,6 +45,7 @@ class RandomCrop:
     Parameters:
         target_size: size of the sensor that was used [W',H']
     """
+
     target_size: Tuple[int, int]
     sensor_size: Tuple[int, int]
     ordering: str
@@ -69,14 +70,13 @@ class Denoise:
         filter_time (float): maximum temporal distance to next event, otherwise dropped.
                     Lower values will mean higher constraints, therefore less events.
     """
+
     ordering: str
     filter_time: float = 10000
 
     def __call__(self, events):
         return functional.denoise_numpy(
-            events=events,
-            ordering=self.ordering,
-            filter_time=self.filter_time,
+            events=events, ordering=self.ordering, filter_time=self.filter_time,
         )
 
 
@@ -89,6 +89,7 @@ class DropEvent:
         random_drop_probability (bool): randomize the dropout probability
                                  between 0 and drop_probability.
     """
+
     drop_probability: float = 0.5
     random_drop_probability: bool = False
 
@@ -108,6 +109,7 @@ class DropPixel:
     Parameters:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
     """
+
     ordering: str
     coordinates: Optional = None
     hot_pixel_frequency: Optional = None
@@ -139,6 +141,7 @@ class Downsample:
         time_factor (float): value to multiply timestamps with. Default is 0.001.
         spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
     """
+
     ordering: str
     sensor_size: Tuple[int, int]
     time_factor: float = 1e-3
@@ -149,7 +152,11 @@ class Downsample:
             events, self.ordering, coefficient=self.time_factor
         )
         events, sensor_size = functional.spatial_resize_numpy(
-            events, self.sensor_size, self.ordering, spatial_factor=self.spatial_factor, integer_coordinates=True
+            events,
+            self.sensor_size,
+            self.ordering,
+            spatial_factor=self.spatial_factor,
+            integer_coordinates=True,
         )
         return events
 
@@ -163,6 +170,7 @@ class RandomFlipLR:
     Parameters:
         flip_probability (float): probability of performing the flip
     """
+
     ordering: str
     sensor_size: Tuple[int, int]
     flip_probability: float = 0.5
@@ -185,6 +193,7 @@ class RandomFlipPolarity:
     Parameters:
         flip_probability (float): probability of flipping individual event polarities
     """
+
     ordering: str
     flip_probability: float = 0.5
 
@@ -208,6 +217,7 @@ class RandomFlipUD:
     Parameters:
         flip_probability (float): probability of performing the flip
     """
+
     ordering: str
     sensor_size: Tuple[int, int]
     flip_probability: float = 0.5
@@ -222,7 +232,7 @@ class RandomFlipUD:
         return events
 
 
-# @dataclass
+@dataclass
 class NumpyAsType:
     """
     Change dtype of numpy ndarray to custom dtype.
@@ -231,19 +241,13 @@ class NumpyAsType:
         dtype: data type that the array should be cast to
     """
 
-    def __init__(self, dtype):
-        self.dtype = dtype
+    dtype: np.dtype
 
     def __call__(self, events):
-        events = events.astype(self.dtype)
-
-        if images is not None:
-            images = images.astype(self.dtype)
+        return events.astype(self.dtype)
 
 
-
-
-# @dataclass
+@dataclass
 class RefractoryPeriod:
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
@@ -257,17 +261,16 @@ class RefractoryPeriod:
         refractory_period (float): refractory period for each pixel in time unit
     """
 
-    def __init__(self, refractory_period: float):
-        self.refractory_period = refractory_period
+    ordering: str
+    refractory_period: float
 
     def __call__(self, events):
-        events = functional.refractory_period_numpy(
-            events, sensor_size, ordering, self.refractory_period
+        return functional.refractory_period_numpy(
+            events, self.ordering, self.refractory_period
         )
 
 
-
-# @dataclass
+@dataclass
 class SpatialJitter:
     """Changes position for each pixel by drawing samples from a multivariate
     Gaussian distribution with the following properties:
@@ -285,25 +288,19 @@ class SpatialJitter:
         clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
-    def __init__(
-        self,
-        variance_x: float = 1,
-        variance_y: float = 1,
-        sigma_x_y: float = 0,
-        integer_jitter: bool = False,
-        clip_outliers: bool = False,
-    ):
-        self.variance_x = variance_x
-        self.variance_y = variance_y
-        self.sigma_x_y = sigma_x_y
-        self.integer_jitter = integer_jitter
-        self.clip_outliers = clip_outliers
+    ordering: str
+    sensor_size: Tuple[int, int]
+    variance_x: float = 1
+    variance_y: float = 1
+    sigma_x_y: float = 0
+    integer_jitter: bool = False
+    clip_outliers: bool = False
 
     def __call__(self, events):
-        events = functional.spatial_jitter_numpy(
+        return functional.spatial_jitter_numpy(
             events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
+            sensor_size=self.sensor_size,
+            ordering=self.ordering,
             variance_x=self.variance_x,
             variance_y=self.variance_y,
             sigma_x_y=self.sigma_x_y,
@@ -312,39 +309,7 @@ class SpatialJitter:
         )
 
 
-
-# @dataclass
-class SpatioTemporalTransform:
-    """Transform all events spatial and temporal locations based on
-    given spatial transform matrix and temporal transform vector.
-
-    Parameters:
-        spatial_transform: 3x3 matrix which can be used to perform rigid (translation and rotation),
-                           non-rigid (scaling and shearing), and non-affine transformations. Generic to user input.
-        temporal_transform: scale time between events and offset temporal location based on 2 member vector.
-                            Used as arguments to time_skew method.
-        roll: boolean input to determine if transformed events will be translated across sensor boundaries (True).
-              Otherwise, events will be clipped at sensor boundaries.
-    """
-
-    def __init__(self, spatial_transform, temporal_transform, roll=False):
-        self.spatial_transform = spatial_transform
-        self.temporal_transform = temporal_transform
-        self.roll = roll
-
-    def __call__(self, events):
-        events = functional.st_transform(
-            events,
-            sensor_size,
-            ordering,
-            self.spatial_transform,
-            self.temporal_transform,
-            self.roll,
-        )
-
-
-
-# @dataclass
+@dataclass
 class TimeJitter:
     """Changes timestamp for each event by drawing samples from a Gaussian
     distribution and adding them to each timestamp.
@@ -356,22 +321,16 @@ class TimeJitter:
         sort_timestamps (bool): sort the events by timestamps
     """
 
-    def __init__(
-        self,
-        std: float = 1,
-        integer_jitter: bool = False,
-        clip_negative: bool = False,
-        sort_timestamps: bool = False,
-    ):
-        self.std = std
-        self.integer_jitter = integer_jitter
-        self.clip_negative = clip_negative
-        self.sort_timestamps = sort_timestamps
+    ordering: str
+    std: float = 1
+    integer_jitter: bool = False
+    clip_negative: bool = False
+    sort_timestamps: bool = False
 
     def __call__(self, events):
-        events = functional.time_jitter_numpy(
+        return functional.time_jitter_numpy(
             events,
-            ordering,
+            self.ordering,
             self.std,
             self.integer_jitter,
             self.clip_negative,
@@ -379,9 +338,8 @@ class TimeJitter:
         )
 
 
-
-# @dataclass
-class TimeReversal:
+@dataclass
+class RandomTimeReversal:
     """Temporal flip is defined as:
 
         .. math::
@@ -393,21 +351,22 @@ class TimeReversal:
         flip_probability (float): probability of performing the flip
     """
 
-    def __init__(self, flip_probability: float = 0.5):
-        self.flip_probability = flip_probability
+    ordering: str
+    flip_probability: float = 0.5
 
     def __call__(self, events):
-        return functional.time_reversal_numpy(
-            events=events,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            images=images,
-            multi_image=multi_image,
-            flip_probability=self.flip_probability,
-        )
+        assert "t" and "p" in self.ordering
+
+        if np.random.rand() < self.flip_probability:
+            t_loc = self.ordering.index("t")
+            p_loc = self.ordering.index("p")
+
+            events[:, t_loc] = np.max(events[:, t_loc]) - events[:, t_loc]
+            events[:, p_loc] *= -1
+        return events
 
 
-# @dataclass
+@dataclass
 class TimeSkew:
     """Skew all event timestamps according to a linear transform,
     potentially sampled from a distribution of acceptable functions.
@@ -423,52 +382,47 @@ class TimeSkew:
                              nearest integer after skewing.
     """
 
-    def __init__(
-        self, coefficient: float, offset: float = 0, integer_time: bool = False
-    ):
-        self.coefficient = coefficient
-        self.offset = offset
-        self.integer_time = integer_time
+    ordering: str
+    coefficient: float
+    offset: float = 0
+    integer_time: bool = False
 
     def __call__(self, events):
-        events = functional.time_skew_numpy(
-            events, ordering, self.coefficient, self.offset, self.integer_time
+        return functional.time_skew_numpy(
+            events, self.ordering, self.coefficient, self.offset, self.integer_time
         )
 
 
-
-# @dataclass
+@dataclass
 class UniformNoise:
     """
-    Introduces a fixed number of noise depending on sensor size and noise
-    density factor, uniformly distributed across the focal plane and in time.
+    Introduces a fixed number of noise events that are uniformly distributed across all provided dimensions, e.g. x, y, t and p.
 
     Parameters:
-        scaling_factor_to_micro_sec: this is a scaling factor to get to micro
-                                     seconds from the time resolution used in the event stream,
-                                     as the noise time resolution is fixed to 1 micro second.
-        noise_density: A noise density of 1 will mean one noise event for every
-                       pixel of the sensor size for every micro second.
+        n_noise_events: number of events that are added to the sample.
     """
 
-    def __init__(
-        self, scaling_factor_to_micro_sec: float = 1, noise_density: float = 1e-8
-    ):
-        self.scaling_factor_to_micro_sec = scaling_factor_to_micro_sec
-        self.noise_density = noise_density
+    ordering: str
+    n_noise_events: int
 
     def __call__(self, events):
-        events = functional.uniform_noise_numpy(
-            events,
-            sensor_size,
-            ordering,
-            self.scaling_factor_to_micro_sec,
-            self.noise_density,
-        )
+        noise_events = []
+        for channel in self.ordering:
+            channel_index = self.ordering.index(channel)
+            event_channel = events[:, channel_index]
+            channel_samples = np.random.uniform(
+                low=event_channel.min(),
+                high=event_channel.max(),
+                size=self.n_noise_events,
+            )
+            noise_events.append(channel_samples)
+        noise_events = np.column_stack(noise_events)
+        events = np.concatenate((events, noise_events))
+        t_index = self.ordering.index("t")
+        return events[np.argsort(events[:, t_index]), :]
 
 
-
-# @dataclass
+@dataclass
 class ToAveragedTimesurface:
     """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
@@ -483,22 +437,12 @@ class ToAveragedTimesurface:
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
-    def __init__(
-        self,
-        cell_size=10,
-        surface_size=7,
-        temporal_window=5e5,
-        tau=5e3,
-        decay="lin",
-        merge_polarities=False,
-    ):
-        assert surface_size % 2 == 1
-        self.cell_size = cell_size
-        self.surface_size = surface_size
-        self.temporal_window = temporal_window
-        self.tau = tau
-        self.decay = decay
-        self.merge_polarities = merge_polarities
+    cell_size = 10
+    surface_size = 7
+    temporal_window = 5e5
+    tau = 5e3
+    decay = "lin"
+    merge_polarities = False
 
     def __call__(self, events):
         surfaces = functional.to_averaged_timesurface(

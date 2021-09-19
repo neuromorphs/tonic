@@ -67,7 +67,6 @@ class TestTransforms:
         transform = transforms.DropEvent(
             drop_probability=drop_probability,
             random_drop_probability=random_drop_probability,
-            ordering=ordering,
         )
 
         events = transform(events=orig_events.copy())
@@ -206,14 +205,10 @@ class TestTransforms:
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
 
-        transform = transforms.RefractoryPeriod(refractory_period=refractory_period)
+        transform = transforms.RefractoryPeriod(refractory_period=refractory_period, ordering=ordering)
 
         events = transform(
             events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
 
         assert len(events) > 0, "Not all events should be filtered"
@@ -248,6 +243,8 @@ class TestTransforms:
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.SpatialJitter(
+            ordering=ordering,
+            sensor_size=sensor_size,
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
@@ -257,10 +254,6 @@ class TestTransforms:
 
         events = transform(
             events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
 
         if not clip_outliers:
@@ -318,6 +311,7 @@ class TestTransforms:
             orig_events[:, t_index] = orig_events[:, t_index].round()
 
         transform = transforms.TimeJitter(
+            ordering=ordering,
             std=std,
             integer_jitter=integer_jitter,
             clip_negative=clip_negative,
@@ -325,11 +319,7 @@ class TestTransforms:
         )
 
         events = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+            events=orig_events.copy()
         )
 
         if clip_negative:
@@ -367,14 +357,10 @@ class TestTransforms:
 
         max_t = np.max(orig_events[:, t_index])
 
-        transform = transforms.TimeReversal(flip_probability=flip_probability,)
+        transform = transforms.RandomTimeReversal(flip_probability=flip_probability, ordering=ordering)
 
         events = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+            events=orig_events.copy()
         )
 
         same_time = np.isclose(max_t - original_t, events[0, t_index])
@@ -398,15 +384,11 @@ class TestTransforms:
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.TimeSkew(
-            coefficient=coefficient, offset=offset, integer_time=integer_time,
+            ordering=ordering, coefficient=coefficient, offset=offset, integer_time=integer_time,
         )
 
         events = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+            events=orig_events.copy()
         )
 
         assert len(events) == len(orig_events)
@@ -423,26 +405,26 @@ class TestTransforms:
 
             assert (events[:, t_index] != (events[:, t_index]).astype(int)).any()
 
-    @pytest.mark.parametrize("ordering", ["xytp", "typx"])
-    def test_transform_uniform_noise(self, ordering):
+    @pytest.mark.parametrize("ordering, n_noise_events", [("xytp", 100), ("typx", 0)])
+    def test_transform_uniform_noise(self, ordering, n_noise_events):
         (
             orig_events,
             orig_images,
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.UniformNoise(
-            scaling_factor_to_micro_sec=1000000, noise_density=1e-8,
+            n_noise_events=n_noise_events, ordering=ordering,
         )
 
         events = transform(
-            events=orig_events.copy(),
-            images=orig_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
+            events=orig_events.copy()
         )
 
-        assert len(events) > len(orig_events)
+        assert len(events) == len(orig_events)+n_noise_events
         assert np.isin(orig_events, events).all()
+        assert np.isclose(
+            np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+        ), "Event noise should maintain temporal order."
