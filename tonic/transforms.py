@@ -17,7 +17,7 @@ class Compose:
         >>> ])
     """
 
-    def __init__(self, transforms):
+    def __init__(self, transforms: Callable):
         self.transforms = transforms
 
     def __call__(self, events):
@@ -567,7 +567,7 @@ class ToDenseTensor:
     def __call__(self, events):
         tensor = ToSparseTensor(ordering=self.ordering, sensor_size=self.sensor_size, backend=self.backend, merge_polarities=self.merge_polarities)(events)
         if self.backend == "pytorch" or "pt" or "torch":
-            return tensor.coalesce().to_dense()
+            return tensor.to_dense()
             
 
 @dataclass

@@ -69,21 +69,28 @@ def pad_tensors(batch):
 
     """
     import torch
-
+    
     if not isinstance(batch[0][0], torch.Tensor):
         print(
             "tonic.utils.pad_tensors expects a PyTorch Tensor of events. Please use"
-            " ToSparseTensor or similar transform to convert the events."
+            " ToSparseTensor/ToDenseTensor or similar transform to convert the events."
         )
         return None, None
-    max_length = max([sample.size()[0] for sample, target in batch])
-
+    
     samples_output = []
     targets_output = []
-    for sample, target in batch:
-        sample.sparse_resize_(
-            (max_length, *sample.size()[1:]), sample.sparse_dim(), sample.dense_dim()
-        )
-        samples_output.append(sample)
-        targets_output.append(target)
-    return torch.stack(samples_output), torch.tensor(targets_output)
+    
+    if batch[0][0].is_sparse:
+        max_length = max([sample.size()[0] for sample, target in batch])
+        for sample, target in batch:
+            sample.sparse_resize_(
+                (max_length, *sample.size()[1:]), sample.sparse_dim(), sample.dense_dim()
+            )
+            samples_output.append(sample)
+            targets_output.append(target)  
+    else:
+        max_length = max([sample.shape[0] for sample, target in batch])
+        for sample, target in batch:
+            samples_output.append(torch.cat((sample, torch.zeros(max_length-sample.shape[0], *sample.shape[1:]))))
+            targets_output.append(target)
+    return torch.stack(samples_output, 1), torch.tensor(targets_output)

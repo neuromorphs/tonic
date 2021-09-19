@@ -91,6 +91,61 @@ class TestRepresentations:
         if merge_polarities:
             assert frames.shape[1] == 1
 
+            
+    @pytest.mark.parametrize(
+        "ordering, merge_polarities",
+        [("xytp", True), ("typx", False),],
+    )
+    def test_representation_sparse_tensor(self, ordering, merge_polarities):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        transform = transforms.ToSparseTensor(
+            ordering=ordering,
+            sensor_size=sensor_size,
+            merge_polarities=merge_polarities,
+        )
+
+        sparse_tensor = transform(events=orig_events.copy())
+
+        assert sparse_tensor.coalesce().values().sum() == orig_events.shape[0]
+        assert sparse_tensor.shape[0] == int(orig_events[:,t_index][-1] + 1)
+        assert sparse_tensor.shape[1] == 1 if merge_polarities else 2 
+        assert sparse_tensor.shape[2:] == sensor_size
+
+
+    @pytest.mark.parametrize(
+        "ordering, merge_polarities",
+        [("xytp", True), ("typx", False),],
+    )
+    def test_representation_dense_tensor(self, ordering, merge_polarities):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        transform = transforms.ToDenseTensor(
+            ordering=ordering,
+            sensor_size=sensor_size,
+            merge_polarities=merge_polarities,
+        )
+
+        tensor = transform(events=orig_events.copy())
+        
+        assert tensor.sum() == orig_events.shape[0]
+        assert tensor.shape[0] == int(orig_events[:,t_index][-1]) + 1
+        assert tensor.shape[1] == 1 if merge_polarities else 2 
+        assert tensor.shape[2:] == sensor_size
+        
+        
     @pytest.mark.parametrize(
         "ordering, surface_dimensions, tau, merge_polarities",
         [("xytp", (15, 15), 100, True), ("typx", (3, 3), 10, False), ("txyp", None, 1e4, False)],
