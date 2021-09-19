@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Iterable, List, Any
+
 from .slicers import Slicer
 
 
@@ -19,4 +20,9 @@ class SlicedDataset:
 
     def __getitem__(self, item) -> Any:
         dataset_index, slice_index = self.slice_dataset_map[item]
-        return self.slicer.slice_with_metadata(self.dataset[dataset_index], self.metadata[dataset_index])[slice_index]
+        data, label = self.dataset[dataset_index]
+        data_slice = self.slicer.slice_with_metadata(data, self.metadata[dataset_index])[slice_index]
+        return data_slice, label
+
+    def __len__(self):
+        return len(self.slice_dataset_map)

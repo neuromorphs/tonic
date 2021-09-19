@@ -59,7 +59,7 @@ class SliceByTime:
         include_incomplete: bool
             include incomplete slices ie potentially the last xytp
     """
-    time_window: float = 1.0
+    time_window: float
     overlap: float = 0.0
     include_incomplete: bool = False
 
@@ -102,8 +102,8 @@ class SliceByEventCount:
             include incomplete slices ie potentially the last xytp
     """
     spike_count: int
-    overlap: int
-    include_incomplete: bool
+    overlap: int = 0
+    include_incomplete: bool = False
 
     def slice(self, data: np.ndarray) -> List[np.ndarray]:
         metadata = self.get_slice_metadata(data)
