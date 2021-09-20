@@ -37,6 +37,20 @@ def load_from_cache(fname: Union[str, Path]) -> Tuple:
 
 @dataclass
 class CachedDataset:
+    """
+    CachedDataset caches the data samples for subsequent reads, thereby potentially improving data loading speeds.
+    This object is an iterator and can be used in place of the original dataset.
+
+    Args:
+        dataset:
+            Dataset to be cached
+        transform:
+            Transforms to be applied on the data
+        target_transform:
+            Transforms to be applied on the label
+        cache_path:
+            The preferred path where the cache will be written. Defaults to `./cache/`
+    """
     dataset: Iterable
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
