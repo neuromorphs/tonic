@@ -1,7 +1,8 @@
 import numpy as np
+from .utils import sensor_size_from_events
 
 
-def refractory_period_numpy(events, sensor_size, ordering, refractory_period=0.5):
+def refractory_period_numpy(events, ordering, refractory_period=0.5):
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
 
@@ -24,11 +25,13 @@ def refractory_period_numpy(events, sensor_size, ordering, refractory_period=0.5
     t_index = ordering.find("t")
     x_index = ordering.find("x")
     y_index = ordering.find("y")
+    
+    sensor_x, sensor_y = sensor_size_from_events(events, ordering)
 
     events_copy = np.zeros(events.shape, dtype=events.dtype)
     copy_index = 0
     timestamp_memory = (
-        np.zeros((sensor_size[0], sensor_size[1]), dtype=events.dtype)
+        np.zeros((sensor_x, sensor_y), dtype=events.dtype)
         - refractory_period
     )
 

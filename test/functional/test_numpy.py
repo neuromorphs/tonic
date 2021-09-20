@@ -15,12 +15,12 @@ class TestFunctionalNumpy:
             sensor_size,
             is_multi_image,
         ) = utils.create_random_input_with_ordering(ordering)
-        events, images, sensor_size = F.crop_numpy(
+        events =  F.crop_numpy(
             events,
-            images=images,
+            
             sensor_size=sensor_size,
             ordering=ordering,
-            multi_image=is_multi_image,
+            
             target_size=target_size,
         )
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
@@ -28,9 +28,7 @@ class TestFunctionalNumpy:
         assert np.all(events[:, x_index]) < target_size[0] and np.all(
             events[:, y_index] < target_size[1]
         ), "Cropping needs to map the events into the new space"
-        assert (
-            images.shape[2] == target_size[0] and images.shape[1] == target_size[1]
-        ), "Cropping needs to map the images into the new space"
+
 
     @pytest.mark.parametrize(
         "ordering, drop_probability, random_drop_probability",
@@ -66,81 +64,6 @@ class TestFunctionalNumpy:
             np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
         ), "Event dropout should maintain temporal order."
 
-    @pytest.mark.parametrize(
-        "ordering, flip_probability", [("xytp", 1.0), ("typx", 1.0)]
-    )
-    def testFlipLR(self, ordering, flip_probability):
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-        events, images, sensor_size = F.flip_lr_numpy(
-            orig_events.copy(),
-            images=images,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
-            flip_probability=flip_probability,
-        )
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
-        assert (
-            (sensor_size[0] - 1) - orig_events[:, x_index] == events[:, x_index]
-        ).all(), (
-            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x"
-        )
-
-    @pytest.mark.parametrize("ordering, flip_probability", [("xytp", 1.0), ("typx", 0)])
-    def testFlipPolarity(self, ordering, flip_probability):
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-
-        events = F.flip_polarity_numpy(
-            orig_events.copy(), ordering=ordering, flip_probability=flip_probability
-        )
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
-        if flip_probability == 1:
-            assert np.array_equal(orig_events[:, p_index] * -1, events[:, p_index]), (
-                "When flipping polarity with probability 1, all event polarities must"
-                " flip"
-            )
-        else:
-            assert np.array_equal(orig_events[:, p_index], events[:, p_index]), (
-                "When flipping polarity with probability 0, no event polarities must"
-                " flip"
-            )
-
-    @pytest.mark.parametrize(
-        "ordering, flip_probability", [("xytp", 1.0), ("typx", 1.0)]
-    )
-    def testFlipUD(self, ordering, flip_probability):
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-        events, images, sensor_size = F.flip_ud_numpy(
-            orig_events.copy(),
-            images=images,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
-            flip_probability=flip_probability,
-        )
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
-        assert np.array_equal(
-            (sensor_size[1] - 1) - orig_events[:, y_index], events[:, y_index]
-        ), (
-            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x"
-        )
 
     @pytest.mark.parametrize("ordering, filter_time", [("xytp", 1000), ("typx", 500)])
     def testDenoise(self, ordering, filter_time):
@@ -153,7 +76,6 @@ class TestFunctionalNumpy:
 
         events = F.denoise_numpy(
             orig_events,
-            sensor_size=sensor_size,
             ordering=ordering,
             filter_time=filter_time,
         )
@@ -258,7 +180,6 @@ class TestFunctionalNumpy:
 
         events = F.refractory_period_numpy(
             events=orig_events,
-            sensor_size=sensor_size,
             ordering=ordering,
             refractory_period=refractory_period,
         )
@@ -334,30 +255,6 @@ class TestFunctionalNumpy:
         else:
             assert len(events) < len(orig_events)
 
-    @pytest.mark.parametrize("ordering", ["xytp"])
-    def testStTransform(self, ordering):
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-
-        spatial_transform = np.array(((1, 0, 10), (0, 1, 10), (0, 0, 1)))
-        temporal_transform = np.array((2, 0))
-        events = F.st_transform(
-            orig_events.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            spatial_transform=spatial_transform,
-            temporal_transform=temporal_transform,
-            roll=False,
-        )
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
-
-        assert np.all(events[:, x_index]) < sensor_size[0] and np.all(
-            events[:, y_index] < sensor_size[1]
-        ), "Transformation does not map beyond sensor size"
 
     @pytest.mark.parametrize(
         "ordering, std, integer_jitter, clip_negative, sort_timestamps",
@@ -407,37 +304,6 @@ class TestFunctionalNumpy:
                     == (events[:, t_index] - orig_events[:, t_index]).astype(int)
                 ).all()
 
-    @pytest.mark.parametrize(
-        "ordering, flip_probability", [("xytp", 1000), ("typx", 50)]
-    )
-    def testTimeReversal(self, ordering, flip_probability):
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
-
-        original_t = orig_events[0, t_index]
-        original_p = orig_events[0, p_index]
-
-        max_t = np.max(orig_events[:, t_index])
-
-        events, images, sensor_size = F.time_reversal_numpy(
-            orig_events,
-            images=images,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
-            flip_probability=flip_probability,
-        )
-        same_time = np.isclose(max_t - original_t, events[0, t_index])
-        same_polarity = np.isclose(events[0, p_index], -1.0 * original_p)
-
-        assert same_time, "When flipping time must map t_i' = max(t) - t_i"
-        assert same_polarity, "When flipping time polarity should be flipped"
-        assert events.dtype == events.dtype
 
     @pytest.mark.parametrize(
         "ordering, offset, coefficient, integer_time",
@@ -610,25 +476,6 @@ class TestFunctionalNumpy:
         assert surfaces.shape[0] == len(orig_events)
         assert surfaces.shape[1] == 1
         assert surfaces.shape[2] == surface_size
-
-    @pytest.mark.parametrize("ordering", ["xytp", "typx"])
-    def testUniformNoise(self, ordering):
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-        noisy_events = F.uniform_noise_numpy(
-            orig_events.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            scaling_factor_to_micro_sec=1000000,
-            noise_density=1e-8,
-        )
-
-        assert len(noisy_events) > len(orig_events)
-        assert np.isin(orig_events, noisy_events).all()
 
     @pytest.mark.parametrize("ordering, n_time_bins", [("xytp", 10), ("typx", 1)])
     def testToVoxelGrid(self, ordering, n_time_bins):

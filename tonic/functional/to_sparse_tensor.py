@@ -56,10 +56,7 @@ def to_sparse_tensor_pytorch(events, sensor_size, ordering, merge_polarities):
         import torch
     except ImportError:
         raise ImportError(
-            "The sparse tensor transform needs PyTorch installed. Please install a"
-            " stable version "
-            + "of PyTorch or alternatively install Tonic with optional PyTorch"
-            " dependencies."
+            "PyTorch not installed. Please choose different backend."
         )
     indices, values, max_time, n_channels = get_indices_values(
         events, sensor_size, ordering, merge_polarities
@@ -79,10 +76,7 @@ def to_sparse_tensor_tensorflow(events, sensor_size, ordering, merge_polarities)
         import tensorflow
     except ImportError:
         raise ImportError(
-            "The sparse tensor transform needs PyTorch installed. Please install a"
-            " stable version "
-            + "of PyTorch or alternatively install Tonic with optional PyTorch"
-            " dependencies."
+            "TensorFlow not installed. Please choose different backend."
         )
     return tensorflow.sparse.SparseTensor(
         indices, values, torch.Size([max_time, n_channels, *sensor_size])

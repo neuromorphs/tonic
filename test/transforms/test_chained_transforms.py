@@ -21,8 +21,10 @@ class TestChainedTransforms:
         sigma_x_y = 0
         transform = transforms.Compose(
             [
-                transforms.TimeReversal(flip_probability=flip_probability),
+                transforms.RandomTimeReversal(ordering=ordering, flip_probability=flip_probability),
                 transforms.SpatialJitter(
+                    ordering=ordering, 
+                    sensor_size=sensor_size,
                     variance_x=variance_x,
                     variance_y=variance_y,
                     sigma_x_y=sigma_x_y,
@@ -30,12 +32,8 @@ class TestChainedTransforms:
                 ),
             ]
         )
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
-            images=original_images.copy(),
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
 
         assert len(events) == len(orig_events), "Number of events should be the same."
@@ -63,9 +61,6 @@ class TestChainedTransforms:
         assert (
             time_reversal
         ), "Condition of time reversal t_i' = max(t) - t_i has to be fullfilled"
-        assert (
-            images[::-1] == original_images
-        ).all(), "Images should be in reversed order."
 
     def testDropoutFlipUD(self):
         ordering = "xytp"
@@ -83,16 +78,12 @@ class TestChainedTransforms:
         transform = transforms.Compose(
             [
                 transforms.DropEvent(drop_probability=drop_probability),
-                transforms.FlipUD(flip_probability=flip_probability),
+                transforms.RandomFlipUD(ordering=ordering, sensor_size=sensor_size, flip_probability=flip_probability),
             ]
         )
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
-            images=images,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
 
         drop_events = np.isclose(
@@ -134,18 +125,14 @@ class TestChainedTransforms:
 
         transform = transforms.Compose(
             [
-                transforms.TimeSkew(coefficient=coefficient, offset=offset),
-                transforms.FlipPolarity(flip_probability=flip_probability_pol),
-                transforms.FlipLR(flip_probability=flip_probability_lr),
+                transforms.TimeSkew(ordering=ordering, coefficient=coefficient, offset=offset),
+                transforms.RandomFlipPolarity(ordering=ordering, flip_probability=flip_probability_pol),
+                transforms.RandomFlipLR(ordering=ordering, sensor_size=sensor_size, flip_probability=flip_probability_lr),
             ]
         )
 
-        events, images, sensor_size = transform(
+        events = transform(
             events=orig_events.copy(),
-            images=images,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            multi_image=is_multi_image,
         )
 
         assert len(events) == len(orig_events)
