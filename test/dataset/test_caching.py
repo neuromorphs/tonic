@@ -4,7 +4,7 @@ import tonic.transforms as transforms
 from tonic.datasets.cached_dataset import CachedDataset
 
 
-def test_caching_nmnist():
+def test_caching_pokerdvs():
     dataset = datasets.POKERDVS(
         save_to="./data",
         train=False,
