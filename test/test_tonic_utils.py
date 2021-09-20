@@ -1,5 +1,5 @@
 import tonic 
-from functional.utils import create_random_input_with_ordering
+from utils import create_random_input_with_ordering
 
 
 class DummyDataset:
