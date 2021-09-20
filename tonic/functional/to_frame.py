@@ -93,12 +93,10 @@ def to_frame_numpy(
     bins_p = len(np.unique(pols))
     bins_y, bins_x = (range(sensor_size[0] + 1), range(sensor_size[1] + 1))
 
-    frames = np.empty(
+    frames = np.zeros(
         (len(event_slices), bins_p, len(bins_y) - 1, len(bins_x) - 1), dtype=np.uint16
     )
     for i, event_slice in enumerate(event_slices):
-        frames[i] = np.histogramdd(
-            (event_slice[:, p_index], event_slice[:, y_index], event_slice[:, x_index]),
-            bins=(np.arange(bins_p + 1), bins_y, bins_x),
-        )[0]
+        event_slice = event_slice.astype(np.uint16)
+        np.add.at(frames, (i, event_slice[:, p_index], event_slice[:, y_index],  event_slice[:, x_index]), 1)
     return frames

@@ -137,35 +137,17 @@ def slice_by_event_bins(
     return [events[indices_start[i] : indices_end[i], :] for i in range(bin_count)]
 
 
-def is_multi_image(images, sensor_size):
+def sensor_size_from_events(events: np.ndarray, ordering: str):
     """
-    Guesses at if there are multiple images inside of images
-
-    Arguments:
-    - images - image array to find where sensor_size is supported shapes
-               include
-               - [num_images, height, width, num_channels]
-               - [height, width, num_channels]
-               - [num_images, height, width]
-               - [height, width]
-    - sensor_size - sensor [W,H]
-
-    Returns:
-    - guess - best guess at if there are multiple images
+    Given events that contain 'x' and 'y' channels, return the maximum value for each plus one as integers.
     """
+    assert 'x' and 'y' in ordering
+    x_index = ordering.index('x')
+    y_index = ordering.index('y')
 
-    warnings.warn("[Tonic]::Guessing if there are multiple images")
-    if len(images.shape) == 4:
-        guess = True
-    elif len(images.shape) == 3:
-        if images.shape[0] == sensor_size[0]:
-            guess = False  # HWC
-        else:
-            guess = True  # NHW
-    elif len(images.shape) == 2:
-        guess = False
-    else:
-        raise NotImplementedError()
-    warnings.warn("[Tonic]::Guessed [%s]" % str(guess))
+    x_max = int(events[:, x_index].max() + 1)
+    y_max = int(events[:, y_index].max() + 1)
+    return x_max, y_max
 
-    return guess
+def is_multi_image(images):
+    pass

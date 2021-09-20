@@ -23,7 +23,10 @@ def to_timesurface_numpy(
     Returns:
         array of timesurfaces with dimensions (w,h) or (p,w,h)
     """
+        
     if surface_dimensions:
+        assert len(surface_dimensions) == 2
+        assert surface_dimensions[0] % 2 == 1 and surface_dimensions[1] % 2 == 1
         radius_x = surface_dimensions[0] // 2
         radius_y = surface_dimensions[1] // 2
     else:
@@ -69,6 +72,5 @@ def to_timesurface_numpy(
             timesurface[timesurface < 0] = 0
         elif decay == "exp":
             timesurface = np.exp(timestamp_context / tau)
-            timesurface[timestamp_context < (-3 * tau)] = 0
         all_surfaces[index, :, :, :] = timesurface
     return all_surfaces
