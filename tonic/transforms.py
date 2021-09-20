@@ -34,7 +34,7 @@ class Compose:
         return format_string
 
 
-@dataclass
+@dataclass(frozen=True)
 class RandomCrop:
     """Crops the sensor size to a smaller sensor in a random location.
 
@@ -59,7 +59,7 @@ class RandomCrop:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class Denoise:
     """Drops events that are 'not sufficiently connected to other events in the recording.'
     In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
@@ -80,7 +80,7 @@ class Denoise:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class DropEvent:
     """Randomly drops events with drop_probability.
 
@@ -130,7 +130,7 @@ class DropPixel:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class Downsample:
     """Multiplies timestamps and spatial pixel coordinates with separate factors.
     Useful when the native temporal and/or spatial resolution of the original sensor is too
@@ -161,7 +161,7 @@ class Downsample:
         return events
 
 
-@dataclass
+@dataclass(frozen=True)
 class NumpyAsType:
     """
     Change dtype of numpy ndarray to custom dtype.
@@ -176,7 +176,7 @@ class NumpyAsType:
         return events.astype(self.dtype)
 
 
-@dataclass
+@dataclass(frozen=True)
 class RandomFlipPolarity:
     """Flips polarity of individual events with flip_probability.
     Changes polarities 1 to -1 and polarities [-1, 0] to 1
@@ -198,7 +198,7 @@ class RandomFlipPolarity:
         return events
 
 
-@dataclass
+@dataclass(frozen=True)
 class RandomFlipLR:
     """Flips events in x. Pixels map as:
 
@@ -220,7 +220,7 @@ class RandomFlipLR:
         return events
 
 
-@dataclass
+@dataclass(frozen=True)
 class RandomFlipUD:
     """
     Flips events and images in y. Pixels map as:
@@ -243,7 +243,7 @@ class RandomFlipUD:
         return events
 
 
-@dataclass
+@dataclass(frozen=True)
 class RandomTimeReversal:
     """Temporal flip is defined as:
 
@@ -269,7 +269,7 @@ class RandomTimeReversal:
         return events
 
 
-@dataclass
+@dataclass(frozen=True)
 class RefractoryPeriod:
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
@@ -292,7 +292,7 @@ class RefractoryPeriod:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class SpatialJitter:
     """Changes position for each pixel by drawing samples from a multivariate
     Gaussian distribution with the following properties:
@@ -331,7 +331,7 @@ class SpatialJitter:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class TimeJitter:
     """Changes timestamp for each event by drawing samples from a Gaussian
     distribution and adding them to each timestamp.
@@ -360,7 +360,7 @@ class TimeJitter:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class TimeSkew:
     """Skew all event timestamps according to a linear transform,
     potentially sampled from a distribution of acceptable functions.
@@ -387,7 +387,7 @@ class TimeSkew:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class UniformNoise:
     """Introduces a fixed number of noise events that are uniformly distributed across all provided 
     dimensions, e.g. x, y, t and p.
@@ -416,7 +416,7 @@ class UniformNoise:
         return events[np.argsort(events[:, t_index]), :]
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToAveragedTimesurface:
     """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
@@ -454,7 +454,7 @@ class ToAveragedTimesurface:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToFrame:
     """Accumulate events to frames by slicing along constant time (time_window),
     constant number of events (spike_count) or constant number of frames (n_time_bins / n_event_bins).
@@ -517,7 +517,7 @@ class ToFrame:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToSparseTensor:
     """Turn event array (N,E) into sparse Tensor (B,T,W,H) if E is 4 (mostly event camera recordings),
     otherwise into sparse tensor (B,T,W) for mostly audio recordings.
@@ -551,7 +551,7 @@ class ToSparseTensor:
         return tensor
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToDenseTensor:
     """Creates dense representation of events.
     
@@ -570,7 +570,7 @@ class ToDenseTensor:
             return tensor.to_dense()
             
 
-@dataclass
+@dataclass(frozen=True)
 class ToTimesurface:
     """Representation that creates timesurfaces for each event in the recording. Modeled after the paper
     Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
@@ -603,7 +603,7 @@ class ToTimesurface:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToVoxelGrid:
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
     
@@ -620,7 +620,7 @@ class ToVoxelGrid:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class Repeat:
     """Copies target n times. Useful to transform sample labels into sequences."""
 
@@ -630,7 +630,7 @@ class Repeat:
         return np.tile(np.expand_dims(target, 0), [self.n_repeat, 1])
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToOneHotEncoding:
     """Transforms one or more targets into a one hot encoding scheme."""
 
