@@ -428,3 +428,25 @@ class TestTransforms:
         assert np.isclose(
             np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
         ), "Event noise should maintain temporal order."
+
+    @pytest.mark.parametrize("ordering",[("xytp"), ("typx")])
+    def test_transform_time_alignment(self, ordering):
+        (
+            orig_events,
+            orig_images,
+            sensor_size,
+            is_multi_image,
+        ) = utils.create_random_input_with_ordering(ordering)
+        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+
+        transform = transforms.TimeAlignment()
+
+        events, images, sensor_size = transform(
+            events=orig_events.copy(),
+            sensor_size=sensor_size,
+            ordering=ordering,
+            images=orig_images.copy(),
+            multi_image=is_multi_image,
+        )
+
+        assert np.min(events[:, t_index]) == 0

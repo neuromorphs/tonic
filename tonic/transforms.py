@@ -331,6 +331,17 @@ class SpatialJitter:
         )
 
 
+class TimeAlignment:
+    """Shifts the timestamps to set the first event of all recordings of the dataset to zero.
+    """
+
+    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
+        assert "t" in ordering
+        t_index = ordering.index("t")
+        events[:,t_index] -= min(events[:, t_index])
+        return events, images, sensor_size
+
+
 @dataclass(frozen=True)
 class TimeJitter:
     """Changes timestamp for each event by drawing samples from a Gaussian
