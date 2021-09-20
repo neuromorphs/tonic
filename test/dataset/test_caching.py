@@ -1,4 +1,3 @@
-import pytest
 from tonic import datasets
 import tonic.transforms as transforms
 from tonic.datasets.cached_dataset import CachedDataset
@@ -15,16 +14,17 @@ def test_caching_pokerdvs():
         print(data.shape, label)
 
 
-@pytest.mark.skip(reason="transforms are not yet compatible.")
 def test_caching_transforms():
-    preprocess = transforms.Compose([transforms.Downsample(time_factor=1e-3)])
-    augmentation = transforms.Compose([transforms.Downsample(time_factor=1e-3)])
+    preprocess = transforms.Compose([transforms.Downsample(time_factor=1e-3, ordering="xytp", sensor_size=(35, 35))])
+    augmentation = transforms.Compose([transforms.Downsample(time_factor=1e-3, ordering="xytp", sensor_size=(35, 35))])
     dataset = datasets.POKERDVS(
         save_to="./data",
         train=False,
         download=True,
         transform=preprocess,
     )
+
+    # print(dataset.sensor_size)
     dataset_cached = CachedDataset(dataset, transform=augmentation)
 
     print(dataset)

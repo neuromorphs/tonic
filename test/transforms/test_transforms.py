@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 import tonic.transforms as transforms
-import utils
 
 
 class TestTransforms:

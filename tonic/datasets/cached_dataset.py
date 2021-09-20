@@ -38,7 +38,7 @@ def load_from_cache(fname: Union[str, Path]) -> Tuple:
 @dataclass
 class CachedDataset:
     """
-    CachedDataset caches the data samples for subsequent reads, thereby potentially improving data loading speeds.
+    CachedDataset caches the data samples to the hard drive for subsequent reads, thereby potentially improving data loading speeds.
     This object is an iterator and can be used in place of the original dataset.
 
     Args:

@@ -30,9 +30,6 @@ In practice, this means that while your first epoch might be equally slow as bef
         # Use it like a standard dataset
         ...
 
-API
----
-
 .. py:currentmodule:: tonic.datasets.cached_dataset
 
 CachedDataset
