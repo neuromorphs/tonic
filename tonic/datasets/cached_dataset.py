@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import h5py
 from pathlib import Path
 import hashlib
+import numpy as np
 
 
 def save_to_cache(processed_data, fname: Union[str, Path]) -> None:
@@ -50,11 +51,15 @@ class CachedDataset:
             Transforms to be applied on the label
         cache_path:
             The preferred path where the cache will be written. Defaults to `./cache/`
+        num_copies:
+            Number of copies of each sample to be cached.
+            This is a useful parameter if the dataset is being augmented with slow random transforms.
     """
     dataset: Iterable
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
     cache_path: str = "./cache/"
+    num_copies: int = 1
 
     def __post_init__(self):
         super().__init__()
@@ -63,7 +68,8 @@ class CachedDataset:
             os.makedirs(self.cache_path)
 
     def __getitem__(self, item) -> (object, object):
-        fname = self.cache_fname_from_index(item)
+        copy = np.random.randint(self.num_copies)
+        fname = self.cache_fname_from_index(item, copy)
         try:
             data, target = load_from_cache(fname)
         except FileNotFoundError as _:
@@ -77,14 +83,17 @@ class CachedDataset:
             target = self.target_transform(target)
         return data, target
 
-    def cache_fname_from_index(self, item) -> Path:
+    def cache_fname_from_index(self, item, copy: int = 0) -> Path:
         """
         Define a file naming scheme given an index of data
         Args:
             item:
+                item number
+            copy:
+                index of the particular copy to fetch from the cache
 
         Returns:
             filename
         """
         transform_hash = hashlib.sha1(f"{self.transform}{self.target_transform}".encode()).hexdigest()
-        return Path(self.cache_path) / f"{item}_{transform_hash}.h5"
+        return Path(self.cache_path) / f"{item}_{copy}_{transform_hash}.h5"

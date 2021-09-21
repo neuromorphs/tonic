@@ -25,9 +25,8 @@ def test_caching_transforms():
     )
 
     # print(dataset.sensor_size)
-    dataset_cached = CachedDataset(dataset, transform=augmentation)
+    dataset_cached = CachedDataset(dataset, transform=augmentation, num_copies=4)
 
     print(dataset_cached)
     for (data, label), (data2, label2) in zip(dataset, dataset_cached):
-        print(data[:, 0], label)
-        print(data2[:, 0], label2)
+        assert(label == label2)
