@@ -15,8 +15,9 @@ def test_caching_pokerdvs():
 
 
 def test_caching_transforms():
-    preprocess = transforms.Compose([transforms.Downsample(time_factor=1e-3, ordering="xytp", sensor_size=(35, 35))])
-    augmentation = transforms.Compose([transforms.Downsample(time_factor=1e-3, ordering="xytp", sensor_size=(35, 35))])
+    sensor_size = datasets.POKERDVS.sensor_size
+    preprocess = transforms.Compose([transforms.Downsample(time_factor=1e-3, ordering="xytp", sensor_size=sensor_size)])
+    augmentation = transforms.Compose([transforms.Downsample(time_factor=1e-3, ordering="xytp", sensor_size=sensor_size)])
     dataset = datasets.POKERDVS(
         save_to="./data",
         train=False,
