@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Protocol, Any, List, Tuple
+from typing_extensions import Protocol
+from typing import Any, List, Tuple
 
 import numpy as np
 
