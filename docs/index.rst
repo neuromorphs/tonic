@@ -17,6 +17,7 @@ Package reference
    transformations
    datasets
    dataloading
+   caching
    wrapping_own_data
    utils
    contribute
