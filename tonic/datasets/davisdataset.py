@@ -111,9 +111,7 @@ class DAVISDATA(Dataset):
         target = topics["/optitrack/davis"]
 
         if self.transform is not None:
-            events = self.transform(
-                events, self.sensor_size, self.ordering, images=images
-            )
+            events = self.transform(events)
         return events, imu, images, target
 
     def __len__(self):

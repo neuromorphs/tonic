@@ -74,7 +74,7 @@ class NTIDIGITS(Dataset):
         timestamps *= 10e5
         events = np.vstack((timestamps, addresses, np.ones(timestamps.shape[0]))).T
         if self.transform is not None:
-            events = self.transform(events, self.sensor_size, self.ordering)
+            events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
         return events, target

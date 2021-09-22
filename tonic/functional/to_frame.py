@@ -58,12 +58,10 @@ def to_frame_numpy(
     p_index = ordering.find("p")
     n_events = len(events)
 
-    pols = events[:, p_index]
     if merge_polarities:
-        pols[pols == -1] = 1
-        pols[pols == 0] = 1
+        events[:, p_index] = np.zeros_like(events[:, p_index])
     else:
-        pols[pols == -1] = 0
+        events[:, p_index][events[:, p_index] == -1] = 0
 
     if time_window:
         event_slices = slice_by_time(
@@ -90,15 +88,13 @@ def to_frame_numpy(
             events, ordering, n_event_bins, overlap=overlap
         )
 
-    bins_p = len(np.unique(pols))
+    bins_p = len(np.unique(events[:, p_index]))
     bins_y, bins_x = (range(sensor_size[0] + 1), range(sensor_size[1] + 1))
 
-    frames = np.empty(
-        (len(event_slices), bins_p, len(bins_y) - 1, len(bins_x) - 1), dtype=np.uint16
+    frames = np.zeros(
+        (len(event_slices), bins_p, len(bins_y) - 1, len(bins_x) - 1), dtype=int
     )
     for i, event_slice in enumerate(event_slices):
-        frames[i] = np.histogramdd(
-            (event_slice[:, p_index], event_slice[:, y_index], event_slice[:, x_index]),
-            bins=(np.arange(bins_p + 1), bins_y, bins_x),
-        )[0]
+        event_slice = event_slice.astype(int)
+        np.add.at(frames, (i, event_slice[:, p_index], event_slice[:, x_index],  event_slice[:, y_index]), 1)
     return frames
