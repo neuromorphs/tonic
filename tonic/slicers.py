@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing_extensions import Protocol
 from typing import Any, List, Tuple
-
+from . import functional
 import numpy as np
 
 
@@ -79,30 +79,30 @@ class SliceByTime:
             n_slices = int(np.floor(((t[-1] - t[0]) - self.time_window) / stride) + 1)
         n_slices = max(n_slices, 1)  # for strides larger than recording time
 
-        tw_start = np.arange(n_slices) * stride + t[0]
-        tw_end = tw_start + self.time_window
-        indices_start = np.searchsorted(t, tw_start)[:n_slices]
-        indices_end = np.searchsorted(t, tw_end)[:n_slices]
+        window_start_times = np.arange(n_slices) * stride + t[0]
+        window_end_times = window_start_times + self.time_window
+        indices_start = np.searchsorted(t, window_start_times)[:n_slices]
+        indices_end = np.searchsorted(t, window_end_times)[:n_slices]
         return list(zip(indices_start, indices_end))
 
-    @classmethod
-    def slice_with_metadata(cls, data: np.ndarray, metadata: List[Tuple[int, int]]):
+    @staticmethod
+    def slice_with_metadata(data: np.ndarray, metadata: List[Tuple[int, int]]):
         return [data[start:end] for start, end in metadata]
 
 
 @dataclass(frozen=True)
 class SliceByEventCount:
     """
-    Return xytp sliced nto equal number of events specified by spike_count
+    Return xytp sliced to equal number of events specified by event_count
 
     Args:
-        spike_count (int):  Number of events per xytp
+        event_count (int):  Number of events per xytp
         overlap: int
             No. of spikes overlapping in the following xytp(ms)
         include_incomplete: bool
             include incomplete slices ie potentially the last xytp
     """
-    spike_count: int
+    event_count: int
     overlap: int = 0
     include_incomplete: bool = False
 
@@ -111,23 +111,24 @@ class SliceByEventCount:
         return self.slice_with_metadata(data, metadata)
 
     def get_slice_metadata(self, data: np.ndarray) -> List[Tuple[int, int]]:
-        n_spk = len(data)
-        spike_count = min(self.spike_count, n_spk)
-        stride = spike_count - self.overlap
+        n_events = len(data)
+        event_count = min(self.event_count, n_events)
+        
+        stride = self.event_count - self.overlap
         if stride <= 0:
             raise Exception("Inferred stride <= 0")
 
         if self.include_incomplete:
-            n_slices = int(np.ceil((n_spk - spike_count) / stride) + 1)
+            n_slices = int(np.ceil((n_events - event_count) / stride) + 1)
         else:
-            n_slices = int(np.floor((n_spk - spike_count) / stride) + 1)
+            n_slices = int(np.floor((n_events - event_count) / stride) + 1)
 
-        indices_start = np.arange(n_slices) * stride
-        indices_end = indices_start + spike_count
+        indices_start = (np.arange(n_slices) * stride).astype(int)
+        indices_end = indices_start + event_count
         return list(zip(indices_start, indices_end))
-
-    @classmethod
-    def slice_with_metadata(cls, data: np.ndarray, metadata: List[Tuple[int, int]]):
+    
+    @staticmethod
+    def slice_with_metadata(data: np.ndarray, metadata: List[Tuple[int, int]]):
         return [data[start:end] for start, end in metadata]
 
 
@@ -150,8 +151,8 @@ class SliceAtIndices:
     def get_slice_metadata(self, _: np.ndarray) -> List[Tuple[int, int]]:
         return list(zip(self.start_indices, self.end_indices))
 
-    @classmethod
-    def slice_with_metadata(cls, data: np.ndarray, metadata: List[Tuple[int, int]]):
+    @staticmethod
+    def slice_with_metadata(data: np.ndarray, metadata: List[Tuple[int, int]]):
         return [data[start:end] for start, end in metadata]
 
 
@@ -177,86 +178,6 @@ class SliceAtTimePoints:
         indices_end = np.searchsorted(t, self.end_tw)
         return list(zip(indices_start, indices_end))
 
-    @classmethod
-    def slice_with_metadata(cls, data: np.ndarray, metadata: List[Tuple[int, int]]):
+    @staticmethod
+    def slice_with_metadata(data: np.ndarray, metadata: List[Tuple[int, int]]):
         return [data[start:end] for start, end in metadata]
-
-
-########################### Functional ###########################
-
-
-def slice_by_time(xytp: np.ndarray, time_window: int, overlap: int = 0, include_incomplete=False) -> List[np.ndarray]:
-    """
-    Return xytp split according to fixed timewindow and overlap size
-    <        <overlap>        >
-    |   window1      |
-             |   window2      |
-
-    Args:
-        xytp: np.ndarray
-            Structured array of events
-        time_window: int
-            Length of time for each xytp (ms)
-        overlap: int
-            Length of time of overlapping (ms)
-        include_incomplete: bool
-            include incomplete slices ie potentially the last xytp
-
-    Returns:
-        slices List[np.ndarray]: Data slices
-
-    """
-    slicer = SliceByTime(time_window=time_window, overlap=overlap, include_incomplete=include_incomplete)
-    return slicer.slice(xytp)
-
-
-def slice_by_count(xytp: np.ndarray, spike_count: int, overlap: int = 0, include_incomplete=False) -> List[np.ndarray]:
-    """
-    Return xytp sliced nto equal number of events specified by spike_count
-
-    Args:
-        xytp (np.ndarray):  Structured array of events
-        spike_count (int):  Number of events per xytp
-        overlap: int
-            No. of spikes overlapping in the following xytp(ms)
-        include_incomplete: bool
-            include incomplete slices ie potentially the last xytp
-    Returns:
-        slices (List[np.ndarray]): Data slices
-    """
-    slicer = SliceByEventCount(spike_count=spike_count, overlap=overlap, include_incomplete=include_incomplete)
-    return slicer.slice(xytp)
-
-
-def slice_at_indices(xytp: np.ndarray, start_indices, end_indices):
-    """
-    Return xytp sliced at the specified indices
-
-    Args:
-    -----
-        xytp (np.ndarray):  Structured array of events
-        start_indices: (List[Int]): List of start indices
-        end_indices: (List[Int]): List of end indices (exclusive)
-    Returns:
-    --------
-    slices (np.ndarray): Data slices
-    """
-    slicer = SliceAtIndices(start_indices=start_indices, end_indices=end_indices)
-    return slicer.slice(xytp)
-
-
-def slice_at_time_points(xytp: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray) -> List[np.ndarray]:
-    """
-    Return xytp sliced at the specified time windows
-
-    Args:
-    -----
-        xytp (np.ndarray):  Structured array of events
-        start_tw: (np.ndarray): List of start time points
-        end_tw: (np.ndarray): List of end time points
-    Returns:
-    --------
-    slices (np.ndarray): Data slices
-    """
-    slicer = SliceAtTimePoints(start_tw=start_tw, end_tw=end_tw)
-    return slicer.slice(xytp)

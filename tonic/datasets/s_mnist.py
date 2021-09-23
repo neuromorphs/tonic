@@ -1,8 +1,8 @@
 import os
 import numpy as np
 from struct import unpack
-from .dataset import Dataset
-from .download_utils import (
+from tonic.dataset import Dataset
+from tonic.download_utils import (
     download_and_extract_archive,
     extract_archive,
 )

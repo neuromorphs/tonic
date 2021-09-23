@@ -1,6 +1,6 @@
 from tonic import datasets
 import tonic.transforms as transforms
-from tonic.datasets.cached_dataset import CachedDataset
+from tonic import CachedDataset
 
 
 def test_caching_pokerdvs():

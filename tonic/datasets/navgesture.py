@@ -1,8 +1,8 @@
 import os
 import loris
 import numpy
-from .dataset import Dataset
-from .download_utils import (
+from tonic.dataset import Dataset
+from tonic.download_utils import (
     check_integrity,
     download_and_extract_archive,
     extract_archive,

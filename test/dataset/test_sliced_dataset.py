@@ -1,14 +1,16 @@
+from tonic.datasets import POKERDVS
+from tonic import SlicedDataset
+from tonic.slicers import SliceByEventCount
+
+
 def test_sliced_dataset():
-    from tonic.datasets import POKERDVS
-    from tonic.datasets.sliced_dataset import SlicedDataset
-    from tonic.datasets.slicers import SliceByEventCount
     dataset = POKERDVS(save_to="./data/", train=False)
 
     target_number = 0
     for data, label in dataset:
         target_number += len(data)//200
 
-    slicer = SliceByEventCount(spike_count=200)
+    slicer = SliceByEventCount(event_count=200)
     sliced_dataset = SlicedDataset(dataset, slicer)
 
     for data, label in sliced_dataset:
