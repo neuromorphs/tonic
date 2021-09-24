@@ -48,7 +48,7 @@ class TestRepresentations:
             merge_polarities=merge_polarities,
         )
 
-        frames = transform(events=orig_events.copy())
+        frames = transform((orig_events.copy(), sensor_size))
 
         if time_window is not None:
             stride = time_window - overlap
@@ -94,7 +94,7 @@ class TestRepresentations:
             sensor_size=sensor_size, merge_polarities=merge_polarities,
         )
 
-        sparse_tensor = transform(events=orig_events.copy())
+        sparse_tensor = transform((orig_events.copy(), sensor_size))
 
         assert sparse_tensor.coalesce().values().sum() == orig_events.shape[0]
         assert sparse_tensor.shape[0] == int(orig_events[:, t_index][-1] + 1)
@@ -112,7 +112,7 @@ class TestRepresentations:
             sensor_size=sensor_size, merge_polarities=merge_polarities,
         )
 
-        tensor = transform(events=orig_events.copy())
+        tensor = transform((orig_events.copy(), sensor_size))
 
         assert tensor.sum() == orig_events.shape[0]
         assert tensor.shape[0] == int(orig_events[:, t_index][-1]) + 1
@@ -135,7 +135,7 @@ class TestRepresentations:
             merge_polarities=merge_polarities,
         )
 
-        surfaces = transform(events=orig_events.copy())
+        surfaces = transform((orig_events.copy(), sensor_size))
 
         assert surfaces.shape[0] == len(orig_events)
         assert surfaces.shape[1] == 1 if merge_polarities else 2
@@ -152,5 +152,5 @@ class TestRepresentations:
             sensor_size=sensor_size, n_time_bins=n_time_bins
         )
 
-        volumes = transform(events=orig_events.copy())
+        volumes = transform((orig_events.copy(), sensor_size))
         assert volumes.shape == (n_time_bins, *sensor_size[::-1])

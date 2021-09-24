@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def denoise_numpy(events, ordering, filter_time=10000):
+def denoise_numpy(events, filter_time=10000):
     """Drops events that are 'not sufficiently connected to other events in the recording.'
     In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
     of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to filter noisy recordings
@@ -9,8 +9,6 @@ def denoise_numpy(events, ordering, filter_time=10000):
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        ordering: ordering of the event tuple inside of events. This function requires 'x',
-                  'y' and 't' to be in the ordering
         filter_time: maximum temporal distance to next event, otherwise dropped.
                     Lower values will mean higher constraints, therefore less events.
 
@@ -18,22 +16,18 @@ def denoise_numpy(events, ordering, filter_time=10000):
         filtered set of events.
     """
 
-    assert "x" and "y" and "t" in ordering
-
-    x_index = ordering.find("x")
-    y_index = ordering.find("y")
-    t_index = ordering.find("t")
-
-    events_copy = np.zeros(events.shape, dtype=events.dtype)
+    assert "x" and "y" and "t" in events.dtype.names
+    
+    events_copy = np.zeros_like(events)
     copy_index = 0
-    width = int(events["x"].max() + 1)
-    height = int(events["y"].max() + 1)
-    timestamp_memory = np.zeros((width, height), dtype=events.dtype) + filter_time
+    width = int(events["x"].max()) + 1
+    height = int(events["y"].max()) + 1
+    timestamp_memory = np.zeros((width, height)) + filter_time
 
     for event in events:
-        x = int(event[x_index])
-        y = int(event[y_index])
-        t = event[t_index]
+        x = int(event["x"])
+        y = int(event["y"])
+        t = event["t"]
         timestamp_memory[x, y] = t + filter_time
         if (
             (x > 0 and timestamp_memory[x - 1, y] > t)

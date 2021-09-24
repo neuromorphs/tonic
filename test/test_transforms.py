@@ -21,13 +21,13 @@ class TestTransforms:
             sensor_size == target_size
         ), "Sensor size needs to match the target cropping size"
 
-    @pytest.mark.parametrize("filter_time", [(1000), (500)])
+    @pytest.mark.parametrize("filter_time", [(10000), (5000)])
     def test_transform_denoise(self, filter_time):
-        orig_events, orig_sensor_size = create_random_input()
+        orig_events, sensor_size = create_random_input()
 
-        transform = transforms.Denoise(filter_time=filter_time,)
+        transform = transforms.Denoise(filter_time=filter_time)
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert len(events) > 0, "Not all events should be filtered"
         assert len(events) < len(
@@ -49,7 +49,7 @@ class TestTransforms:
             random_drop_probability=random_drop_probability,
         )
 
-        events = transform(events=orig_events.copy())
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         if random_drop_probability:
             assert events.shape[0] >= (1 - drop_probability) * orig_events.shape[0], (
@@ -77,7 +77,7 @@ class TestTransforms:
             sensor_size=sensor_size,
         )
 
-        events = transform(events=orig_events.copy())
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert np.array_equal(orig_events["t"] * time_factor, events["t"])
         assert np.array_equal(np.floor(orig_events["x"] * spatial_factor), events["x"])
@@ -91,7 +91,7 @@ class TestTransforms:
             flip_probability=flip_probability, sensor_size=sensor_size
         )
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert ((sensor_size[0] - 1) - orig_events["x"] == events["x"]).all(), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
@@ -104,7 +104,7 @@ class TestTransforms:
 
         transform = transforms.RandomFlipPolarity(flip_probability=flip_probability)
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         if flip_probability == 1:
             assert np.array_equal(orig_events["p"] * -1, events["p"]), (
@@ -125,7 +125,8 @@ class TestTransforms:
             flip_probability=flip_probability, sensor_size=sensor_size
         )
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
+
         assert np.array_equal((sensor_size[1] - 1) - orig_events["y"], events["y"]), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
@@ -137,7 +138,7 @@ class TestTransforms:
 
         transform = transforms.RefractoryPeriod(refractory_period=refractory_period,)
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert len(events) > 0, "Not all events should be filtered"
         assert len(events) < len(
@@ -171,7 +172,7 @@ class TestTransforms:
             clip_outliers=clip_outliers,
         )
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         if not clip_outliers:
             assert len(events) == len(orig_events)
@@ -224,7 +225,7 @@ class TestTransforms:
             sort_timestamps=sort_timestamps,
         )
 
-        events = transform(events=orig_events.copy())
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         if clip_negative:
             assert (events["t"] >= 0).all()
@@ -253,7 +254,7 @@ class TestTransforms:
 
         transform = transforms.RandomTimeReversal(flip_probability=flip_probability,)
 
-        events = transform(events=orig_events.copy())
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         same_time = np.isclose(max_t - original_t, events[0, t_index])
         same_polarity = np.isclose(events[0, p_index], -1.0 * original_p)
@@ -273,7 +274,7 @@ class TestTransforms:
             coefficient=coefficient, offset=offset, integer_time=integer_time,
         )
 
-        events = transform(events=orig_events.copy())
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert len(events) == len(orig_events)
         assert np.min(events["t"]) >= offset
@@ -295,7 +296,7 @@ class TestTransforms:
 
         transform = transforms.UniformNoise(n_noise_events=n_noise_events,)
 
-        events = transform(events=orig_events.copy())
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert len(events) == len(orig_events) + n_noise_events
         assert np.isin(orig_events, events).all()
