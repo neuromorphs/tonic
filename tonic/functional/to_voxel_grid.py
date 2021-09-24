@@ -37,11 +37,11 @@ def to_voxel_grid_numpy(events, sensor_size, ordering, n_time_bins=10):
     if deltaT == 0:
         deltaT = 1.0
 
-    events[:, t_loc] = (n_time_bins) * (events[:, t_loc] - first_stamp) / deltaT
-    ts = events[:, t_loc]
-    xs = events[:, x_loc].astype(int)
-    ys = events[:, y_loc].astype(int)
-    pols = events[:, p_loc]
+    events['t'] = (n_time_bins) * (events['t'] - first_stamp) / deltaT
+    ts = events['t']
+    xs = events['x'].astype(int)
+    ys = events['y'].astype(int)
+    pols = events['p']
     pols[pols == 0] = -1  # polarity should be +1 / -1
 
     tis = ts.astype(int)

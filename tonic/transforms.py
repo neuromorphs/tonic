@@ -191,7 +191,7 @@ class RandomFlipPolarity:
         flips = np.ones(len(events))
         probs = np.random.rand(len(events))
         flips[probs < self.flip_probability] = -1
-        events[:, p_loc] = events[:, p_loc] * flips
+        events['p'] = events['p'] * flips
         return events
 
 
@@ -213,7 +213,7 @@ class RandomFlipLR:
         assert "x" in self.ordering
         if np.random.rand() <= self.flip_probability:
             x_loc = self.ordering.index("x")
-            events[:, x_loc] = self.sensor_size[0] - 1 - events[:, x_loc]
+            events['x'] = self.sensor_size[0] - 1 - events['x']
         return events
 
 
@@ -236,7 +236,7 @@ class RandomFlipUD:
         assert "y" in self.ordering
         if np.random.rand() <= self.flip_probability:
             y_loc = self.ordering.index("y")
-            events[:, y_loc] = self.sensor_size[1] - 1 - events[:, y_loc]
+            events['y'] = self.sensor_size[1] - 1 - events['y']
         return events
 
 
@@ -261,8 +261,8 @@ class RandomTimeReversal:
         if np.random.rand() < self.flip_probability:
             t_loc = self.ordering.index("t")
             p_loc = self.ordering.index("p")
-            events[:, t_loc] = np.max(events[:, t_loc]) - events[:, t_loc]
-            events[:, p_loc] *= -1
+            events['t'] = np.max(events['t']) - events['t']
+            events['p'] *= -1
         return events
 
 

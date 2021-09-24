@@ -47,7 +47,7 @@ def mix_ev_streams_numpy(
 
     # Concatenate and sort
     combined_events = np.concatenate(events, axis=0)
-    idx = np.argsort(combined_events[:, t_loc])
+    idx = np.argsort(combined_events['t'])
     combined_events = combined_events[idx]
     num_colisions = 0
 
