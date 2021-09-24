@@ -335,7 +335,7 @@ class TimeAlignment:
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         assert "t" in ordering
         t_index = ordering.index("t")
-        events[:, t_index] -= min(events[:, t_index])
+        events['t'] -= min(events['t'])
         return events, images, sensor_size
 
 
@@ -421,7 +421,7 @@ class UniformNoise:
         noise_events = np.column_stack(noise_events)
         events = np.concatenate((events, noise_events))
         t_index = self.ordering.index("t")
-        return events[np.argsort(events[:, t_index]), :]
+        return events[np.argsort(events['t']), :]
 
 
 @dataclass(frozen=True)

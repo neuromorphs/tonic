@@ -16,8 +16,8 @@ class TestTransforms:
 
         events = transform(events=orig_events.copy())
 
-        assert np.all(events[:, x_index]) < target_size[0] and np.all(
-            events[:, y_index] < target_size[1]
+        assert np.all(events['x']) < target_size[0] and np.all(
+            events['y'] < target_size[1]
         ), "Cropping needs to map the events into the new space"
 
 
@@ -79,7 +79,7 @@ class TestTransforms:
                 " dropped out."
             )
         assert np.isclose(
-            np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+            np.sum((events['t'] - np.sort(events['t'])) ** 2), 0
         ), "Event dropout should maintain temporal order."
 
         
@@ -104,12 +104,12 @@ class TestTransforms:
             events=orig_events.copy()
         )
 
-        assert np.array_equal(orig_events[:, t_index] * time_factor, events[:, t_index])
+        assert np.array_equal(orig_events['t'] * time_factor, events['t'])
         assert np.array_equal(
-            np.floor(orig_events[:, x_index] * spatial_factor), events[:, x_index]
+            np.floor(orig_events['x'] * spatial_factor), events['x']
         )
         assert np.array_equal(
-            np.floor(orig_events[:, y_index] * spatial_factor), events[:, y_index]
+            np.floor(orig_events['y'] * spatial_factor), events['y']
         )
 
     @pytest.mark.parametrize(
@@ -132,7 +132,7 @@ class TestTransforms:
         )
 
         assert (
-            (sensor_size[0] - 1) - orig_events[:, x_index] == events[:, x_index]
+            (sensor_size[0] - 1) - orig_events['x'] == events['x']
         ).all(), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
@@ -155,12 +155,12 @@ class TestTransforms:
         )
 
         if flip_probability == 1:
-            assert np.array_equal(orig_events[:, p_index] * -1, events[:, p_index]), (
+            assert np.array_equal(orig_events['p'] * -1, events['p']), (
                 "When flipping polarity with probability 1, all event polarities must"
                 " flip"
             )
         else:
-            assert np.array_equal(orig_events[:, p_index], events[:, p_index]), (
+            assert np.array_equal(orig_events['p'], events['p']), (
                 "When flipping polarity with probability 0, no event polarities must"
                 " flip"
             )
@@ -183,7 +183,7 @@ class TestTransforms:
             events=orig_events.copy(),
         )
         assert np.array_equal(
-            (sensor_size[1] - 1) - orig_events[:, y_index], events[:, y_index]
+            (sensor_size[1] - 1) - orig_events['y'], events['y']
         ), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
@@ -253,30 +253,30 @@ class TestTransforms:
 
         if not clip_outliers:
             assert len(events) == len(orig_events)
-            assert (events[:, t_index] == orig_events[:, t_index]).all()
-            assert (events[:, p_index] == orig_events[:, p_index]).all()
-            assert (events[:, x_index] != orig_events[:, x_index]).any()
-            assert (events[:, y_index] != orig_events[:, y_index]).any()
+            assert (events['t'] == orig_events['t']).all()
+            assert (events['p'] == orig_events['p']).all()
+            assert (events['x'] != orig_events['x']).any()
+            assert (events['y'] != orig_events['y']).any()
             assert np.isclose(
-                events[:, x_index].all(),
-                orig_events[:, x_index].all(),
+                events['x'].all(),
+                orig_events['x'].all(),
                 atol=2 * variance,
             )
             assert np.isclose(
-                events[:, y_index].all(),
-                orig_events[:, y_index].all(),
+                events['y'].all(),
+                orig_events['y'].all(),
                 atol=2 * variance,
             )
 
             if integer_jitter:
                 assert (
-                    events[:, x_index] - orig_events[:, x_index]
-                    == (events[:, x_index] - orig_events[:, x_index]).astype(int)
+                    events['x'] - orig_events['x']
+                    == (events['x'] - orig_events['x']).astype(int)
                 ).all()
 
                 assert (
-                    events[:, y_index] - orig_events[:, y_index]
-                    == (events[:, y_index] - orig_events[:, y_index]).astype(int)
+                    events['y'] - orig_events['y']
+                    == (events['y'] - orig_events['y']).astype(int)
                 ).all()
 
         else:
@@ -303,7 +303,7 @@ class TestTransforms:
 
         # we do this to ensure integer timestamps before testing for int jittering
         if integer_jitter:
-            orig_events[:, t_index] = orig_events[:, t_index].round()
+            orig_events['t'] = orig_events['t'].round()
 
         transform = transforms.TimeJitter(
             ordering=ordering,
@@ -318,21 +318,21 @@ class TestTransforms:
         )
 
         if clip_negative:
-            assert (events[:, t_index] >= 0).all()
+            assert (events['t'] >= 0).all()
         else:
             assert len(events) == len(orig_events)
         if sort_timestamps:
             np.testing.assert_array_equal(
-                events[:, t_index], np.sort(events[:, t_index])
+                events['t'], np.sort(events['t'])
             )
         if not sort_timestamps and not clip_negative:
-            np.testing.assert_array_equal(events[:, x_index], orig_events[:, x_index])
-            np.testing.assert_array_equal(events[:, y_index], orig_events[:, y_index])
-            np.testing.assert_array_equal(events[:, p_index], orig_events[:, p_index])
+            np.testing.assert_array_equal(events['x'], orig_events['x'])
+            np.testing.assert_array_equal(events['y'], orig_events['y'])
+            np.testing.assert_array_equal(events['p'], orig_events['p'])
             if integer_jitter:
                 assert (
-                    events[:, t_index] - orig_events[:, t_index]
-                    == (events[:, t_index] - orig_events[:, t_index]).astype(int)
+                    events['t'] - orig_events['t']
+                    == (events['t'] - orig_events['t']).astype(int)
                 ).all()
 
     @pytest.mark.parametrize(
@@ -350,7 +350,7 @@ class TestTransforms:
         original_t = orig_events[0, t_index]
         original_p = orig_events[0, p_index]
 
-        max_t = np.max(orig_events[:, t_index])
+        max_t = np.max(orig_events['t'])
 
         transform = transforms.RandomTimeReversal(flip_probability=flip_probability, ordering=ordering)
 
@@ -387,18 +387,18 @@ class TestTransforms:
         )
 
         assert len(events) == len(orig_events)
-        assert np.min(events[:, t_index]) >= offset
+        assert np.min(events['t']) >= offset
         if integer_time:
-            assert (events[:, t_index] == (events[:, t_index]).astype(int)).all()
+            assert (events['t'] == (events['t']).astype(int)).all()
 
         else:
             if coefficient > 1:
-                assert (events[:, t_index] - offset > orig_events[:, t_index]).all()
+                assert (events['t'] - offset > orig_events['t']).all()
 
             if coefficient < 1:
-                assert (events[:, t_index] - offset < orig_events[:, t_index]).all()
+                assert (events['t'] - offset < orig_events['t']).all()
 
-            assert (events[:, t_index] != (events[:, t_index]).astype(int)).any()
+            assert (events['t'] != (events['t']).astype(int)).any()
 
     @pytest.mark.parametrize("ordering, n_noise_events", [("xytp", 100), ("typx", 0)])
     def test_transform_uniform_noise(self, ordering, n_noise_events):
@@ -421,7 +421,7 @@ class TestTransforms:
         assert len(events) == len(orig_events)+n_noise_events
         assert np.isin(orig_events, events).all()
         assert np.isclose(
-            np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+            np.sum((events['t'] - np.sort(events['t'])) ** 2), 0
         ), "Event noise should maintain temporal order."
 
     @pytest.mark.parametrize("ordering",[("xytp"), ("typx")])
@@ -444,4 +444,4 @@ class TestTransforms:
             multi_image=is_multi_image,
         )
 
-        assert np.min(events[:, t_index]) == 0
+        assert np.min(events['t']) == 0

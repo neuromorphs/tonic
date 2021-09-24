@@ -9,8 +9,8 @@ def sensor_size_from_events(events: np.ndarray, ordering: str):
     x_index = ordering.index("x")
     y_index = ordering.index("y")
 
-    x_max = int(events[:, x_index].max() + 1)
-    y_max = int(events[:, y_index].max() + 1)
+    x_max = int(events['x'].max() + 1)
+    y_max = int(events['y'].max() + 1)
     return x_max, y_max
 
 

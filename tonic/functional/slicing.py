@@ -35,7 +35,7 @@ def slice_by_time(
     """
     assert "t" in ordering
     t_index = ordering.find("t")
-    times = events[:, t_index]
+    times = events['t']
     stride = time_window - overlap
 
     if include_incomplete:
@@ -71,7 +71,7 @@ def slice_by_time_bins(
     assert "t" in ordering
     assert overlap < 1
     t_index = ordering.find("t")
-    times = events[:, t_index]
+    times = events['t']
     time_window = times[-1] // bin_count * (1 + overlap)
     stride = time_window * (1 - overlap)
 

@@ -25,8 +25,8 @@ class TestFunctionalNumpy:
         )
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
-        assert np.all(events[:, x_index]) < target_size[0] and np.all(
-            events[:, y_index] < target_size[1]
+        assert np.all(events['x']) < target_size[0] and np.all(
+            events['y'] < target_size[1]
         ), "Cropping needs to map the events into the new space"
 
 
@@ -61,7 +61,7 @@ class TestFunctionalNumpy:
                 " dropped out."
             )
         assert np.isclose(
-            np.sum((events[:, t_index] - np.sort(events[:, t_index])) ** 2), 0
+            np.sum((events['t'] - np.sort(events['t'])) ** 2), 0
         ), "Event dropout should maintain temporal order."
 
 
@@ -226,30 +226,30 @@ class TestFunctionalNumpy:
 
         if not clip_outliers:
             assert len(events) == len(orig_events)
-            assert (events[:, t_index] == orig_events[:, t_index]).all()
-            assert (events[:, p_index] == orig_events[:, p_index]).all()
-            assert (events[:, x_index] != orig_events[:, x_index]).any()
-            assert (events[:, y_index] != orig_events[:, y_index]).any()
+            assert (events['t'] == orig_events['t']).all()
+            assert (events['p'] == orig_events['p']).all()
+            assert (events['x'] != orig_events['x']).any()
+            assert (events['y'] != orig_events['y']).any()
             assert np.isclose(
-                events[:, x_index].all(),
-                orig_events[:, x_index].all(),
+                events['x'].all(),
+                orig_events['x'].all(),
                 atol=2 * variance,
             )
             assert np.isclose(
-                events[:, y_index].all(),
-                orig_events[:, y_index].all(),
+                events['y'].all(),
+                orig_events['y'].all(),
                 atol=2 * variance,
             )
 
             if integer_jitter:
                 assert (
-                    events[:, x_index] - orig_events[:, x_index]
-                    == (events[:, x_index] - orig_events[:, x_index]).astype(int)
+                    events['x'] - orig_events['x']
+                    == (events['x'] - orig_events['x']).astype(int)
                 ).all()
 
                 assert (
-                    events[:, y_index] - orig_events[:, y_index]
-                    == (events[:, y_index] - orig_events[:, y_index]).astype(int)
+                    events['y'] - orig_events['y']
+                    == (events['y'] - orig_events['y']).astype(int)
                 ).all()
 
         else:
@@ -277,7 +277,7 @@ class TestFunctionalNumpy:
 
         # we do this to ensure integer timestamps before testing for int jittering
         if integer_jitter:
-            orig_events[:, t_index] = orig_events[:, t_index].round()
+            orig_events['t'] = orig_events['t'].round()
         events = F.time_jitter_numpy(
             orig_events.copy(),
             ordering=ordering,
@@ -287,21 +287,21 @@ class TestFunctionalNumpy:
             sort_timestamps=sort_timestamps,
         )
         if clip_negative:
-            assert (events[:, t_index] >= 0).all()
+            assert (events['t'] >= 0).all()
         else:
             assert len(events) == len(orig_events)
         if sort_timestamps:
             np.testing.assert_array_equal(
-                events[:, t_index], np.sort(events[:, t_index])
+                events['t'], np.sort(events['t'])
             )
         if not sort_timestamps and not clip_negative:
-            np.testing.assert_array_equal(events[:, x_index], orig_events[:, x_index])
-            np.testing.assert_array_equal(events[:, y_index], orig_events[:, y_index])
-            np.testing.assert_array_equal(events[:, p_index], orig_events[:, p_index])
+            np.testing.assert_array_equal(events['x'], orig_events['x'])
+            np.testing.assert_array_equal(events['y'], orig_events['y'])
+            np.testing.assert_array_equal(events['p'], orig_events['p'])
             if integer_jitter:
                 assert (
-                    events[:, t_index] - orig_events[:, t_index]
-                    == (events[:, t_index] - orig_events[:, t_index]).astype(int)
+                    events['t'] - orig_events['t']
+                    == (events['t'] - orig_events['t']).astype(int)
                 ).all()
 
 
@@ -326,18 +326,18 @@ class TestFunctionalNumpy:
             integer_time=integer_time,
         )
         assert len(events) == len(orig_events)
-        assert np.min(events[:, t_index]) >= offset
+        assert np.min(events['t']) >= offset
         if integer_time:
-            assert (events[:, t_index] == (events[:, t_index]).astype(int)).all()
+            assert (events['t'] == (events['t']).astype(int)).all()
 
         else:
             if coefficient > 1:
-                assert (events[:, t_index] - offset > orig_events[:, t_index]).all()
+                assert (events['t'] - offset > orig_events['t']).all()
 
             if coefficient < 1:
-                assert (events[:, t_index] - offset < orig_events[:, t_index]).all()
+                assert (events['t'] - offset < orig_events['t']).all()
 
-            assert (events[:, t_index] != (events[:, t_index]).astype(int)).any()
+            assert (events['t'] != (events['t']).astype(int)).any()
 
     @pytest.mark.parametrize(
         "ordering, time_window, spike_count, n_time_bins, n_event_bins, overlap,"
@@ -391,7 +391,7 @@ class TestFunctionalNumpy:
 
         if time_window is not None:
             stride = time_window - overlap
-            times = orig_events[:, t_index]
+            times = orig_events['t']
             if include_incomplete:
                 assert frames.shape[0] == int(
                     np.ceil(((times[-1] - times[0]) - time_window) / stride) + 1

@@ -59,8 +59,8 @@ def to_averaged_timesurface(
     p_index = ordering.find("p")
     n_of_events = len(events)
     if merge_polarities:
-        events[:, p_index] = np.zeros(n_of_events)
-    n_of_pols = len(np.unique(events[:, p_index]))
+        events['p'] = np.zeros(n_of_events)
+    n_of_pols = len(np.unique(events['p']))
 
     all_surfaces = np.zeros((n_of_events, n_of_pols, surface_size, surface_size))
 

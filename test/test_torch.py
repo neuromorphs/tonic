@@ -52,7 +52,7 @@ class TestFunctionalTorch:
         if merge_polarities:
             assert tensor.shape[1] == 1
         else:
-            assert tensor.shape[1] == len(np.unique(events[:, p_index])), (
+            assert tensor.shape[1] == len(np.unique(events['p'])), (
                 "Amount of channels is not equivalent to unique number of polarities in"
                 " events"
             )

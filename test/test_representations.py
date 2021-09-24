@@ -60,7 +60,7 @@ class TestRepresentations:
 
         if time_window is not None:
             stride = time_window - overlap
-            times = orig_events[:, t_index]
+            times = orig_events['t']
             if include_incomplete:
                 assert frames.shape[0] == int(
                     np.ceil(((times[-1] - times[0]) - time_window) / stride) + 1

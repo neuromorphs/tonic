@@ -26,8 +26,8 @@ def denoise_numpy(events, ordering, filter_time=10000):
 
     events_copy = np.zeros(events.shape, dtype=events.dtype)
     copy_index = 0
-    width = int(events[:, x_index].max() + 1)
-    height = int(events[:, y_index].max() + 1)
+    width = int(events['x'].max() + 1)
+    height = int(events['y'].max() + 1)
     timestamp_memory = np.zeros((width, height), dtype=events.dtype) + filter_time
 
     for event in events:
