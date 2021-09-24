@@ -11,7 +11,6 @@ from typing import List
 
 def slice_by_time(
     events: np.ndarray,
-    ordering: str,
     time_window: int,
     overlap: int = 0,
     include_incomplete: bool = False,
@@ -33,8 +32,8 @@ def slice_by_time(
     Returns:
         list of event slices (np.ndarray)
     """
-    assert "t" in ordering
-    t_index = ordering.find("t")
+    assert "t" in events.dtype.names
+    
     times = events["t"]
     stride = time_window - overlap
 
@@ -51,7 +50,7 @@ def slice_by_time(
 
 
 def slice_by_time_bins(
-    events: np.ndarray, ordering: str, bin_count: int, overlap: float = 0.0
+    events: np.ndarray, bin_count: int, overlap: float = 0.0
 ):
     """
     Slices an event array along fixed number of bins of time length max_time / bin_count * (1+overlap).
@@ -68,9 +67,9 @@ def slice_by_time_bins(
     Returns:
         list of event slices (np.ndarray)
     """
-    assert "t" in ordering
+    assert "t" in events.dtype.names
     assert overlap < 1
-    t_index = ordering.find("t")
+    
     times = events["t"]
     time_window = times[-1] // bin_count * (1 + overlap)
     stride = time_window * (1 - overlap)
@@ -84,7 +83,6 @@ def slice_by_time_bins(
 
 def slice_by_event_count(
     events: np.ndarray,
-    ordering: str,
     event_count: int,
     overlap: int = 0,
     include_incomplete: bool = False,
@@ -109,7 +107,7 @@ def slice_by_event_count(
 
 
 def slice_by_event_bins(
-    events: np.ndarray, ordering: str, bin_count: int, overlap: float = 0.0
+    events: np.ndarray, bin_count: int, overlap: float = 0.0
 ):
     """
     Slices an event array along fixed number of bins that each have n_events // bin_count * (1 + overlap) events.

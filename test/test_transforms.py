@@ -132,7 +132,7 @@ class TestTransforms:
             " sensor width - x"
         )
 
-    @pytest.mark.parametrize("refractory_period", [(1000), (50)])
+    @pytest.mark.parametrize("refractory_period", [(10000), (5000)])
     def test_transform_refractory_period(self, refractory_period):
         orig_events, sensor_size = create_random_input()
 
@@ -152,15 +152,15 @@ class TestTransforms:
         assert events.dtype == events.dtype
 
     @pytest.mark.parametrize(
-        "variance, integer_jitter, clip_outliers",
+        "variance, clip_outliers",
         [
-            (30, True, False),
-            (100, True, True),
-            (3.5, False, True),
-            (0.8, False, False),
+            (30, False),
+            (100, True),
+            (3.5, True),
+            (0.8, False),
         ],
     )
-    def test_transform_spatial_jitter(self, variance, integer_jitter, clip_outliers):
+    def test_transform_spatial_jitter(self, variance, clip_outliers):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.SpatialJitter(
@@ -168,7 +168,6 @@ class TestTransforms:
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
-            integer_jitter=integer_jitter,
             clip_outliers=clip_outliers,
         )
 
@@ -187,36 +186,30 @@ class TestTransforms:
                 events["y"].all(), orig_events["y"].all(), atol=2 * variance,
             )
 
-            if integer_jitter:
-                assert (
-                    events["x"] - orig_events["x"]
-                    == (events["x"] - orig_events["x"]).astype(int)
-                ).all()
+            assert (
+                events["x"] - orig_events["x"]
+                == (events["x"] - orig_events["x"]).astype(int)
+            ).all()
 
-                assert (
-                    events["y"] - orig_events["y"]
-                    == (events["y"] - orig_events["y"]).astype(int)
-                ).all()
+            assert (
+                events["y"] - orig_events["y"]
+                == (events["y"] - orig_events["y"]).astype(int)
+            ).all()
 
         else:
             assert len(events) < len(orig_events)
 
     @pytest.mark.parametrize(
-        "std, integer_jitter, clip_negative, sort_timestamps",
-        [(10, False, True, True), (50, True, False, False), (0, True, True, False),],
+        "std, clip_negative, sort_timestamps",
+        [(10, True, True), (50, False, False), (0, True, False),],
     )
     def test_transform_time_jitter(
-        self, std, integer_jitter, clip_negative, sort_timestamps
+        self, std, clip_negative, sort_timestamps
     ):
         orig_events, sensor_size = create_random_input()
 
-        # we do this to ensure integer timestamps before testing for int jittering
-        if integer_jitter:
-            orig_events["t"] = orig_events["t"].round()
-
         transform = transforms.TimeJitter(
             std=std,
-            integer_jitter=integer_jitter,
             clip_negative=clip_negative,
             sort_timestamps=sort_timestamps,
         )
@@ -233,11 +226,10 @@ class TestTransforms:
             np.testing.assert_array_equal(events["x"], orig_events["x"])
             np.testing.assert_array_equal(events["y"], orig_events["y"])
             np.testing.assert_array_equal(events["p"], orig_events["p"])
-            if integer_jitter:
-                assert (
-                    events["t"] - orig_events["t"]
-                    == (events["t"] - orig_events["t"]).astype(int)
-                ).all()
+            assert (
+                events["t"] - orig_events["t"]
+                == (events["t"] - orig_events["t"]).astype(int)
+            ).all()
 
     @pytest.mark.parametrize("flip_probability", [(1000), (50)])
     def test_transform_time_reversal(self, flip_probability):
@@ -267,24 +259,21 @@ class TestTransforms:
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.TimeSkew(
-            coefficient=coefficient, offset=offset, integer_time=integer_time,
+            coefficient=coefficient, offset=offset
         )
 
         events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert len(events) == len(orig_events)
         assert np.min(events["t"]) >= offset
-        if integer_time:
-            assert (events["t"] == (events["t"]).astype(int)).all()
+        assert (events["t"] == (events["t"]).astype(int)).all()
 
-        else:
-            if coefficient > 1:
-                assert (events["t"] - offset > orig_events["t"]).all()
+        if coefficient > 1:
+            assert (events["t"] - offset > orig_events["t"]).all()
 
-            if coefficient < 1:
-                assert (events["t"] - offset < orig_events["t"]).all()
+        if coefficient < 1:
+            assert (events["t"] - offset < orig_events["t"]).all()
 
-            assert (events["t"] != (events["t"]).astype(int)).any()
 
     @pytest.mark.parametrize("n_noise_events", [(100), (0)])
     def test_transform_uniform_noise(self, n_noise_events):
@@ -305,10 +294,6 @@ class TestTransforms:
 
         transform = transforms.TimeAlignment()
 
-        events, images, sensor_size = transform(
-            events=orig_events.copy(),
-            sensor_size=sensor_size,
-            images=orig_images.copy(),
-        )
+        events, sensor_size = transform((orig_events.copy(),sensor_size,))
 
         assert np.min(events["t"]) == 0

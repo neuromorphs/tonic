@@ -1,8 +1,7 @@
 import numpy as np
-from .utils import sensor_size_from_events
 
 
-def refractory_period_numpy(events, ordering, refractory_period=0.5):
+def refractory_period_numpy(events, refractory_period=10000):
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
 
@@ -12,35 +11,29 @@ def refractory_period_numpy(events, ordering, refractory_period=0.5):
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         sensor_size: size of the sensor that was used [W,H]
-        ordering: ordering of the event tuple inside of events. This function requires 't', 'x'
-                  and 'y' to be in the ordering
-        refractory_period: refractory period for each pixel in seconds
+        refractory_period: refractory period for each pixel in microseconds
 
     Returns:
         filtered set of events.
     """
 
-    assert "t" and "x" and "y" in ordering
+    assert "t" and "x" and "y" in events.dtype.names
 
-    t_index = ordering.find("t")
-    x_index = ordering.find("x")
-    y_index = ordering.find("y")
-
-    sensor_x, sensor_y = sensor_size_from_events(events, ordering)
-
-    events_copy = np.zeros(events.shape, dtype=events.dtype)
+    events_copy = np.zeros_like(events)
     copy_index = 0
+    width = int(events["x"].max()) + 1
+    height = int(events["y"].max()) + 1
     timestamp_memory = (
-        np.zeros((sensor_x, sensor_y), dtype=events.dtype) - refractory_period
+        np.zeros((width, height)) - refractory_period
     )
 
     for event in events:
         time_since_last_spike = (
-            event[t_index] - timestamp_memory[int(event[x_index]), int(event[y_index])]
+            event["t"] - timestamp_memory[int(event["x"]), int(event["y"])]
         )
         if time_since_last_spike > refractory_period:
             events_copy[copy_index] = event
             copy_index += 1
-        timestamp_memory[int(event[x_index]), int(event[y_index])] = event[t_index]
+        timestamp_memory[int(event["x"]), int(event["y"])] = event["t"]
 
     return events_copy[:copy_index]

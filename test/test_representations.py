@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
 import tonic.transforms as transforms
-import utils
+from utils import create_random_input
 
 
 class TestRepresentations:
     @pytest.mark.parametrize(
-        "time_window, spike_count, n_time_bins, n_event_bins, overlap,"
+        "time_window, event_count, n_time_bins, n_event_bins, overlap,"
         " include_incomplete, merge_polarities",
         [
             (2000, None, None, None, 0, False, True),
@@ -25,9 +25,8 @@ class TestRepresentations:
     )
     def test_representation_frame(
         self,
-        ordering,
         time_window,
-        spike_count,
+        event_count,
         n_time_bins,
         n_event_bins,
         overlap,
@@ -35,12 +34,10 @@ class TestRepresentations:
         merge_polarities,
     ):
         (orig_events, sensor_size,) = create_random_input()
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToFrame(
-            sensor_size=sensor_size,
             time_window=time_window,
-            spike_count=spike_count,
+            event_count=event_count,
             n_time_bins=n_time_bins,
             n_event_bins=n_event_bins,
             overlap=overlap,
@@ -149,8 +146,9 @@ class TestRepresentations:
         (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.ToVoxelGrid(
-            sensor_size=sensor_size, n_time_bins=n_time_bins
+            n_time_bins=n_time_bins
         )
 
         volumes = transform((orig_events.copy(), sensor_size))
-        assert volumes.shape == (n_time_bins, *sensor_size[::-1])
+        import ipdb; ipdb.set_trace()
+        assert volumes.shape == (n_time_bins, *sensor_size[:2])

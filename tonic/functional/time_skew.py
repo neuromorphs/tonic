@@ -18,8 +18,6 @@ def time_skew_numpy(
         offset: value by which the timestamps will be shifted after multiplication by
                 the coefficient. Negative offsets are permissible but may result in
                 in an exception if timestamps are shifted below 0.
-        integer_time: flag that specifies if timestamps should be rounded to
-                             nearest integer after skewing.
 
     Returns:
         the input events with rewritten timestamps.

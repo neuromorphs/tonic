@@ -3,9 +3,7 @@ import numpy as np
 
 def time_jitter_numpy(
     events: np.ndarray,
-    ordering: str,
     std: float = 1,
-    integer_jitter: bool = False,
     clip_negative: bool = False,
     sort_timestamps: bool = False,
 ):
@@ -14,10 +12,7 @@ def time_jitter_numpy(
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        ordering: ordering of the event tuple inside of events. This function requires 't'
-                  to be in the ordering
         std: the standard deviation of the time jitter
-        integer_jitter: will round the jitter that is added to timestamps
         clip_negative: drops events that have negative timestamps
         sort_timestamps: sort the events by timestamps after jittering
 
@@ -25,13 +20,9 @@ def time_jitter_numpy(
         temporally jittered set of events.
     """
 
-    assert "t" in ordering
+    assert "t" in events.dtype.names
 
-    t_index = ordering.find("t")
     shifts = np.random.normal(0, std, len(events))
-
-    if integer_jitter:
-        shifts = shifts.round()
 
     events["t"] = events["t"] + shifts
 
@@ -39,6 +30,6 @@ def time_jitter_numpy(
         events = np.delete(events, (np.where(events["t"] < 0)), axis=0)
 
     if sort_timestamps:
-        events = events[np.argsort(events["t"]), :]
+        events = events[np.argsort(events["t"])]
 
     return events

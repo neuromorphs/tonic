@@ -313,7 +313,6 @@ class SpatialJitter:
     variance_x: float = 1
     variance_y: float = 1
     sigma_x_y: float = 0
-    integer_jitter: bool = False
     clip_outliers: bool = False
 
     def __call__(self, event_data):
@@ -325,7 +324,6 @@ class SpatialJitter:
             variance_x=self.variance_x,
             variance_y=self.variance_y,
             sigma_x_y=self.sigma_x_y,
-            integer_jitter=self.integer_jitter,
             clip_outliers=self.clip_outliers,
         ), sensor_size
 
@@ -355,7 +353,6 @@ class TimeJitter:
 
 
     std: float = 1
-    integer_jitter: bool = False
     clip_negative: bool = False
     sort_timestamps: bool = False
 
@@ -365,7 +362,6 @@ class TimeJitter:
             events,
             
             self.std,
-            self.integer_jitter,
             self.clip_negative,
             self.sort_timestamps,
         ), sensor_size
@@ -390,12 +386,11 @@ class TimeSkew:
 
     coefficient: float
     offset: float = 0
-    integer_time: bool = False
 
     def __call__(self, event_data):
         events, sensor_size = event_data
         return functional.time_skew_numpy(
-            events, self.coefficient, self.offset, self.integer_time
+            events, self.coefficient, self.offset
         ), sensor_size
 
 
@@ -413,18 +408,16 @@ class UniformNoise:
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        noise_events = []
+        noise_events = np.zeros(self.n_noise_events, dtype=events.dtype)
         for channel in events.dtype.names:
             event_channel = events[channel]
-            channel_samples = np.random.uniform(
-                low=event_channel.min(),
-                high=event_channel.max(),
-                size=self.n_noise_events,
-            )
-            noise_events.append(channel_samples)
-        noise_events = np.column_stack(noise_events)
+            if channel == "x": low, high = 0, sensor_size[0]
+            if channel == "y": low, high = 0, sensor_size[1]
+            if channel == "p": low, high = 0, sensor_size[2]
+            if channel == "t": low, high = events["t"].min(), events["t"].max()
+            noise_events[channel] = np.random.uniform(low=low, high=high, size=self.n_noise_events)
         events = np.concatenate((events, noise_events))
-        return events[np.argsort(events["t"]), :], sensor_size
+        return events[np.argsort(events["t"])], sensor_size
 
 
 @dataclass(frozen=True)
@@ -443,7 +436,6 @@ class ToAveragedTimesurface:
     """
 
 
-    sensor_size: Tuple[int, int]
     cell_size = 10
     surface_size = 7
     temporal_window = 5e5
@@ -505,9 +497,8 @@ class ToFrame:
     """
 
 
-    sensor_size: Tuple[int, int]
     time_window: Optional[float] = None
-    spike_count: Optional[int] = None
+    event_count: Optional[int] = None
     n_time_bins: Optional[int] = None
     n_event_bins: Optional[int] = None
     overlap: float = 0
@@ -518,10 +509,9 @@ class ToFrame:
         events, sensor_size = event_data
         return functional.to_frame_numpy(
             events=events,
-            sensor_size=self.sensor_size,
-            
+            sensor_size=sensor_size,
             time_window=self.time_window,
-            spike_count=self.spike_count,
+            event_count=self.event_count,
             n_time_bins=self.n_time_bins,
             n_event_bins=self.n_event_bins,
             overlap=self.overlap,
@@ -540,7 +530,6 @@ class ToSparseTensor:
     """
 
 
-    sensor_size: Tuple[int, int]
     backend: str = "pytorch"
     merge_polarities: bool = False
 
@@ -574,7 +563,6 @@ class ToDenseTensor:
     """
 
 
-    sensor_size: Tuple[int, int]
     backend: str = "pytorch"
     merge_polarities: bool = False
 
@@ -605,7 +593,6 @@ class ToTimesurface:
     """
 
 
-    sensor_size: Tuple[int, int]
     surface_dimensions: Tuple[int, int] = (7, 7)
     tau: float = 5e3
     decay: str = "lin"
@@ -632,13 +619,12 @@ class ToVoxelGrid:
         n_time_bins (int): fixed number of time bins to slice the event sample into."""
 
 
-    sensor_size: Tuple[int, int]
     n_time_bins: int
 
     def __call__(self, event_data):
         events, sensor_size = event_data
         return functional.to_voxel_grid_numpy(
-            events, self.sensor_size, self.n_time_bins
+            events, sensor_size, self.n_time_bins
         )
 
 
