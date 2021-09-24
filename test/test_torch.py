@@ -17,7 +17,7 @@ class TestFunctionalTorch:
         "merge_polarities", [(True), (False), ("txp", True), ("xtp", False),],
     )
     def testToSparseTensor(self, merge_polarities):
-        (events, images, sensor_size,) = utils.create_random_input(dtype)
+        (events, images, sensor_size,) = create_random_input()
         tensor = F.to_sparse_tensor_pytorch(
             events, sensor_size=sensor_size, merge_polarities=merge_polarities,
         )

@@ -7,8 +7,8 @@ import utils
 class TestFunctionalNumpy:
     @pytest.mark.parametrize("ordering", ["typx"])
     def testMixEvents(self, ordering):
-        (stream1, images, sensor_size,) = utils.create_random_input(dtype)
-        (stream2, images, sensor_size,) = utils.create_random_input(dtype)
+        (stream1, images, sensor_size,) = create_random_input()
+        (stream2, images, sensor_size,) = create_random_input()
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         events = (stream1, stream2)

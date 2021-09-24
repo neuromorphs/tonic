@@ -10,11 +10,11 @@ class TestRepresentations:
         " include_incomplete, merge_polarities",
         [
             (2000, None, None, None, 0, False, True),
-            ("txyp", 2000, None, None, None, 200, True, False),
+            (2000, None, None, None, 200, True, False),
             (1000, None, None, None, 100, True, True),
-            ("txyp", None, 2000, None, None, 0, False, True),
+            (None, 2000, None, None, 0, False, True),
             (None, 2000, None, None, 200, True, False),
-            ("txyp", None, 2000, None, None, 100, True, True),
+            (None, 2000, None, None, 100, True, True),
             (None, None, 5, None, 0, False, True),
             (None, None, 5, None, 0.1, False, False),
             (None, None, 5, None, 0.25, True, False),
@@ -34,7 +34,7 @@ class TestRepresentations:
         include_incomplete,
         merge_polarities,
     ):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToFrame(
@@ -87,7 +87,7 @@ class TestRepresentations:
         "merge_polarities", [(True), (False),],
     )
     def test_representation_sparse_tensor(self, merge_polarities):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToSparseTensor(
@@ -105,7 +105,7 @@ class TestRepresentations:
         "merge_polarities", [(True), (False),],
     )
     def test_representation_dense_tensor(self, merge_polarities):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToDenseTensor(
@@ -121,12 +121,12 @@ class TestRepresentations:
 
     @pytest.mark.parametrize(
         "surface_dimensions, tau, merge_polarities",
-        [((15, 15), 100, True), ((3, 3), 10, False), ("txyp", None, 1e4, False),],
+        [((15, 15), 100, True), ((3, 3), 10, False), (None, 1e4, False),],
     )
     def test_representation_time_surface(
         self, surface_dimensions, tau, merge_polarities
     ):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.ToTimesurface(
             sensor_size=sensor_size,
@@ -146,7 +146,7 @@ class TestRepresentations:
 
     @pytest.mark.parametrize("n_time_bins", [(10), (1)])
     def test_representation_voxel_grid(self, n_time_bins):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.ToVoxelGrid(
             sensor_size=sensor_size, n_time_bins=n_time_bins

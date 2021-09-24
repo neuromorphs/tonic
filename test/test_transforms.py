@@ -23,7 +23,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("filter_time", [(1000), (500)])
     def test_transform_denoise(self, filter_time):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        orig_events, orig_sensor_size = create_random_input()
 
         transform = transforms.Denoise(filter_time=filter_time,)
 
@@ -42,7 +42,7 @@ class TestTransforms:
         "drop_probability, random_drop_probability", [(0.2, False), (0.5, True)],
     )
     def test_transform_drop_events(self, drop_probability, random_drop_probability):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.DropEvent(
             drop_probability=drop_probability,
@@ -69,7 +69,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("time_factor, spatial_factor", [(1, 0.25), (1e-3, 1)])
     def test_transform_downsample(self, time_factor, spatial_factor):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.Downsample(
             time_factor=time_factor,
@@ -85,7 +85,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("flip_probability", [(1.0), (1.0)])
     def test_transform_flip_lr(self, flip_probability):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.RandomFlipLR(
             flip_probability=flip_probability, sensor_size=sensor_size
@@ -100,7 +100,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("flip_probability", [(1.0), (0)])
     def test_transform_flip_polarity(self, flip_probability):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.RandomFlipPolarity(flip_probability=flip_probability)
 
@@ -119,7 +119,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("flip_probability", [(1.0), (1.0)])
     def test_transform_flip_ud(self, flip_probability):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.RandomFlipUD(
             flip_probability=flip_probability, sensor_size=sensor_size
@@ -133,7 +133,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("refractory_period", [(1000), (50)])
     def test_transform_refractory_period(self, refractory_period):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.RefractoryPeriod(refractory_period=refractory_period,)
 
@@ -160,7 +160,7 @@ class TestTransforms:
         ],
     )
     def test_transform_spatial_jitter(self, variance, integer_jitter, clip_outliers):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.SpatialJitter(
             sensor_size=sensor_size,
@@ -205,13 +205,13 @@ class TestTransforms:
         [
             (10, False, True, True),
             (50, True, False, False),
-            ("pxty", 0, True, True, False),
+            (0, True, True, False),
         ],
     )
     def test_transform_time_jitter(
         self, std, integer_jitter, clip_negative, sort_timestamps
     ):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         # we do this to ensure integer timestamps before testing for int jittering
         if integer_jitter:
@@ -244,7 +244,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("flip_probability", [(1000), (50)])
     def test_transform_time_reversal(self, flip_probability):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         original_t = orig_events[0, t_index]
         original_p = orig_events[0, p_index]
@@ -264,10 +264,10 @@ class TestTransforms:
 
     @pytest.mark.parametrize(
         "offset, coefficient, integer_time",
-        [(100, 3.1, True), (0, 0.7, False), ("ptyx", 10, 2.7, False)],
+        [(100, 3.1, True), (0, 0.7, False), (10, 2.7, False)],
     )
     def test_transform_time_skew(self, offset, coefficient, integer_time):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.TimeSkew(
             coefficient=coefficient, offset=offset, integer_time=integer_time,
@@ -291,7 +291,7 @@ class TestTransforms:
 
     @pytest.mark.parametrize("n_noise_events", [(100), (0)])
     def test_transform_uniform_noise(self, n_noise_events):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.UniformNoise(n_noise_events=n_noise_events,)
 
@@ -304,7 +304,7 @@ class TestTransforms:
         ), "Event noise should maintain temporal order."
 
     def test_transform_time_alignment(self):
-        (orig_events, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, sensor_size,) = create_random_input()
 
         transform = transforms.TimeAlignment()
 

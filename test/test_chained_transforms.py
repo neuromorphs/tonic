@@ -7,7 +7,7 @@ import utils
 class TestChainedTransforms:
     def testTimeReversalSpatialJitter(self):
         ordering = "xytp"
-        (orig_events, original_images, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, original_images, sensor_size,) = create_random_input()
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         flip_probability = 1
@@ -56,7 +56,7 @@ class TestChainedTransforms:
 
     def testDropoutFlipUD(self):
         ordering = "xytp"
-        (orig_events, images, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, images, sensor_size,) = create_random_input()
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         flip_probability = 1
@@ -97,7 +97,7 @@ class TestChainedTransforms:
 
     def testTimeSkewFlipPolarityFlipLR(self):
         ordering = "xytp"
-        (orig_events, images, sensor_size,) = utils.create_random_input(dtype)
+        (orig_events, images, sensor_size,) = create_random_input()
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         coefficient = 1.5
