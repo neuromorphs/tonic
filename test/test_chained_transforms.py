@@ -7,12 +7,7 @@ import utils
 class TestChainedTransforms:
     def testTimeReversalSpatialJitter(self):
         ordering = "xytp"
-        (
-            orig_events,
-            original_images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input(dtype)
+        (orig_events, original_images, sensor_size,) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         flip_probability = 1
@@ -21,9 +16,8 @@ class TestChainedTransforms:
         sigma_x_y = 0
         transform = transforms.Compose(
             [
-                transforms.RandomTimeReversal(ordering=ordering, flip_probability=flip_probability),
+                transforms.RandomTimeReversal(flip_probability=flip_probability),
                 transforms.SpatialJitter(
-                    ordering=ordering, 
                     sensor_size=sensor_size,
                     variance_x=variance_x,
                     variance_y=variance_y,
@@ -32,9 +26,7 @@ class TestChainedTransforms:
                 ),
             ]
         )
-        events = transform(
-            events=orig_events.copy(),
-        )
+        events = transform(events=orig_events.copy(),)
 
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
@@ -64,12 +56,7 @@ class TestChainedTransforms:
 
     def testDropoutFlipUD(self):
         ordering = "xytp"
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input(dtype)
+        (orig_events, images, sensor_size,) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         flip_probability = 1
@@ -78,13 +65,13 @@ class TestChainedTransforms:
         transform = transforms.Compose(
             [
                 transforms.DropEvent(drop_probability=drop_probability),
-                transforms.RandomFlipUD(ordering=ordering, sensor_size=sensor_size, flip_probability=flip_probability),
+                transforms.RandomFlipUD(
+                    sensor_size=sensor_size, flip_probability=flip_probability
+                ),
             ]
         )
 
-        events = transform(
-            events=orig_events.copy(),
-        )
+        events = transform(events=orig_events.copy(),)
 
         drop_events = np.isclose(
             events.shape[0], (1 - drop_probability) * orig_events.shape[0]
@@ -110,12 +97,7 @@ class TestChainedTransforms:
 
     def testTimeSkewFlipPolarityFlipLR(self):
         ordering = "xytp"
-        (
-            orig_events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input(dtype)
+        (orig_events, images, sensor_size,) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         coefficient = 1.5
@@ -125,15 +107,15 @@ class TestChainedTransforms:
 
         transform = transforms.Compose(
             [
-                transforms.TimeSkew(ordering=ordering, coefficient=coefficient, offset=offset),
-                transforms.RandomFlipPolarity(ordering=ordering, flip_probability=flip_probability_pol),
-                transforms.RandomFlipLR(ordering=ordering, sensor_size=sensor_size, flip_probability=flip_probability_lr),
+                transforms.TimeSkew(coefficient=coefficient, offset=offset),
+                transforms.RandomFlipPolarity(flip_probability=flip_probability_pol),
+                transforms.RandomFlipLR(
+                    sensor_size=sensor_size, flip_probability=flip_probability_lr
+                ),
             ]
         )
 
-        events = transform(
-            events=orig_events.copy(),
-        )
+        events = transform(events=orig_events.copy(),)
 
         assert len(events) == len(orig_events)
         assert (events[:, 2] >= orig_events[:, 2]).all()

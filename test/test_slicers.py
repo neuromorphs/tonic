@@ -1,5 +1,10 @@
 import numpy as np
-from tonic.slicers import SliceAtIndices, SliceAtTimePoints, SliceByEventCount, SliceByTime
+from tonic.slicers import (
+    SliceAtIndices,
+    SliceAtTimePoints,
+    SliceByEventCount,
+    SliceByTime,
+)
 from tonic.functional.slicing import slice_at_indices
 
 

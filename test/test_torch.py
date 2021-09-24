@@ -14,21 +14,12 @@ class TestFunctionalTorch:
         return x_index, y_index, t_index, p_index
 
     @pytest.mark.parametrize(
-        "ordering, merge_polarities",
-        [("xytp", True), ("typx", False), ("txp", True), ("xtp", False),],
+        "merge_polarities", [(True), (False), ("txp", True), ("xtp", False),],
     )
-    def testToSparseTensor(self, ordering, merge_polarities):
-        (
-            events,
-            images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input(dtype)
+    def testToSparseTensor(self, merge_polarities):
+        (events, images, sensor_size,) = utils.create_random_input(dtype)
         tensor = F.to_sparse_tensor_pytorch(
-            events,
-            sensor_size=sensor_size,
-            ordering=ordering,
-            merge_polarities=merge_polarities,
+            events, sensor_size=sensor_size, merge_polarities=merge_polarities,
         )
         x_index, y_index, t_index, p_index = self.findXytpPermutation(ordering)
 
@@ -52,7 +43,7 @@ class TestFunctionalTorch:
         if merge_polarities:
             assert tensor.shape[1] == 1
         else:
-            assert tensor.shape[1] == len(np.unique(events['p'])), (
+            assert tensor.shape[1] == len(np.unique(events["p"])), (
                 "Amount of channels is not equivalent to unique number of polarities in"
                 " events"
             )
