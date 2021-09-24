@@ -1,24 +1,25 @@
 import pytest
 import numpy as np
 import tonic.transforms as transforms
-import utils
+from utils import create_random_input
 
 dtype = np.dtype([('x', int), ('y', int), ('t', int), ('p', int)])
 
 class TestTransforms:
     @pytest.mark.parametrize(
-        "ordering, target_size", [("xytp", (50, 50)), ("typx", (10, 5))]
+        "target_size", [(50, 50), (10, 5)]
     )
-    def test_transform_random_crop(self, ordering, target_size):
-        orig_events, sensor_size = utils.create_random_input_with_dtype(dtype)
+    def test_transform_random_crop(self, target_size):
+        print(target_size)
+        orig_events, orig_sensor_size = create_random_input()
 
-        transform = transforms.RandomCrop(target_size=target_size, sensor_size=sensor_size)
-
-        events = transform(events=orig_events.copy())
+        transform = transforms.RandomCrop(target_size=target_size)
+        events, sensor_size = transform((orig_events.copy(), orig_sensor_size))
 
         assert np.all(events['x']) < target_size[0] and np.all(
             events['y'] < target_size[1]
-        ), "Cropping needs to map the events into the new space"
+        ), "Cropping needs to map the events into the new space."
+        assert sensor_size == target_size, "Sensor size needs to match the target cropping size"
 
 
     @pytest.mark.parametrize("ordering, filter_time", [("xytp", 1000), ("typx", 500)])

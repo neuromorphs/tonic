@@ -148,7 +148,7 @@ class NumpyAsType:
     dtype: np.dtype
 
     def __call__(self, events):
-        ...
+        return events.astype(self.dtype)
 
 
 @dataclass(frozen=True)
@@ -170,7 +170,6 @@ class RandomCrop:
         return functional.crop_numpy(
             events=events, sensor_size=sensor_size, target_size=self.target_size,
         )
-        return events.astype(self.dtype)
 
 
 @dataclass(frozen=True)
