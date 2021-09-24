@@ -96,5 +96,14 @@ def to_frame_numpy(
     )
     for i, event_slice in enumerate(event_slices):
         event_slice = event_slice.astype(int)
-        np.add.at(frames, (i, event_slice[:, p_index], event_slice[:, x_index],  event_slice[:, y_index]), 1)
+        np.add.at(
+            frames,
+            (
+                i,
+                event_slice[:, p_index],
+                event_slice[:, x_index],
+                event_slice[:, y_index],
+            ),
+            1,
+        )
     return frames

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def to_timesurface_numpy(
     events,
     sensor_size,
@@ -23,7 +24,7 @@ def to_timesurface_numpy(
     Returns:
         array of timesurfaces with dimensions (w,h) or (p,w,h)
     """
-        
+
     if surface_dimensions:
         assert len(surface_dimensions) == 2
         assert surface_dimensions[0] % 2 == 1 and surface_dimensions[1] % 2 == 1
@@ -33,7 +34,7 @@ def to_timesurface_numpy(
         radius_x = 0
         radius_y = 0
         surface_dimensions = sensor_size
-        
+
     assert "x" and "y" and "t" and "p" in ordering
     x_index = ordering.find("x")
     y_index = ordering.find("y")
@@ -65,8 +66,8 @@ def to_timesurface_numpy(
                 - event[t_index]
             )
         else:
-            timestamp_context = (timestamp_memory - event[t_index])
-            
+            timestamp_context = timestamp_memory - event[t_index]
+
         if decay == "lin":
             timesurface = timestamp_context / (3 * tau) + 1
             timesurface[timesurface < 0] = 0

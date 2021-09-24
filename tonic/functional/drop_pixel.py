@@ -2,9 +2,7 @@ import numpy as np
 
 
 # from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/preprocess.py#L188
-def identify_hot_pixel(
-    events: np.ndarray, ordering: str, hot_pixel_frequency: float
-):
+def identify_hot_pixel(events: np.ndarray, ordering: str, hot_pixel_frequency: float):
     """Identifies pixels that fire above above a certain frequency, averaged across 
     whole event recording. Such _hot_ pixels are sometimes caused by faulty hardware.
     
@@ -29,7 +27,10 @@ def identify_hot_pixel(
     hist = np.histogram2d(
         events[:, x_index],
         events[:, y_index],
-        bins=(np.arange(events[:, y_index].max() + 1), np.arange(events[:, x_index].max() + 1)),
+        bins=(
+            np.arange(events[:, y_index].max() + 1),
+            np.arange(events[:, x_index].max() + 1),
+        ),
     )[0]
     max_occur = hot_pixel_frequency * total_time * 1e-6
     hot_pixels = np.asarray((hist > max_occur).nonzero()).T

@@ -1,6 +1,11 @@
 import warnings
 import numpy as np
-from tonic.slicers import SliceByTime, SliceByEventCount, SliceAtIndices, SliceAtTimePoints
+from tonic.slicers import (
+    SliceByTime,
+    SliceByEventCount,
+    SliceAtIndices,
+    SliceAtTimePoints,
+)
 from typing import List
 
 
@@ -98,7 +103,9 @@ def slice_by_event_count(
     Returns:
         list of event slices (np.ndarray)
     """
-    return SliceByEventCount(event_count=event_count, overlap=overlap, include_incomplete=include_incomplete).slice(events)
+    return SliceByEventCount(
+        event_count=event_count, overlap=overlap, include_incomplete=include_incomplete
+    ).slice(events)
 
 
 def slice_by_event_bins(
@@ -133,6 +140,8 @@ def slice_at_indices(xytp: np.ndarray, start_indices, end_indices):
     return slicer.slice(xytp)
 
 
-def slice_at_timepoints(xytp: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray) -> List[np.ndarray]:
+def slice_at_timepoints(
+    xytp: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray
+) -> List[np.ndarray]:
     slicer = SliceAtTimePoints(start_tw=start_tw, end_tw=end_tw)
     return slicer.slice(xytp)

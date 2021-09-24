@@ -25,14 +25,13 @@ def refractory_period_numpy(events, ordering, refractory_period=0.5):
     t_index = ordering.find("t")
     x_index = ordering.find("x")
     y_index = ordering.find("y")
-    
+
     sensor_x, sensor_y = sensor_size_from_events(events, ordering)
 
     events_copy = np.zeros(events.shape, dtype=events.dtype)
     copy_index = 0
     timestamp_memory = (
-        np.zeros((sensor_x, sensor_y), dtype=events.dtype)
-        - refractory_period
+        np.zeros((sensor_x, sensor_y), dtype=events.dtype) - refractory_period
     )
 
     for event in events:

@@ -60,6 +60,7 @@ class SliceByTime:
         include_incomplete: bool
             include incomplete slices ie potentially the last xytp
     """
+
     time_window: float
     overlap: float = 0.0
     include_incomplete: bool = False
@@ -102,6 +103,7 @@ class SliceByEventCount:
         include_incomplete: bool
             include incomplete slices ie potentially the last xytp
     """
+
     event_count: int
     overlap: int = 0
     include_incomplete: bool = False
@@ -113,7 +115,7 @@ class SliceByEventCount:
     def get_slice_metadata(self, data: np.ndarray) -> List[Tuple[int, int]]:
         n_events = len(data)
         event_count = min(self.event_count, n_events)
-        
+
         stride = self.event_count - self.overlap
         if stride <= 0:
             raise Exception("Inferred stride <= 0")
@@ -126,7 +128,7 @@ class SliceByEventCount:
         indices_start = (np.arange(n_slices) * stride).astype(int)
         indices_end = indices_start + event_count
         return list(zip(indices_start, indices_end))
-    
+
     @staticmethod
     def slice_with_metadata(data: np.ndarray, metadata: List[Tuple[int, int]]):
         return [data[start:end] for start, end in metadata]
@@ -141,6 +143,7 @@ class SliceAtIndices:
         start_indices: (List[Int]): List of start indices
         end_indices: (List[Int]): List of end indices (exclusive)
     """
+
     start_indices: np.ndarray
     end_indices: np.ndarray
 
@@ -165,6 +168,7 @@ class SliceAtTimePoints:
         tw_start: (List[Int]): List of start times
         tw_end: (List[Int]): List of end times
     """
+
     start_tw: np.ndarray
     end_tw: np.ndarray
 

@@ -148,6 +148,7 @@ class NumpyAsType:
     dtype: np.dtype
 
     def __call__(self, events):
+        ...
 
 
 @dataclass(frozen=True)
@@ -167,9 +168,7 @@ class RandomCrop:
     def __call__(self, event_data):
         events, sensor_size = event_data
         return functional.crop_numpy(
-            events=events,
-            sensor_size=sensor_size,
-            target_size=self.target_size,
+            events=events, sensor_size=sensor_size, target_size=self.target_size,
         )
         return events.astype(self.dtype)
 
@@ -336,7 +335,7 @@ class TimeAlignment:
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         assert "t" in ordering
         t_index = ordering.index("t")
-        events[:,t_index] -= min(events[:, t_index])
+        events[:, t_index] -= min(events[:, t_index])
         return events, images, sensor_size
 
 
@@ -574,10 +573,15 @@ class ToDenseTensor:
     merge_polarities: bool = False
 
     def __call__(self, events):
-        tensor = ToSparseTensor(ordering=self.ordering, sensor_size=self.sensor_size, backend=self.backend, merge_polarities=self.merge_polarities)(events)
+        tensor = ToSparseTensor(
+            ordering=self.ordering,
+            sensor_size=self.sensor_size,
+            backend=self.backend,
+            merge_polarities=self.merge_polarities,
+        )(events)
         if self.backend == "pytorch" or "pt" or "torch":
             return tensor.to_dense()
-            
+
 
 @dataclass(frozen=True)
 class ToTimesurface:
@@ -592,7 +596,7 @@ class ToTimesurface:
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
-    
+
     ordering: str
     sensor_size: Tuple[int, int]
     surface_dimensions: Tuple[int, int] = (7, 7)
@@ -634,7 +638,7 @@ class Repeat:
     """Copies target n times. Useful to transform sample labels into sequences."""
 
     n_repeat: int
-    
+
     def __call__(self, target):
         return np.tile(np.expand_dims(target, 0), [self.n_repeat, 1])
 
@@ -644,6 +648,6 @@ class ToOneHotEncoding:
     """Transforms one or more targets into a one hot encoding scheme."""
 
     n_classes: int
-    
+
     def __call__(self, target):
         return np.eye(self.n_classes)[target]

@@ -1,9 +1,7 @@
 import numpy as np
 
 
-def crop_numpy(
-    events, sensor_size, ordering, target_size
-):
+def crop_numpy(events, sensor_size, ordering, target_size):
     """Crops the sensor size to a smaller sensor.
 
     x' = x - new_sensor_start_x
