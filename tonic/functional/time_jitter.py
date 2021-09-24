@@ -33,12 +33,12 @@ def time_jitter_numpy(
     if integer_jitter:
         shifts = shifts.round()
 
-    events['t'] = events['t'] + shifts
+    events["t"] = events["t"] + shifts
 
     if clip_negative:
-        events = np.delete(events, (np.where(events['t'] < 0)), axis=0)
+        events = np.delete(events, (np.where(events["t"] < 0)), axis=0)
 
     if sort_timestamps:
-        events = events[np.argsort(events['t']), :]
+        events = events[np.argsort(events["t"]), :]
 
     return events

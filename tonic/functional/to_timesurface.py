@@ -43,8 +43,8 @@ def to_timesurface_numpy(
     n_of_events = len(events)
 
     if merge_polarities:
-        events['p'] = np.zeros(n_of_events)
-    n_of_pols = len(np.unique(events['p']))
+        events["p"] = np.zeros(n_of_events)
+    n_of_pols = len(np.unique(events["p"]))
     timestamp_memory = np.zeros(
         (n_of_pols, sensor_size[0] + radius_x * 2, sensor_size[1] + radius_y * 2)
     )

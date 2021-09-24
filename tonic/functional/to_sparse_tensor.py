@@ -30,17 +30,17 @@ def get_indices_values(events, sensor_size, ordering, merge_polarities):
     values = np.ones(events.shape[0])
 
     # prevents polarities used as indices that are not 0
-    if len(np.unique(events['p'])) == 1:
+    if len(np.unique(events["p"])) == 1:
         merge_polarities = True
 
     if merge_polarities:  # the indices need to start at 0
-        events['p'] = 0
+        events["p"] = 0
         n_channels = 1
     else:  # avoid any negative indices
-        events[events['p'] == -1, p_index] = 0
-        n_channels = len(np.unique(events['p']))
+        events[events["p"] == -1, p_index] = 0
+        n_channels = len(np.unique(events["p"]))
 
-    max_time = int(max(events['t']) + 1)
+    max_time = int(max(events["t"]) + 1)
 
     if "y" in ordering:
         y_index = ordering.find("y")

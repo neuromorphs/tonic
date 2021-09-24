@@ -190,7 +190,7 @@ class RandomFlipPolarity:
         flips = np.ones(len(events))
         probs = np.random.rand(len(events))
         flips[probs < self.flip_probability] = -1
-        events['p'] = events['p'] * flips
+        events["p"] = events["p"] * flips
         return events
 
 
@@ -212,7 +212,7 @@ class RandomFlipLR:
         assert "x" in self.ordering
         if np.random.rand() <= self.flip_probability:
             x_loc = self.ordering.index("x")
-            events['x'] = self.sensor_size[0] - 1 - events['x']
+            events["x"] = self.sensor_size[0] - 1 - events["x"]
         return events
 
 
@@ -235,7 +235,7 @@ class RandomFlipUD:
         assert "y" in self.ordering
         if np.random.rand() <= self.flip_probability:
             y_loc = self.ordering.index("y")
-            events['y'] = self.sensor_size[1] - 1 - events['y']
+            events["y"] = self.sensor_size[1] - 1 - events["y"]
         return events
 
 
@@ -260,8 +260,8 @@ class RandomTimeReversal:
         if np.random.rand() < self.flip_probability:
             t_loc = self.ordering.index("t")
             p_loc = self.ordering.index("p")
-            events['t'] = np.max(events['t']) - events['t']
-            events['p'] *= -1
+            events["t"] = np.max(events["t"]) - events["t"]
+            events["p"] *= -1
         return events
 
 
@@ -334,7 +334,7 @@ class TimeAlignment:
     def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
         assert "t" in ordering
         t_index = ordering.index("t")
-        events['t'] -= min(events['t'])
+        events["t"] -= min(events["t"])
         return events, images, sensor_size
 
 
@@ -420,7 +420,7 @@ class UniformNoise:
         noise_events = np.column_stack(noise_events)
         events = np.concatenate((events, noise_events))
         t_index = self.ordering.index("t")
-        return events[np.argsort(events['t']), :]
+        return events[np.argsort(events["t"]), :]
 
 
 @dataclass(frozen=True)

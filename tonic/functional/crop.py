@@ -27,15 +27,15 @@ def crop_numpy(events, sensor_size, target_size):
     y_end_ind = y_start_ind + target_size[1]
 
     event_mask = (
-        (events['x'] >= x_start_ind)
-        * (events['x'] < x_end_ind)
-        * (events['y'] >= y_start_ind)
-        * (events['y'] < y_end_ind)
+        (events["x"] >= x_start_ind)
+        * (events["x"] < x_end_ind)
+        * (events["y"] >= y_start_ind)
+        * (events["y"] < y_end_ind)
     )
 
     events = events[event_mask, ...]
-    events['x'] -= x_start_ind
-    events['y'] -= y_start_ind
+    events["x"] -= x_start_ind
+    events["y"] -= y_start_ind
 
     sensor_size = target_size
 

@@ -32,8 +32,8 @@ def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False
     )
     x_index = ordering.find("x")
     y_index = ordering.find("y")
-    sensor_size_x = int(events['x'].max() + 1)
-    sensor_size_y = int(events['y'].max() + 1)
+    sensor_size_x = int(events["x"].max() + 1)
+    sensor_size_y = int(events["y"].max() + 1)
     sensor_size = (sensor_size_x, sensor_size_y)
 
     volume = transform(events, sensor_size=sensor_size, ordering=ordering)

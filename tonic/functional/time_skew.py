@@ -32,9 +32,9 @@ def time_skew_numpy(
     assert "t" in ordering
     t_index = ordering.index("t")
 
-    events['t'] = events['t'] * coefficient + offset
+    events["t"] = events["t"] * coefficient + offset
 
     if integer_time:
-        events['t'] = events['t'].round()
+        events["t"] = events["t"].round()
 
     return events

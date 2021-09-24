@@ -46,17 +46,17 @@ def spatial_jitter_numpy(
     if integer_jitter:
         shifts = shifts.round()
 
-    events['x'] = events['x'] + shifts[:, 0]
-    events['y'] = events['y'] + shifts[:, 1]
+    events["x"] = events["x"] + shifts[:, 0]
+    events["y"] = events["y"] + shifts[:, 1]
 
     if clip_outliers:
         events = np.delete(
             events,
             np.where(
-                (events['x'] < 0)
-                | (events['x'] >= sensor_size[0])
-                | (events['y'] < 0)
-                | (events['y'] >= sensor_size[1])
+                (events["x"] < 0)
+                | (events["x"] >= sensor_size[0])
+                | (events["y"] < 0)
+                | (events["y"] >= sensor_size[1])
             ),
             axis=0,
         )

@@ -59,9 +59,9 @@ def to_frame_numpy(
     n_events = len(events)
 
     if merge_polarities:
-        events['p'] = np.zeros_like(events['p'])
+        events["p"] = np.zeros_like(events["p"])
     else:
-        events['p'][events['p'] == -1] = 0
+        events["p"][events["p"] == -1] = 0
 
     if time_window:
         event_slices = slice_by_time(
@@ -88,7 +88,7 @@ def to_frame_numpy(
             events, ordering, n_event_bins, overlap=overlap
         )
 
-    bins_p = len(np.unique(events['p']))
+    bins_p = len(np.unique(events["p"]))
     bins_y, bins_x = (range(sensor_size[0] + 1), range(sensor_size[1] + 1))
 
     frames = np.zeros(
