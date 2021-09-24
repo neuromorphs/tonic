@@ -20,10 +20,10 @@ class Compose:
     def __init__(self, transforms: Callable):
         self.transforms = transforms
 
-    def __call__(self, events):
+    def __call__(self, event_data):
         for t in self.transforms:
-            events = t(events)
-        return events
+            event_data = t(event_data)
+        return event_data
 
     def __repr__(self):
         format_string = self.__class__.__name__ + "("
@@ -32,31 +32,6 @@ class Compose:
             format_string += "    {0}".format(t)
         format_string += "\n)"
         return format_string
-
-
-@dataclass(frozen=True)
-class RandomCrop:
-    """Crops the sensor size to a smaller sensor in a random location.
-
-    x' = x - new_sensor_start_x
-
-    y' = y - new_sensor_start_y
-
-    Parameters:
-        target_size: size of the sensor that was used [W',H']
-    """
-
-    target_size: Tuple[int, int]
-    sensor_size: Tuple[int, int]
-    ordering: str
-
-    def __call__(self, events):
-        return functional.crop_numpy(
-            events=events,
-            sensor_size=self.sensor_size,
-            ordering=self.ordering,
-            target_size=self.target_size,
-        )
 
 
 @dataclass(frozen=True)
@@ -173,6 +148,29 @@ class NumpyAsType:
     dtype: np.dtype
 
     def __call__(self, events):
+
+
+@dataclass(frozen=True)
+class RandomCrop:
+    """Crops the sensor size to a smaller sensor in a random location.
+
+    x' = x - new_sensor_start_x
+
+    y' = y - new_sensor_start_y
+
+    Parameters:
+        target_size: size of the sensor that was used [W',H']
+    """
+
+    target_size: Tuple[int, int]
+
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return functional.crop_numpy(
+            events=events,
+            sensor_size=sensor_size,
+            target_size=self.target_size,
+        )
         return events.astype(self.dtype)
 
 

@@ -3,21 +3,16 @@ import numpy as np
 import tonic.transforms as transforms
 import utils
 
+dtype = np.dtype([('x', int), ('y', int), ('t', int), ('p', int)])
 
 class TestTransforms:
     @pytest.mark.parametrize(
         "ordering, target_size", [("xytp", (50, 50)), ("typx", (10, 5))]
     )
     def test_transform_random_crop(self, ordering, target_size):
-        (
-            orig_events,
-            orig_images,
-            sensor_size,
-            is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+        orig_events, sensor_size = utils.create_random_input_with_dtype(dtype)
 
-        transform = transforms.RandomCrop(target_size=target_size, sensor_size=sensor_size, ordering=ordering)
+        transform = transforms.RandomCrop(target_size=target_size, sensor_size=sensor_size)
 
         events = transform(events=orig_events.copy())
 
