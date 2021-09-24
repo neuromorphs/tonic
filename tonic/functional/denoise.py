@@ -17,7 +17,7 @@ def denoise_numpy(events, filter_time=10000):
     """
 
     assert "x" and "y" and "t" in events.dtype.names
-    
+
     events_copy = np.zeros_like(events)
     copy_index = 0
     width = int(events["x"].max()) + 1

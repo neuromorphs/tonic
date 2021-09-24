@@ -96,12 +96,11 @@ class DropPixel:
             self.coordinates = functional.identify_hot_pixel(
                 events=events,
                 sensor_size=sensor_size,
-                ordering=ordering,
                 hot_pixel_frequency=self.hot_pixel_frequency,
             )
 
         return functional.drop_pixel_numpy(
-            events=events, ordering=ordering, coordinates=self.coordinates,
+            events=events, coordinates=self.coordinates,
         )
 
 
@@ -129,7 +128,7 @@ class Downsample:
         )
         events, sensor_size = functional.spatial_resize_numpy(
             events=events,
-            sensor_size,
+            sensor_size=sensor_size,
             
             spatial_factor=self.spatial_factor,
             integer_coordinates=True,
@@ -187,14 +186,12 @@ class RandomFlipPolarity:
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-
-        assert "p" in self.ordering
-        p_loc = self.ordering.index("p")
+        assert "p" in events.dtype.names
         flips = np.ones(len(events))
         probs = np.random.rand(len(events))
         flips[probs < self.flip_probability] = -1
         events["p"] = events["p"] * flips
-        return events
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -214,11 +211,10 @@ class RandomFlipLR:
     def __call__(self, event_data):
         events, sensor_size = event_data
 
-        assert "x" in self.ordering
+        assert "x" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
-            x_loc = self.ordering.index("x")
             events["x"] = self.sensor_size[0] - 1 - events["x"]
-        return events
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -239,11 +235,10 @@ class RandomFlipUD:
     def __call__(self, event_data):
         events, sensor_size = event_data
 
-        assert "y" in self.ordering
+        assert "y" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
-            y_loc = self.ordering.index("y")
             events["y"] = self.sensor_size[1] - 1 - events["y"]
-        return events
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -264,13 +259,11 @@ class RandomTimeReversal:
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        assert "t" and "p" in self.ordering
+        assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.flip_probability:
-            t_loc = self.ordering.index("t")
-            p_loc = self.ordering.index("p")
             events["t"] = np.max(events["t"]) - events["t"]
             events["p"] *= -1
-        return events
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -294,7 +287,7 @@ class RefractoryPeriod:
         events, sensor_size = event_data
         return functional.refractory_period_numpy(
             events, self.refractory_period
-        )
+        ), sensor_size
 
 
 @dataclass(frozen=True)
@@ -334,18 +327,18 @@ class SpatialJitter:
             sigma_x_y=self.sigma_x_y,
             integer_jitter=self.integer_jitter,
             clip_outliers=self.clip_outliers,
-        )
+        ), sensor_size
 
 
 class TimeAlignment:
     """Shifts the timestamps to set the first event of all recordings of the dataset to zero.
     """
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        assert "t" in ordering
-        t_index = ordering.index("t")
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        assert "t" in events.dtype.names
         events["t"] -= min(events["t"])
-        return events, images, sensor_size
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -375,7 +368,7 @@ class TimeJitter:
             self.integer_jitter,
             self.clip_negative,
             self.sort_timestamps,
-        )
+        ), sensor_size
 
 
 @dataclass(frozen=True)
@@ -403,7 +396,7 @@ class TimeSkew:
         events, sensor_size = event_data
         return functional.time_skew_numpy(
             events, self.coefficient, self.offset, self.integer_time
-        )
+        ), sensor_size
 
 
 @dataclass(frozen=True)
@@ -421,9 +414,8 @@ class UniformNoise:
     def __call__(self, event_data):
         events, sensor_size = event_data
         noise_events = []
-        for channel in self.ordering:
-            channel_index = self.ordering.index(channel)
-            event_channel = events[:, channel_index]
+        for channel in events.dtype.names:
+            event_channel = events[channel]
             channel_samples = np.random.uniform(
                 low=event_channel.min(),
                 high=event_channel.max(),
@@ -432,8 +424,7 @@ class UniformNoise:
             noise_events.append(channel_samples)
         noise_events = np.column_stack(noise_events)
         events = np.concatenate((events, noise_events))
-        t_index = self.ordering.index("t")
-        return events[np.argsort(events["t"]), :]
+        return events[np.argsort(events["t"]), :], sensor_size
 
 
 @dataclass(frozen=True)
