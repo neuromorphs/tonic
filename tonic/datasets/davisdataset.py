@@ -1,8 +1,8 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from .dataset import Dataset
-from .download_utils import check_integrity, download_url
+from tonic.dataset import Dataset
+from tonic.download_utils import check_integrity, download_url
 
 
 class DAVISDATA(Dataset):

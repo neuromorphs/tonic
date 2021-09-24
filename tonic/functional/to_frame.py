@@ -1,8 +1,8 @@
 import numpy as np
 import math
-from .utils import (
+from .slicing import (
     slice_by_time,
-    slice_by_spike_count,
+    slice_by_event_count,
     slice_by_time_bins,
     slice_by_event_bins,
 )
@@ -72,7 +72,7 @@ def to_frame_numpy(
             include_incomplete=include_incomplete,
         )
     elif spike_count:
-        event_slices = slice_by_spike_count(
+        event_slices = slice_by_event_count(
             events,
             ordering,
             spike_count,

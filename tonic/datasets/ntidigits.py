@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import h5py
-from .dataset import Dataset
-from .download_utils import check_integrity, download_url
+from tonic.dataset import Dataset
+from tonic.download_utils import check_integrity, download_url
 
 
 class NTIDIGITS(Dataset):
