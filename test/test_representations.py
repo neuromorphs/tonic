@@ -39,7 +39,7 @@ class TestRepresentations:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToFrame(
@@ -102,7 +102,7 @@ class TestRepresentations:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToSparseTensor(
@@ -129,7 +129,7 @@ class TestRepresentations:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.ToDenseTensor(
@@ -158,7 +158,7 @@ class TestRepresentations:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         transform = transforms.ToTimesurface(
             ordering=ordering,
@@ -186,7 +186,7 @@ class TestRepresentations:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         transform = transforms.ToVoxelGrid(ordering=ordering, sensor_size=sensor_size,n_time_bins=n_time_bins)
 

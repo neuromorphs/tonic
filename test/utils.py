@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def create_random_input_with_dtype(ordering, sensor_size=(200, 100, 2), n_events=1000, dtype=np.dtype([('x', int), ('y', int), ('t', int), ('p', int)])):
+def create_random_input(sensor_size=(200, 100, 2), n_events=1000, dtype=np.dtype([('x', int), ('y', int), ('t', int), ('p', int)])):
     """
     Creates random events for testing purposes.
 

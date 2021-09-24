@@ -28,7 +28,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         transform = transforms.Denoise(filter_time=filter_time, ordering=ordering)
 
@@ -55,7 +55,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
@@ -92,7 +92,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
@@ -121,7 +121,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
@@ -145,7 +145,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.RandomFlipPolarity(ordering=ordering, flip_probability=flip_probability)
@@ -174,7 +174,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.RandomFlipUD(flip_probability=flip_probability, ordering=ordering, sensor_size=sensor_size)
@@ -198,7 +198,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         transform = transforms.RefractoryPeriod(refractory_period=refractory_period, ordering=ordering)
 
@@ -234,7 +234,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
         transform = transforms.SpatialJitter(
@@ -298,7 +298,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         # we do this to ensure integer timestamps before testing for int jittering
@@ -344,7 +344,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         original_t = orig_events[0, t_index]
@@ -375,7 +375,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.TimeSkew(
@@ -407,7 +407,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.UniformNoise(
@@ -431,7 +431,7 @@ class TestTransforms:
             orig_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         transform = transforms.TimeAlignment()

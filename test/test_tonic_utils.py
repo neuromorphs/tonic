@@ -22,13 +22,13 @@ def test_pytorch_batch_collation_dense_tensor():
         orig_images,
         sensor_size,
         is_multi_image,
-    ) = create_random_input_with_ordering(ordering)
+    ) = create_random_input(dtype)
     (
         events2,
         orig_images,
         sensor_size,
         is_multi_image,
-    ) = create_random_input_with_ordering(ordering)
+    ) = create_random_input(dtype)
 
     transform = tonic.transforms.Compose([tonic.transforms.ToDenseTensor(ordering=ordering, sensor_size=sensor_size, merge_polarities=True)])
     dataset = DummyDataset((events1[:5000], events2), transform) # simulate recordings of different length
@@ -51,13 +51,13 @@ def test_pytorch_batch_collation_sparse_tensor():
         orig_images,
         sensor_size,
         is_multi_image,
-    ) = create_random_input_with_ordering(ordering)
+    ) = create_random_input(dtype)
     (
         events2,
         orig_images,
         sensor_size,
         is_multi_image,
-    ) = create_random_input_with_ordering(ordering)
+    ) = create_random_input(dtype)
 
     transform = tonic.transforms.Compose([tonic.transforms.ToSparseTensor(ordering=ordering, sensor_size=sensor_size, merge_polarities=True)])
     dataset = DummyDataset((events1[:5000], events2), transform) # simulate recordings of different length

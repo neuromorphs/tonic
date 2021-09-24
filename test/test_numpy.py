@@ -14,7 +14,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         events =  F.crop_numpy(
             events,
             
@@ -40,7 +40,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         events = F.drop_event_numpy(
             orig_events.copy(),
             drop_probability=drop_probability,
@@ -72,7 +72,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         events = F.denoise_numpy(
             orig_events,
@@ -96,13 +96,13 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         (
             stream2,
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         events = (stream1, stream2)
@@ -176,7 +176,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         events = F.refractory_period_numpy(
             events=orig_events,
@@ -210,7 +210,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         events = F.spatial_jitter_numpy(
             orig_events.copy(),
@@ -272,7 +272,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         # we do this to ensure integer timestamps before testing for int jittering
@@ -315,7 +315,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         events = F.time_skew_numpy(
@@ -373,7 +373,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         frames = F.to_frame_numpy(
@@ -432,7 +432,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         surfaces = F.to_timesurface_numpy(
             events=orig_events.copy(),
@@ -456,7 +456,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         cell_size = 10
         surface_size = 5
         temporal_window = 100
@@ -484,7 +484,7 @@ class TestFunctionalNumpy:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
 
         volumes = F.to_voxel_grid_numpy(
             events=orig_events.copy(),

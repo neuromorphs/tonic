@@ -23,7 +23,7 @@ class TestFunctionalTorch:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         tensor = F.to_sparse_tensor_pytorch(
             events,
             sensor_size=sensor_size,

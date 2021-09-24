@@ -12,7 +12,7 @@ class TestChainedTransforms:
             original_images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         flip_probability = 1
@@ -69,7 +69,7 @@ class TestChainedTransforms:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         flip_probability = 1
@@ -115,7 +115,7 @@ class TestChainedTransforms:
             images,
             sensor_size,
             is_multi_image,
-        ) = utils.create_random_input_with_ordering(ordering)
+        ) = utils.create_random_input(dtype)
         x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
 
         coefficient = 1.5
