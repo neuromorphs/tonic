@@ -23,9 +23,7 @@ def refractory_period_numpy(events, refractory_period=10000):
     copy_index = 0
     width = int(events["x"].max()) + 1
     height = int(events["y"].max()) + 1
-    timestamp_memory = (
-        np.zeros((width, height)) - refractory_period
-    )
+    timestamp_memory = np.zeros((width, height)) - refractory_period
 
     for event in events:
         time_since_last_spike = (

@@ -1,24 +1,21 @@
 import pytest
 import numpy as np
 import tonic.transforms as transforms
-import utils
+from utils import create_random_input
 
 
 class TestChainedTransforms:
     def testTimeReversalSpatialJitter(self):
-        ordering = "xytp"
-        (orig_events, original_images, sensor_size,) = create_random_input()
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+        orig_events, sensor_size = create_random_input()
 
         flip_probability = 1
-        variance_x = 1
-        variance_y = 1
+        variance_x = 3
+        variance_y = 3
         sigma_x_y = 0
         transform = transforms.Compose(
             [
                 transforms.RandomTimeReversal(flip_probability=flip_probability),
                 transforms.SpatialJitter(
-                    sensor_size=sensor_size,
                     variance_x=variance_x,
                     variance_y=variance_y,
                     sigma_x_y=sigma_x_y,
@@ -26,38 +23,35 @@ class TestChainedTransforms:
                 ),
             ]
         )
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
-            events[:, 0].all(), orig_events[:, 0].all(), atol=variance_x
+            events["x"].all(), orig_events["x"].all(), atol=variance_x
         )
         assert spatial_var_x, "Spatial jitter should be within chosen variance x."
-
         assert (
-            events[:, 0] != orig_events[:, 0]
-        ).all(), "X coordinates should be different."
+            events["x"] != orig_events["x"]
+        ).any(), "X coordinates should be different."
         spatial_var_y = np.isclose(
-            events[:, 1].all(), orig_events[:, 1].all(), atol=variance_y
+            events["y"].all(), orig_events["y"].all(), atol=variance_y
         )
         assert spatial_var_y, "Spatial jitter should be within chosen variance y."
         assert (
-            events[:, 1] != orig_events[:, 1]
-        ).all(), "Y coordinates should be different."
+            events["y"] != orig_events["y"]
+        ).any(), "Y coordinates should be different."
         assert (
-            events[:, 3] == orig_events[:, 3] * (-1)
+            events["p"] == orig_events["p"] * (-1)
         ).all(), "Polarities should be flipped."
         time_reversal = (
-            events[:, 2] == np.max(orig_events[:, 2]) - orig_events[:, 2]
+            events["t"] == np.max(orig_events["t"]) - orig_events["t"]
         ).all()
         assert (
             time_reversal
         ), "Condition of time reversal t_i' = max(t) - t_i has to be fullfilled"
 
     def testDropoutFlipUD(self):
-        ordering = "xytp"
-        (orig_events, images, sensor_size,) = create_random_input()
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+        orig_events, sensor_size = create_random_input()
 
         flip_probability = 1
         drop_probability = 0.5
@@ -65,13 +59,11 @@ class TestChainedTransforms:
         transform = transforms.Compose(
             [
                 transforms.DropEvent(drop_probability=drop_probability),
-                transforms.RandomFlipUD(
-                    sensor_size=sensor_size, flip_probability=flip_probability
-                ),
+                transforms.RandomFlipUD(flip_probability=flip_probability),
             ]
         )
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         drop_events = np.isclose(
             events.shape[0], (1 - drop_probability) * orig_events.shape[0]
@@ -82,13 +74,13 @@ class TestChainedTransforms:
         )
 
         temporal_order = np.isclose(
-            np.sum((events[:, 2] - np.sort(events[:, 2])) ** 2), 0
+            np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
         )
         assert temporal_order, "Temporal order should be maintained."
 
-        first_dropped_index = np.where(events[0, 2] == orig_events[:, 2])[0][0]
+        first_dropped_index = np.where(events["t"][0] == orig_events["t"])[0][0]
         flipped_events = (
-            sensor_size[1] - 1 - orig_events[first_dropped_index, 1] == events[0, 1]
+            sensor_size[1] - 1 - orig_events["y"][first_dropped_index] == events["y"][0]
         )
         assert flipped_events, (
             "When flipping up and down y must map to the opposite pixel, i.e. y' ="
@@ -96,9 +88,7 @@ class TestChainedTransforms:
         )
 
     def testTimeSkewFlipPolarityFlipLR(self):
-        ordering = "xytp"
-        (orig_events, images, sensor_size,) = create_random_input()
-        x_index, y_index, t_index, p_index = utils.findXytpPermutation(ordering)
+        orig_events, sensor_size = create_random_input()
 
         coefficient = 1.5
         offset = 0
@@ -109,23 +99,23 @@ class TestChainedTransforms:
             [
                 transforms.TimeSkew(coefficient=coefficient, offset=offset),
                 transforms.RandomFlipPolarity(flip_probability=flip_probability_pol),
-                transforms.RandomFlipLR(
-                    sensor_size=sensor_size, flip_probability=flip_probability_lr
-                ),
+                transforms.RandomFlipLR(flip_probability=flip_probability_lr),
             ]
         )
 
-        events = transform(events=orig_events.copy(),)
+        events, sensor_size = transform((orig_events.copy(), sensor_size))
 
         assert len(events) == len(orig_events)
-        assert (events[:, 2] >= orig_events[:, 2]).all()
-        assert np.min(events[:, 2]) >= 0
+        assert (events["t"] >= orig_events["t"]).all()
+        assert np.min(events["t"]) >= 0
 
         assert (
-            events[:, 3] == orig_events[:, 3] * (-1)
+            events["p"] == orig_events["p"] * (-1)
         ).all(), "Polarities should be flipped."
 
-        same_pixel = np.isclose((sensor_size[0] - 1) - events[0, 0], orig_events[0, 0])
+        same_pixel = np.isclose(
+            (sensor_size[0] - 1) - events["x"][0], orig_events["x"][0]
+        )
         assert same_pixel, (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"

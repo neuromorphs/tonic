@@ -1,14 +1,16 @@
 import tonic
+import tonic.transforms as transforms
 from utils import create_random_input
 
 
 class DummyDataset:
-    def __init__(self, events, transform):
+    def __init__(self, events, sensor_size, transform):
         self.events = events
+        self.sensor_size = sensor_size
         self.transform = transform
 
     def __getitem__(self, index):
-        return self.transform(self.events[index]), 1
+        return self.transform((self.events[index], self.sensor_size)), 1
 
     def __len__(self):
         return len(self.events)
@@ -17,15 +19,19 @@ class DummyDataset:
 def test_pytorch_batch_collation_dense_tensor():
     import torch
 
-    ordering = "xytp"
-    (events1, sensor_size,) = create_random_input(dtype)
-    (events2, sensor_size,) = create_random_input(dtype)
+    events1, sensor_size = create_random_input()
+    events2, sensor_size = create_random_input()
 
-    transform = tonic.transforms.Compose(
-        [tonic.transforms.ToDenseTensor(sensor_size=sensor_size, merge_polarities=True)]
+    events1, sensor_size = transforms.Downsample(time_factor=1e-3)(
+        (events1, sensor_size)
     )
+    events2, sensor_size = transforms.Downsample(time_factor=1e-3)(
+        (events2, sensor_size)
+    )
+
+    transform = transforms.Compose([transforms.ToDenseTensor(merge_polarities=True)])
     dataset = DummyDataset(
-        (events1[:5000], events2), transform
+        (events1[:5000], events2), sensor_size, transform
     )  # simulate recordings of different length
     batch_size = 2
     dataloader = torch.utils.data.DataLoader(
@@ -34,7 +40,7 @@ def test_pytorch_batch_collation_dense_tensor():
 
     batch, label = next(iter(dataloader))
 
-    max_time = int(events2[:, 2][-1]) + 1
+    max_time = int(events2["t"][-1]) + 1
     assert batch.shape[0] == max_time
     assert batch.shape[1] == batch_size
     assert batch.shape[2] == 1
@@ -43,19 +49,12 @@ def test_pytorch_batch_collation_dense_tensor():
 def test_pytorch_batch_collation_sparse_tensor():
     import torch
 
-    ordering = "xytp"
-    (events1, sensor_size,) = create_random_input(dtype)
-    (events2, sensor_size,) = create_random_input(dtype)
+    events1, sensor_size = create_random_input()
+    events2, sensor_size = create_random_input()
 
-    transform = tonic.transforms.Compose(
-        [
-            tonic.transforms.ToSparseTensor(
-                sensor_size=sensor_size, merge_polarities=True
-            )
-        ]
-    )
+    transform = transforms.Compose([transforms.ToSparseTensor(merge_polarities=True)])
     dataset = DummyDataset(
-        (events1[:5000], events2), transform
+        (events1[:5000], events2), sensor_size, transform
     )  # simulate recordings of different length
     batch_size = 2
     dataloader = torch.utils.data.DataLoader(
@@ -64,7 +63,7 @@ def test_pytorch_batch_collation_sparse_tensor():
 
     batch, label = next(iter(dataloader))
 
-    max_time = int(events2[:, 2][-1]) + 1
+    max_time = int(events2["t"][-1]) + 1
     assert batch.shape[0] == max_time
     assert batch.shape[1] == batch_size
     assert batch.shape[2] == 1

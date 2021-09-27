@@ -72,14 +72,14 @@ class TestTransforms:
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.Downsample(
-            time_factor=time_factor,
-            spatial_factor=spatial_factor,
-            sensor_size=sensor_size,
+            time_factor=time_factor, spatial_factor=spatial_factor,
         )
 
         events, sensor_size = transform((orig_events.copy(), sensor_size))
 
-        assert np.array_equal((orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"])
+        assert np.array_equal(
+            (orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"]
+        )
         assert np.array_equal(np.floor(orig_events["x"] * spatial_factor), events["x"])
         assert np.array_equal(np.floor(orig_events["y"] * spatial_factor), events["y"])
 
@@ -87,9 +87,7 @@ class TestTransforms:
     def test_transform_flip_lr(self, flip_probability):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipLR(
-            flip_probability=flip_probability, sensor_size=sensor_size
-        )
+        transform = transforms.RandomFlipLR(flip_probability=flip_probability)
 
         events, sensor_size = transform((orig_events.copy(), sensor_size))
 
@@ -121,9 +119,7 @@ class TestTransforms:
     def test_transform_flip_ud(self, flip_probability):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipUD(
-            flip_probability=flip_probability, sensor_size=sensor_size
-        )
+        transform = transforms.RandomFlipUD(flip_probability=flip_probability)
 
         events, sensor_size = transform((orig_events.copy(), sensor_size))
 
@@ -153,18 +149,12 @@ class TestTransforms:
 
     @pytest.mark.parametrize(
         "variance, clip_outliers",
-        [
-            (30, False),
-            (100, True),
-            (3.5, True),
-            (0.8, False),
-        ],
+        [(30, False), (100, True), (3.5, True), (0.8, False),],
     )
     def test_transform_spatial_jitter(self, variance, clip_outliers):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.SpatialJitter(
-            sensor_size=sensor_size,
             variance_x=variance,
             variance_y=variance,
             sigma_x_y=0,
@@ -203,15 +193,11 @@ class TestTransforms:
         "std, clip_negative, sort_timestamps",
         [(10, True, True), (50, False, False), (0, True, False),],
     )
-    def test_transform_time_jitter(
-        self, std, clip_negative, sort_timestamps
-    ):
+    def test_transform_time_jitter(self, std, clip_negative, sort_timestamps):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.TimeJitter(
-            std=std,
-            clip_negative=clip_negative,
-            sort_timestamps=sort_timestamps,
+            std=std, clip_negative=clip_negative, sort_timestamps=sort_timestamps,
         )
 
         events, sensor_size = transform((orig_events.copy(), sensor_size))
@@ -252,15 +238,12 @@ class TestTransforms:
         assert events.dtype == events.dtype
 
     @pytest.mark.parametrize(
-        "coefficient, offset",
-        [(3.1, 100), (0.7, 0), (2.7, 10)],
+        "coefficient, offset", [(3.1, 100), (0.7, 0), (2.7, 10)],
     )
     def test_transform_time_skew(self, coefficient, offset):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.TimeSkew(
-            coefficient=coefficient, offset=offset
-        )
+        transform = transforms.TimeSkew(coefficient=coefficient, offset=offset)
 
         events, sensor_size = transform((orig_events.copy(), sensor_size))
 
@@ -273,7 +256,6 @@ class TestTransforms:
 
         if coefficient < 1:
             assert (events["t"] - offset < orig_events["t"]).all()
-
 
     @pytest.mark.parametrize("n_noise_events", [(100), (0)])
     def test_transform_uniform_noise(self, n_noise_events):
@@ -294,6 +276,6 @@ class TestTransforms:
 
         transform = transforms.TimeAlignment()
 
-        events, sensor_size = transform((orig_events.copy(),sensor_size,))
+        events, sensor_size = transform((orig_events.copy(), sensor_size,))
 
         assert np.min(events["t"]) == 0

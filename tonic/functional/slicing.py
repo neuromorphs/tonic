@@ -33,7 +33,7 @@ def slice_by_time(
         list of event slices (np.ndarray)
     """
     assert "t" in events.dtype.names
-    
+
     times = events["t"]
     stride = time_window - overlap
 
@@ -46,12 +46,10 @@ def slice_by_time(
     window_end_times = window_start_times + time_window
     indices_start = np.searchsorted(times, window_start_times)
     indices_end = np.searchsorted(times, window_end_times)
-    return [events[indices_start[i] : indices_end[i], :] for i in range(n_slices)]
+    return [events[indices_start[i] : indices_end[i]] for i in range(n_slices)]
 
 
-def slice_by_time_bins(
-    events: np.ndarray, bin_count: int, overlap: float = 0.0
-):
+def slice_by_time_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0):
     """
     Slices an event array along fixed number of bins of time length max_time / bin_count * (1+overlap).
     This method is good if your recordings all have roughly the same time length and you want an equal
@@ -69,7 +67,7 @@ def slice_by_time_bins(
     """
     assert "t" in events.dtype.names
     assert overlap < 1
-    
+
     times = events["t"]
     time_window = times[-1] // bin_count * (1 + overlap)
     stride = time_window * (1 - overlap)
@@ -78,7 +76,7 @@ def slice_by_time_bins(
     window_end_times = window_start_times + time_window
     indices_start = np.searchsorted(times, window_start_times)
     indices_end = np.searchsorted(times, window_end_times)
-    return [events[indices_start[i] : indices_end[i], :] for i in range(bin_count)]
+    return [events[indices_start[i] : indices_end[i]] for i in range(bin_count)]
 
 
 def slice_by_event_count(
@@ -106,9 +104,7 @@ def slice_by_event_count(
     ).slice(events)
 
 
-def slice_by_event_bins(
-    events: np.ndarray, bin_count: int, overlap: float = 0.0
-):
+def slice_by_event_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0):
     """
     Slices an event array along fixed number of bins that each have n_events // bin_count * (1 + overlap) events.
     This slicing method is good if you recordings have all roughly the same amount of overall activity in the scene
@@ -130,7 +126,7 @@ def slice_by_event_bins(
 
     indices_start = np.arange(bin_count) * stride
     indices_end = indices_start + spike_count
-    return [events[indices_start[i] : indices_end[i], :] for i in range(bin_count)]
+    return [events[indices_start[i] : indices_end[i]] for i in range(bin_count)]
 
 
 def slice_at_indices(xytp: np.ndarray, start_indices, end_indices):

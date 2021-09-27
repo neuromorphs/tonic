@@ -3,9 +3,7 @@ import warnings
 
 
 def time_skew_numpy(
-    events: np.ndarray,
-    coefficient: float,
-    offset: int = 0,
+    events: np.ndarray, coefficient: float, offset: int = 0,
 ):
     """Skew all event timestamps according to a linear transform,
     potentially sampled from a distribution of acceptable functions.
@@ -26,5 +24,5 @@ def time_skew_numpy(
     assert "t" in events.dtype.names
 
     events["t"] = events["t"] * coefficient + offset
-    
+
     return events

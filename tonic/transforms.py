@@ -46,14 +46,14 @@ class Denoise:
                     Lower values will mean higher constraints, therefore less events.
     """
 
-
     filter_time: float = 10000
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        return functional.denoise_numpy(
-            events=events, filter_time=self.filter_time,
-        ), sensor_size
+        return (
+            functional.denoise_numpy(events=events, filter_time=self.filter_time,),
+            sensor_size,
+        )
 
 
 @dataclass(frozen=True)
@@ -71,9 +71,12 @@ class DropEvent:
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        return functional.drop_event_numpy(
-            events, self.drop_probability, self.random_drop_probability
-        ), sensor_size
+        return (
+            functional.drop_event_numpy(
+                events, self.drop_probability, self.random_drop_probability
+            ),
+            sensor_size,
+        )
 
 
 @dataclass
@@ -87,7 +90,6 @@ class DropPixel:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
     """
 
-
     coordinates: Optional = None
     hot_pixel_frequency: Optional = None
 
@@ -99,9 +101,7 @@ class DropPixel:
                 hot_pixel_frequency=self.hot_pixel_frequency,
             )
 
-        return functional.drop_pixel_numpy(
-            events=events, coordinates=self.coordinates,
-        )
+        return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates,)
 
 
 @dataclass(frozen=True)
@@ -116,20 +116,15 @@ class Downsample:
         spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
     """
 
-
-    sensor_size: Tuple[int, int]
     time_factor: float = 1e-3
     spatial_factor: float = 1
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        events = functional.time_skew_numpy(
-            events, coefficient=self.time_factor
-        )
+        events = functional.time_skew_numpy(events, coefficient=self.time_factor)
         events, sensor_size = functional.spatial_resize_numpy(
             events=events,
             sensor_size=sensor_size,
-            
             spatial_factor=self.spatial_factor,
             integer_coordinates=True,
         )
@@ -181,7 +176,6 @@ class RandomFlipPolarity:
         flip_probability (float): probability of flipping individual event polarities
     """
 
-
     flip_probability: float = 0.5
 
     def __call__(self, event_data):
@@ -204,8 +198,6 @@ class RandomFlipLR:
         flip_probability (float): probability of performing the flip
     """
 
-
-    sensor_size: Tuple[int, int]
     flip_probability: float = 0.5
 
     def __call__(self, event_data):
@@ -213,7 +205,7 @@ class RandomFlipLR:
 
         assert "x" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
-            events["x"] = self.sensor_size[0] - 1 - events["x"]
+            events["x"] = sensor_size[0] - 1 - events["x"]
         return events, sensor_size
 
 
@@ -228,8 +220,6 @@ class RandomFlipUD:
         flip_probability (float): probability of performing the flip
     """
 
-
-    sensor_size: Tuple[int, int]
     flip_probability: float = 0.5
 
     def __call__(self, event_data):
@@ -237,7 +227,7 @@ class RandomFlipUD:
 
         assert "y" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
-            events["y"] = self.sensor_size[1] - 1 - events["y"]
+            events["y"] = sensor_size[1] - 1 - events["y"]
         return events, sensor_size
 
 
@@ -253,7 +243,6 @@ class RandomTimeReversal:
     Parameters:
         flip_probability (float): probability of performing the flip
     """
-
 
     flip_probability: float = 0.5
 
@@ -280,14 +269,14 @@ class RefractoryPeriod:
         refractory_period (float): refractory period for each pixel in time unit
     """
 
-
     refractory_period: float
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        return functional.refractory_period_numpy(
-            events, self.refractory_period
-        ), sensor_size
+        return (
+            functional.refractory_period_numpy(events, self.refractory_period),
+            sensor_size,
+        )
 
 
 @dataclass(frozen=True)
@@ -308,8 +297,6 @@ class SpatialJitter:
         clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
-
-    sensor_size: Tuple[int, int]
     variance_x: float = 1
     variance_y: float = 1
     sigma_x_y: float = 0
@@ -317,15 +304,17 @@ class SpatialJitter:
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        return functional.spatial_jitter_numpy(
-            events=events,
-            sensor_size=self.sensor_size,
-            
-            variance_x=self.variance_x,
-            variance_y=self.variance_y,
-            sigma_x_y=self.sigma_x_y,
-            clip_outliers=self.clip_outliers,
-        ), sensor_size
+        return (
+            functional.spatial_jitter_numpy(
+                events=events,
+                sensor_size=sensor_size,
+                variance_x=self.variance_x,
+                variance_y=self.variance_y,
+                sigma_x_y=self.sigma_x_y,
+                clip_outliers=self.clip_outliers,
+            ),
+            sensor_size,
+        )
 
 
 class TimeAlignment:
@@ -351,20 +340,18 @@ class TimeJitter:
         sort_timestamps (bool): sort the events by timestamps
     """
 
-
     std: float = 1
     clip_negative: bool = False
     sort_timestamps: bool = False
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        return functional.time_jitter_numpy(
-            events,
-            
-            self.std,
-            self.clip_negative,
-            self.sort_timestamps,
-        ), sensor_size
+        return (
+            functional.time_jitter_numpy(
+                events, self.std, self.clip_negative, self.sort_timestamps,
+            ),
+            sensor_size,
+        )
 
 
 @dataclass(frozen=True)
@@ -383,15 +370,15 @@ class TimeSkew:
                              nearest integer after skewing.
     """
 
-
     coefficient: float
     offset: float = 0
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        return functional.time_skew_numpy(
-            events, self.coefficient, self.offset
-        ), sensor_size
+        return (
+            functional.time_skew_numpy(events, self.coefficient, self.offset),
+            sensor_size,
+        )
 
 
 @dataclass(frozen=True)
@@ -403,7 +390,6 @@ class UniformNoise:
         n_noise_events: number of events that are added to the sample.
     """
 
-
     n_noise_events: int
 
     def __call__(self, event_data):
@@ -411,11 +397,17 @@ class UniformNoise:
         noise_events = np.zeros(self.n_noise_events, dtype=events.dtype)
         for channel in events.dtype.names:
             event_channel = events[channel]
-            if channel == "x": low, high = 0, sensor_size[0]
-            if channel == "y": low, high = 0, sensor_size[1]
-            if channel == "p": low, high = 0, sensor_size[2]
-            if channel == "t": low, high = events["t"].min(), events["t"].max()
-            noise_events[channel] = np.random.uniform(low=low, high=high, size=self.n_noise_events)
+            if channel == "x":
+                low, high = 0, sensor_size[0]
+            if channel == "y":
+                low, high = 0, sensor_size[1]
+            if channel == "p":
+                low, high = 0, sensor_size[2]
+            if channel == "t":
+                low, high = events["t"].min(), events["t"].max()
+            noise_events[channel] = np.random.uniform(
+                low=low, high=high, size=self.n_noise_events
+            )
         events = np.concatenate((events, noise_events))
         return events[np.argsort(events["t"])], sensor_size
 
@@ -435,7 +427,6 @@ class ToAveragedTimesurface:
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
-
     cell_size = 10
     surface_size = 7
     temporal_window = 5e5
@@ -447,8 +438,7 @@ class ToAveragedTimesurface:
         events, sensor_size = event_data
         return functional.to_averaged_timesurface(
             events,
-            self.sensor_size,
-            
+            sensor_size,
             self.cell_size,
             self.surface_size,
             self.temporal_window,
@@ -496,7 +486,6 @@ class ToFrame:
         merge_polarities (bool): if True, merge polarity channels to a single channel.
     """
 
-
     time_window: Optional[float] = None
     event_count: Optional[int] = None
     n_time_bins: Optional[int] = None
@@ -529,7 +518,6 @@ class ToSparseTensor:
         backend (str): choose which framework to use. Default is pytorch, other possibilities are tensorflow and scipy.
     """
 
-
     backend: str = "pytorch"
     merge_polarities: bool = False
 
@@ -538,15 +526,13 @@ class ToSparseTensor:
         if self.backend == "pytorch" or "pt" or "torch":
             tensor = functional.to_sparse_tensor_pytorch(
                 events=events,
-                sensor_size=self.sensor_size,
-                
+                sensor_size=sensor_size,
                 merge_polarities=self.merge_polarities,
             )
         elif self.backend == "tensorflow" or "tf":
             tensor = functional.to_sparse_tensor_tensorflow(
                 events=events,
-                sensor_size=self.sensor_size,
-                
+                sensor_size=sensor_size,
                 merge_polarities=self.merge_polarities,
             )
         else:
@@ -562,18 +548,14 @@ class ToDenseTensor:
         backend (str): choose which framework to use. Default is pytorch, alternatively tensorflow.
     """
 
-
     backend: str = "pytorch"
     merge_polarities: bool = False
 
     def __call__(self, event_data):
-        events, sensor_size = event_data
+        #         events, sensor_size = event_data
         tensor = ToSparseTensor(
-            
-            sensor_size=self.sensor_size,
-            backend=self.backend,
-            merge_polarities=self.merge_polarities,
-        )(events)
+            backend=self.backend, merge_polarities=self.merge_polarities,
+        )(event_data)
         if self.backend == "pytorch" or "pt" or "torch":
             return tensor.to_dense()
 
@@ -592,7 +574,6 @@ class ToTimesurface:
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
-
     surface_dimensions: Tuple[int, int] = (7, 7)
     tau: float = 5e3
     decay: str = "lin"
@@ -601,9 +582,8 @@ class ToTimesurface:
     def __call__(self, event_data):
         events, sensor_size = event_data
         return functional.to_timesurface_numpy(
-            events,
-            sensor_size=self.sensor_size,
-            
+            events=events,
+            sensor_size=sensor_size,
             surface_dimensions=self.surface_dimensions,
             tau=self.tau,
             decay=self.decay,
@@ -618,14 +598,11 @@ class ToVoxelGrid:
     Parameters:
         n_time_bins (int): fixed number of time bins to slice the event sample into."""
 
-
     n_time_bins: int
 
     def __call__(self, event_data):
         events, sensor_size = event_data
-        return functional.to_voxel_grid_numpy(
-            events, sensor_size, self.n_time_bins
-        )
+        return functional.to_voxel_grid_numpy(events, sensor_size, self.n_time_bins)
 
 
 @dataclass(frozen=True)

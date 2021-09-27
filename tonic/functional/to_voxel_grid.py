@@ -1,5 +1,4 @@
 import numpy as np
-from .utils import is_multi_image
 
 
 # Code taken from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
@@ -17,9 +16,7 @@ def to_voxel_grid_numpy(events, sensor_size, n_time_bins=10):
     """
     assert "x" and "y" and "t" and "p" in events.dtype.names
 
-    voxel_grid = np.zeros(
-        (n_time_bins, sensor_size[1], sensor_size[0]), np.float32
-    ).ravel()
+    voxel_grid = np.zeros((n_time_bins, sensor_size[1], sensor_size[0]), float).ravel()
 
     # normalize the event timestamps so that they lie between 0 and n_time_bins
     last_stamp = events["t"][-1]

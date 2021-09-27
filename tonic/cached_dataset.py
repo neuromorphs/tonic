@@ -104,4 +104,7 @@ class CachedDataset:
             warn(
                 f"Parent dataset does not have transform and target_transform, which will lead to inconsistent caching results."
             )
+            transform_hash = hashlib.sha1(
+                f"{self.transform}{self.target_transform}".encode()
+            ).hexdigest()
         return Path(self.cache_path) / f"{item}_{copy}_{transform_hash}.h5"
