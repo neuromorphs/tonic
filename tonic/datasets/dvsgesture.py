@@ -55,8 +55,9 @@ class DVSGesture(Dataset):
         "other_gestures",
     ]
 
-    sensor_size = (128, 128)
-    ordering = "xypt"
+    sensor_size = (128, 128, 2)
+    dtype = np.dtype([("x", int), ("y", int), ("p", int), ("t", int)])
+    ordering = dtype.names
 
     def __init__(
         self, save_to, train=True, download=True, transform=None, target_transform=None
@@ -108,12 +109,13 @@ class DVSGesture(Dataset):
     def __getitem__(self, index):
         events = np.load(self.samples[index])
         events[:, 3] *= 1000  # convert from ms to us
+        data = (np.array(events, dtype=self.dtype), self.sensor_size)
         target = self.targets[index]
         if self.transform is not None:
-            events = self.transform(events)
+            data = self.transform(data)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return events, target
+        return data, target
 
     def __len__(self):
         return len(self.samples)

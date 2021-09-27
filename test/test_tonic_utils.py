@@ -67,3 +67,8 @@ def test_pytorch_batch_collation_sparse_tensor():
     assert batch.shape[0] == max_time
     assert batch.shape[1] == batch_size
     assert batch.shape[2] == 1
+
+def test_plotting():
+    events, sensor_size = create_random_input()
+    
+    tonic.utils.plot_event_grid(events)
