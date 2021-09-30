@@ -61,13 +61,14 @@ class ASLDVS(Dataset):
         if download:
             self.download()
 
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
+        else:
+            if not check_integrity(
+                os.path.join(self.location_on_system, self.filename), self.file_md5
+            ):
+                raise RuntimeError(
+                    "Dataset not found or corrupted."
+                    + " You can use download=True to download it"
+                )
 
         self.samples = []
         for path, dirs, files in os.walk(self.location_on_system):
@@ -80,23 +81,20 @@ class ASLDVS(Dataset):
 
     def __getitem__(self, index):
         events, target = scio.loadmat(self.samples[index]), self.targets[index]
-        data = (
-            np.array(
-                [
-                    events["ts"].T,
-                    events["x"].T,
-                    self.sensor_size[1] - events["y"].T,
-                    events["pol"].T,
-                ],
-                dtype=self.dtype,
-            ),
-            self.sensor_size,
+        events = np.column_stack(
+            [
+                events["ts"],
+                events["x"],
+                self.sensor_size[1] - events["y"],
+                events["pol"],
+            ]
         )
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         if self.transform is not None:
-            data = self.transform(data)
+            events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return data, target
+        return events, target
 
     def __len__(self):
         return len(self.samples)

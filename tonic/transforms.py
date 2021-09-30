@@ -66,10 +66,10 @@ class DropEvent:
     random_drop_probability: bool = False
 
     def __call__(self, events):
-        
+
         return functional.drop_event_numpy(
-                events, self.drop_probability, self.random_drop_probability
-            )
+            events, self.drop_probability, self.random_drop_probability
+        )
 
 
 @dataclass
@@ -114,8 +114,10 @@ class Downsample:
 
     def __call__(self, events):
         events = functional.time_skew_numpy(events, coefficient=self.time_factor)
-        if "x" in events.dtype.names: events["x"] = events["x"] * self.spatial_factor
-        if "y" in events.dtype.names: events["y"] = events["y"] * self.spatial_factor
+        if "x" in events.dtype.names:
+            events["x"] = events["x"] * self.spatial_factor
+        if "y" in events.dtype.names:
+            events["y"] = events["y"] * self.spatial_factor
         return events
 
 
@@ -142,7 +144,7 @@ class NumpyAsType:
     dtype: np.dtype
 
     def __call__(self, events):
-        if events.dtype == np.void: # then it's a structured array
+        if events.dtype == np.void:  # then it's a structured array
             return np.array(events, self.dtype)
         else:
             return events.astype(self.dtype)
@@ -165,7 +167,7 @@ class RandomCrop:
     target_size: Tuple[int, int]
 
     def __call__(self, events):
-        
+
         return functional.crop_numpy(
             events=events, sensor_size=self.sensor_size, target_size=self.target_size,
         )
@@ -183,7 +185,7 @@ class RandomFlipPolarity:
     flip_probability: float = 0.5
 
     def __call__(self, events):
-        
+
         assert "p" in events.dtype.names
         flips = np.ones(len(events))
         probs = np.random.rand(len(events))
@@ -303,15 +305,15 @@ class SpatialJitter:
     clip_outliers: bool = False
 
     def __call__(self, events):
-        
-        return  functional.spatial_jitter_numpy(
-                events=events,
-                sensor_size=self.sensor_size,
-                variance_x=self.variance_x,
-                variance_y=self.variance_y,
-                sigma_x_y=self.sigma_x_y,
-                clip_outliers=self.clip_outliers,
-            )
+
+        return functional.spatial_jitter_numpy(
+            events=events,
+            sensor_size=self.sensor_size,
+            variance_x=self.variance_x,
+            variance_y=self.variance_y,
+            sigma_x_y=self.sigma_x_y,
+            clip_outliers=self.clip_outliers,
+        )
 
 
 @dataclass
@@ -342,10 +344,10 @@ class TimeJitter:
     sort_timestamps: bool = False
 
     def __call__(self, events):
-        
+
         return functional.time_jitter_numpy(
-                events, self.std, self.clip_negative, self.sort_timestamps,
-            )
+            events, self.std, self.clip_negative, self.sort_timestamps,
+        )
 
 
 @dataclass(frozen=True)
@@ -368,7 +370,7 @@ class TimeSkew:
     offset: float = 0
 
     def __call__(self, events):
-        
+
         return functional.time_skew_numpy(events, self.coefficient, self.offset)
 
 
@@ -386,7 +388,7 @@ class UniformNoise:
     n_noise_events: int
 
     def __call__(self, events):
-        
+
         noise_events = np.zeros(self.n_noise_events, dtype=events.dtype)
         for channel in events.dtype.names:
             event_channel = events[channel]
@@ -429,7 +431,7 @@ class ToAveragedTimesurface:
     merge_polarities = False
 
     def __call__(self, events):
-        
+
         return functional.to_averaged_timesurface(
             events,
             self.sensor_size,
@@ -488,7 +490,7 @@ class ToFrame:
     include_incomplete: bool = False
 
     def __call__(self, events):
-        
+
         return functional.to_frame_numpy(
             events=events,
             sensor_size=self.sensor_size,
@@ -522,7 +524,7 @@ class ToTimesurface:
     merge_polarities: bool = False
 
     def __call__(self, events):
-        
+
         return functional.to_timesurface_numpy(
             events=events,
             sensor_size=self.sensor_size,
@@ -544,8 +546,10 @@ class ToVoxelGrid:
     n_time_bins: int
 
     def __call__(self, events):
-        
-        return functional.to_voxel_grid_numpy(events, self.sensor_size, self.n_time_bins)
+
+        return functional.to_voxel_grid_numpy(
+            events, self.sensor_size, self.n_time_bins
+        )
 
 
 @dataclass(frozen=True)

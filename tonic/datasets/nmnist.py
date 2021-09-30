@@ -57,7 +57,7 @@ class NMNIST(Dataset):
         "9 - nine",
     ]
 
-    sensor_size = [34, 34, 2]
+    sensor_size = (34, 34, 2)
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
@@ -175,4 +175,4 @@ class NMNIST(Dataset):
                 all_p[td_indices],
             )
         )
-        return events.astype(float)
+        return events

@@ -9,7 +9,9 @@ class TestTransforms:
     def test_transform_random_crop(self, target_size):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomCrop(sensor_size=sensor_size, target_size=target_size)
+        transform = transforms.RandomCrop(
+            sensor_size=sensor_size, target_size=target_size
+        )
         events = transform(orig_events.copy())
 
         assert np.all(events["x"]) < target_size[0] and np.all(
@@ -82,7 +84,9 @@ class TestTransforms:
     def test_transform_flip_lr(self, flip_probability):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipLR(sensor_size=sensor_size, flip_probability=flip_probability)
+        transform = transforms.RandomFlipLR(
+            sensor_size=sensor_size, flip_probability=flip_probability
+        )
 
         events = transform(orig_events.copy())
 
@@ -114,7 +118,9 @@ class TestTransforms:
     def test_transform_flip_ud(self, flip_probability):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipUD(sensor_size=sensor_size, flip_probability=flip_probability)
+        transform = transforms.RandomFlipUD(
+            sensor_size=sensor_size, flip_probability=flip_probability
+        )
 
         events = transform(orig_events.copy())
 
@@ -257,7 +263,9 @@ class TestTransforms:
     def test_transform_uniform_noise(self, n_noise_events):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.UniformNoise(sensor_size=sensor_size, n_noise_events=n_noise_events,)
+        transform = transforms.UniformNoise(
+            sensor_size=sensor_size, n_noise_events=n_noise_events,
+        )
 
         events = transform(orig_events.copy())
 

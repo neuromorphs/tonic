@@ -63,8 +63,9 @@ class MVSEC(Dataset):
     }
 
     base_url = "http://visiondata.cis.upenn.edu/mvsec/"
-    sensor_size = (346, 260)
-    ordering = "xytp"
+    sensor_size = (346, 260, 2)
+    dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+    ordering = dtype.names
 
     def __init__(
         self, save_to, scene, download=True, transform=None, target_transform=None
@@ -83,22 +84,6 @@ class MVSEC(Dataset):
 
         if download:
             self.download()
-        else:
-            print(
-                "Checking folder {}".format(
-                    os.path.join(self.location_on_system, self.scene)
-                )
-            )
-            for (filename, md5_hash) in self.resources[self.scene]:
-                print("Checking integrity of file {}".format(filename))
-                if not check_integrity(
-                    os.path.join(self.location_on_system, self.scene, filename),
-                    md5_hash,
-                ):
-                    raise RuntimeError(
-                        "File not found or corrupted."
-                        + " You can use download=True to download it"
-                    )
 
     def __getitem__(self, index):
         # decode data file
@@ -109,23 +94,28 @@ class MVSEC(Dataset):
         )
         topics = importRosbag(filename, log="ERROR")
         events_left = topics["/davis/left/events"]
-        events_left = np.stack(
-            (
-                events_left["x"],
-                events_left["y"],
-                events_left["ts"] - events_left["ts"][0],
-                events_left["pol"],
-            )
-        ).T
+        events_left["ts"] -= events_left["ts"][0]
+        events_left["ts"] *= 1e6
+        events_left = np.column_stack(
+            (events_left["x"], events_left["y"], events_left["ts"], events_left["pol"],)
+        )
+        events_left = np.lib.recfunctions.unstructured_to_structured(
+            events_left, self.dtype
+        )
         events_right = topics["/davis/right/events"]
-        events_right = np.stack(
+        events_right["ts"] -= events_right["ts"][0]
+        events_right["ts"] *= 1e6
+        events_right = np.column_stack(
             (
                 events_right["x"],
                 events_right["y"],
-                events_right["ts"] - events_right["ts"][0],
+                events_right["ts"],
                 events_right["pol"],
             )
-        ).T
+        )
+        events_right = np.lib.recfunctions.unstructured_to_structured(
+            events_right, self.dtype
+        )
         imu_left = topics["/davis/left/imu"]
         imu_right = topics["/davis/right/imu"]
         images_left = topics["/davis/left/image_raw"]
@@ -151,13 +141,9 @@ class MVSEC(Dataset):
         pose = topics["/davis/left/pose"]
 
         if self.transform is not None:
-            events_left = self.transform(
-                events_left, self.sensor_size, images=images_left
-            )
+            events_left = self.transform(events_left)
         if self.transform is not None:
-            events_right = self.transform(
-                events_right, self.sensor_size, images=images_right
-            )
+            events_right = self.transform(events_right)
         return (
             events_left,
             events_right,
@@ -185,3 +171,19 @@ class MVSEC(Dataset):
                 filename=filename,
                 md5=md5_hash,
             )
+
+    def verify_file_integrity(self):
+        print(
+            "Checking folder {}".format(
+                os.path.join(self.location_on_system, self.scene)
+            )
+        )
+        for (filename, md5_hash) in self.resources[self.scene]:
+            print("Checking integrity of file {}".format(filename))
+            if not check_integrity(
+                os.path.join(self.location_on_system, self.scene, filename), md5_hash,
+            ):
+                raise RuntimeError(
+                    "File not found or corrupted."
+                    + " You can use download=True to download it"
+                )

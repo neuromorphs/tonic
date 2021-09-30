@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import loris
 import numpy
 from tonic.dataset import Dataset
@@ -46,8 +47,11 @@ class NavGesture(Dataset):
     classes = ["swipe down", "swipe up", "swipe left", "swipe right", "select", "home"]
     class_codes = ["do", "up", "le", "ri", "se", "ho"]
     int_classes = dict(zip(class_codes, range(len(class_codes))))
-    sensor_size = (304, 240)
-    ordering = "txyp"
+    sensor_size = (304, 240, 2)
+    dtype = np.dtype(
+        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), (("p", "is_increase"), "?")]
+    )
+    ordering = dtype.names
 
     def __init__(
         self,
@@ -105,9 +109,7 @@ class NavGesture(Dataset):
 
     def __getitem__(self, index):
         events, target = loris.read_file(self.samples[index]), self.targets[index]
-        events = numpy.lib.recfunctions.structured_to_unstructured(
-            events["events"], dtype=float
-        )
+        events = events["events"]
         if self.transform is not None:
             events = self.transform(events)
         if self.target_transform is not None:

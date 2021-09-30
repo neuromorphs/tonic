@@ -16,11 +16,9 @@ def save_to_cache(processed_data, fname: Union[str, Path]) -> None:
         fname:
     """
     with h5py.File(fname, "w") as f:
-        if type(processed_data) == tuple:  # can be events, frames, imu, gps, etc.
-            for j, data_piece in enumerate(processed_data):
-                f.create_dataset(f"{j}", data=data_piece)
-        else:
-            f.create_dataset(str(0), data=processed_data)
+        # can be events, frames, imu, gps, target etc.
+        for j, data_piece in enumerate(processed_data):
+            f.create_dataset(f"{j}", data=data_piece)
 
 
 def load_from_cache(fname: Union[str, Path]) -> Tuple:
@@ -72,17 +70,18 @@ class CachedDataset:
         copy = np.random.randint(self.num_copies)
         fname = self.cache_fname_from_index(item, copy)
         try:
-            data, target = load_from_cache(fname)
+            data = load_from_cache(fname)
         except FileNotFoundError as _:
             warn(f"Data {item}: {fname} not in cache, generating it now", stacklevel=2)
-            data, target = self.dataset[item]
-            save_to_cache((data, target), fname=fname)
+            data = self.dataset[item]
+            save_to_cache(data, fname=fname)
 
+        data = list(data)
         if self.transform:
-            data = self.transform(data)
+            data[0] = self.transform(data[0])
         if self.target_transform:
-            target = self.target_transform(target)
-        return data, target
+            data[-1] = self.target_transform(data[-1])
+        return data
 
     def cache_fname_from_index(self, item, copy: int = 0) -> Path:
         """

@@ -109,14 +109,13 @@ class DVSGesture(Dataset):
     def __getitem__(self, index):
         events = np.load(self.samples[index])
         events[:, 3] *= 1000  # convert from ms to us
-        data = (np.lib.recfunctions.unstructured_to_structured(events, self.dtype), self.sensor_size)
-        import ipdb; ipdb.set_trace()
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         target = self.targets[index]
         if self.transform is not None:
-            data = self.transform(data)
+            events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return data, target
+        return events, target
 
     def __len__(self):
         return len(self.samples)

@@ -77,18 +77,13 @@ class TestRepresentations:
             assert frames.shape[0] == n_event_bins
 
     @pytest.mark.parametrize(
-        "surface_dimensions, tau,",
-        [((15, 15), 100), ((3, 3), 10), (None, 1e4),],
+        "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4),],
     )
-    def test_representation_time_surface(
-        self, surface_dimensions, tau
-    ):
+    def test_representation_time_surface(self, surface_dimensions, tau):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.ToTimesurface(
-            sensor_size=sensor_size,
-            surface_dimensions=surface_dimensions,
-            tau=tau,
+            sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau,
         )
 
         surfaces = transform(orig_events.copy())
@@ -105,7 +100,9 @@ class TestRepresentations:
     def test_representation_voxel_grid(self, n_time_bins):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.ToVoxelGrid(sensor_size=sensor_size, n_time_bins=n_time_bins)
+        transform = transforms.ToVoxelGrid(
+            sensor_size=sensor_size, n_time_bins=n_time_bins
+        )
 
         volumes = transform(orig_events.copy())
         assert volumes.shape == (n_time_bins, *sensor_size[:2])

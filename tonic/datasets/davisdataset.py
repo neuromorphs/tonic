@@ -62,8 +62,9 @@ class DAVISDATA(Dataset):
         "urban": "c22db0b3ecbcbba8d282b0d8c3393851",
     }
 
-    sensor_size = (180, 240)
-    ordering = "txyp"
+    sensor_size = (180, 240, 2)
+    dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
+    ordering = dtype.names
 
     def __init__(
         self, save_to, recording, download=True, transform=None, target_transform=None
@@ -89,22 +90,27 @@ class DAVISDATA(Dataset):
 
         if download:
             self.download()
-        else:
-            for recording in self.selection:
-                if not check_integrity(
-                    os.path.join(self.location_on_system, recording + ".bag"),
-                    self.recordings[recording],
-                ):
-                    raise RuntimeError(
-                        "Recording not found or corrupted."
-                        + " You can use download=True to download it"
-                    )
+
+        for recording in self.selection:
+            if not check_integrity(
+                os.path.join(self.location_on_system, recording + ".bag"),
+                self.recordings[recording],
+            ):
+                raise RuntimeError(
+                    "Recording not found or corrupted."
+                    + " You can use download=True to download it"
+                )
 
     def __getitem__(self, index):
         filename = os.path.join(self.location_on_system, self.selection[index] + ".bag")
         topics = importRosbag(filename, log="ERROR")
         events = topics["/dvs/events"]
-        events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
+        events["ts"] -= events["ts"][0]
+        events["ts"] *= 1e6
+        events = np.column_stack(
+            (events["ts"], events["x"], events["y"], events["pol"])
+        )
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
         images["frames"] = np.stack(images["frames"])

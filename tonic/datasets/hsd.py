@@ -14,8 +14,9 @@ class HSD(Dataset):
     and the Spiking Speech Commands dataset (SSC)."""
 
     base_url = "https://zenkelab.org/datasets/"
-    sensor_size = (700,)
-    ordering = "txp"
+    sensor_size = (700, 1, 1)
+    dtype = np.dtype([("t", int), ("x", int), ("p", int)])
+    ordering = dtype.names
 
     def __getitem__(self, index):
         file = h5py.File(os.path.join(self.location_on_system, self.filename), "r")
@@ -29,6 +30,7 @@ class HSD(Dataset):
         ).T
         # convert to microseconds
         events[:, 0] *= 1e6
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         target = file["labels"][index].astype(int)
         if self.transform is not None:
             events = self.transform(events, self.sensor_size, self.ordering)

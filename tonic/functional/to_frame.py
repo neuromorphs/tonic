@@ -66,9 +66,7 @@ def to_frame_numpy(
     bins_p = len(np.unique(events["p"]))
     bins_y, bins_x = (range(sensor_size[0] + 1), range(sensor_size[1] + 1))
 
-    frames = np.zeros(
-        (len(event_slices), sensor_size[2], *sensor_size[:2]), dtype=int
-    )
+    frames = np.zeros((len(event_slices), sensor_size[2], *sensor_size[:2]), dtype=int)
     for i, event_slice in enumerate(event_slices):
         #         event_slice = event_slice.astype(int)
         np.add.at(

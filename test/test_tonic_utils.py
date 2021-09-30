@@ -14,6 +14,7 @@ class DummyDataset:
     def __len__(self):
         return len(self.events)
 
+
 def test_pytorch_batch_collation_dense_tensor():
     import torch
 
@@ -21,7 +22,9 @@ def test_pytorch_batch_collation_dense_tensor():
     events2, sensor_size = create_random_input()
 
     time_window = 1000
-    transform = transforms.Compose([transforms.ToFrame(sensor_size=sensor_size, time_window=time_window,)])
+    transform = transforms.Compose(
+        [transforms.ToFrame(sensor_size=sensor_size, time_window=time_window,)]
+    )
     dataset = DummyDataset(
         (events1[:5000], events2), transform
     )  # simulate recordings of different length
@@ -37,7 +40,8 @@ def test_pytorch_batch_collation_dense_tensor():
     assert batch.shape[1] == batch_size
     assert batch.shape[2] == sensor_size[2]
 
+
 def test_plotting():
     events, sensor_size = create_random_input()
-    
+
     tonic.utils.plot_event_grid(events)

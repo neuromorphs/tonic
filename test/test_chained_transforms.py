@@ -60,7 +60,9 @@ class TestChainedTransforms:
         transform = transforms.Compose(
             [
                 transforms.DropEvent(drop_probability=drop_probability),
-                transforms.RandomFlipUD(sensor_size=sensor_size, flip_probability=flip_probability),
+                transforms.RandomFlipUD(
+                    sensor_size=sensor_size, flip_probability=flip_probability
+                ),
             ]
         )
 
@@ -100,7 +102,9 @@ class TestChainedTransforms:
             [
                 transforms.TimeSkew(coefficient=coefficient, offset=offset),
                 transforms.RandomFlipPolarity(flip_probability=flip_probability_pol),
-                transforms.RandomFlipLR(sensor_size=sensor_size, flip_probability=flip_probability_lr),
+                transforms.RandomFlipLR(
+                    sensor_size=sensor_size, flip_probability=flip_probability_lr
+                ),
             ]
         )
 

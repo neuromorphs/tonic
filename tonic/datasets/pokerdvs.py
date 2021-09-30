@@ -44,7 +44,7 @@ class POKERDVS(Dataset):
 
     classes = ["cl", "he", "di", "sp"]
     int_classes = dict(zip(classes, range(4)))
-    sensor_size = (35, 35)
+    sensor_size = (35, 35, 2)
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
@@ -92,12 +92,12 @@ class POKERDVS(Dataset):
 
     def __getitem__(self, index):
         events, target = self.data[index], self.targets[index]
-        data = (np.array(events, dtype=self.dtype), self.sensor_size)
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         if self.transform is not None:
-            data = self.transform(data)
+            events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return data, target
+        return events, target
 
     def __len__(self):
         return len(self.data)
