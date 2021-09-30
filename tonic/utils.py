@@ -23,16 +23,16 @@ def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
             " dependency."
         )
 
-    events = events.squeeze()
-    events = np.array(events)
-    transform = transforms.Compose(
-        [transforms.ToVoxelGrid(n_time_bins=np.product(axis_array))]
-    )
     sensor_size_x = int(events["x"].max() + 1)
     sensor_size_y = int(events["y"].max() + 1)
     sensor_size = (sensor_size_x, sensor_size_y)
+    
+    transform = transforms.Compose(
+        [transforms.ToVoxelGrid(sensor_size=sensor_size, n_time_bins=np.product(axis_array))]
+    )
 
-    volume = transform((events, sensor_size))
+
+    volume = transform(events)
     fig, axes_array = plt.subplots(*axis_array)
 
     if 1 in axis_array:
@@ -66,36 +66,19 @@ def pad_tensors(batch):
     """
     import torch
 
-    if not isinstance(batch[0][0], torch.Tensor):
-        print(
-            "tonic.utils.pad_tensors expects a PyTorch Tensor of events. Please use"
-            " ToSparseTensor/ToDenseTensor or similar transform to convert the events."
-        )
-        return None, None
-
     samples_output = []
     targets_output = []
 
-    if batch[0][0].is_sparse:
-        max_length = max([sample.size()[0] for sample, target in batch])
-        for sample, target in batch:
-            sample.sparse_resize_(
-                (max_length, *sample.size()[1:]),
-                sample.sparse_dim(),
-                sample.dense_dim(),
-            )
-            samples_output.append(sample)
-            targets_output.append(target)
-    else:
-        max_length = max([sample.shape[0] for sample, target in batch])
-        for sample, target in batch:
-            samples_output.append(
-                torch.cat(
-                    (
-                        sample,
-                        torch.zeros(max_length - sample.shape[0], *sample.shape[1:]),
-                    )
+    max_length = max([sample.shape[0] for sample, target in batch])
+    for sample, target in batch:
+        sample = torch.tensor(sample)
+        samples_output.append(
+            torch.cat(
+                (
+                    sample,
+                    torch.zeros(max_length - sample.shape[0], *sample.shape[1:]),
                 )
             )
-            targets_output.append(target)
+        )
+        targets_output.append(target)
     return torch.stack(samples_output, 1), torch.tensor(targets_output)

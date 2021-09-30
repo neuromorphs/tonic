@@ -16,6 +16,7 @@ class TestChainedTransforms:
             [
                 transforms.RandomTimeReversal(flip_probability=flip_probability),
                 transforms.SpatialJitter(
+                    sensor_size=sensor_size,
                     variance_x=variance_x,
                     variance_y=variance_y,
                     sigma_x_y=sigma_x_y,
@@ -23,7 +24,7 @@ class TestChainedTransforms:
                 ),
             ]
         )
-        events, sensor_size = transform((orig_events.copy(), sensor_size))
+        events = transform(orig_events.copy())
 
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
@@ -59,11 +60,11 @@ class TestChainedTransforms:
         transform = transforms.Compose(
             [
                 transforms.DropEvent(drop_probability=drop_probability),
-                transforms.RandomFlipUD(flip_probability=flip_probability),
+                transforms.RandomFlipUD(sensor_size=sensor_size, flip_probability=flip_probability),
             ]
         )
 
-        events, sensor_size = transform((orig_events.copy(), sensor_size))
+        events = transform(orig_events.copy())
 
         drop_events = np.isclose(
             events.shape[0], (1 - drop_probability) * orig_events.shape[0]
@@ -99,11 +100,11 @@ class TestChainedTransforms:
             [
                 transforms.TimeSkew(coefficient=coefficient, offset=offset),
                 transforms.RandomFlipPolarity(flip_probability=flip_probability_pol),
-                transforms.RandomFlipLR(flip_probability=flip_probability_lr),
+                transforms.RandomFlipLR(sensor_size=sensor_size, flip_probability=flip_probability_lr),
             ]
         )
 
-        events, sensor_size = transform((orig_events.copy(), sensor_size))
+        events = transform(orig_events.copy())
 
         assert len(events) == len(orig_events)
         assert (events["t"] >= orig_events["t"]).all()

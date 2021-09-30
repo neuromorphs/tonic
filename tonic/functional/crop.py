@@ -37,6 +37,4 @@ def crop_numpy(events, sensor_size, target_size):
     events["x"] -= x_start_ind
     events["y"] -= y_start_ind
 
-    sensor_size = target_size
-
-    return events, sensor_size
+    return events

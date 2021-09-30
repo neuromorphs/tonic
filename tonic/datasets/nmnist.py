@@ -57,8 +57,9 @@ class NMNIST(Dataset):
         "9 - nine",
     ]
 
-    sensor_size = (34, 34)
-    ordering = "xytp"
+    sensor_size = [34, 34, 2]
+    dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+    ordering = dtype.names
 
     def __init__(
         self,
@@ -109,9 +110,10 @@ class NMNIST(Dataset):
 
     def __getitem__(self, index):
         events = self._read_dataset_file(self.samples[index])
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         target = self.targets[index]
         if self.transform is not None:
-            events = self.transform(events, self.sensor_size, self.ordering)
+            events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
         return events, target

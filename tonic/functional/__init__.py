@@ -3,7 +3,6 @@ from .denoise import denoise_numpy
 from .drop_event import drop_event_numpy
 from .drop_pixel import drop_pixel_numpy, identify_hot_pixel
 from .refractory_period import refractory_period_numpy
-from .resize import spatial_resize_numpy
 from .slicing import (
     slice_by_time,
     slice_by_time_bins,
@@ -15,7 +14,6 @@ from .time_jitter import time_jitter_numpy
 from .time_skew import time_skew_numpy
 from .to_averaged_timesurface import to_averaged_timesurface
 from .to_frame import to_frame_numpy
-from .to_sparse_tensor import to_sparse_tensor_pytorch
 from .to_timesurface import to_timesurface_numpy
 from .to_voxel_grid import to_voxel_grid_numpy
 
@@ -31,7 +29,6 @@ __all__ = [
     "time_skew_numpy",
     "to_averaged_timesurface",
     "to_frame_numpy",
-    "to_sparse_tensor_pytorch",
     "to_timesurface_numpy",
     "to_voxel_grid_numpy",
 ]
