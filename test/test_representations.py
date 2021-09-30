@@ -81,43 +81,6 @@ class TestRepresentations:
             assert frames.shape[1] == 1
 
     @pytest.mark.parametrize(
-        "merge_polarities", [(True), (False),],
-    )
-    def test_representation_sparse_tensor(self, merge_polarities):
-        orig_events, sensor_size = create_random_input()
-
-        transform = transforms.ToSparseTensor(merge_polarities=merge_polarities,)
-
-        sparse_tensor = transform((orig_events.copy(), sensor_size))
-
-        assert (
-            sparse_tensor.coalesce().values().sum() == orig_events.shape[0]
-        ), "Sparse tensor values should contain as many 1s as there are events."
-        assert sparse_tensor.shape[0] == int(orig_events["t"][-1] + 1)
-        assert sparse_tensor.shape[1] == 1 if merge_polarities else 2
-        assert sparse_tensor.shape[2] == sensor_size[0]
-        assert sparse_tensor.shape[3] == sensor_size[1]
-
-    @pytest.mark.parametrize(
-        "merge_polarities", [(True), (False),],
-    )
-    def test_representation_dense_tensor(self, merge_polarities):
-        orig_events, sensor_size = create_random_input()
-
-        orig_events, sensor_size = transforms.Downsample(time_factor=1e-3)(
-            (orig_events, sensor_size)
-        )
-        transform = transforms.ToDenseTensor(merge_polarities=merge_polarities,)
-
-        tensor = transform((orig_events.copy(), sensor_size))
-
-        assert tensor.sum() == orig_events.shape[0]
-        assert tensor.shape[0] == int(orig_events["t"][-1]) + 1
-        assert tensor.shape[1] == 1 if merge_polarities else 2
-        assert tensor.shape[2] == sensor_size[0]
-        assert tensor.shape[3] == sensor_size[1]
-
-    @pytest.mark.parametrize(
         "surface_dimensions, tau, merge_polarities",
         [((15, 15), 100, True), ((3, 3), 10, False), (None, 1e4, False),],
     )

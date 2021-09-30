@@ -510,57 +510,6 @@ class ToFrame:
 
 
 @dataclass(frozen=True)
-class ToSparseTensor:
-    """Turn event array (N,E) into sparse Tensor (B,T,W,H) if E is 4 (mostly event camera recordings),
-    otherwise into sparse tensor (B,T,W) for mostly audio recordings.
-    
-    Parameters:
-        backend (str): choose which framework to use. Default is pytorch, other possibilities are tensorflow and scipy.
-    """
-
-    backend: str = "pytorch"
-    merge_polarities: bool = False
-
-    def __call__(self, event_data):
-        events, sensor_size = event_data
-        if self.backend == "pytorch" or "pt" or "torch":
-            tensor = functional.to_sparse_tensor_pytorch(
-                events=events,
-                sensor_size=sensor_size,
-                merge_polarities=self.merge_polarities,
-            )
-        elif self.backend == "tensorflow" or "tf":
-            tensor = functional.to_sparse_tensor_tensorflow(
-                events=events,
-                sensor_size=sensor_size,
-                merge_polarities=self.merge_polarities,
-            )
-        else:
-            raise NotImplementedError
-        return tensor
-
-
-@dataclass(frozen=True)
-class ToDenseTensor:
-    """Creates dense representation of events.
-    
-    Parameters:
-        backend (str): choose which framework to use. Default is pytorch, alternatively tensorflow.
-    """
-
-    backend: str = "pytorch"
-    merge_polarities: bool = False
-
-    def __call__(self, event_data):
-        #         events, sensor_size = event_data
-        tensor = ToSparseTensor(
-            backend=self.backend, merge_polarities=self.merge_polarities,
-        )(event_data)
-        if self.backend == "pytorch" or "pt" or "torch":
-            return tensor.to_dense()
-
-
-@dataclass(frozen=True)
 class ToTimesurface:
     """Representation that creates timesurfaces for each event in the recording. Modeled after the paper
     Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
