@@ -2,9 +2,7 @@ import numpy as np
 
 
 # from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/preprocess.py#L188
-def identify_hot_pixel(
-    events: np.ndarray, ordering: str, hot_pixel_frequency: float
-):
+def identify_hot_pixel(events: np.ndarray, ordering: str, hot_pixel_frequency: float):
     """Identifies pixels that fire above above a certain frequency, averaged across 
     whole event recording. Such _hot_ pixels are sometimes caused by faulty hardware.
     
@@ -24,12 +22,12 @@ def identify_hot_pixel(
     y_index = ordering.find("y")
     t_index = ordering.find("t")
 
-    total_time = events[:, t_index][-1] - events[:, t_index][0]
+    total_time = events["t"][-1] - events["t"][0]
 
     hist = np.histogram2d(
-        events[:, x_index],
-        events[:, y_index],
-        bins=(np.arange(events[:, y_index].max() + 1), np.arange(events[:, x_index].max() + 1)),
+        events["x"],
+        events["y"],
+        bins=(np.arange(events["y"].max() + 1), np.arange(events["x"].max() + 1),),
     )[0]
     max_occur = hot_pixel_frequency * total_time * 1e-6
     hot_pixels = np.asarray((hist > max_occur).nonzero()).T
@@ -55,7 +53,7 @@ def drop_pixel_numpy(events: np.ndarray, ordering: str, coordinates):
 
     dropped_pixel_mask = np.full((events.shape[0]), False, dtype=bool)
     for x, y in coordinates:
-        current_mask = np.logical_and(events[:, x_index] == x, events[:, y_index] == y)
+        current_mask = np.logical_and(events["x"] == x, events["y"] == y)
         dropped_pixel_mask = np.logical_or(current_mask, dropped_pixel_mask)
 
     return events[np.invert(dropped_pixel_mask), :]

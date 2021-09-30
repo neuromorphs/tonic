@@ -1,12 +1,16 @@
 import warnings
 import numpy as np
-from tonic.slicers import SliceByTime, SliceByEventCount, SliceAtIndices, SliceAtTimePoints
+from tonic.slicers import (
+    SliceByTime,
+    SliceByEventCount,
+    SliceAtIndices,
+    SliceAtTimePoints,
+)
 from typing import List
 
 
 def slice_by_time(
     events: np.ndarray,
-    ordering: str,
     time_window: int,
     overlap: int = 0,
     include_incomplete: bool = False,
@@ -28,9 +32,9 @@ def slice_by_time(
     Returns:
         list of event slices (np.ndarray)
     """
-    assert "t" in ordering
-    t_index = ordering.find("t")
-    times = events[:, t_index]
+    assert "t" in events.dtype.names
+
+    times = events["t"]
     stride = time_window - overlap
 
     if include_incomplete:
@@ -42,12 +46,10 @@ def slice_by_time(
     window_end_times = window_start_times + time_window
     indices_start = np.searchsorted(times, window_start_times)
     indices_end = np.searchsorted(times, window_end_times)
-    return [events[indices_start[i] : indices_end[i], :] for i in range(n_slices)]
+    return [events[indices_start[i] : indices_end[i]] for i in range(n_slices)]
 
 
-def slice_by_time_bins(
-    events: np.ndarray, ordering: str, bin_count: int, overlap: float = 0.0
-):
+def slice_by_time_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0):
     """
     Slices an event array along fixed number of bins of time length max_time / bin_count * (1+overlap).
     This method is good if your recordings all have roughly the same time length and you want an equal
@@ -63,10 +65,10 @@ def slice_by_time_bins(
     Returns:
         list of event slices (np.ndarray)
     """
-    assert "t" in ordering
+    assert "t" in events.dtype.names
     assert overlap < 1
-    t_index = ordering.find("t")
-    times = events[:, t_index]
+
+    times = events["t"]
     time_window = times[-1] // bin_count * (1 + overlap)
     stride = time_window * (1 - overlap)
 
@@ -74,12 +76,11 @@ def slice_by_time_bins(
     window_end_times = window_start_times + time_window
     indices_start = np.searchsorted(times, window_start_times)
     indices_end = np.searchsorted(times, window_end_times)
-    return [events[indices_start[i] : indices_end[i], :] for i in range(bin_count)]
+    return [events[indices_start[i] : indices_end[i]] for i in range(bin_count)]
 
 
 def slice_by_event_count(
     events: np.ndarray,
-    ordering: str,
     event_count: int,
     overlap: int = 0,
     include_incomplete: bool = False,
@@ -98,12 +99,12 @@ def slice_by_event_count(
     Returns:
         list of event slices (np.ndarray)
     """
-    return SliceByEventCount(event_count=event_count, overlap=overlap, include_incomplete=include_incomplete).slice(events)
+    return SliceByEventCount(
+        event_count=event_count, overlap=overlap, include_incomplete=include_incomplete
+    ).slice(events)
 
 
-def slice_by_event_bins(
-    events: np.ndarray, ordering: str, bin_count: int, overlap: float = 0.0
-):
+def slice_by_event_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0):
     """
     Slices an event array along fixed number of bins that each have n_events // bin_count * (1 + overlap) events.
     This slicing method is good if you recordings have all roughly the same amount of overall activity in the scene
@@ -125,7 +126,7 @@ def slice_by_event_bins(
 
     indices_start = np.arange(bin_count) * stride
     indices_end = indices_start + spike_count
-    return [events[indices_start[i] : indices_end[i], :] for i in range(bin_count)]
+    return [events[indices_start[i] : indices_end[i]] for i in range(bin_count)]
 
 
 def slice_at_indices(xytp: np.ndarray, start_indices, end_indices):
@@ -133,6 +134,8 @@ def slice_at_indices(xytp: np.ndarray, start_indices, end_indices):
     return slicer.slice(xytp)
 
 
-def slice_at_timepoints(xytp: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray) -> List[np.ndarray]:
+def slice_at_timepoints(
+    xytp: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray
+) -> List[np.ndarray]:
     slicer = SliceAtTimePoints(start_tw=start_tw, end_tw=end_tw)
     return slicer.slice(xytp)

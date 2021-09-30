@@ -38,8 +38,9 @@ class ASLDVS(Dataset):
 
     classes = [chr(letter) for letter in range(97, 123)]  # generate alphabet
     int_classes = dict(zip(classes, range(len(classes))))
-    sensor_size = (240, 180)
-    ordering = "txyp"
+    sensor_size = (240, 180, 2)
+    dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
+    ordering = dtype.names
 
     def __init__(self, save_to, download=True, transform=None, target_transform=None):
         super(ASLDVS, self).__init__(
@@ -79,23 +80,23 @@ class ASLDVS(Dataset):
 
     def __getitem__(self, index):
         events, target = scio.loadmat(self.samples[index]), self.targets[index]
-        events = (
+        data = (
             np.array(
                 [
-                    events["ts"],
-                    events["x"],
-                    self.sensor_size[1] - events["y"],
-                    events["pol"],
-                ]
-            )
-            .squeeze()
-            .T.astype(float)
+                    events["ts"].T,
+                    events["x"].T,
+                    self.sensor_size[1] - events["y"].T,
+                    events["pol"].T,
+                ],
+                dtype=self.dtype,
+            ),
+            self.sensor_size,
         )
         if self.transform is not None:
-            events = self.transform(events)
+            data = self.transform(data)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        return events, target
+        return data, target
 
     def __len__(self):
         return len(self.samples)

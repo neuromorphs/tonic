@@ -1,9 +1,9 @@
 import numpy as np
 
+
 def to_timesurface_numpy(
     events,
     sensor_size,
-    ordering,
     surface_dimensions=(7, 7),
     tau=5e3,
     decay="lin",
@@ -23,7 +23,7 @@ def to_timesurface_numpy(
     Returns:
         array of timesurfaces with dimensions (w,h) or (p,w,h)
     """
-        
+
     if surface_dimensions:
         assert len(surface_dimensions) == 2
         assert surface_dimensions[0] % 2 == 1 and surface_dimensions[1] % 2 == 1
@@ -33,17 +33,13 @@ def to_timesurface_numpy(
         radius_x = 0
         radius_y = 0
         surface_dimensions = sensor_size
-        
-    assert "x" and "y" and "t" and "p" in ordering
-    x_index = ordering.find("x")
-    y_index = ordering.find("y")
-    t_index = ordering.find("t")
-    p_index = ordering.find("p")
+
+    assert "x" and "y" and "t" and "p" in events.dtype.names
     n_of_events = len(events)
 
     if merge_polarities:
-        events[:, p_index] = np.zeros(n_of_events)
-    n_of_pols = len(np.unique(events[:, p_index]))
+        events["p"] = np.zeros(n_of_events)
+    n_of_pols = len(np.unique(events["p"]))
     timestamp_memory = np.zeros(
         (n_of_pols, sensor_size[0] + radius_x * 2, sensor_size[1] + radius_y * 2)
     )
@@ -52,21 +48,19 @@ def to_timesurface_numpy(
         (n_of_events, n_of_pols, surface_dimensions[0], surface_dimensions[1])
     )
     for index, event in enumerate(events):
-        x = int(event[x_index])
-        y = int(event[y_index])
-        timestamp_memory[int(event[p_index]), x + radius_x, y + radius_y] = event[
-            t_index
-        ]
+        x = int(event["x"])
+        y = int(event["y"])
+        timestamp_memory[int(event["p"]), x + radius_x, y + radius_y] = event["t"]
         if radius_x > 0 and radius_y > 0:
             timestamp_context = (
                 timestamp_memory[
                     :, x : x + surface_dimensions[0], y : y + surface_dimensions[1]
                 ]
-                - event[t_index]
+                - event["t"]
             )
         else:
-            timestamp_context = (timestamp_memory - event[t_index])
-            
+            timestamp_context = timestamp_memory - event["t"]
+
         if decay == "lin":
             timesurface = timestamp_context / (3 * tau) + 1
             timesurface[timesurface < 0] = 0

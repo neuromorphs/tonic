@@ -152,11 +152,11 @@ class MVSEC(Dataset):
 
         if self.transform is not None:
             events_left = self.transform(
-                events_left, self.sensor_size, self.ordering, images=images_left
+                events_left, self.sensor_size, images=images_left
             )
         if self.transform is not None:
             events_right = self.transform(
-                events_right, self.sensor_size, self.ordering, images=images_right
+                events_right, self.sensor_size, images=images_right
             )
         return (
             events_left,

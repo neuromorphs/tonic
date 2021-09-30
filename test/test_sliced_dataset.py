@@ -8,7 +8,7 @@ def test_sliced_dataset():
 
     target_number = 0
     for data, label in dataset:
-        target_number += len(data)//200
+        target_number += len(data) // 200
 
     slicer = SliceByEventCount(event_count=200)
     sliced_dataset = SlicedDataset(dataset, slicer)

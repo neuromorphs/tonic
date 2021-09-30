@@ -18,7 +18,7 @@ def save_to_cache(processed_data, fname: Union[str, Path]) -> None:
     with h5py.File(fname, "w") as f:
         if type(processed_data) == tuple:  # can be events, frames, imu, gps, etc.
             for j, data_piece in enumerate(processed_data):
-                f.create_dataset(f'{j}', data=data_piece)
+                f.create_dataset(f"{j}", data=data_piece)
         else:
             f.create_dataset(str(0), data=processed_data)
 
@@ -55,6 +55,7 @@ class CachedDataset:
             Number of copies of each sample to be cached.
             This is a useful parameter if the dataset is being augmented with slow random transforms.
     """
+
     dataset: Iterable
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
@@ -96,7 +97,14 @@ class CachedDataset:
             filename
         """
         try:
-            transform_hash = hashlib.sha1(f"{self.dataset.transform}{self.dataset.target_transform}".encode()).hexdigest()
+            transform_hash = hashlib.sha1(
+                f"{self.dataset.transform}{self.dataset.target_transform}".encode()
+            ).hexdigest()
         except RuntimeError:
-            warn(f"Parent dataset does not have transform and target_transform, which will lead to inconsistent caching results.")
+            warn(
+                f"Parent dataset does not have transform and target_transform, which will lead to inconsistent caching results."
+            )
+            transform_hash = hashlib.sha1(
+                f"{self.transform}{self.target_transform}".encode()
+            ).hexdigest()
         return Path(self.cache_path) / f"{item}_{copy}_{transform_hash}.h5"

@@ -2,13 +2,11 @@ import numpy as np
 import tonic.transforms as transforms
 
 
-def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False):
+def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
     """Plot events accumulated in a voxel grid for visual inspection.
 
     Args:
         events: event Tensor of shape [num_events, num_event_channels]
-        ordering: ordering of the event tuple inside of events,
-                    for example 'xytp'.
         axis_array: dimensions of plotting grid. The larger the grid,
                     the more fine-grained the events will be sliced in time.
         plot_frame_number: optional index of frame when plotting
@@ -30,13 +28,11 @@ def plot_event_grid(events, ordering, axis_array=(1, 3), plot_frame_number=False
     transform = transforms.Compose(
         [transforms.ToVoxelGrid(n_time_bins=np.product(axis_array))]
     )
-    x_index = ordering.find("x")
-    y_index = ordering.find("y")
-    sensor_size_x = int(events[:, x_index].max() + 1)
-    sensor_size_y = int(events[:, y_index].max() + 1)
+    sensor_size_x = int(events["x"].max() + 1)
+    sensor_size_y = int(events["y"].max() + 1)
     sensor_size = (sensor_size_x, sensor_size_y)
 
-    volume = transform(events, sensor_size=sensor_size, ordering=ordering)
+    volume = transform((events, sensor_size))
     fig, axes_array = plt.subplots(*axis_array)
 
     if 1 in axis_array:
@@ -69,28 +65,37 @@ def pad_tensors(batch):
 
     """
     import torch
-    
+
     if not isinstance(batch[0][0], torch.Tensor):
         print(
             "tonic.utils.pad_tensors expects a PyTorch Tensor of events. Please use"
             " ToSparseTensor/ToDenseTensor or similar transform to convert the events."
         )
         return None, None
-    
+
     samples_output = []
     targets_output = []
-    
+
     if batch[0][0].is_sparse:
         max_length = max([sample.size()[0] for sample, target in batch])
         for sample, target in batch:
             sample.sparse_resize_(
-                (max_length, *sample.size()[1:]), sample.sparse_dim(), sample.dense_dim()
+                (max_length, *sample.size()[1:]),
+                sample.sparse_dim(),
+                sample.dense_dim(),
             )
             samples_output.append(sample)
-            targets_output.append(target)  
+            targets_output.append(target)
     else:
         max_length = max([sample.shape[0] for sample, target in batch])
         for sample, target in batch:
-            samples_output.append(torch.cat((sample, torch.zeros(max_length-sample.shape[0], *sample.shape[1:]))))
+            samples_output.append(
+                torch.cat(
+                    (
+                        sample,
+                        torch.zeros(max_length - sample.shape[0], *sample.shape[1:]),
+                    )
+                )
+            )
             targets_output.append(target)
     return torch.stack(samples_output, 1), torch.tensor(targets_output)

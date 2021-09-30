@@ -20,10 +20,10 @@ class Compose:
     def __init__(self, transforms: Callable):
         self.transforms = transforms
 
-    def __call__(self, events):
+    def __call__(self, event_data):
         for t in self.transforms:
-            events = t(events)
-        return events
+            event_data = t(event_data)
+        return event_data
 
     def __repr__(self):
         format_string = self.__class__.__name__ + "("
@@ -32,31 +32,6 @@ class Compose:
             format_string += "    {0}".format(t)
         format_string += "\n)"
         return format_string
-
-
-@dataclass(frozen=True)
-class RandomCrop:
-    """Crops the sensor size to a smaller sensor in a random location.
-
-    x' = x - new_sensor_start_x
-
-    y' = y - new_sensor_start_y
-
-    Parameters:
-        target_size: size of the sensor that was used [W',H']
-    """
-
-    target_size: Tuple[int, int]
-    sensor_size: Tuple[int, int]
-    ordering: str
-
-    def __call__(self, events):
-        return functional.crop_numpy(
-            events=events,
-            sensor_size=self.sensor_size,
-            ordering=self.ordering,
-            target_size=self.target_size,
-        )
 
 
 @dataclass(frozen=True)
@@ -71,12 +46,13 @@ class Denoise:
                     Lower values will mean higher constraints, therefore less events.
     """
 
-    ordering: str
     filter_time: float = 10000
 
-    def __call__(self, events):
-        return functional.denoise_numpy(
-            events=events, ordering=self.ordering, filter_time=self.filter_time,
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return (
+            functional.denoise_numpy(events=events, filter_time=self.filter_time,),
+            sensor_size,
         )
 
 
@@ -93,9 +69,13 @@ class DropEvent:
     drop_probability: float = 0.5
     random_drop_probability: bool = False
 
-    def __call__(self, events):
-        return functional.drop_event_numpy(
-            events, self.drop_probability, self.random_drop_probability
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return (
+            functional.drop_event_numpy(
+                events, self.drop_probability, self.random_drop_probability
+            ),
+            sensor_size,
         )
 
 
@@ -110,24 +90,18 @@ class DropPixel:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
     """
 
-    ordering: str
     coordinates: Optional = None
     hot_pixel_frequency: Optional = None
 
-    def __call__(self, events):
+    def __call__(self, event_data):
         if self.hot_pixel_frequency:
             self.coordinates = functional.identify_hot_pixel(
                 events=events,
                 sensor_size=sensor_size,
-                ordering=ordering,
                 hot_pixel_frequency=self.hot_pixel_frequency,
             )
 
-        print(f"Filtered {len(self.coordinates)} hot pixels.")
-
-        return functional.drop_pixel_numpy(
-            events=events, ordering=ordering, coordinates=self.coordinates,
-        )
+        return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates,)
 
 
 @dataclass(frozen=True)
@@ -142,23 +116,19 @@ class Downsample:
         spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     time_factor: float = 1e-3
     spatial_factor: float = 1
 
-    def __call__(self, events):
-        events = functional.time_skew_numpy(
-            events, self.ordering, coefficient=self.time_factor
-        )
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        events = functional.time_skew_numpy(events, coefficient=self.time_factor)
         events, sensor_size = functional.spatial_resize_numpy(
-            events,
-            self.sensor_size,
-            self.ordering,
+            events=events,
+            sensor_size=sensor_size,
             spatial_factor=self.spatial_factor,
             integer_coordinates=True,
         )
-        return events
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -172,8 +142,29 @@ class NumpyAsType:
 
     dtype: np.dtype
 
-    def __call__(self, events):
+    def __call__(self, event_data):
         return events.astype(self.dtype)
+
+
+@dataclass(frozen=True)
+class RandomCrop:
+    """Crops the sensor size to a smaller sensor in a random location.
+
+    x' = x - new_sensor_start_x
+
+    y' = y - new_sensor_start_y
+
+    Parameters:
+        target_size: size of the sensor that was used [W',H']
+    """
+
+    target_size: Tuple[int, int]
+
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return functional.crop_numpy(
+            events=events, sensor_size=sensor_size, target_size=self.target_size,
+        )
 
 
 @dataclass(frozen=True)
@@ -185,17 +176,16 @@ class RandomFlipPolarity:
         flip_probability (float): probability of flipping individual event polarities
     """
 
-    ordering: str
     flip_probability: float = 0.5
 
-    def __call__(self, events):
-        assert "p" in self.ordering
-        p_loc = self.ordering.index("p")
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        assert "p" in events.dtype.names
         flips = np.ones(len(events))
         probs = np.random.rand(len(events))
         flips[probs < self.flip_probability] = -1
-        events[:, p_loc] = events[:, p_loc] * flips
-        return events
+        events["p"] = events["p"] * flips
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -208,16 +198,15 @@ class RandomFlipLR:
         flip_probability (float): probability of performing the flip
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     flip_probability: float = 0.5
 
-    def __call__(self, events):
-        assert "x" in self.ordering
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+
+        assert "x" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
-            x_loc = self.ordering.index("x")
-            events[:, x_loc] = self.sensor_size[0] - 1 - events[:, x_loc]
-        return events
+            events["x"] = sensor_size[0] - 1 - events["x"]
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -231,16 +220,15 @@ class RandomFlipUD:
         flip_probability (float): probability of performing the flip
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     flip_probability: float = 0.5
 
-    def __call__(self, events):
-        assert "y" in self.ordering
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+
+        assert "y" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
-            y_loc = self.ordering.index("y")
-            events[:, y_loc] = self.sensor_size[1] - 1 - events[:, y_loc]
-        return events
+            events["y"] = sensor_size[1] - 1 - events["y"]
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -256,17 +244,15 @@ class RandomTimeReversal:
         flip_probability (float): probability of performing the flip
     """
 
-    ordering: str
     flip_probability: float = 0.5
 
-    def __call__(self, events):
-        assert "t" and "p" in self.ordering
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.flip_probability:
-            t_loc = self.ordering.index("t")
-            p_loc = self.ordering.index("p")
-            events[:, t_loc] = np.max(events[:, t_loc]) - events[:, t_loc]
-            events[:, p_loc] *= -1
-        return events
+            events["t"] = np.max(events["t"]) - events["t"]
+            events["p"] *= -1
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -283,12 +269,13 @@ class RefractoryPeriod:
         refractory_period (float): refractory period for each pixel in time unit
     """
 
-    ordering: str
     refractory_period: float
 
-    def __call__(self, events):
-        return functional.refractory_period_numpy(
-            events, self.ordering, self.refractory_period
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return (
+            functional.refractory_period_numpy(events, self.refractory_period),
+            sensor_size,
         )
 
 
@@ -310,24 +297,23 @@ class SpatialJitter:
         clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     variance_x: float = 1
     variance_y: float = 1
     sigma_x_y: float = 0
-    integer_jitter: bool = False
     clip_outliers: bool = False
 
-    def __call__(self, events):
-        return functional.spatial_jitter_numpy(
-            events=events,
-            sensor_size=self.sensor_size,
-            ordering=self.ordering,
-            variance_x=self.variance_x,
-            variance_y=self.variance_y,
-            sigma_x_y=self.sigma_x_y,
-            integer_jitter=self.integer_jitter,
-            clip_outliers=self.clip_outliers,
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return (
+            functional.spatial_jitter_numpy(
+                events=events,
+                sensor_size=sensor_size,
+                variance_x=self.variance_x,
+                variance_y=self.variance_y,
+                sigma_x_y=self.sigma_x_y,
+                clip_outliers=self.clip_outliers,
+            ),
+            sensor_size,
         )
 
 
@@ -335,11 +321,11 @@ class TimeAlignment:
     """Shifts the timestamps to set the first event of all recordings of the dataset to zero.
     """
 
-    def __call__(self, events, sensor_size, ordering, images=None, multi_image=None):
-        assert "t" in ordering
-        t_index = ordering.index("t")
-        events[:,t_index] -= min(events[:, t_index])
-        return events, images, sensor_size
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        assert "t" in events.dtype.names
+        events["t"] -= min(events["t"])
+        return events, sensor_size
 
 
 @dataclass(frozen=True)
@@ -354,20 +340,17 @@ class TimeJitter:
         sort_timestamps (bool): sort the events by timestamps
     """
 
-    ordering: str
     std: float = 1
-    integer_jitter: bool = False
     clip_negative: bool = False
     sort_timestamps: bool = False
 
-    def __call__(self, events):
-        return functional.time_jitter_numpy(
-            events,
-            self.ordering,
-            self.std,
-            self.integer_jitter,
-            self.clip_negative,
-            self.sort_timestamps,
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return (
+            functional.time_jitter_numpy(
+                events, self.std, self.clip_negative, self.sort_timestamps,
+            ),
+            sensor_size,
         )
 
 
@@ -387,14 +370,14 @@ class TimeSkew:
                              nearest integer after skewing.
     """
 
-    ordering: str
     coefficient: float
     offset: float = 0
-    integer_time: bool = False
 
-    def __call__(self, events):
-        return functional.time_skew_numpy(
-            events, self.ordering, self.coefficient, self.offset, self.integer_time
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return (
+            functional.time_skew_numpy(events, self.coefficient, self.offset),
+            sensor_size,
         )
 
 
@@ -407,24 +390,26 @@ class UniformNoise:
         n_noise_events: number of events that are added to the sample.
     """
 
-    ordering: str
     n_noise_events: int
 
-    def __call__(self, events):
-        noise_events = []
-        for channel in self.ordering:
-            channel_index = self.ordering.index(channel)
-            event_channel = events[:, channel_index]
-            channel_samples = np.random.uniform(
-                low=event_channel.min(),
-                high=event_channel.max(),
-                size=self.n_noise_events,
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        noise_events = np.zeros(self.n_noise_events, dtype=events.dtype)
+        for channel in events.dtype.names:
+            event_channel = events[channel]
+            if channel == "x":
+                low, high = 0, sensor_size[0]
+            if channel == "y":
+                low, high = 0, sensor_size[1]
+            if channel == "p":
+                low, high = 0, sensor_size[2]
+            if channel == "t":
+                low, high = events["t"].min(), events["t"].max()
+            noise_events[channel] = np.random.uniform(
+                low=low, high=high, size=self.n_noise_events
             )
-            noise_events.append(channel_samples)
-        noise_events = np.column_stack(noise_events)
         events = np.concatenate((events, noise_events))
-        t_index = self.ordering.index("t")
-        return events[np.argsort(events[:, t_index]), :]
+        return events[np.argsort(events["t"])], sensor_size
 
 
 @dataclass(frozen=True)
@@ -442,8 +427,6 @@ class ToAveragedTimesurface:
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     cell_size = 10
     surface_size = 7
     temporal_window = 5e5
@@ -451,11 +434,11 @@ class ToAveragedTimesurface:
     decay = "lin"
     merge_polarities = False
 
-    def __call__(self, events):
+    def __call__(self, event_data):
+        events, sensor_size = event_data
         return functional.to_averaged_timesurface(
             events,
-            self.sensor_size,
-            self.ordering,
+            sensor_size,
             self.cell_size,
             self.surface_size,
             self.temporal_window,
@@ -503,23 +486,21 @@ class ToFrame:
         merge_polarities (bool): if True, merge polarity channels to a single channel.
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     time_window: Optional[float] = None
-    spike_count: Optional[int] = None
+    event_count: Optional[int] = None
     n_time_bins: Optional[int] = None
     n_event_bins: Optional[int] = None
     overlap: float = 0
     include_incomplete: bool = False
     merge_polarities: bool = False
 
-    def __call__(self, events):
+    def __call__(self, event_data):
+        events, sensor_size = event_data
         return functional.to_frame_numpy(
             events=events,
-            sensor_size=self.sensor_size,
-            ordering=self.ordering,
+            sensor_size=sensor_size,
             time_window=self.time_window,
-            spike_count=self.spike_count,
+            event_count=self.event_count,
             n_time_bins=self.n_time_bins,
             n_event_bins=self.n_event_bins,
             overlap=self.overlap,
@@ -537,24 +518,21 @@ class ToSparseTensor:
         backend (str): choose which framework to use. Default is pytorch, other possibilities are tensorflow and scipy.
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     backend: str = "pytorch"
     merge_polarities: bool = False
 
-    def __call__(self, events):
+    def __call__(self, event_data):
+        events, sensor_size = event_data
         if self.backend == "pytorch" or "pt" or "torch":
             tensor = functional.to_sparse_tensor_pytorch(
                 events=events,
-                sensor_size=self.sensor_size,
-                ordering=self.ordering,
+                sensor_size=sensor_size,
                 merge_polarities=self.merge_polarities,
             )
         elif self.backend == "tensorflow" or "tf":
             tensor = functional.to_sparse_tensor_tensorflow(
                 events=events,
-                sensor_size=self.sensor_size,
-                ordering=self.ordering,
+                sensor_size=sensor_size,
                 merge_polarities=self.merge_polarities,
             )
         else:
@@ -570,16 +548,17 @@ class ToDenseTensor:
         backend (str): choose which framework to use. Default is pytorch, alternatively tensorflow.
     """
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     backend: str = "pytorch"
     merge_polarities: bool = False
 
-    def __call__(self, events):
-        tensor = ToSparseTensor(ordering=self.ordering, sensor_size=self.sensor_size, backend=self.backend, merge_polarities=self.merge_polarities)(events)
+    def __call__(self, event_data):
+        #         events, sensor_size = event_data
+        tensor = ToSparseTensor(
+            backend=self.backend, merge_polarities=self.merge_polarities,
+        )(event_data)
         if self.backend == "pytorch" or "pt" or "torch":
             return tensor.to_dense()
-            
+
 
 @dataclass(frozen=True)
 class ToTimesurface:
@@ -594,19 +573,17 @@ class ToTimesurface:
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
-    
-    ordering: str
-    sensor_size: Tuple[int, int]
+
     surface_dimensions: Tuple[int, int] = (7, 7)
     tau: float = 5e3
     decay: str = "lin"
     merge_polarities: bool = False
 
-    def __call__(self, events):
+    def __call__(self, event_data):
+        events, sensor_size = event_data
         return functional.to_timesurface_numpy(
-            events,
-            sensor_size=self.sensor_size,
-            ordering=self.ordering,
+            events=events,
+            sensor_size=sensor_size,
             surface_dimensions=self.surface_dimensions,
             tau=self.tau,
             decay=self.decay,
@@ -621,14 +598,11 @@ class ToVoxelGrid:
     Parameters:
         n_time_bins (int): fixed number of time bins to slice the event sample into."""
 
-    ordering: str
-    sensor_size: Tuple[int, int]
     n_time_bins: int
 
-    def __call__(self, events):
-        return functional.to_voxel_grid_numpy(
-            events, self.sensor_size, self.ordering, self.n_time_bins
-        )
+    def __call__(self, event_data):
+        events, sensor_size = event_data
+        return functional.to_voxel_grid_numpy(events, sensor_size, self.n_time_bins)
 
 
 @dataclass(frozen=True)
@@ -636,7 +610,7 @@ class Repeat:
     """Copies target n times. Useful to transform sample labels into sequences."""
 
     n_repeat: int
-    
+
     def __call__(self, target):
         return np.tile(np.expand_dims(target, 0), [self.n_repeat, 1])
 
@@ -646,6 +620,6 @@ class ToOneHotEncoding:
     """Transforms one or more targets into a one hot encoding scheme."""
 
     n_classes: int
-    
+
     def __call__(self, target):
         return np.eye(self.n_classes)[target]
