@@ -7,20 +7,20 @@ from utils import create_random_input
 class TestRepresentations:
     @pytest.mark.parametrize(
         "time_window, event_count, n_time_bins, n_event_bins, overlap,"
-        " include_incomplete, merge_polarities",
+        " include_incomplete",
         [
-            (2000, None, None, None, 0, False, True),
-            (2000, None, None, None, 200, True, False),
-            (1000, None, None, None, 100, True, True),
-            (None, 2000, None, None, 0, False, True),
-            (None, 2000, None, None, 200, True, False),
-            (None, 2000, None, None, 100, True, True),
-            (None, None, 5, None, 0, False, True),
-            (None, None, 5, None, 0.1, False, False),
-            (None, None, 5, None, 0.25, True, False),
-            (None, None, None, 5, 0, True, False),
-            (None, None, None, 5, 0.1, False, True),
-            (None, None, None, 5, 0.25, False, False),
+            (2000, None, None, None, 0, False),
+            (2000, None, None, None, 200, True),
+            (1000, None, None, None, 100, True),
+            (None, 2000, None, None, 0, False),
+            (None, 2000, None, None, 200, True),
+            (None, 2000, None, None, 100, True),
+            (None, None, 5, None, 0, False),
+            (None, None, 5, None, 0.1, False),
+            (None, None, 5, None, 0.25, True),
+            (None, None, None, 5, 0, True),
+            (None, None, None, 5, 0.1, False),
+            (None, None, None, 5, 0.25, False),
         ],
     )
     def test_representation_frame(
@@ -31,21 +31,20 @@ class TestRepresentations:
         n_event_bins,
         overlap,
         include_incomplete,
-        merge_polarities,
     ):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.ToFrame(
+            sensor_size=sensor_size,
             time_window=time_window,
             event_count=event_count,
             n_time_bins=n_time_bins,
             n_event_bins=n_event_bins,
             overlap=overlap,
             include_incomplete=include_incomplete,
-            merge_polarities=merge_polarities,
         )
 
-        frames = transform((orig_events.copy(), sensor_size))
+        frames = transform(orig_events.copy())
 
         if time_window is not None:
             stride = time_window - overlap
@@ -77,65 +76,20 @@ class TestRepresentations:
         if n_event_bins is not None:
             assert frames.shape[0] == n_event_bins
 
-        if merge_polarities:
-            assert frames.shape[1] == 1
-
     @pytest.mark.parametrize(
-        "merge_polarities", [(True), (False),],
+        "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4),],
     )
-    def test_representation_sparse_tensor(self, merge_polarities):
-        orig_events, sensor_size = create_random_input()
-
-        transform = transforms.ToSparseTensor(merge_polarities=merge_polarities,)
-
-        sparse_tensor = transform((orig_events.copy(), sensor_size))
-
-        assert (
-            sparse_tensor.coalesce().values().sum() == orig_events.shape[0]
-        ), "Sparse tensor values should contain as many 1s as there are events."
-        assert sparse_tensor.shape[0] == int(orig_events["t"][-1] + 1)
-        assert sparse_tensor.shape[1] == 1 if merge_polarities else 2
-        assert sparse_tensor.shape[2] == sensor_size[0]
-        assert sparse_tensor.shape[3] == sensor_size[1]
-
-    @pytest.mark.parametrize(
-        "merge_polarities", [(True), (False),],
-    )
-    def test_representation_dense_tensor(self, merge_polarities):
-        orig_events, sensor_size = create_random_input()
-
-        orig_events, sensor_size = transforms.Downsample(time_factor=1e-3)(
-            (orig_events, sensor_size)
-        )
-        transform = transforms.ToDenseTensor(merge_polarities=merge_polarities,)
-
-        tensor = transform((orig_events.copy(), sensor_size))
-
-        assert tensor.sum() == orig_events.shape[0]
-        assert tensor.shape[0] == int(orig_events["t"][-1]) + 1
-        assert tensor.shape[1] == 1 if merge_polarities else 2
-        assert tensor.shape[2] == sensor_size[0]
-        assert tensor.shape[3] == sensor_size[1]
-
-    @pytest.mark.parametrize(
-        "surface_dimensions, tau, merge_polarities",
-        [((15, 15), 100, True), ((3, 3), 10, False), (None, 1e4, False),],
-    )
-    def test_representation_time_surface(
-        self, surface_dimensions, tau, merge_polarities
-    ):
+    def test_representation_time_surface(self, surface_dimensions, tau):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.ToTimesurface(
-            surface_dimensions=surface_dimensions,
-            tau=tau,
-            merge_polarities=merge_polarities,
+            sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau,
         )
 
-        surfaces = transform((orig_events.copy(), sensor_size))
+        surfaces = transform(orig_events.copy())
 
         assert surfaces.shape[0] == len(orig_events)
-        assert surfaces.shape[1] == 1 if merge_polarities else 2
+        assert surfaces.shape[1] == 2
         if surface_dimensions:
             assert surfaces.shape[2:] == surface_dimensions
         else:
@@ -146,7 +100,9 @@ class TestRepresentations:
     def test_representation_voxel_grid(self, n_time_bins):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.ToVoxelGrid(n_time_bins=n_time_bins)
+        transform = transforms.ToVoxelGrid(
+            sensor_size=sensor_size, n_time_bins=n_time_bins
+        )
 
-        volumes = transform((orig_events.copy(), sensor_size))
+        volumes = transform(orig_events.copy())
         assert volumes.shape == (n_time_bins, *sensor_size[:2])

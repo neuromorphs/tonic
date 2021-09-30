@@ -1,4 +1,5 @@
 import os
+import loris
 import numpy as np
 from tonic.dataset import Dataset
 from tonic.download_utils import (
@@ -7,7 +8,6 @@ from tonic.download_utils import (
     extract_archive,
 )
 from numpy.lib.recfunctions import structured_to_unstructured
-import loris
 
 
 class NCARS(Dataset):
@@ -45,8 +45,11 @@ class NCARS(Dataset):
 
     class_dict = {"background": 0, "cars": 1}
 
-    sensor_size = (120, 100)
+    sensor_size = (120, 100, 2)
     minimum_y_value = 140
+    dtype = np.dtype(
+        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), (("p", "is_increase"), "?")]
+    )
     ordering = "txyp"
 
     def __init__(
@@ -94,11 +97,10 @@ class NCARS(Dataset):
 
     def __getitem__(self, index):
         events = loris.read_file(self.samples[index])["events"]
-        events = np.array(structured_to_unstructured(events, dtype=float))
-        events[:, 2] -= self.minimum_y_value
+        events["y"] -= self.minimum_y_value
         target = self.targets[index]
         if self.transform is not None:
-            events = self.transform(events, self.sensor_size, self.ordering)
+            events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
         return events, target

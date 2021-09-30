@@ -26,7 +26,6 @@ class VPR(Dataset):
         download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
 
     Returns:
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images).
@@ -42,38 +41,31 @@ class VPR(Dataset):
         ["dvs_vpr_2020-04-29-06-20-23.bag", "d7ccfeb6539f1e7b077ab4fe6f45193c"],
     ]
 
-    sensor_size = (260, 346)
-    ordering = "txyp"
+    sensor_size = (260, 346, 2)
+    dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
+    ordering = dtype.names
 
-    def __init__(self, save_to, download=True, transform=None, target_transform=None):
-        super(VPR, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
-        )
+    def __init__(self, save_to, download=True, transform=None):
+        super(VPR, self).__init__(save_to, transform=transform)
         folder_name = "visual_place_recognition"
         self.location_on_system = os.path.join(save_to, folder_name)
 
         if download:
             self.download()
-        else:
-            print("Verifying existing files.")
-            for (recording, md5_hash) in self.recordings:
-                if not check_integrity(
-                    os.path.join(self.location_on_system, recording), md5_hash
-                ):
-                    raise RuntimeError(
-                        "Dataset file not found or corrupted."
-                        + " You can use download=True to download it"
-                    )
 
     def __getitem__(self, index):
         file_path = os.path.join(self.location_on_system, self.recordings[index][0])
         topics = importRosbag(filePathOrName=file_path, log="ERROR")
         events = topics["/dvs/events"]
-        events = np.stack((events["ts"], events["x"], events["y"], events["pol"])).T
+        events["ts"] -= events["ts"][0]
+        events["ts"] *= 1e6
+        events = np.column_stack(
+            (events["ts"], events["x"], events["y"], events["pol"])
+        )
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
-        #         images["frames"] = np.stack(images["frames"])
-
+        #         images["frames"] = np.stack(images["frames"]) # errors for some recordings
         if self.transform is not None:
             events = self.transform(events)
         return events, imu, images
@@ -89,3 +81,14 @@ class VPR(Dataset):
                 filename=recording,
                 md5=md5_hash,
             )
+
+    def verify_file_hashes(self):
+        print("Verifying existing files.")
+        for (recording, md5_hash) in self.recordings:
+            if not check_integrity(
+                os.path.join(self.location_on_system, recording), md5_hash
+            ):
+                raise RuntimeError(
+                    "Dataset file not found or corrupted."
+                    + " You can use download=True to download it"
+                )

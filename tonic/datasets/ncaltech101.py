@@ -41,7 +41,8 @@ class NCALTECH101(Dataset):
     folder_name = "Caltech101"
 
     sensor_size = None  # all recordings are of different size
-    ordering = "xytp"
+    dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+    ordering = dtype.names
 
     def __init__(self, save_to, download=True, transform=None, target_transform=None):
         super(NCALTECH101, self).__init__(
@@ -51,19 +52,19 @@ class NCALTECH101(Dataset):
         self.location_on_system = os.path.join(save_to, "ncaltech-101/")
         self.samples = []
         self.targets = []
-        self.x_index = self.ordering.find("x")
-        self.y_index = self.ordering.find("y")
 
         if download:
             self.download()
 
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it."
-            )
+        else:
+
+            if not check_integrity(
+                os.path.join(self.location_on_system, self.filename), self.file_md5
+            ):
+                raise RuntimeError(
+                    "Dataset not found or corrupted."
+                    + " You can use download=True to download it."
+                )
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
@@ -76,14 +77,12 @@ class NCALTECH101(Dataset):
 
     def __getitem__(self, index):
         events = self._read_dataset_file(self.samples[index])
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         target = self.targets[index]
-        events[:, self.x_index] -= events[:, self.x_index].min()
-        events[:, self.y_index] -= events[:, self.y_index].min()
+        events["x"] -= events["x"].min()
+        events["y"] -= events["y"].min()
         if self.transform is not None:
-            sensor_size_x = int(events[:, self.x_index].max() + 1)
-            sensor_size_y = int(events[:, self.y_index].max() + 1)
-            sensor_size = (sensor_size_x, sensor_size_y)
-            events = self.transform(events, sensor_size, self.ordering)
+            events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
         return events, target

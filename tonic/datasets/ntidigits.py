@@ -37,8 +37,9 @@ class NTIDIGITS(Dataset):
     file_md5 = "360a2d11e5429555c9197381cf6b58e0"
     filename = "n-tidigits.hdf5"
 
-    sensor_size = (64,)
-    ordering = "txp"
+    sensor_size = (64, 1, 1)
+    dtype = np.dtype([("t", int), ("x", int), ("p", int)])
+    ordering = dtype.names
 
     def __init__(
         self, save_to, train=True, download=True, transform=None, target_transform=None
@@ -72,7 +73,9 @@ class NTIDIGITS(Dataset):
             addresses = np.array(file["test_addresses/" + target])
         # convert timestamps to microseconds
         timestamps *= 10e5
-        events = np.vstack((timestamps, addresses, np.ones(timestamps.shape[0]))).T
+        events = np.column_stack((timestamps, addresses, np.ones(timestamps.shape[0])))
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
+
         if self.transform is not None:
             events = self.transform(events)
         if self.target_transform is not None:

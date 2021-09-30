@@ -17,7 +17,6 @@ def to_frame_numpy(
     n_event_bins=None,
     overlap=0.0,
     include_incomplete=False,
-    merge_polarities=False,
 ):
     """Accumulate events to frames by slicing along constant time (time_window),
     constant number of events (event_count) or constant number of frames (n_time_bins / n_event_bins).
@@ -31,7 +30,6 @@ def to_frame_numpy(
         n_event_bins (None): fixed number of frames, sliced along number of events in the recording.
         overlap (0.): overlap between frames defined either in time in us, number of events or number of bins.
         include_incomplete (False): if True, includes overhang slice when time_window or event_count is specified. Not valid for bin_count methods.
-        merge_polarities (False): if True, merge polarity channels to a single channel.
 
     Returns:
         numpy array of n rate-coded frames with channels p: (NxPxWxH)
@@ -52,12 +50,6 @@ def to_frame_numpy(
 
     n_events = len(events)
 
-    if merge_polarities:
-        events["p"] = np.zeros_like(events["p"])
-    else:
-        events["p"][events["p"] == -1] = 0
-
-    #     import ipdb; ipdb.set_trace()
     if time_window:
         event_slices = slice_by_time(
             events, time_window, overlap=overlap, include_incomplete=include_incomplete,
@@ -74,9 +66,7 @@ def to_frame_numpy(
     bins_p = len(np.unique(events["p"]))
     bins_y, bins_x = (range(sensor_size[0] + 1), range(sensor_size[1] + 1))
 
-    frames = np.zeros(
-        (len(event_slices), bins_p, len(bins_y) - 1, len(bins_x) - 1), dtype=int
-    )
+    frames = np.zeros((len(event_slices), sensor_size[2], *sensor_size[:2]), dtype=int)
     for i, event_slice in enumerate(event_slices):
         #         event_slice = event_slice.astype(int)
         np.add.at(
