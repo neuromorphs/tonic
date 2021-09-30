@@ -5,3 +5,4 @@ loris
 pytest
 h5py
 scipy
+matplotlib
