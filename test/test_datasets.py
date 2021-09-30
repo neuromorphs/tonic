@@ -4,7 +4,7 @@ import pytest
 import tonic.datasets as datasets
 
 
-# @pytest.mark.skip(reason="Dataset tests are super slow!")
+@pytest.mark.skip(reason="Dataset tests are super slow!")
 class TestDatasets:
     download = False
 
