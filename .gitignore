@@ -5,6 +5,7 @@ data
 __pycache__/
 *.py[cod]
 *$py.class
+.idea
 
 # Mac DS_store
 *DS_Store
