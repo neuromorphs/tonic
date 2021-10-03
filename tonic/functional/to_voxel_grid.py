@@ -1,7 +1,7 @@
 import numpy as np
 
 
-# Code taken from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
+# Code adapted from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
 def to_voxel_grid_numpy(events, sensor_size, n_time_bins=10):
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
 
@@ -15,19 +15,16 @@ def to_voxel_grid_numpy(events, sensor_size, n_time_bins=10):
 
     """
     assert "x" and "y" and "t" and "p" in events.dtype.names
+    assert sensor_size[2] == 2
 
     voxel_grid = np.zeros((n_time_bins, sensor_size[1], sensor_size[0]), float).ravel()
 
     # normalize the event timestamps so that they lie between 0 and n_time_bins
-    last_stamp = events["t"][-1]
-    first_stamp = events["t"][0]
-    deltaT = last_stamp - first_stamp
-
-    if deltaT == 0:
-        deltaT = 1.0
-
-    events["t"] = (n_time_bins) * (events["t"] - first_stamp) / deltaT
-    ts = events["t"]
+    ts = (
+        n_time_bins
+        * (events["t"].astype(float) - events["t"][0])
+        / (events["t"][-1] - events["t"][0])
+    )
     xs = events["x"].astype(int)
     ys = events["y"].astype(int)
     pols = events["p"]
@@ -56,6 +53,6 @@ def to_voxel_grid_numpy(events, sensor_size, n_time_bins=10):
         vals_right[valid_indices],
     )
 
-    voxel_grid = np.reshape(voxel_grid, (n_time_bins, sensor_size[0], sensor_size[1]))
+    voxel_grid = np.reshape(voxel_grid, (n_time_bins, sensor_size[1], sensor_size[0]))
 
     return voxel_grid

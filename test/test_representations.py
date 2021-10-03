@@ -46,6 +46,7 @@ class TestRepresentations:
 
         frames = transform(orig_events.copy())
 
+        assert frames.shape[1:] == sensor_size[::-1]
         if time_window is not None:
             stride = time_window - overlap
             times = orig_events["t"]
@@ -77,13 +78,13 @@ class TestRepresentations:
             assert frames.shape[0] == n_event_bins
 
     @pytest.mark.parametrize(
-        "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4),],
+        "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]
     )
     def test_representation_time_surface(self, surface_dimensions, tau):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.ToTimesurface(
-            sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau,
+            sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau
         )
 
         surfaces = transform(orig_events.copy())
@@ -96,7 +97,7 @@ class TestRepresentations:
             assert surfaces.shape[3] == sensor_size[1]
             assert surfaces.shape[2] == sensor_size[0]
 
-    @pytest.mark.parametrize("n_time_bins", [(10), (1)])
+    @pytest.mark.parametrize("n_time_bins", [10, 1])
     def test_representation_voxel_grid(self, n_time_bins):
         orig_events, sensor_size = create_random_input()
 
@@ -105,4 +106,4 @@ class TestRepresentations:
         )
 
         volumes = transform(orig_events.copy())
-        assert volumes.shape == (n_time_bins, *sensor_size[:2])
+        assert volumes.shape == (n_time_bins, *sensor_size[1::-1])

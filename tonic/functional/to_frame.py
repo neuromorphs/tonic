@@ -52,24 +52,18 @@ def to_frame_numpy(
 
     if time_window:
         event_slices = slice_by_time(
-            events, time_window, overlap=overlap, include_incomplete=include_incomplete,
+            events, time_window, overlap=overlap, include_incomplete=include_incomplete
         )
     elif event_count:
         event_slices = slice_by_event_count(
-            events, event_count, overlap=overlap, include_incomplete=include_incomplete,
+            events, event_count, overlap=overlap, include_incomplete=include_incomplete
         )
     elif n_time_bins:
         event_slices = slice_by_time_bins(events, n_time_bins, overlap=overlap)
     elif n_event_bins:
         event_slices = slice_by_event_bins(events, n_event_bins, overlap=overlap)
 
-    bins_p = len(np.unique(events["p"]))
-    bins_y, bins_x = (range(sensor_size[0] + 1), range(sensor_size[1] + 1))
-
-    frames = np.zeros((len(event_slices), sensor_size[2], *sensor_size[:2]), dtype=int)
+    frames = np.zeros((len(event_slices), *sensor_size[::-1]), dtype=int)
     for i, event_slice in enumerate(event_slices):
-        #         event_slice = event_slice.astype(int)
-        np.add.at(
-            frames, (i, event_slice["p"], event_slice["x"], event_slice["y"],), 1,
-        )
+        np.add.at(frames, (i, event_slice["p"], event_slice["y"], event_slice["x"]), 1)
     return frames

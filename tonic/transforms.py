@@ -94,7 +94,7 @@ class DropPixel:
                 hot_pixel_frequency=self.hot_pixel_frequency,
             )
 
-        return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates,)
+        return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates)
 
 
 @dataclass(frozen=True)
@@ -163,13 +163,13 @@ class RandomCrop:
         target_size: a tuple of x,y target sensor size
     """
 
-    sensor_size: Tuple[int, int]
+    sensor_size: Tuple[int, int, int]
     target_size: Tuple[int, int]
 
     def __call__(self, events):
 
         return functional.crop_numpy(
-            events=events, sensor_size=self.sensor_size, target_size=self.target_size,
+            events=events, sensor_size=self.sensor_size, target_size=self.target_size
         )
 
 
@@ -205,7 +205,7 @@ class RandomFlipLR:
         flip_probability (float): probability of performing the flip
     """
 
-    sensor_size: Tuple[int, int]
+    sensor_size: Tuple[int, int, int]
     flip_probability: float = 0.5
 
     def __call__(self, events):
@@ -227,7 +227,7 @@ class RandomFlipUD:
         flip_probability (float): probability of performing the flip
     """
 
-    sensor_size: Tuple[int, int]
+    sensor_size: Tuple[int, int, int]
     flip_probability: float = 0.5
 
     def __call__(self, events):
@@ -298,7 +298,7 @@ class SpatialJitter:
         clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
-    sensor_size: Tuple[int, int]
+    sensor_size: Tuple[int, int, int]
     variance_x: float = 1
     variance_y: float = 1
     sigma_x_y: float = 0
@@ -346,7 +346,7 @@ class TimeJitter:
     def __call__(self, events):
 
         return functional.time_jitter_numpy(
-            events, self.std, self.clip_negative, self.sort_timestamps,
+            events, self.std, self.clip_negative, self.sort_timestamps
         )
 
 
@@ -422,7 +422,7 @@ class ToAveragedTimesurface:
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
-    sensor_size: Tuple[int, int]
+    sensor_size: Tuple[int, int, int]
     cell_size = 10
     surface_size = 7
     temporal_window = 5e5
@@ -517,7 +517,7 @@ class ToTimesurface:
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
-    sensor_size: Tuple[int, int]
+    sensor_size: Tuple[int, int, int]
     surface_dimensions: Tuple[int, int] = (7, 7)
     tau: float = 5e3
     decay: str = "lin"
@@ -542,13 +542,13 @@ class ToVoxelGrid:
     Parameters:
         n_time_bins (int): fixed number of time bins to slice the event sample into."""
 
-    sensor_size: Tuple[int, int]
+    sensor_size: Tuple[int, int, int]
     n_time_bins: int
 
     def __call__(self, events):
 
         return functional.to_voxel_grid_numpy(
-            events, self.sensor_size, self.n_time_bins
+            events.copy(), self.sensor_size, self.n_time_bins
         )
 
 

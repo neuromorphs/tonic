@@ -2,7 +2,7 @@ import numpy as np
 
 
 def create_random_input(
-    sensor_size=[200, 100, 2],
+    sensor_size=(200, 100, 2),
     n_events=10000,
     dtype=np.dtype([("x", int), ("y", int), ("t", int), ("p", int)]),
 ):
@@ -16,7 +16,7 @@ def create_random_input(
 
     assert "x" and "t" and "p" in dtype.names
 
-    events = np.zeros((n_events), dtype=dtype)
+    events = np.zeros(n_events, dtype=dtype)
     events["x"] = np.random.rand(n_events) * sensor_size[0]
     events["p"] = np.random.rand(n_events) * sensor_size[2]
     # sort timestamps to ensure the times are sequential

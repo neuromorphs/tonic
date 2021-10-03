@@ -25,14 +25,11 @@ def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
 
     sensor_size_x = int(events["x"].max() + 1)
     sensor_size_y = int(events["y"].max() + 1)
-    sensor_size = (sensor_size_x, sensor_size_y)
+    sensor_size_p = len(np.unique(events["p"]))
+    sensor_size = (sensor_size_y, sensor_size_x, sensor_size_p)
 
-    transform = transforms.Compose(
-        [
-            transforms.ToVoxelGrid(
-                sensor_size=sensor_size, n_time_bins=np.product(axis_array)
-            )
-        ]
+    transform = transforms.ToVoxelGrid(
+        sensor_size=sensor_size, n_time_bins=np.product(axis_array)
     )
 
     volume = transform(events)
@@ -77,7 +74,7 @@ def pad_tensors(batch):
         sample = torch.tensor(sample)
         samples_output.append(
             torch.cat(
-                (sample, torch.zeros(max_length - sample.shape[0], *sample.shape[1:]),)
+                (sample, torch.zeros(max_length - sample.shape[0], *sample.shape[1:]))
             )
         )
         targets_output.append(target)
