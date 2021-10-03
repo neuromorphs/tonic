@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from . import functional
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Union
 import numpy as np
 
 
@@ -514,14 +514,12 @@ class ToTimesurface:
             if surface_dimensions is None: the time surface is defined globally, on the whole sensor grid.
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
-        merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
     sensor_size: Tuple[int, int, int]
-    surface_dimensions: Tuple[int, int] = (7, 7)
+    surface_dimensions: Union[None, Tuple[int, int]] = None
     tau: float = 5e3
     decay: str = "lin"
-    merge_polarities: bool = False
 
     def __call__(self, events):
 
@@ -531,7 +529,6 @@ class ToTimesurface:
             surface_dimensions=self.surface_dimensions,
             tau=self.tau,
             decay=self.decay,
-            merge_polarities=self.merge_polarities,
         )
 
 

@@ -94,8 +94,8 @@ class TestRepresentations:
         if surface_dimensions:
             assert surfaces.shape[2:] == surface_dimensions
         else:
-            assert surfaces.shape[3] == sensor_size[1]
-            assert surfaces.shape[2] == sensor_size[0]
+            assert surfaces.shape[2] == sensor_size[1]
+            assert surfaces.shape[3] == sensor_size[0]
 
     @pytest.mark.parametrize("n_time_bins", [10, 1])
     def test_representation_voxel_grid(self, n_time_bins):
