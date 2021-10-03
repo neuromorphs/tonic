@@ -17,7 +17,7 @@ In practice, this means that while your first epoch might be equally slow as bef
 ::
 
     from tonic.datasets import POKERDVS
-    from tonic.datasets.cached_dataset import CachedDataset
+    from tonic.datasets import CachedDataset
 
     # Define/instantiate a dataset, eg. PokerDVS dataset
     dataset = POKERDVS(
@@ -30,7 +30,7 @@ In practice, this means that while your first epoch might be equally slow as bef
         # Use it like a standard dataset
         ...
 
-.. py:currentmodule:: tonic.datasets.cached_dataset
+.. py:currentmodule:: tonic.cached_dataset
 
 CachedDataset
 ^^^^^^^^^^^^^

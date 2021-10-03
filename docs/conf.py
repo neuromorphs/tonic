@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "Tonic"
-copyright = "2020, the Neuromorphs"
-author = "the Neuromorphs"
+copyright = "2019-2021, the neuromorphs of Telluride."
+author = "The neuromorphs of Telluride."
 
 try:
     import tonic

@@ -12,9 +12,7 @@ This is useful if you have to build a more complex transformation pipeline.
 
 Transforms on events
 --------------------
-Cropping
-^^^^^^^^
-.. autoclass:: Crop
+
 
 Denoising
 ^^^^^^^^^
@@ -32,14 +30,26 @@ Downsample timestamps and/or spatial coordinates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: Downsample
 
+Merge polarities
+^^^^^^^^^^^^^^^^^
+.. autoclass:: MergePolarities
+
+Cropping
+^^^^^^^^
+.. autoclass:: RandomCrop
+
 Flip left/right and up/down
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: FlipLR
-.. autoclass:: FlipUD
+.. autoclass:: RandomFlipLR
+.. autoclass:: RandomFlipUD
 
 Flip polarities
 ^^^^^^^^^^^^^^^
-.. autoclass:: FlipPolarity
+.. autoclass:: RandomFlipPolarity
+
+Reverse time
+^^^^^^^^^^^^
+.. autoclass:: RandomTimeReversal
 
 Jitter events spatially
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,9 +67,7 @@ Refractory periods
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: RefractoryPeriod
 
-Reverse time
-^^^^^^^^^^^^
-.. autoclass:: TimeReversal
+
 
 Transform time
 ^^^^^^^^^^^^^^
@@ -80,10 +88,6 @@ Averaged time surfaces
 Frames
 ^^^^^^
 .. autoclass:: ToFrame
-
-Sparse tensor
-^^^^^^^^^^^^^
-.. autoclass:: ToSparseTensor
 
 Time surfaces
 ^^^^^^^^^^^^^
