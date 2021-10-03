@@ -49,7 +49,7 @@ class NavGesture(Dataset):
     int_classes = dict(zip(class_codes, range(len(class_codes))))
     sensor_size = (304, 240, 2)
     dtype = np.dtype(
-        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), (("p", "is_increase"), "?")]
+        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")]
     )
     ordering = dtype.names
 
@@ -90,14 +90,6 @@ class NavGesture(Dataset):
         if download:
             self.download()
 
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
-
         self.samples = []
         for path, dirs, files in os.walk(self.location_on_system):
             dirs.sort()
@@ -108,8 +100,8 @@ class NavGesture(Dataset):
                     self.targets.append(self.int_classes[file[7:9]])
 
     def __getitem__(self, index):
-        events, target = loris.read_file(self.samples[index]), self.targets[index]
-        events = events["events"]
+        events, target = loris.read_file(self.samples[index])["events"], self.targets[index]
+        events.dtype.names = ("t", "x", "y", "p")
         if self.transform is not None:
             events = self.transform(events)
         if self.target_transform is not None:
@@ -128,3 +120,12 @@ class NavGesture(Dataset):
             for file in files:
                 if file.startswith("user") and file.endswith("zip"):
                     extract_archive(os.path.join(self.location_on_system, file))
+
+    def verify_file_hashes(self):
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.filename), self.file_md5
+        ):
+            raise RuntimeError(
+                "Dataset not found or corrupted."
+                + " You can use download=True to download it"
+            )

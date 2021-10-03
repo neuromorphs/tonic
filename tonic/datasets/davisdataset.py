@@ -62,7 +62,7 @@ class DAVISDATA(Dataset):
         "urban": "c22db0b3ecbcbba8d282b0d8c3393851",
     }
 
-    sensor_size = (180, 240, 2)
+    sensor_size = (240, 180, 2)
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
@@ -90,16 +90,6 @@ class DAVISDATA(Dataset):
 
         if download:
             self.download()
-
-        for recording in self.selection:
-            if not check_integrity(
-                os.path.join(self.location_on_system, recording + ".bag"),
-                self.recordings[recording],
-            ):
-                raise RuntimeError(
-                    "Recording not found or corrupted."
-                    + " You can use download=True to download it"
-                )
 
     def __getitem__(self, index):
         filename = os.path.join(self.location_on_system, self.selection[index] + ".bag")
@@ -131,3 +121,14 @@ class DAVISDATA(Dataset):
                 filename=recording + ".bag",
                 md5=self.recordings[recording],
             )
+
+    def verify_file_hashes(self):
+        for recording in self.selection:
+            if not check_integrity(
+                os.path.join(self.location_on_system, recording + ".bag"),
+                self.recordings[recording],
+            ):
+                raise RuntimeError(
+                    "Recording not found or corrupted."
+                    + " You can use download=True to download it"
+                )

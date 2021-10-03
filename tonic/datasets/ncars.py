@@ -45,10 +45,10 @@ class NCARS(Dataset):
 
     class_dict = {"background": 0, "cars": 1}
 
-    sensor_size = (120, 100, 2)
+    sensor_size = None # different for every recording
     minimum_y_value = 140
     dtype = np.dtype(
-        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), (("p", "is_increase"), "?")]
+        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")]
     )
     ordering = "txyp"
 
@@ -97,7 +97,9 @@ class NCARS(Dataset):
 
     def __getitem__(self, index):
         events = loris.read_file(self.samples[index])["events"]
+        events.dtype.names = ("t", "x", "y", "p")
         events["y"] -= self.minimum_y_value
+        events["y"] = self.sensor_size[1] - 1 - events["y"]
         target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events)

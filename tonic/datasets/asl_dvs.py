@@ -61,15 +61,6 @@ class ASLDVS(Dataset):
         if download:
             self.download()
 
-        else:
-            if not check_integrity(
-                os.path.join(self.location_on_system, self.filename), self.file_md5
-            ):
-                raise RuntimeError(
-                    "Dataset not found or corrupted."
-                    + " You can use download=True to download it"
-                )
-
         self.samples = []
         for path, dirs, files in os.walk(self.location_on_system):
             dirs.sort()
@@ -85,7 +76,7 @@ class ASLDVS(Dataset):
             [
                 events["ts"],
                 events["x"],
-                self.sensor_size[1] - events["y"],
+                self.sensor_size[1] - 1 - events["y"],
                 events["pol"],
             ]
         )
@@ -108,3 +99,12 @@ class ASLDVS(Dataset):
             for file in files:
                 if file.startswith("Yin") and file.endswith("zip"):
                     extract_archive(os.path.join(self.location_on_system, file))
+
+    def verify_file_hashes(self):
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.filename), self.file_md5
+        ):
+            raise RuntimeError(
+                "Dataset not found or corrupted."
+                + " You can use download=True to download it"
+            )

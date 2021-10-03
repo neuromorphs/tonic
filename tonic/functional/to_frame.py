@@ -35,7 +35,7 @@ def to_frame_numpy(
         numpy array of n rate-coded frames with channels p: (NxPxWxH)
     """
     assert "x" and "y" and "t" and "p" in events.dtype.names
-    assert len(sensor_size) == 3
+
     if (
         not sum(
             param is not None
@@ -48,8 +48,12 @@ def to_frame_numpy(
             " event_count, n_time_bins or n_event_bins."
         )
 
-    n_events = len(events)
-
+    if not sensor_size:
+        sensor_size_x = int(events["x"].max() + 1)
+        sensor_size_y = int(events["y"].max() + 1)
+        sensor_size_p = len(np.unique(events["p"]))
+        sensor_size = (sensor_size_x, sensor_size_y, sensor_size_p)
+    
     if time_window:
         event_slices = slice_by_time(
             events, time_window, overlap=overlap, include_incomplete=include_incomplete
@@ -65,5 +69,5 @@ def to_frame_numpy(
 
     frames = np.zeros((len(event_slices), *sensor_size[::-1]), dtype=int)
     for i, event_slice in enumerate(event_slices):
-        np.add.at(frames, (i, event_slice["p"], event_slice["y"], event_slice["x"]), 1)
+        np.add.at(frames, (i, event_slice["p"].astype(int), event_slice["y"], event_slice["x"]), 1)
     return frames
