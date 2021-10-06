@@ -81,6 +81,7 @@ class DropPixel:
 
     Parameters:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
+        hot_pixel_frequency: drop pixels completely that fire higher than the given frequency.
     """
 
     coordinates: Optional = None
@@ -89,9 +90,7 @@ class DropPixel:
     def __call__(self, events):
         if self.hot_pixel_frequency:
             self.coordinates = functional.identify_hot_pixel(
-                events=events,
-                sensor_size=self.sensor_size,
-                hot_pixel_frequency=self.hot_pixel_frequency,
+                events=events, hot_pixel_frequency=self.hot_pixel_frequency
             )
 
         return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates)
