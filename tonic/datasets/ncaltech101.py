@@ -1,5 +1,7 @@
 import os
 import numpy as np
+
+from tonic.parsers import read_mnist_file
 from tonic.dataset import Dataset
 from tonic.download_utils import (
     check_integrity,
@@ -57,7 +59,6 @@ class NCALTECH101(Dataset):
             self.download()
 
         else:
-
             if not check_integrity(
                 os.path.join(self.location_on_system, self.filename), self.file_md5
             ):
@@ -76,8 +77,7 @@ class NCALTECH101(Dataset):
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
-        events = self._read_dataset_file(self.samples[index])
-        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
+        events = read_mnist_file(self.samples[index], dtype=self.dtype)
         target = self.targets[index]
         events["x"] -= events["x"].min()
         events["y"] -= events["y"].min()
@@ -98,35 +98,3 @@ class NCALTECH101(Dataset):
             md5=self.archive_md5,
         )
         extract_archive(os.path.join(self.location_on_system, self.filename))
-
-    def _read_dataset_file(self, filename):
-        f = open(filename, "rb")
-        raw_data = np.fromfile(f, dtype=np.uint8)
-        f.close()
-        raw_data = np.uint32(raw_data)
-
-        all_y = raw_data[1::5]
-        all_x = raw_data[0::5]
-        all_p = (raw_data[2::5] & 128) >> 7  # bit 7
-        all_ts = (
-            ((raw_data[2::5] & 127) << 16) | (raw_data[3::5] << 8) | (raw_data[4::5])
-        )
-
-        # Process time stamp overflow events
-        time_increment = 2 ** 13
-        overflow_indices = np.where(all_y == 240)[0]
-        for overflow_index in overflow_indices:
-            all_ts[overflow_index:] += time_increment
-
-        # Everything else is a proper td spike
-        td_indices = np.where(all_y != 240)[0]
-
-        events = np.column_stack(
-            (
-                all_x[td_indices],
-                all_y[td_indices],
-                all_ts[td_indices],
-                all_p[td_indices],
-            )
-        )
-        return events.astype(float)
