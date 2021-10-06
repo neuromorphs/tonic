@@ -157,6 +157,12 @@ class TestTransforms:
             " sensor width - x"
         )
 
+    def test_transform_numpy_array(self):
+        orig_events, sensor_size = create_random_input()
+        transform = transforms.NumpyAsType(int)
+        events = transform(orig_events.copy())
+        assert events.dtype == int
+
     @pytest.mark.parametrize("refractory_period", [10000, 5000])
     def test_transform_refractory_period(self, refractory_period):
         orig_events, sensor_size = create_random_input()
@@ -266,7 +272,7 @@ class TestTransforms:
         assert same_polarity, "When flipping time polarity should be flipped"
         assert events.dtype == events.dtype
 
-    @pytest.mark.parametrize("coefficient, offset", [(3.1, 100), (0.7, 0), (2.7, 10)])
+    @pytest.mark.parametrize("coefficient, offset", [(3.1, 100), (0.3, 0), (2.7, 10)])
     def test_transform_time_skew(self, coefficient, offset):
         orig_events, sensor_size = create_random_input()
 

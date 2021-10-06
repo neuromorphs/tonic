@@ -143,9 +143,17 @@ class NumpyAsType:
     dtype: np.dtype
 
     def __call__(self, events):
-        if events.dtype == np.void:  # then it's a structured array
-            return np.array(events, self.dtype)
-        else:
+        source_is_structured_array = (
+            hasattr(events.dtype, "names") and events.dtype.names != None
+        )
+        target_is_structured_array = (
+            hasattr(self.dtype, "names") and self.dtype.names != None
+        )
+        if source_is_structured_array and not target_is_structured_array:
+            return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
+        elif source_is_structured_array and target_is_structured_array:
+            return NotImplementedError
+        elif not target_is_structured_array and not source_is_structured_array:
             return events.astype(self.dtype)
 
 
