@@ -32,7 +32,7 @@ class TestRepresentations:
         overlap,
         include_incomplete,
     ):
-        orig_events, sensor_size = create_random_input()
+        orig_events, sensor_size = create_random_input(sensor_size=(40, 20, 2))
 
         transform = transforms.ToFrame(
             sensor_size=sensor_size,
@@ -44,7 +44,7 @@ class TestRepresentations:
             include_incomplete=include_incomplete,
         )
 
-        frames = transform(orig_events.copy())
+        frames = transform(orig_events)
 
         assert frames.shape[1:] == sensor_size[::-1]
         if time_window is not None:
@@ -76,6 +76,7 @@ class TestRepresentations:
 
         if n_event_bins is not None:
             assert frames.shape[0] == n_event_bins
+        assert frames is not orig_events
 
     @pytest.mark.parametrize(
         "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]
@@ -87,7 +88,7 @@ class TestRepresentations:
             sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau
         )
 
-        surfaces = transform(orig_events.copy())
+        surfaces = transform(orig_events)
 
         assert surfaces.shape[0] == len(orig_events)
         assert surfaces.shape[1] == 2
@@ -96,6 +97,7 @@ class TestRepresentations:
         else:
             assert surfaces.shape[2] == sensor_size[1]
             assert surfaces.shape[3] == sensor_size[0]
+        assert surfaces is not orig_events
 
     @pytest.mark.parametrize("n_time_bins", [10, 1])
     def test_representation_voxel_grid(self, n_time_bins):
@@ -105,5 +107,6 @@ class TestRepresentations:
             sensor_size=sensor_size, n_time_bins=n_time_bins
         )
 
-        volumes = transform(orig_events.copy())
-        assert volumes.shape == (n_time_bins, *sensor_size[1::-1])
+        volume = transform(orig_events)
+        assert volume.shape == (n_time_bins, *sensor_size[1::-1])
+        assert volume is not orig_events

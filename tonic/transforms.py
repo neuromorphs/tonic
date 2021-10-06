@@ -76,7 +76,7 @@ class DropEvent:
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
     list of x/y coordinates can be passed directly. Alternatively, a cutoff frequency for each pixel can be defined
-    above which pixels will be deactivated completely. This prevents so-called _hot pixels_ which fire constantly
+    above which pixels will be deactivated completely. This prevents so-called *hot pixels* which fire constantly
     (e.g. due to faulty hardware).
 
     Parameters:
@@ -112,6 +112,7 @@ class Downsample:
     spatial_factor: float = 1
 
     def __call__(self, events):
+        events = events.copy()
         events = functional.time_skew_numpy(events, coefficient=self.time_factor)
         if "x" in events.dtype.names:
             events["x"] = events["x"] * self.spatial_factor
@@ -127,6 +128,7 @@ class MergePolarities:
     """
 
     def __call__(self, events):
+        events = events.copy()
         events["p"] = np.zeros_like(events["p"])
         return events
 
@@ -192,7 +194,7 @@ class RandomFlipPolarity:
     flip_probability: float = 0.5
 
     def __call__(self, events):
-
+        events = events.copy()
         assert "p" in events.dtype.names
         flips = np.ones(len(events))
         probs = np.random.rand(len(events))
@@ -216,6 +218,7 @@ class RandomFlipLR:
     flip_probability: float = 0.5
 
     def __call__(self, events):
+        events = events.copy()
         assert "x" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
             events["x"] = self.sensor_size[0] - 1 - events["x"]
@@ -238,6 +241,7 @@ class RandomFlipUD:
     flip_probability: float = 0.5
 
     def __call__(self, events):
+        events = events.copy()
         assert "y" in events.dtype.names
         if np.random.rand() <= self.flip_probability:
             events["y"] = self.sensor_size[1] - 1 - events["y"]
@@ -260,6 +264,7 @@ class RandomTimeReversal:
     flip_probability: float = 0.5
 
     def __call__(self, events):
+        events = events.copy()
         assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.flip_probability:
             events["t"] = np.max(events["t"]) - events["t"]
@@ -312,7 +317,7 @@ class SpatialJitter:
     clip_outliers: bool = False
 
     def __call__(self, events):
-
+        events = events.copy()
         return functional.spatial_jitter_numpy(
             events=events,
             sensor_size=self.sensor_size,
@@ -329,6 +334,7 @@ class TimeAlignment:
     """
 
     def __call__(self, events):
+        events = events.copy()
         assert "t" in events.dtype.names
         events["t"] -= min(events["t"])
         return events
@@ -351,7 +357,7 @@ class TimeJitter:
     sort_timestamps: bool = False
 
     def __call__(self, events):
-
+        events = events.copy()
         return functional.time_jitter_numpy(
             events, self.std, self.clip_negative, self.sort_timestamps
         )
@@ -377,7 +383,7 @@ class TimeSkew:
     offset: float = 0
 
     def __call__(self, events):
-
+        events = events.copy()
         return functional.time_skew_numpy(events, self.coefficient, self.offset)
 
 

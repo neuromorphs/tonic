@@ -24,7 +24,7 @@ class TestChainedTransforms:
                 ),
             ]
         )
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
@@ -50,6 +50,7 @@ class TestChainedTransforms:
         assert (
             time_reversal
         ), "Condition of time reversal t_i' = max(t) - t_i has to be fullfilled"
+        assert events is not orig_events
 
     def testDropoutFlipUD(self):
         orig_events, sensor_size = create_random_input()
@@ -66,7 +67,7 @@ class TestChainedTransforms:
             ]
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         drop_events = np.isclose(
             events.shape[0], (1 - drop_probability) * orig_events.shape[0]
@@ -89,6 +90,7 @@ class TestChainedTransforms:
             "When flipping up and down y must map to the opposite pixel, i.e. y' ="
             " sensor width - y"
         )
+        assert events is not orig_events
 
     def testTimeSkewFlipPolarityFlipLR(self):
         orig_events, sensor_size = create_random_input()
@@ -108,7 +110,7 @@ class TestChainedTransforms:
             ]
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) == len(orig_events)
         assert (events["t"] >= orig_events["t"]).all()
@@ -125,3 +127,4 @@ class TestChainedTransforms:
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
         )
+        assert events is not orig_events
