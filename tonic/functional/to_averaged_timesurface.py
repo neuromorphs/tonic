@@ -41,7 +41,7 @@ def to_averaged_timesurface(
     Parameters:
         cell_size (int): size of each square in the grid
         surface_size (int): has to be odd
-        time_window (float): how far back to look for past events for the time averaging
+        temporal_window (float): how far back to look for past events for the time averaging
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.

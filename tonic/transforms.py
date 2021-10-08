@@ -8,12 +8,13 @@ class Compose:
     """Composes several transforms together.
 
     Parameters:
-        transforms (list of ``Transform`` objects): list of transform(s) to compose. Even when using a single transform, the Compose wrapper is necessary.
+        transforms (list of ``Transform`` objects): list of transform(s) to compose. 
+                                                    Can combine Tonic, PyTorch Vision/Audio transforms.
 
     Example:
         >>> transforms.Compose([
-        >>>     transforms.Denoise(),
-        >>>     transforms.ToTensor(),
+        >>>     transforms.Denoise(filter_time=10000),
+        >>>     transforms.ToFrame(n_time_bins=3),
         >>> ])
     """
 
@@ -168,7 +169,7 @@ class RandomCrop:
     y' = y - new_sensor_start_y
 
     Parameters:
-        sensor_size: a tuple of maximum x and y
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         target_size: a tuple of x,y target sensor size
     """
 
@@ -210,7 +211,7 @@ class RandomFlipLR:
         x' = width - x
 
     Parameters:
-        sensor_size: a tuple of maximum x and y
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         flip_probability (float): probability of performing the flip
     """
 
@@ -233,7 +234,7 @@ class RandomFlipUD:
         y' = height - y
 
     Parameters:
-        sensor_size: a tuple of maximum x and y
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         flip_probability (float): probability of performing the flip
     """
 
@@ -303,10 +304,10 @@ class SpatialJitter:
     Jittered events that lie outside the focal plane will be dropped if clip_outliers is True.
 
     Parameters:
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         variance_x (float): squared sigma value for the distribution in the x direction
         variance_y (float): squared sigma value for the distribution in the y direction
         sigma_x_y (float): changes skewness of distribution, only change if you want shifts along diagonal axis.
-        integer_jitter (bool): when True, x and y coordinates will be shifted by integer rather values instead of floats.
         clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
@@ -330,8 +331,7 @@ class SpatialJitter:
 
 @dataclass
 class TimeAlignment:
-    """Shifts the timestamps to set the first event of all recordings of the dataset to zero.
-    """
+    """Shifts the timestamps to set the first event of all recordings of the dataset to zero."""
 
     def __call__(self, events):
         events = events.copy()
@@ -347,7 +347,6 @@ class TimeJitter:
 
     Parameters:
         std (float): change the standard deviation of the time jitter
-        integer_jitter (bool): will round the jitter that is added to timestamps
         clip_negative (bool): drops events that have negative timestamps
         sort_timestamps (bool): sort the events by timestamps
     """
@@ -375,8 +374,6 @@ class TimeSkew:
         offset: value by which the timestamps will be shifted after multiplication by
                 the coefficient. Negative offsets are permissible but may result in
                 in an exception if timestamps are shifted below 0.
-        integer_time: flag that specifies if timestamps should be rounded to
-                             nearest integer after skewing.
     """
 
     coefficient: float
@@ -427,9 +424,10 @@ class ToAveragedTimesurface:
     https://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf
 
     Parameters:
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         cell_size (int): size of each square in the grid
         surface_size (int): has to be odd
-        time_window (float): how far back to look for past events for the time averaging
+        temporal_window (float): how far back to look for past events for the time averaging
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
@@ -481,6 +479,7 @@ class ToFrame:
       an overlap between 0 and 1 to provide some robustness.
 
     Parameters:
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         time_window (float): time window length for one frame. Use the same time unit as timestamps in the event recordings.
                              Good if you want temporal consistency in your training, bad if you need some visual consistency
                              for every frame if the recording's activity is not consistent.
@@ -523,6 +522,7 @@ class ToTimesurface:
     https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476
 
     Parameters:
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         surface_dimensions (int, int): width does not have to be equal to height, however both numbers have to be odd.
             if surface_dimensions is None: the time surface is defined globally, on the whole sensor grid.
         tau (float): time constant to decay events around occuring event with.
@@ -550,6 +550,7 @@ class ToVoxelGrid:
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
     
     Parameters:
+        sensor_size: a 3-tuple of x,y,p for sensor_size
         n_time_bins (int): fixed number of time bins to slice the event sample into."""
 
     sensor_size: Tuple[int, int, int]

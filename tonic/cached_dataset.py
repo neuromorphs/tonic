@@ -6,6 +6,7 @@ import h5py
 from pathlib import Path
 import hashlib
 import numpy as np
+import logging
 
 
 def save_to_cache(processed_data, fname: Union[str, Path]) -> None:
@@ -72,7 +73,9 @@ class CachedDataset:
         try:
             data = load_from_cache(fname)
         except FileNotFoundError as _:
-            warn(f"Data {item}: {fname} not in cache, generating it now", stacklevel=2)
+            logging.info(
+                f"Data {item}: {fname} not in cache, generating it now", stacklevel=2
+            )
             data = self.dataset[item]
             save_to_cache(data, fname=fname)
 
@@ -82,6 +85,9 @@ class CachedDataset:
         if self.target_transform:
             data[-1] = self.target_transform(data[-1])
         return data
+
+    def __len__(self):
+        return len(self.dataset)
 
     def cache_fname_from_index(self, item, copy: int = 0) -> Path:
         """
