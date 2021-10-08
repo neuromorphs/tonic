@@ -1,7 +1,11 @@
-from dataclasses import dataclass
-import numpy as np
 import torch
+from typing import Tuple, List, Union
 import torch.nn.functional as F
+from dataclasses import dataclass
+from scipy.signal import butter
+from torchaudio.functional import lfilter
+import numpy as np
+
 
 @dataclass
 class FixLength:
@@ -38,20 +42,6 @@ class FixLength:
             return F.pad(data, padding)
 
 
-#@dataclass
-#class BinNumpy:
-#    orig_freq: float
-#    new_freq: float
-#
-#    def __call__(self, data: np.ndarray):
-#        x, y = np.where(data)
-#        w = data[x, y]
-#        subsampled_timesteps = np.linspace(0, data.shape[0], int(self.new_freq * data.shape[0] / self.orig_freq) + 1)
-#        bins = (subsampled_timesteps, range(data.shape[1] + 1))
-#        binned, _, _ = np.histogram2d(x, y, bins=bins, weights=w, density=False)
-#        return binned
-
-
 @dataclass
 class Bin:
     """
@@ -81,4 +71,100 @@ class Bin:
         splits = torch.split(data, int(self.orig_freq/self.new_freq), dim=self.axis)
         data = [torch.sum(split, dim=self.axis, keepdim=True) for split in splits]
         return torch.cat(data, self.axis)
+
+
+@dataclass
+class LFilter:
+    """
+    See documentation of torchaudio.functional.lfilter for detailed explanation of parameters
+    """
+    a_coeffs: torch.Tensor
+    b_coeffs: torch.Tensor
+    clamp: bool
+
+    def __call__(self, data):
+        return lfilter(data, a_coeffs=self.a_coeffs, b_coeffs=self.b_coeffs, clamp=False)
+
+
+@dataclass
+class ButterFilter:
+    order: int
+    freq: Union[float, Tuple[float, float]]
+    analog: bool
+    btype: str
+    clamp: bool
+
+    def __post_init__(self):
+        b_coeffs, a_coeffs = butter(self.order, self.freq, analog=self.analog, btype=self.btype, output="ba")
+        b_coeffs = torch.tensor(b_coeffs)
+        a_coeffs = torch.tensor(a_coeffs)
+        self.filter = LFilter(a_coeffs, b_coeffs, self.clamp)
+
+    def __call__(self, data):
+        return self.filter(data)
+
+
+@dataclass
+class ButterFilterBank:
+    order: int
+    freq: List[Tuple[float, float]]
+    clamp: bool
+
+    def __post_init__(self):
+        self.filters = [ButterFilter(self.order, freq, analog=False, btype="band", clamp=self.clamp) for freq in self.freq]
+
+    def __call__(self, data):
+        return torch.cat([filt(data) for filt in self.filters], dim=0)
+
+
+@dataclass
+class LinearButterFilterBank:
+    order: int = 2
+    low_freq: float = 100
+    sampling_freq: float = 16000
+    num_filters: int = 64
+    clamp: bool = False
+
+    def compute_freq_bands(self):
+        filter_bandwidth = 2 / self.num_filters
+        nyquist = self.sampling_freq / 2
+
+        high_freq = self.sampling_freq / 2 / (1 + filter_bandwidth) - 1
+        freqs = np.linspace(self.low_freq, high_freq, self.num_filters)
+
+        return torch.tensor([freqs, freqs * (1 + filter_bandwidth)])/ nyquist
+
+    def __post_init__(self):
+        freq_bands = self.compute_freq_bands()
+        self.filterbank = ButterFilterBank(order=self.order, freq=freq_bands, clamp=self.clamp)
+
+    def __call__(self, data):
+        return self.filterbank(data)
+
+
+
+@dataclass
+class MelButterFilterBank(LinearButterFilterBank):
+    @staticmethod
+    def hz2mel(freq):
+        return 2595 * np.log10(1 + freq / 700)
+
+    @staticmethod
+    def mel2hz(freq):
+        return 700 * (10 ** (freq / 2595) - 1)
+
+    def compute_freq_bands(self):
+        filter_bandwidth = 2 / self.num_filters
+        nyquist = self.sampling_freq / 2
+
+        high_freq = self.sampling_freq / 2 / (1 + filter_bandwidth) - 1
+        freqs = np.linspace(self.low_freq, high_freq, self.num_filters)
+
+        freq_bands = np.array([freqs, freqs * (1 + filter_bandwidth)])/ nyquist
+
+        low_freq = self.hz2mel(self.low_freq)
+        high_freq = self.hz2mel(self.sampling_freq / 2 / (1 + filter_bandwidth) - 1)
+        freqs = self.mel2hz(np.linspace(low_freq, high_freq, self.num_filters))
+
+        return  torch.tensor([freqs, freqs * (1 + filter_bandwidth)])/nyquist
 
