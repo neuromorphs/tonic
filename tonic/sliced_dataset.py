@@ -13,8 +13,8 @@ class SlicedDataset:
         # Generate slicing metadata
         self.metadata: List[Any] = []
         self.slice_dataset_map = []
-        for dataset_index, (data, label) in enumerate(self.dataset):
-            metadata = self.slicer.get_slice_metadata(data)
+        for dataset_index, data in enumerate(self.dataset):
+            metadata = self.slicer.get_slice_metadata(data[0])
             self.metadata.append(metadata)
             self.slice_dataset_map += [
                 (dataset_index, slice_index) for slice_index in range(len(metadata))

@@ -5,7 +5,7 @@ import numpy as np
 
 
 class Compose:
-    """Composes several transforms together.
+    """Composes several transforms together. This a literal copy of torchvision.transforms.Compose function for convenience. 
 
     Parameters:
         transforms (list of ``Transform`` objects): list of transform(s) to compose. 
@@ -125,7 +125,7 @@ class Downsample:
 @dataclass(frozen=True)
 class MergePolarities:
     """
-    After this transform there is only a single polarity which is zero.
+    After this transform there is only a single polarity left which is zero.
     """
 
     def __call__(self, events):
@@ -331,7 +331,7 @@ class SpatialJitter:
 
 @dataclass
 class TimeAlignment:
-    """Shifts the timestamps to set the first event of all recordings of the dataset to zero."""
+    """Removes offset for timestamps, so that first events starts at time zero."""
 
     def __call__(self, events):
         events = events.copy()
@@ -348,7 +348,7 @@ class TimeJitter:
     Parameters:
         std (float): change the standard deviation of the time jitter
         clip_negative (bool): drops events that have negative timestamps
-        sort_timestamps (bool): sort the events by timestamps
+        sort_timestamps (bool): sort the events by timestamps after jitter
     """
 
     std: float = 1
@@ -386,8 +386,7 @@ class TimeSkew:
 
 @dataclass(frozen=True)
 class UniformNoise:
-    """Introduces a fixed number of noise events that are uniformly distributed across all provided 
-    dimensions, e.g. x, y, t and p.
+    """Introduces a fixed number of noise events that are uniformly distributed across event dimensions, e.g. x, y, t and p.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size

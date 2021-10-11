@@ -12,7 +12,7 @@ class Slicer(Protocol):
         Eg. it could return the indices at which the data would be sliced.
         The return value of this method should be usable by the method slice_with_meta.
 
-        Args:
+        Parameters:
             data:
 
         Returns:
@@ -23,7 +23,7 @@ class Slicer(Protocol):
     def slice_with_metadata(self, data: Any, metadata: Any) -> List[Any]:
         """
         Slice the data using the metadata.
-        Args:
+        Parameters:
             data:
             metadata:
 
@@ -35,7 +35,7 @@ class Slicer(Protocol):
     def slice(self, data: Any) -> List[Any]:
         """
         Slice the given data and return the sliced data
-        Args:
+        Parameters:
             data:
 
         Returns:
@@ -52,7 +52,7 @@ class SliceByTime:
     |   window1      |
              |   window2      |
 
-    Args:
+    Parameters:
         time_window: int
             Length of time for each xytp (ms)
         overlap: int
@@ -96,7 +96,7 @@ class SliceByEventCount:
     """
     Return xytp sliced to equal number of events specified by event_count
 
-    Args:
+    Parameters:
         event_count (int):  Number of events per xytp
         overlap: int
             No. of spikes overlapping in the following xytp(ms)
@@ -139,7 +139,7 @@ class SliceAtIndices:
     """
     Slices data at the specified indices
 
-    Args:
+    Parameters:
         start_indices: (List[Int]): List of start indices
         end_indices: (List[Int]): List of end indices (exclusive)
     """
@@ -164,7 +164,7 @@ class SliceAtTimePoints:
     """
     Slice the data at the specified time points
 
-    Args:
+    Parameters:
         tw_start: (List[Int]): List of start times
         tw_end: (List[Int]): List of end times
     """
