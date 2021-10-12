@@ -25,10 +25,7 @@ class MVSEC(Dataset):
                         be verified. If you already have the data on your system, make sure to place it in a subfolder
                         'MVSEC/{scene}', where {scene} is one of the available strings (see parameter above).
         transform (callable, optional): A callable of transforms to apply to events and / or images for both left and right cameras.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a mix of data and ground truth in a tuple of
-        (events_left, events_right, imu_left, imu_right, images_left, images_right, depth_rect_left, depth_rect_right, pose).
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     resources = {
@@ -86,6 +83,12 @@ class MVSEC(Dataset):
             self.download()
 
     def __getitem__(self, index):
+        """
+        Returns:
+            tuple of (data, targets), where data is another tuple of (events_left, events_right, imu_left, 
+            imu_right, images_left, images_right) and targets is a tuple of (depth_rect_left, 
+            depth_rect_right, pose) for ground truths.
+        """
         # decode data file
         filename = os.path.join(
             self.location_on_system,
@@ -97,7 +100,7 @@ class MVSEC(Dataset):
         events_left["ts"] -= events_left["ts"][0]
         events_left["ts"] *= 1e6
         events_left = np.column_stack(
-            (events_left["x"], events_left["y"], events_left["ts"], events_left["pol"],)
+            (events_left["x"], events_left["y"], events_left["ts"], events_left["pol"])
         )
         events_left = np.lib.recfunctions.unstructured_to_structured(
             events_left, self.dtype
@@ -122,6 +125,7 @@ class MVSEC(Dataset):
         images_left = np.stack(images_left["frames"])
         images_right = topics["/davis/right/image_raw"]
         images_right = np.stack(images_right["frames"])
+        data = events_left, events_right, imu_left, imu_right, images_left, images_right
 
         # decode ground truth file
         filename = os.path.join(
@@ -139,22 +143,13 @@ class MVSEC(Dataset):
         depth_rect_right = topics["/davis/right/depth_image_rect"]
         depth_rect_right = np.stack(depth_rect_right["frames"])
         pose = topics["/davis/left/pose"]
+        targets = depth_rect_left, depth_rect_right, pose
 
         if self.transform is not None:
-            events_left = self.transform(events_left)
-        if self.transform is not None:
-            events_right = self.transform(events_right)
-        return (
-            events_left,
-            events_right,
-            imu_left,
-            imu_right,
-            images_left,
-            images_right,
-            depth_rect_left,
-            depth_rect_right,
-            pose,
-        )
+            data = self.transform(data)
+        if self.target_transform is not None:
+            targets = self.transform(targets)
+        return data, targets
 
     def __len__(self):
         return (
@@ -181,7 +176,7 @@ class MVSEC(Dataset):
         for (filename, md5_hash) in self.resources[self.scene]:
             print("Checking integrity of file {}".format(filename))
             if not check_integrity(
-                os.path.join(self.location_on_system, self.scene, filename), md5_hash,
+                os.path.join(self.location_on_system, self.scene, filename), md5_hash
             ):
                 raise RuntimeError(
                     "File not found or corrupted."

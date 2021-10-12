@@ -21,7 +21,7 @@ def make_structured_array(x, y, t, p, dtype=events_struct):
     return np.fromiter(zip(x, y, t, p), dtype=dtype)
 
 
-def parse_aedat4(in_file):
+def read_aedat4(in_file):
     """
     Get the aer events from version 4 of .aedat file
 
@@ -33,15 +33,10 @@ def parse_aedat4(in_file):
     """
     event_data = loris.read_file(in_file)
     events = event_data["events"]
-
-    import ipdb
-
-    ipdb.set_trace()
-    xytp = make_structured_array(x, y, t, p)
-    return shape, xytp
+    return shape, events
 
 
-def parse_dvs_128(filename):
+def read_dvs_128(filename):
     """
     Get the aer events from DVS with resolution of rows and cols are (128, 128)
 
@@ -52,7 +47,7 @@ def parse_dvs_128(filename):
             (height, width) of the sensor array
         xytp: numpy structured array of events
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -66,7 +61,7 @@ def parse_dvs_128(filename):
     return shape, xytp
 
 
-def parse_dvs_ibm(filename):
+def read_dvs_ibm(filename):
     """
     Get the aer events from DVS with ibm gesture dataset
 
@@ -77,7 +72,7 @@ def parse_dvs_ibm(filename):
             (height, width) of the sensor array
         xytp: numpy structured array of events
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -95,7 +90,7 @@ def parse_dvs_ibm(filename):
     return shape, xytp
 
 
-def parse_dvs_red(filename):
+def read_dvs_red(filename):
     """
     Get the aer events from DVS with resolution of (260, 346)
     Args:
@@ -106,7 +101,7 @@ def parse_dvs_red(filename):
 
         xytp: numpy structured array of events
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -120,7 +115,7 @@ def parse_dvs_red(filename):
     return shape, xytp
 
 
-def parse_dvs_346mini(filename):
+def read_dvs_346mini(filename):
     """
     Get the aer events from DVS with resolution of (132,104)
 
@@ -132,7 +127,7 @@ def parse_dvs_346mini(filename):
         xytp: numpy structure of xytp
 
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -181,7 +176,7 @@ def read_mnist_file(bin_file, dtype):
     return xytp
 
 
-def parse_aedat_header_from_file(filename):
+def read_aedat_header_from_file(filename):
     """
     Get the aedat file version and start index of the binary data.
 

@@ -34,43 +34,54 @@ Vision events typically have 4 event channels: time, x and y pixel coordinates a
 ASL-DVS
 ^^^^^^^
 .. autoclass:: ASLDVS
+    :members: __getitem__
 
 DAVIS Event Camera Dataset
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: DAVISDATA
+    :members: __getitem__
 
 DVS gestures
 ^^^^^^^^^^^^
 .. autoclass:: DVSGesture
+    :members: __getitem__
 
 MVSEC
 ^^^^^
 .. autoclass:: MVSEC
+    :members: __getitem__
 
 N-CALTECH 101
 ^^^^^^^^^^^^^
 .. autoclass:: NCALTECH101
+    :members: __getitem__
 
 N-CARS
 ^^^^^^
 .. autoclass:: NCARS
+    :members: __getitem__
 
 N-MNIST
 ^^^^^^^
 .. autoclass:: NMNIST
+    :members: __getitem__
 
 Spiking MNIST
 ^^^^^^^^^^^^^
 .. autoclass:: SMNIST
+    :members: __getitem__
 
 NavGesture
 ^^^^^^^^^^
 .. autoclass:: NavGesture
+    :members: __getitem__
 
 POKER DVS
 ^^^^^^^^^
 .. autoclass:: POKERDVS
+    :members: __getitem__
 
 Visual Place Recognition
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: VPR
+    :members: __getitem__

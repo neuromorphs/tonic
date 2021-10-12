@@ -6,9 +6,11 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
 
 
-Battling with all the different file formats of publicly available neuromorphic datasets? No more!
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
-It's somewhat modeled after PyTorch Vision for an intuitive interface, so that you spend less time worrying about how to read files and more time on things that matter.
+It's fully compatible with PyTorch Vision/Audio for an intuitive interface, so that you spend less time worrying about how to read files and more time on things that matter.
+
+## Documentation
+You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
 
 ## Install
 ```bash
@@ -26,8 +28,9 @@ If you're looking for a minimal example to run, this is it!
 import tonic
 import tonic.transforms as transforms
 
+sensor_size = tonic.datasets.NMNIST.sensor_size
 transform = transforms.Compose([transforms.Denoise(filter_time=10000),
-                                transforms.TimeJitter(std=10),])
+                                transforms.ToFrame(sensor_size=sensor_size, n_time_bins=3),])
 
 testset = tonic.datasets.NMNIST(save_to='./data',
                                 train=False,
@@ -42,8 +45,8 @@ events, target = next(iter(testloader))
 ## Discussion
 Have a question about how something works? Ideas for improvement? Feature request? Please get in touch here on GitHub via the [Discussions](https://github.com/neuromorphs/tonic/discussions) page!
 
-## Documentation
-You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
+## Contributing
+Please check out the [contributions]() page for details.
 
 ## Citation
 If you find this package helpful, please use the following citation:

@@ -27,9 +27,6 @@ class DVSGesture(Dataset):
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
@@ -85,14 +82,6 @@ class DVSGesture(Dataset):
         if download:
             self.download()
 
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
-
         file_path = self.location_on_system + "/" + self.folder_name
         for path, dirs, files in os.walk(file_path):
             dirs.sort()
@@ -107,6 +96,10 @@ class DVSGesture(Dataset):
         )
 
     def __getitem__(self, index):
+        """
+        Returns:
+            a tuple of (events, target) where target is the index of the target class.
+        """
         events = np.load(self.samples[index])
         events[:, 3] *= 1000  # convert from ms to us
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
@@ -119,3 +112,12 @@ class DVSGesture(Dataset):
 
     def __len__(self):
         return len(self.samples)
+
+    def verify_file_hashes(self):
+        if not check_integrity(
+            os.path.join(self.location_on_system, self.filename), self.file_md5
+        ):
+            raise RuntimeError(
+                "Dataset not found or corrupted."
+                + " You can use download=True to download it"
+            )

@@ -29,9 +29,6 @@ class NCARS(Dataset):
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     url = "http://www.prophesee.ai/resources/Prophesee_Dataset_n_cars.zip"
@@ -45,11 +42,9 @@ class NCARS(Dataset):
 
     class_dict = {"background": 0, "cars": 1}
 
-    sensor_size = None # different for every recording
+    sensor_size = None  # different for every recording
     minimum_y_value = 140
-    dtype = np.dtype(
-        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")]
-    )
+    dtype = np.dtype([(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")])
     ordering = "txyp"
 
     def __init__(
@@ -96,6 +91,10 @@ class NCARS(Dataset):
                     self.targets.append(self.class_dict[os.path.basename(path)])
 
     def __getitem__(self, index):
+        """
+        Returns:
+            a tuple of (events, target) where target is the index of the target class.
+        """
         events = loris.read_file(self.samples[index])["events"]
         events.dtype.names = ("t", "x", "y", "p")
         events["y"] -= self.minimum_y_value

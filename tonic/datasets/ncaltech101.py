@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from tonic.parsers import read_mnist_file
+from tonic.io import read_mnist_file
 from tonic.dataset import Dataset
 from tonic.download_utils import (
     check_integrity,
@@ -30,9 +30,6 @@ class NCALTECH101(Dataset):
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AADYPdhIBK7g_fPCLKmG6aVpa?dl=1"
@@ -77,6 +74,10 @@ class NCALTECH101(Dataset):
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
+        """
+        Returns:
+            a tuple of (events, target) where target is the index of the target class.
+        """
         events = read_mnist_file(self.samples[index], dtype=self.dtype)
         target = self.targets[index]
         events["x"] -= events["x"].min()

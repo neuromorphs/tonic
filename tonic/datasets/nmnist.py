@@ -2,7 +2,7 @@ import os
 import numpy as np
 from pathlib import Path
 
-from tonic.parsers import read_mnist_file
+from tonic.io import read_mnist_file
 from tonic.dataset import Dataset
 from tonic.download_utils import (
     check_integrity,
@@ -33,9 +33,6 @@ class NMNIST(Dataset):
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/AABrCc6FewNZSNsoObWJqY74a?dl=1"
@@ -110,6 +107,10 @@ class NMNIST(Dataset):
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
+        """
+        Returns:
+            a tuple of (events, target) where target is the index of the target class.
+        """
         events = read_mnist_file(self.samples[index], dtype=self.dtype)
         if self.first_saccade_only:
             events = events[events["t"] < 1e5]

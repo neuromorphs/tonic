@@ -26,9 +26,6 @@ class VPR(Dataset):
         download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images).
     """
 
     base_url = "https://zenodo.org/record/4302805/files/"
@@ -54,6 +51,10 @@ class VPR(Dataset):
             self.download()
 
     def __getitem__(self, index):
+        """
+        Returns:
+            a tuple of (data, None) where data is another tuple of (events, imu, images).
+        """
         file_path = os.path.join(self.location_on_system, self.recordings[index][0])
         topics = importRosbag(filePathOrName=file_path, log="ERROR")
         events = topics["/dvs/events"]
@@ -66,9 +67,11 @@ class VPR(Dataset):
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
         #         images["frames"] = np.stack(images["frames"]) # errors for some recordings
+        data = events, imu, images
+
         if self.transform is not None:
-            events = self.transform(events)
-        return events, imu, images
+            data = self.transform(data)
+        return data, None
 
     def __len__(self):
         return len(self.recordings)

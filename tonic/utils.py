@@ -6,18 +6,16 @@ def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
     """Plot events accumulated in a voxel grid for visual inspection.
 
     Parameters:
-        events: event Tensor of shape [num_events, num_event_channels]
+        events: Structured numpy array of shape [num_events, num_event_channels].
         axis_array: dimensions of plotting grid. The larger the grid,
                     the more fine-grained the events will be sliced in time.
         plot_frame_number: optional index of frame when plotting
 
     Example:
-        import tonic
-
-        dataset = tonic.datasets.NMNIST(save_to='./data')
-        events, target = dataset[100]
-
-        tonic.utils.plot_event_grid(events)
+        >>> import tonic
+        >>> dataset = tonic.datasets.NMNIST(save_to='./data')
+        >>> events, target = dataset[100]
+        >>> tonic.utils.plot_event_grid(events)
 
     Returns:
         None

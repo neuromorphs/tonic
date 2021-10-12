@@ -29,9 +29,6 @@ class POKERDVS(Dataset):
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     base_url = "https://www.neuromorphic-vision.com/public/downloads/"
@@ -91,6 +88,10 @@ class POKERDVS(Dataset):
                     self.targets.append(self.int_classes[path[-2:]])
 
     def __getitem__(self, index):
+        """
+        Returns:
+            a tuple of (events, target) where target is the index of the target class.
+        """
         events, target = self.data[index], self.targets[index]
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         if self.transform is not None:

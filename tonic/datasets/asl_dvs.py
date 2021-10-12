@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import scipy.io as scio
+from typing import Tuple, Any, Optional
 from tonic.dataset import Dataset
 from tonic.download_utils import (
     check_integrity,
@@ -27,9 +28,6 @@ class ASLDVS(Dataset):
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     url = "https://www.dropbox.com/sh/ibq0jsicatn7l6r/AACNrNELV56rs1YInMWUs9CAa?dl=1"
@@ -70,7 +68,11 @@ class ASLDVS(Dataset):
                     self.samples.append(path + "/" + file)
                     self.targets.append(self.int_classes[path[-1]])
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+        """
+        Returns:
+            (events, target) where target is index of the target class.
+        """
         events, target = scio.loadmat(self.samples[index]), self.targets[index]
         events = np.column_stack(
             [

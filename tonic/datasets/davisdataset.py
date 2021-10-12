@@ -28,9 +28,7 @@ class DAVISDATA(Dataset):
         download (bool): Choose to download data or verify existing files. If True and a file with the same
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to events and/or images.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images, opti_track_ground_truth).
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     base_url = "http://rpg.ifi.uzh.ch/datasets/davis/"
@@ -92,6 +90,10 @@ class DAVISDATA(Dataset):
             self.download()
 
     def __getitem__(self, index):
+        """
+        Returns:
+            tuple of (data, target), where data is another tuple of (events, imu, images) and target is the opti track ground truth
+        """
         filename = os.path.join(self.location_on_system, self.selection[index] + ".bag")
         topics = importRosbag(filename, log="ERROR")
         events = topics["/dvs/events"]
@@ -104,11 +106,12 @@ class DAVISDATA(Dataset):
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
         images["frames"] = np.stack(images["frames"])
+        data = (events, imu, images)
         target = topics["/optitrack/davis"]
 
         if self.transform is not None:
-            events = self.transform(events)
-        return events, imu, images, target
+            data = self.transform(data)
+        return data, target
 
     def __len__(self):
         return len(self.selection)

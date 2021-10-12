@@ -31,9 +31,6 @@ class NavGesture(Dataset):
                     name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     base_url = "https://www.neuromorphic-vision.com/public/downloads/navgesture/"
@@ -48,9 +45,7 @@ class NavGesture(Dataset):
     class_codes = ["do", "up", "le", "ri", "se", "ho"]
     int_classes = dict(zip(class_codes, range(len(class_codes))))
     sensor_size = (304, 240, 2)
-    dtype = np.dtype(
-        [(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")]
-    )
+    dtype = np.dtype([(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")])
     ordering = dtype.names
 
     def __init__(
@@ -100,7 +95,14 @@ class NavGesture(Dataset):
                     self.targets.append(self.int_classes[file[7:9]])
 
     def __getitem__(self, index):
-        events, target = loris.read_file(self.samples[index])["events"], self.targets[index]
+        """
+        Returns:
+            a tuple of (events, target) where target is the index of the target class.
+        """
+        events, target = (
+            loris.read_file(self.samples[index])["events"],
+            self.targets[index],
+        )
         events.dtype.names = ("t", "x", "y", "p")
         if self.transform is not None:
             events = self.transform(events)
