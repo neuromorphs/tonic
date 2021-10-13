@@ -103,14 +103,19 @@ class DAVISDATA(Dataset):
             (events["ts"], events["x"], events["y"], events["pol"])
         )
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
-        imu = topics["/dvs/imu"]
+        imu = topics["/dvs/imu"] if "/dvs/imu" in topics.keys() else None
         images = topics["/dvs/image_raw"]
         images["frames"] = np.stack(images["frames"])
+        images["ts"] -= images["ts"][0]
+        images["ts"] *= 1e6
+        images["ts"] = images["ts"].astype(int)
         data = (events, imu, images)
         target = topics["/optitrack/davis"]
 
         if self.transform is not None:
             data = self.transform(data)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
         return data, target
 
     def __len__(self):
