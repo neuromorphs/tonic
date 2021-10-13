@@ -56,6 +56,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "sphinx_book_theme"
 html_logo = "_static/tonic-logo-black.png"
+html_favicon = "_static/tonic_favicon.png"
 html_show_sourcelink = True
 
 html_theme_options = {
