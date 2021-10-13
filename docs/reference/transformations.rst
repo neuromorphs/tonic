@@ -1,5 +1,5 @@
-Transforms
-==========================
+transforms
+============
 
 .. currentmodule:: tonic.transforms
 

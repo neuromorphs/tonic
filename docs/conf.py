@@ -14,8 +14,6 @@ import os
 import sys
 import tonic
 
-sys.path.insert(0, os.path.abspath(".."))
-
 # -- Project information -----------------------------------------------------
 
 project = "Tonic"
@@ -40,6 +38,7 @@ napoleon_numpy_docstring = True
 
 # MyST settings
 jupyter_execute_notebooks = "off"
+suppress_warnings = ["myst.header"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

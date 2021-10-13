@@ -1,5 +1,5 @@
-Utils
-==========================
+utils
+=======
 
 .. currentmodule:: tonic.utils
 

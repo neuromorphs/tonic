@@ -1,4 +1,4 @@
-Data classes
+data classes
 =============
 
 Dataset base class
