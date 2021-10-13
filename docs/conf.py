@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import tonic
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -21,14 +22,8 @@ project = "Tonic"
 copyright = "2019-2021, the neuromorphs of Telluride"
 author = "Gregor Lenz"
 
-try:
-    import tonic
-
-    version = ".".join(tonic.__version__.split("."))
-    release = tonic.__version__
-except ImportError:
-    version = ""
-    release = ""
+version = ".".join(tonic.__version__.split("."))
+release = tonic.__version__
 
 master_doc = "index"
 
