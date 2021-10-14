@@ -4,6 +4,7 @@ import numpy as np
 # Code adapted from https://github.com/uzh-rpg/rpg_e2vid/blob/master/utils/inference_utils.py#L431
 def to_voxel_grid_numpy(events, sensor_size, n_time_bins=10):
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
+    Implements the event volume from Zhu et al. 2019, Unsupervised event-based learning of optical flow, depth, and egomotion
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
