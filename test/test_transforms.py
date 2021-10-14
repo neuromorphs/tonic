@@ -163,6 +163,14 @@ class TestTransforms:
         )
         assert events is not orig_events
 
+    def test_transform_merge_polarities(self):
+        orig_events, sensor_size = create_random_input()
+        transform = transforms.MergePolarities()
+        events = transform(orig_events)
+        assert len(np.unique(orig_events["p"])) == 2
+        assert len(np.unique(events["p"])) == 1
+        assert events is not orig_events
+        
     def test_transform_numpy_array(self):
         orig_events, sensor_size = create_random_input()
         transform = transforms.NumpyAsType(int)
@@ -170,6 +178,13 @@ class TestTransforms:
         assert events.dtype == int
         assert events is not orig_events
 
+    def test_transform_numpy_array_unstructured(self):
+        orig_events, sensor_size = create_random_input()
+        transform = transforms.NumpyAsType(int)
+        events = transform(orig_events)
+        assert events.dtype == int
+        assert events is not orig_events
+        
     @pytest.mark.parametrize("refractory_period", [10000, 5000])
     def test_transform_refractory_period(self, refractory_period):
         orig_events, sensor_size = create_random_input()

@@ -429,28 +429,25 @@ class ToAveragedTimesurface:
         temporal_window (float): how far back to look for past events for the time averaging
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
-        merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
     """
 
     sensor_size: Tuple[int, int, int]
-    cell_size = 10
-    surface_size = 7
-    temporal_window = 5e5
-    tau = 5e3
-    decay = "lin"
-    merge_polarities = False
+    cell_size: int = 10
+    surface_size: int = 7
+    temporal_window: int = 5e5
+    tau: int = 5e3
+    decay: str = "lin"
 
     def __call__(self, events):
 
         return functional.to_averaged_timesurface(
             events,
-            self.sensor_size,
-            self.cell_size,
-            self.surface_size,
-            self.temporal_window,
-            self.tau,
-            self.decay,
-            self.merge_polarities,
+            sensor_size=self.sensor_size,
+            cell_size=self.cell_size,
+            surface_size=self.surface_size,
+            temporal_window=self.temporal_window,
+            tau=self.tau,
+            decay=self.decay,
         )
 
 
@@ -547,7 +544,8 @@ class ToTimesurface:
 @dataclass(frozen=True)
 class ToVoxelGrid:
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
-    
+    Implements the event volume from Zhu et al. 2019, Unsupervised event-based learning of optical flow, depth, and egomotion
+
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
         n_time_bins (int): fixed number of time bins to slice the event sample into."""

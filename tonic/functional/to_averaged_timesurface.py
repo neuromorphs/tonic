@@ -26,13 +26,11 @@ def findCell(x, y, bounds):
 def to_averaged_timesurface(
     events,
     sensor_size,
-    ordering,
     cell_size=10,
     surface_size=3,
     temporal_window=5e5,
     tau=5e3,
     decay="lin",
-    merge_polarities=False,
 ):
     """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper 
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
@@ -51,16 +49,9 @@ def to_averaged_timesurface(
     """
     radius = surface_size // 2
     assert surface_size <= cell_size
-    assert "x" and "y" and "t" and "p" in ordering
-    #     assert len(sensor_size) == 1
-    x_index = ordering.find("x")
-    y_index = ordering.find("y")
-    t_index = ordering.find("t")
-    p_index = ordering.find("p")
+    assert "x" and "y" and "t" and "p" in events.dtype.names
     n_of_events = len(events)
-    if merge_polarities:
-        events["p"] = np.zeros(n_of_events)
-    n_of_pols = len(np.unique(events["p"]))
+    n_of_pols = sensor_size[2]
 
     all_surfaces = np.zeros((n_of_events, n_of_pols, surface_size, surface_size))
 
@@ -87,8 +78,8 @@ def to_averaged_timesurface(
 
     # event loop
     for index, event in enumerate(events):
-        x = int(event[x_index])
-        y = int(event[y_index])
+        x = int(event["x"])
+        y = int(event["y"])
 
         # find the cell
         r = findCell(x, y, bounds)
@@ -101,8 +92,8 @@ def to_averaged_timesurface(
             local_memory = np.array(cells[r])
 
             # find events ej such that tj is in [ti-temporal_window, ti)
-            context = local_memory[:, 0] >= event[t_index] - temporal_window
-            context &= local_memory[:, 0] < event[t_index]
+            context = local_memory[:, 0] >= event["t"] - temporal_window
+            context &= local_memory[:, 0] < event["t"]
 
             # find events ej such that xj is in [xi-radius,xi+radius]
             context &= local_memory[:, 1] <= x + radius
@@ -113,7 +104,7 @@ def to_averaged_timesurface(
             context &= local_memory[:, 2] >= y - radius
 
             # taking into consideration different polarities
-            context &= local_memory[:, 3] == event[p_index]
+            context &= local_memory[:, 3] == event["p"]
 
             # get the neighborhood of center event
             neighborhood = local_memory[context]
@@ -134,14 +125,14 @@ def to_averaged_timesurface(
 
                     # for each neighbor use some of decay of past events
                     if decay == "lin":
-                        tmp_ts = (neighborhood[match, 0] - event[t_index]) / (
+                        tmp_ts = (neighborhood[match, 0] - event["t"]) / (
                             3 * tau
                         ) + 1
                         tmp_ts[tmp_ts < 0] = 0
                         timesurface[scaled_x, scaled_y] = np.sum(tmp_ts)
                     elif decay == "exp":
                         timesurface[scaled_x, scaled_y] = np.sum(
-                            np.exp((neighborhood[match, 0] - event[t_index]) / tau)
+                            np.exp((neighborhood[match, 0] - event["t"]) / tau)
                         )
 
         else:
@@ -149,7 +140,7 @@ def to_averaged_timesurface(
             cells[r] = []
 
         # save event inside the cell
-        cells[r].append((event[t_index], x, y, event[p_index]))
+        cells[r].append((event["t"], x, y, event["p"]))
 
         # save into all_surfaces
         all_surfaces[index, :, :, :] = timesurface
