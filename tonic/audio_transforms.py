@@ -1,5 +1,5 @@
 import torch
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Iterator
 import torch.nn.functional as F
 from dataclasses import dataclass
 from scipy.signal import butter
@@ -168,3 +168,62 @@ class MelButterFilterBank(LinearButterFilterBank):
 
         return torch.tensor([freqs, freqs * (1 + filter_bandwidth)]).T/nyquist
 
+
+@dataclass
+class AddNoise:
+    """
+    Add nose to data
+
+    Params:
+        dataset:
+            A dataset object that returns a tuple when iterated over the first element of which is the audio signal to be used for noise.
+        snr:
+            Desired signal to noise ratio in dB
+        normed:
+            If set to false, the signal max value will not be normalized. True by default.
+    """
+    dataset: Iterator
+    snr: float
+    normed: bool = True
+
+    def get_noise_sample(self, sample_len: int) -> torch.Tensor:
+        """Get a random noise sample from the dataset"""
+        print(sample_len)
+        # Find noise sample of minimum length
+        while True:
+            noise_idx = torch.randint(0, len(self.dataset), (1,)).item()
+            noise = self.dataset[noise_idx][0]
+            print(noise.shape)
+            if noise.shape[1] >= sample_len:
+                break
+        # Sample a random part of the data recording
+        noise_signal_len = noise.shape[1]
+        if noise_signal_len > sample_len:
+            start_t = torch.randint(0, noise_signal_len - sample_len, (1,)).item()
+            noise = noise[:, start_t:start_t + sample_len]
+        return noise
+
+    def __call__(self, signal):
+        # randomly pick a piece of noise data
+        noise = self.get_noise_sample(sample_len=signal.shape[1])
+
+        # mix signal with noise with given SNR
+        signal_power = (signal ** 2).mean()
+        noise_power = (noise ** 2).mean()
+        noise_scale = (signal_power / noise_power) * 10 ** (-self.snr / 10)
+        signal_with_snr = signal + noise_scale * noise
+
+        # Normalize if specified
+        if self.normed:
+            return self.normalize(signal_with_snr)
+        else:
+            return signal_with_snr
+
+    @staticmethod
+    def normalize(signal):
+        """Normalize the signal"""
+        signal -= signal.mean()
+        max_val = torch.max(torch.abs(signal))
+        if max_val > 0:
+            signal /= max_val
+        return signal

@@ -47,3 +47,26 @@ def test_mel_butter_filter_bank():
 
     filter_out = fb(data)
     assert filter_out.shape == (16, 16_000)
+
+
+def test_add_noise():
+    class DummyNoiseDataset:
+        def __len__(self):
+            return 1000
+
+        def __getitem__(self, item):
+            sig_len = torch.randint(12000, 20000, (1, )).item()
+            return torch.rand((1, sig_len)), 0
+
+    data = torch.sin(torch.arange(0, 16_000*0.001, 0.001)).unsqueeze(0)
+    print(data.shape)
+
+    from tonic.audio_transforms import AddNoise
+    noise_dataset = DummyNoiseDataset()
+
+    print(noise_dataset[0][0].shape)
+
+    add_noise = AddNoise(noise_dataset, 10, normed=True)
+
+    signal = add_noise(data)
+    assert signal.shape == (1, 16_000)
