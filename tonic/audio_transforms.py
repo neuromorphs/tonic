@@ -132,7 +132,7 @@ class LinearButterFilterBank:
         high_freq = self.sampling_freq / 2 / (1 + filter_bandwidth) - 1
         freqs = np.linspace(self.low_freq, high_freq, self.num_filters)
 
-        return torch.tensor([freqs, freqs * (1 + filter_bandwidth)])/ nyquist
+        return torch.tensor([freqs, freqs * (1 + filter_bandwidth)]).T/ nyquist
 
     def __post_init__(self):
         freq_bands = self.compute_freq_bands()
@@ -166,5 +166,5 @@ class MelButterFilterBank(LinearButterFilterBank):
         high_freq = self.hz2mel(self.sampling_freq / 2 / (1 + filter_bandwidth) - 1)
         freqs = self.mel2hz(np.linspace(low_freq, high_freq, self.num_filters))
 
-        return  torch.tensor([freqs, freqs * (1 + filter_bandwidth)])/nyquist
+        return torch.tensor([freqs, freqs * (1 + filter_bandwidth)]).T/nyquist
 
