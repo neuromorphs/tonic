@@ -5,5 +5,6 @@ Tonic takes care of providing you with the right data and in the right format. I
 
 * `BindsNet <https://github.com/BindsNET/bindsnet>`_
 * `Norse <https://norse.github.io/norse/>`_
+* `Rockpool <https://rockpool.ai/>`_
 * `Sinabs <https://sinabs.ai/>`_
 * `snnTorch <https://snntorch.readthedocs.io/>`_
