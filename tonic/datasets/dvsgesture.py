@@ -10,6 +10,9 @@ from tonic.download_utils import (
 
 class DVSGesture(Dataset):
     """DVSGesture dataset <http://research.ibm.com/dvsgesture/>. Events have (xypt) ordering.
+    
+    .. note::  This is (exceptionally) a preprocessed version of the original dataset, where recordings that originally contained multiple labels have already been cut into respective samples. Also temporal precision is reduced to ms.
+    
     ::
 
         @inproceedings{amir2017low,
@@ -63,10 +66,6 @@ class DVSGesture(Dataset):
             save_to, transform=transform, target_transform=target_transform
         )
         self.train = train
-        self.location_on_system = save_to
-        self.data = []
-        self.samples = []
-        self.targets = []
 
         if train:
             self.url = self.train_zip
@@ -82,25 +81,25 @@ class DVSGesture(Dataset):
         if download:
             self.download()
 
-        file_path = self.location_on_system + "/" + self.folder_name
+        if not self.check_exists():
+                raise RuntimeError(
+                    "Dataset not found or corrupted. You can use download=True to download it"
+                )
+
+        file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
             dirs.sort()
             for file in files:
                 if file.endswith("npy"):
-                    self.samples.append(path + "/" + file)
+                    self.data.append(path + "/" + file)
                     self.targets.append(int(file[:-4]))
-
-    def download(self):
-        download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
-        )
 
     def __getitem__(self, index):
         """
         Returns:
             a tuple of (events, target) where target is the index of the target class.
         """
-        events = np.load(self.samples[index])
+        events = np.load(self.data[index])
         events[:, 3] *= 1000  # convert from ms to us
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         target = self.targets[index]
@@ -111,13 +110,4 @@ class DVSGesture(Dataset):
         return events, target
 
     def __len__(self):
-        return len(self.samples)
-
-    def verify_file_hashes(self):
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
+        return len(self.data)
