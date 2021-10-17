@@ -59,6 +59,7 @@ tutorials/wrapping_own_data
 :hidden:
 reference/data_classes
 reference/datasets
+reference/collation
 reference/io
 reference/slicers
 reference/transformations

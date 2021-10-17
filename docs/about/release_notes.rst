@@ -1,6 +1,18 @@
 Release notes
 =============
 
+1.0.0
+-----
+This is a major release where we focused on performance improvements. In the interest of future maintainability, there are a few breaking changes.
+* dataset downloads and instantiation: The `download` parameter has been removed from all datasets. When previously we did slow hashing of files to verify strict file integrity, this is now only done once after the download is completed. The next time the same dataset is instantiated, only lightweight checks are going to be run to check if the right filenames and number of files are present. This considerably speeds up training scripts overall.
+* renamed some stochastic transforms for better consistency
+* support for slicing and caching. Using CachedDataset or SlicedDataset wrapper classes, recordings can now be chunked into smaller segments and/or written to disk in an efficient format for fast loading. Use of dtypes under the hood to keep disk footprint to a minimum.
+* removed ToSparseTensor transform to avoid confusion with ToFrame and because PyTorch/Tensorflow support is not there yet. Will reintroduce once support for sparse computation is there in major frameworks.
+* new `io` module which contains a list of parsers for different neuromorphic file formats.
+* batch collation functionality is now to be found under `tonic.collation`
+* full compatibility with PyTorch vision/audio transforms. Tonic transforms now only take in and output one object.
+* code coverage, documentation improvements, bug fixes,...
+
 0.4.6
 -----
 * sensor_size is now being passed from transform to transform, in case it is adjusted. Important for cropping and spatial resizing.
