@@ -1,13 +1,11 @@
 import os
+import shutil
+import glob
 import numpy as np
 import loris
 import numpy
 from tonic.dataset import Dataset
-from tonic.download_utils import (
-    check_integrity,
-    download_and_extract_archive,
-    extract_archive,
-)
+from tonic.download_utils import extract_archive
 
 
 class NavGesture(Dataset):
@@ -27,8 +25,6 @@ class NavGesture(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         walk_subset (bool): Choose either NavGesture-sit (default) or NavGesture-walk dataset. No train/test split provided.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same
-                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
@@ -52,18 +48,15 @@ class NavGesture(Dataset):
         self,
         save_to,
         walk_subset=False,
-        download=True,
         transform=None,
         target_transform=None,
     ):
+        save_to = os.path.join(save_to, self.__class__.__name__)
         super(NavGesture, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
 
         self.walk_subset = walk_subset
-        self.location_on_system = save_to
-        self.data = []
-        self.targets = []
 
         if walk_subset:
             self.url = self.walk_url
@@ -76,22 +69,29 @@ class NavGesture(Dataset):
             self.filename = self.sit_filename
             self.folder_name = "navgesture-sit"
 
-        self.location_on_system = os.path.join(
-            self.location_on_system, self.folder_name
-        )
-        if not os.path.exists(self.location_on_system):
-            os.mkdir(self.location_on_system)
-
-        if download:
+        if not self._check_exists():
             self.download()
+            data_folder = os.path.join(self.location_on_system, self.folder_name)
+            # normally zips contain a top-level folder where we can extract to, 
+            # but here we have to create and move the data into it manually
+            os.makedirs(data_folder, exist_ok=True)
+            pattern = "/user*.zip"
+            files = glob.glob(self.location_on_system + pattern)
+            for file in files:
+                file_name = os.path.basename(file)
+                shutil.move(file, os.path.join(data_folder, file_name))
+            for path, dirs, files in os.walk(data_folder):
+                dirs.sort()
+                for file in files:
+                    if file.startswith("user") and file.endswith("zip"):
+                        extract_archive(os.path.join(data_folder, file))
 
-        self.samples = []
         for path, dirs, files in os.walk(self.location_on_system):
             dirs.sort()
             files.sort()
             for file in files:
                 if file.endswith("dat"):
-                    self.samples.append(path + "/" + file)
+                    self.data.append(path + "/" + file)
                     self.targets.append(self.int_classes[file[7:9]])
 
     def __getitem__(self, index):
@@ -100,7 +100,7 @@ class NavGesture(Dataset):
             a tuple of (events, target) where target is the index of the target class.
         """
         events, target = (
-            loris.read_file(self.samples[index])["events"],
+            loris.read_file(self.data[index])["events"],
             self.targets[index],
         )
         events.dtype.names = ("t", "x", "y", "p")
@@ -111,23 +111,7 @@ class NavGesture(Dataset):
         return events, target
 
     def __len__(self):
-        return len(self.samples)
+        return len(self.data)
 
-    def download(self):
-        download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
-        )
-        for path, dirs, files in os.walk(self.location_on_system):
-            dirs.sort()
-            for file in files:
-                if file.startswith("user") and file.endswith("zip"):
-                    extract_archive(os.path.join(self.location_on_system, file))
-
-    def verify_file_hashes(self):
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
+    def _check_exists(self):
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(304, ".dat")

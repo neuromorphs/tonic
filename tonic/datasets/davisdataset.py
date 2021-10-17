@@ -22,11 +22,9 @@ class DAVISDATA(Dataset):
 
     Parameters:
         save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
-        recording (string): Use the name of the recording or a list thereof to load it, for example 'dynamic_6dof'
+        recording (string): Use the name of the recording or a list thereof to download it, for example 'dynamic_6dof'
                             or ['slider_far', 'urban']. See project homepage for a list of available recordings.
-                            Can use 'all' to load every recording.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same
-                    name and correct hash is already in the directory, download is automatically skipped.
+                            Can use 'all' to download all available recordings.
         transform (callable, optional): A callable of transforms to apply to events and/or images.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
@@ -63,15 +61,16 @@ class DAVISDATA(Dataset):
     sensor_size = (240, 180, 2)
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
+    folder_name = ""
 
     def __init__(
-        self, save_to, recording, download=True, transform=None, target_transform=None
+        self, save_to, recording, transform=None, target_transform=None
     ):
+        save_to = os.path.join(save_to, self.__class__.__name__)
         super(DAVISDATA, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        folder_name = "davis_dataset"
-        self.location_on_system = os.path.join(save_to, folder_name)
+
         self.selection = (
             list(self.recordings.keys()) if recording == "all" else recording
         )
@@ -86,7 +85,7 @@ class DAVISDATA(Dataset):
                     )
                 )
 
-        if download:
+        if not self._check_exists():
             self.download()
 
     def __getitem__(self, index):
@@ -129,14 +128,8 @@ class DAVISDATA(Dataset):
                 filename=recording + ".bag",
                 md5=self.recordings[recording],
             )
-
-    def verify_file_hashes(self):
-        for recording in self.selection:
-            if not check_integrity(
-                os.path.join(self.location_on_system, recording + ".bag"),
-                self.recordings[recording],
-            ):
-                raise RuntimeError(
-                    "Recording not found or corrupted."
-                    + " You can use download=True to download it"
-                )
+    
+    def _check_exists(self):
+        # check if all filenames are correct
+        files_present = list([check_integrity(os.path.join(self.location_on_system, recording+".bag")) for recording in self.selection])
+        return all(files_present)

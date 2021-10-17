@@ -19,11 +19,9 @@ class MVSEC(Dataset):
 
     Parameters:
         save_to (string): Location to save files to on disk.
-        scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle
-        download (bool): Choose to download data or verify existing files. If True and a file with the same name is in the directory,
-                        it will be verified and re-download is automatically skipped. If False, existing files will be
-                        be verified. If you already have the data on your system, make sure to place it in a subfolder
-                        'MVSEC/{scene}', where {scene} is one of the available strings (see parameter above).
+        scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle. 
+                        If you already have the data on your system, make sure to place the .bag files in a subfolder
+                        'MVSEC/{scene}/bag_files.bag'.
         transform (callable, optional): A callable of transforms to apply to events and / or images for both left and right cameras.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
@@ -67,10 +65,10 @@ class MVSEC(Dataset):
     def __init__(
         self, save_to, scene, download=True, transform=None, target_transform=None
     ):
+        save_to = os.path.join(save_to, self.__class__.__name__)
         super(MVSEC, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        self.location_on_system = os.path.join(save_to, "MVSEC")
         self.scene = scene
         if not scene in self.resources.keys():
             raise RuntimeError(
@@ -79,7 +77,7 @@ class MVSEC(Dataset):
                 )
             )
 
-        if download:
+        if not self._check_exists():
             self.download()
 
     def __getitem__(self, index):
@@ -152,33 +150,18 @@ class MVSEC(Dataset):
         return data, targets
 
     def __len__(self):
-        return (
-            len(self.resources[self.scene]) // 2
-        )  # divided by two because of data and ground truth file per recording
+        # divided by two because of data and ground truth file per recording
+        return len(self.resources[self.scene]) // 2
 
     def download(self):
         for (filename, md5_hash) in self.resources[self.scene]:
-            url = os.path.join(self.base_url, self.scene, filename)
-            print("Downloading {}...".format(filename))
             download_url(
-                url,
+                url=os.path.join(self.base_url, self.scene, filename),
                 os.path.join(self.location_on_system, self.scene),
                 filename=filename,
                 md5=md5_hash,
             )
 
-    def verify_file_integrity(self):
-        print(
-            "Checking folder {}".format(
-                os.path.join(self.location_on_system, self.scene)
-            )
-        )
-        for (filename, md5_hash) in self.resources[self.scene]:
-            print("Checking integrity of file {}".format(filename))
-            if not check_integrity(
-                os.path.join(self.location_on_system, self.scene, filename), md5_hash
-            ):
-                raise RuntimeError(
-                    "File not found or corrupted."
-                    + " You can use download=True to download it"
-                )
+    def _check_exists(self):
+        files_present = list([check_integrity(os.path.join(self.location_on_system, self.scene, filename)) for (filename, md5_hash) in self.resources[self.scene]])
+        return all(files_present)

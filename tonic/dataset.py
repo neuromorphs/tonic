@@ -4,6 +4,9 @@ from pathlib import Path
 
 
 class Dataset:
+    """
+    Base class for Tonic datasets which download public data. Contains a few helper function to reduce duplicated code.
+    """
     def __init__(self, save_to="./", transform=None, target_transform=None):
         self.location_on_system = save_to
         self.transform = transform
@@ -33,7 +36,7 @@ class Dataset:
         Check if the target folder `folder_name` contains at least a minimum amount of files, hinting that the 
         original archive has probably been extracted.
         """
-        return len(list(Path(self.location_on_system, self.folder_name).glob(f"*/*{file_type}"))) >= n_files
+        return len(list(Path(self.location_on_system, self.folder_name).glob(f"**/*{file_type}"))) >= n_files
 
     def _check_exists(self):
         """
