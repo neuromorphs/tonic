@@ -8,11 +8,12 @@ class Dataset:
     Base class for Tonic datasets which download public data. Contains a few helper function to reduce duplicated code.
     """
     def __init__(self, save_to="./", transform=None, target_transform=None):
-        self.location_on_system = save_to
+        self.location_on_system = os.path.join(save_to, self.__class__.__name__)
         self.transform = transform
         self.target_transform = target_transform
         self.data = []
         self.targets = []
+        self.folder_name = ""
 
     def __repr__(self):
         return "Dataset " + self.__class__.__name__

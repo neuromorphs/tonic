@@ -4,7 +4,7 @@ from tonic import CachedDataset
 
 
 def test_caching_pokerdvs():
-    dataset = datasets.POKERDVS(save_to="./data", train=False, download=True)
+    dataset = datasets.POKERDVS(save_to="./data", train=False)
     dataset = CachedDataset(dataset)
     for data, label in dataset:
         print(data.shape, label)
@@ -19,7 +19,7 @@ def test_caching_transforms():
         [transforms.Downsample(time_factor=1, spatial_factor=1,)]
     )
     dataset = datasets.POKERDVS(
-        save_to="./data", train=False, download=True, transform=preprocess,
+        save_to="./data", train=False, transform=preprocess,
     )
 
     dataset_cached = CachedDataset(dataset, transform=augmentation, num_copies=4)

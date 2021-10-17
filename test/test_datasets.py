@@ -15,7 +15,7 @@ class DVSGestureTestCaseTrain(dataset_utils.DatasetTestCase):
     KWARGS = {"train": True}
 
     def inject_fake_data(self, tmpdir):
-        testfolder = os.path.join(tmpdir, "ibmGestureTrain/user24_led")
+        testfolder = os.path.join(tmpdir, "DVSGesture/ibmGestureTrain/user24_led")
         os.makedirs(testfolder, exist_ok=True)
         events, sensor_size = create_random_input(dtype=datasets.DVSGesture.dtype)
         events = np.lib.recfunctions.structured_to_unstructured(events)
@@ -30,7 +30,7 @@ class DVSGestureTestCaseTest(dataset_utils.DatasetTestCase):
     KWARGS = {"train": False}
 
     def inject_fake_data(self, tmpdir):
-        testfolder = os.path.join(tmpdir, "ibmGestureTest/user24_led")
+        testfolder = os.path.join(tmpdir, "DVSGesture/ibmGestureTest/user24_led")
         os.makedirs(testfolder, exist_ok=True)
         events, sensor_size = create_random_input(dtype=datasets.DVSGesture.dtype)
         events = np.lib.recfunctions.structured_to_unstructured(events)

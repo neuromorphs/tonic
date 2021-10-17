@@ -89,5 +89,5 @@ class DatasetTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.KWARGS.update({"save_to": "/tmp", "download": False})
+        cls.KWARGS.update({"save_to": "/tmp"})
         super().setUpClass()

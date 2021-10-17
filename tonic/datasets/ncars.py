@@ -44,7 +44,6 @@ class NCARS(Dataset):
     def __init__(
         self, save_to, train=True, transform=None, target_transform=None
     ):
-        save_to = os.path.join(save_to, self.__class__.__name__)
         super(NCARS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )

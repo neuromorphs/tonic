@@ -36,7 +36,6 @@ class ASLDVS(Dataset):
     ordering = dtype.names
 
     def __init__(self, save_to, download=True, transform=None, target_transform=None):
-        save_to = os.path.join(save_to, self.__class__.__name__)
         super(ASLDVS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )

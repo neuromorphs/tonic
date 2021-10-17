@@ -65,7 +65,6 @@ class MVSEC(Dataset):
     def __init__(
         self, save_to, scene, download=True, transform=None, target_transform=None
     ):
-        save_to = os.path.join(save_to, self.__class__.__name__)
         super(MVSEC, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
@@ -157,7 +156,7 @@ class MVSEC(Dataset):
         for (filename, md5_hash) in self.resources[self.scene]:
             download_url(
                 url=os.path.join(self.base_url, self.scene, filename),
-                os.path.join(self.location_on_system, self.scene),
+                root=os.path.join(self.location_on_system, self.scene),
                 filename=filename,
                 md5=md5_hash,
             )

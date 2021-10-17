@@ -51,7 +51,6 @@ class NavGesture(Dataset):
         transform=None,
         target_transform=None,
     ):
-        save_to = os.path.join(save_to, self.__class__.__name__)
         super(NavGesture, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )

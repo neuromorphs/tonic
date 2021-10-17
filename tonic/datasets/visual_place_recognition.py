@@ -23,8 +23,6 @@ class VPR(Dataset):
 
     Parameters:
         save_to (string): Location to save files to on disk.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same
-                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
     """
 
@@ -38,16 +36,14 @@ class VPR(Dataset):
         ["dvs_vpr_2020-04-29-06-20-23.bag", "d7ccfeb6539f1e7b077ab4fe6f45193c"],
     ]
 
-    sensor_size = (260, 346, 2)
+    sensor_size = (346, 260, 2)
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to, download=True, transform=None):
+    def __init__(self, save_to, transform=None):
         super(VPR, self).__init__(save_to, transform=transform)
-        folder_name = "visual_place_recognition"
-        self.location_on_system = os.path.join(save_to, folder_name)
 
-        if download:
+        if not self._check_exists():
             self.download()
 
     def __getitem__(self, index):
@@ -66,7 +62,7 @@ class VPR(Dataset):
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
-        #         images["frames"] = np.stack(images["frames"]) # errors for some recordings
+#         images["frames"] = np.stack(images["frames"]) # errors for some recordings
         data = events, imu, images
 
         if self.transform is not None:
@@ -85,13 +81,7 @@ class VPR(Dataset):
                 md5=md5_hash,
             )
 
-    def verify_file_hashes(self):
-        print("Verifying existing files.")
-        for (recording, md5_hash) in self.recordings:
-            if not check_integrity(
-                os.path.join(self.location_on_system, recording), md5_hash
-            ):
-                raise RuntimeError(
-                    "Dataset file not found or corrupted."
-                    + " You can use download=True to download it"
-                )
+    def _check_exists(self):
+        # check if all filenames are correct
+        files_present = list([check_integrity(os.path.join(self.location_on_system, recording)) for recording, md5 in self.recordings])
+        return all(files_present)
