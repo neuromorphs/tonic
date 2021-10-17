@@ -9,7 +9,7 @@ class VPR(Dataset):
     """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805>.
     Events have (txyp) ordering.
     ::
-    
+
         @article{fischer2020event,
           title={Event-based visual place recognition with ensembles of temporal windows},
           author={Fischer, Tobias and Milford, Michael},
@@ -30,29 +30,28 @@ class VPR(Dataset):
     recordings = [  # recording names and their md5 hash
         [
             ["dvs_vpr_2020-04-21-17-03-03.bag", "04473f623aec6bda3d7eadfecfc1b2ce"],
-            ["20200421_170039-sunset1_concat.nmea", "11f0107a4df845fd315e9134fbee5c1e"]
+            ["20200421_170039-sunset1_concat.nmea", "11f0107a4df845fd315e9134fbee5c1e"],
         ],
         [
             ["dvs_vpr_2020-04-22-17-24-21.bag", "ca6db080a4054196fe65825bce3db351"],
-            ["20200422_172431-sunset2_concat.nmea", "ff879bf22a9552a6d8500a98cff6c7f9"]
+            ["20200422_172431-sunset2_concat.nmea", "ff879bf22a9552a6d8500a98cff6c7f9"],
         ],
         [
             ["dvs_vpr_2020-04-24-15-12-03.bag", "909569732e323ff04c94379a787f2a69"],
-            ["20200424_151015-daytime_concat.nmea", "867fdf43ef393ac7e8de251c1a5cd585"]
+            ["20200424_151015-daytime_concat.nmea", "867fdf43ef393ac7e8de251c1a5cd585"],
         ],
         [
             ["dvs_vpr_2020-04-27-18-13-29.bag", "e80b6c0434690908d855445792d4de3b"],
-            ["20200427_181204-night_concat.nmea", "441e6673e0dfc8746f76cd646c4aba8d"]
+            ["20200427_181204-night_concat.nmea", "441e6673e0dfc8746f76cd646c4aba8d"],
         ],
         [
             ["dvs_vpr_2020-04-28-09-14-11.bag", "7854ede61c0947adb0f072a041dc3bad"],
-            ["20200428_091154-morning_concat.nmea", "b86af464ceac478711e52ef4271c198c"]
+            ["20200428_091154-morning_concat.nmea", "b86af464ceac478711e52ef4271c198c"],
         ],
         [
             ["dvs_vpr_2020-04-29-06-20-23.bag", "d7ccfeb6539f1e7b077ab4fe6f45193c"],
-            ["20200429_061912-sunrise_concat.nmea", "ec04cf35c10eb5b519b11297adef024b"]
+            ["20200429_061912-sunrise_concat.nmea", "ec04cf35c10eb5b519b11297adef024b"],
         ],
-        
     ]
 
     sensor_size = (346, 260, 2)
@@ -61,7 +60,7 @@ class VPR(Dataset):
 
     def __init__(self, save_to, transform=None):
         super(VPR, self).__init__(save_to, transform=transform)
-            
+
         if not self._check_exists():
             self.download()
 
@@ -70,7 +69,7 @@ class VPR(Dataset):
         Returns:
             a tuple of (data, target) where data is another tuple of (events, imu, images) and target is gps positional data.
         """
-        (bag_filename,_), (gps_filename,_) = self.recordings[index]
+        (bag_filename, _), (gps_filename, _) = self.recordings[index]
         file_path = os.path.join(self.location_on_system, bag_filename)
         topics = importRosbag(filePathOrName=file_path, log="ERROR")
         events = topics["/dvs/events"]
@@ -82,11 +81,13 @@ class VPR(Dataset):
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         imu = topics["/dvs/imu"]
         images = topics["/dvs/image_raw"]
-#         images["frames"] = np.stack(images["frames"]) # errors for some recordings
+        #         images["frames"] = np.stack(images["frames"]) # errors for some recordings
         data = events, imu, images
 
-        targets = self.read_gps_file(os.path.join(self.location_on_system, gps_filename))
-        
+        targets = self.read_gps_file(
+            os.path.join(self.location_on_system, gps_filename)
+        )
+
         if self.transform is not None:
             data = self.transform(data)
         if self.target_transform is not None:
@@ -108,13 +109,20 @@ class VPR(Dataset):
 
     def _check_exists(self):
         # check if all filenames are correct
-        files_present = list([check_integrity(os.path.join(self.location_on_system, filename)) for recording in self.recordings for filename, md5 in recording])
+        files_present = list(
+            [
+                check_integrity(os.path.join(self.location_on_system, filename))
+                for recording in self.recordings
+                for filename, md5 in recording
+            ]
+        )
         return all(files_present)
-    
+
     # code taken from https://github.com/Tobias-Fischer/ensemble-event-vpr/blob/master/read_gps.py
     def read_gps_file(self, nmea_file_path):
         import pynmea2
-        nmea_file = open(nmea_file_path, encoding='utf-8')
+
+        nmea_file = open(nmea_file_path, encoding="utf-8")
         latitudes, longitudes, timestamps = [], [], []
         first_timestamp = None
         previous_lat, previous_lon = 0, 0
@@ -124,11 +132,26 @@ class VPR(Dataset):
                 msg = pynmea2.parse(line)
                 if first_timestamp is None:
                     first_timestamp = msg.timestamp
-                if msg.sentence_type not in ['GSV', 'VTG', 'GSA']:
-                    dist_to_prev = np.linalg.norm(np.array([msg.latitude, msg.longitude]) - np.array([previous_lat, previous_lon]))
-                    if msg.latitude != 0 and msg.longitude != 0 and msg.latitude != previous_lat and msg.longitude != previous_lon and dist_to_prev > 0.0001:
-                        timestamp_diff = (msg.timestamp.hour - first_timestamp.hour) * 3600 + (msg.timestamp.minute - first_timestamp.minute) * 60 + (msg.timestamp.second - first_timestamp.second)
-                        latitudes.append(msg.latitude); longitudes.append(msg.longitude); timestamps.append(timestamp_diff)
+                if msg.sentence_type not in ["GSV", "VTG", "GSA"]:
+                    dist_to_prev = np.linalg.norm(
+                        np.array([msg.latitude, msg.longitude])
+                        - np.array([previous_lat, previous_lon])
+                    )
+                    if (
+                        msg.latitude != 0
+                        and msg.longitude != 0
+                        and msg.latitude != previous_lat
+                        and msg.longitude != previous_lon
+                        and dist_to_prev > 0.0001
+                    ):
+                        timestamp_diff = (
+                            (msg.timestamp.hour - first_timestamp.hour) * 3600
+                            + (msg.timestamp.minute - first_timestamp.minute) * 60
+                            + (msg.timestamp.second - first_timestamp.second)
+                        )
+                        latitudes.append(msg.latitude)
+                        longitudes.append(msg.longitude)
+                        timestamps.append(timestamp_diff)
                         previous_lat, previous_lon = msg.latitude, msg.longitude
 
             except pynmea2.ParseError as e:

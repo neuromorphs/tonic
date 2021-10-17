@@ -82,4 +82,6 @@ class ASLDVS(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(100800, ".mat")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            100800, ".mat"
+        )

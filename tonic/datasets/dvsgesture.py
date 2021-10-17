@@ -10,9 +10,9 @@ from tonic.download_utils import (
 
 class DVSGesture(Dataset):
     """DVSGesture dataset <http://research.ibm.com/dvsgesture/>. Events have (xypt) ordering.
-    
+
     .. note::  This is (exceptionally) a preprocessed version of the original dataset, where recordings that originally contained multiple labels have already been cut into respective samples. Also temporal precision is reduced to ms.
-    
+
     ::
 
         @inproceedings{amir2017low,
@@ -57,9 +57,7 @@ class DVSGesture(Dataset):
     dtype = np.dtype([("x", int), ("y", int), ("p", int), ("t", int)])
     ordering = dtype.names
 
-    def __init__(
-        self, save_to, train=True, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(DVSGesture, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
@@ -106,4 +104,6 @@ class DVSGesture(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(100, ".npy")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            100, ".npy"
+        )

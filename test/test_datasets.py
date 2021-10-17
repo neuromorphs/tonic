@@ -19,9 +19,10 @@ class DVSGestureTestCaseTrain(dataset_utils.DatasetTestCase):
         os.makedirs(testfolder, exist_ok=True)
         events, sensor_size = create_random_input(dtype=datasets.DVSGesture.dtype)
         events = np.lib.recfunctions.structured_to_unstructured(events)
-        np.save(testfolder+"/0.npy", events)
-        np.save(testfolder+"/1.npy", events)
+        np.save(testfolder + "/0.npy", events)
+        np.save(testfolder + "/1.npy", events)
         return {"n_samples": 2}
+
 
 class DVSGestureTestCaseTest(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.DVSGesture
@@ -34,5 +35,5 @@ class DVSGestureTestCaseTest(dataset_utils.DatasetTestCase):
         os.makedirs(testfolder, exist_ok=True)
         events, sensor_size = create_random_input(dtype=datasets.DVSGesture.dtype)
         events = np.lib.recfunctions.structured_to_unstructured(events)
-        np.save(testfolder+"/0.npy", events)
+        np.save(testfolder + "/0.npy", events)
         return {"n_samples": 1}

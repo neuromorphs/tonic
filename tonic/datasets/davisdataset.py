@@ -63,9 +63,7 @@ class DAVISDATA(Dataset):
     ordering = dtype.names
     folder_name = ""
 
-    def __init__(
-        self, save_to, recording, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, recording, transform=None, target_transform=None):
         super(DAVISDATA, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
@@ -127,8 +125,15 @@ class DAVISDATA(Dataset):
                 filename=recording + ".bag",
                 md5=self.recordings[recording],
             )
-    
+
     def _check_exists(self):
         # check if all filenames are correct
-        files_present = list([check_integrity(os.path.join(self.location_on_system, recording+".bag")) for recording in self.selection])
+        files_present = list(
+            [
+                check_integrity(
+                    os.path.join(self.location_on_system, recording + ".bag")
+                )
+                for recording in self.selection
+            ]
+        )
         return all(files_present)

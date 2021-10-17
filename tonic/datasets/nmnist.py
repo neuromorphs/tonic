@@ -4,10 +4,7 @@ from pathlib import Path
 
 from tonic.io import read_mnist_file
 from tonic.dataset import Dataset
-from tonic.download_utils import (
-    download_and_extract_archive,
-    extract_archive,
-)
+from tonic.download_utils import download_and_extract_archive, extract_archive
 
 
 class NMNIST(Dataset):
@@ -106,4 +103,6 @@ class NMNIST(Dataset):
         return len(self.data)
 
     def _check_exists(self) -> bool:
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(10000, ".bin")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            10000, ".bin"
+        )

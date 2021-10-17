@@ -31,7 +31,7 @@ class TestRepresentations:
         n_event_bins,
         overlap,
         include_incomplete,
-        sensor_size
+        sensor_size,
     ):
         orig_events, _ = create_random_input(sensor_size=sensor_size)
 
@@ -80,7 +80,7 @@ class TestRepresentations:
         assert frames is not orig_events
 
     def test_representation_frame_inferred(self):
-        sensor_size = (20,10,2)
+        sensor_size = (20, 10, 2)
         orig_events, _ = create_random_input(n_events=30000, sensor_size=sensor_size)
         transform = transforms.ToFrame(sensor_size=None, time_window=25000)
         frames = transform(orig_events)
@@ -106,10 +106,8 @@ class TestRepresentations:
             assert surfaces.shape[2] == sensor_size[1]
             assert surfaces.shape[3] == sensor_size[0]
         assert surfaces is not orig_events
-        
-    @pytest.mark.parametrize(
-        "surface_size, tau,", [(7, 100), (3, 1000), ]
-    )
+
+    @pytest.mark.parametrize("surface_size, tau,", [(7, 100), (3, 1000)])
     def test_representation_avg_time_surface(self, surface_size, tau):
         orig_events, sensor_size = create_random_input()
 

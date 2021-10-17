@@ -6,14 +6,14 @@ from .slicers import Slicer
 
 @dataclass
 class SlicedDataset:
-    """The primary use case for a SlicedDataset is to cut existing examples in a dataset 
-    into smaller chunks. For that it takes a regular dataset and a slicing method as input. 
+    """The primary use case for a SlicedDataset is to cut existing examples in a dataset
+    into smaller chunks. For that it takes a regular dataset and a slicing method as input.
     It then generates metadata about the slices and where to find them in each original sample.
     The new dataset length will be the sum of all slices for each sample.
-    
+
     Parameters:
         dataset: a dataset object which implements __getitem__ and __len__ methods.
-        slicer: a function which implements the tonic.slicers.Slicer protocol, meaning that 
+        slicer: a function which implements the tonic.slicers.Slicer protocol, meaning that
                 it doesn't have to inherit from it but implement all its methods.
     """
 

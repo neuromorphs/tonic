@@ -30,7 +30,7 @@ class NTIDIGITS(Dataset):
         A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
-#     url = "https://www.dropbox.com/s/vfwwrhlyzkax4a2/n-tidigits.hdf5?dl=1"
+    #     url = "https://www.dropbox.com/s/vfwwrhlyzkax4a2/n-tidigits.hdf5?dl=1"
     base_url = "https://www.neuromorphic-vision.com/public/downloads/"
     filename = "n-tidigits.hdf5.zip"
     url = base_url + filename
@@ -41,9 +41,7 @@ class NTIDIGITS(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(
-        self, save_to, train=True, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(NTIDIGITS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
@@ -52,7 +50,9 @@ class NTIDIGITS(Dataset):
         if not self._check_exists():
             self.download()
 
-        self.data_file = h5py.File(os.path.join(self.location_on_system, self.filename[:-4]), "r")
+        self.data_file = h5py.File(
+            os.path.join(self.location_on_system, self.filename[:-4]), "r"
+        )
 
     def __getitem__(self, index):
         if self.train:
@@ -81,4 +81,6 @@ class NTIDIGITS(Dataset):
             return len(self.data_file["test_labels"])
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(1, ".hdf5")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            1, ".hdf5"
+        )

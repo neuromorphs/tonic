@@ -45,11 +45,7 @@ class NavGesture(Dataset):
     ordering = dtype.names
 
     def __init__(
-        self,
-        save_to,
-        walk_subset=False,
-        transform=None,
-        target_transform=None,
+        self, save_to, walk_subset=False, transform=None, target_transform=None
     ):
         super(NavGesture, self).__init__(
             save_to, transform=transform, target_transform=target_transform
@@ -71,7 +67,7 @@ class NavGesture(Dataset):
         if not self._check_exists():
             self.download()
             data_folder = os.path.join(self.location_on_system, self.folder_name)
-            # normally zips contain a top-level folder where we can extract to, 
+            # normally zips contain a top-level folder where we can extract to,
             # but here we have to create and move the data into it manually
             os.makedirs(data_folder, exist_ok=True)
             pattern = "/user*.zip"
@@ -113,4 +109,6 @@ class NavGesture(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(304, ".dat")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            304, ".dat"
+        )

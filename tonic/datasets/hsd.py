@@ -38,7 +38,9 @@ class HSD(Dataset):
         return len(file["labels"])
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(1, ".h5")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            1, ".h5"
+        )
 
 
 class SHD(HSD):
@@ -70,9 +72,7 @@ class SHD(HSD):
     train_md5 = "f3252aeb598ac776c1b526422d90eecb"
     folder_name = ""
 
-    def __init__(
-        self, save_to, train=True, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(HSD, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
@@ -125,13 +125,7 @@ class SSC(HSD):
     valid_md5 = "b4eee3516a4a90dd0c71a6ac23a8ae43"
     folder_name = ""
 
-    def __init__(
-        self,
-        save_to,
-        split="train",
-        transform=None,
-        target_transform=None,
-    ):
+    def __init__(self, save_to, split="train", transform=None, target_transform=None):
         save_to = os.path.join(save_to, self.__class__.__name__)
         super(HSD, self).__init__(
             save_to, transform=transform, target_transform=target_transform

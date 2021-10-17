@@ -32,7 +32,7 @@ def to_averaged_timesurface(
     tau=5e3,
     decay="lin",
 ):
-    """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper 
+    """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
     https://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf
 
@@ -125,9 +125,7 @@ def to_averaged_timesurface(
 
                     # for each neighbor use some of decay of past events
                     if decay == "lin":
-                        tmp_ts = (neighborhood[match, 0] - event["t"]) / (
-                            3 * tau
-                        ) + 1
+                        tmp_ts = (neighborhood[match, 0] - event["t"]) / (3 * tau) + 1
                         tmp_ts[tmp_ts < 0] = 0
                         timesurface[scaled_x, scaled_y] = np.sum(tmp_ts)
                     elif decay == "exp":

@@ -2,10 +2,7 @@ import os
 import loris
 import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import (
-    download_and_extract_archive,
-    extract_archive,
-)
+from tonic.download_utils import download_and_extract_archive, extract_archive
 
 
 class NCARS(Dataset):
@@ -41,13 +38,11 @@ class NCARS(Dataset):
     dtype = np.dtype([(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")])
     ordering = "txyp"
 
-    def __init__(
-        self, save_to, train=True, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(NCARS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        
+
         if train:
             self.folder_name = "train"
         else:
@@ -86,4 +81,6 @@ class NCARS(Dataset):
         return len(self.data)
 
     def _check_exists(self) -> bool:
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(8000, ".dat")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            8000, ".dat"
+        )

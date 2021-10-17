@@ -43,9 +43,7 @@ class POKERDVS(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(
-        self, save_to, train=True, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(POKERDVS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
@@ -91,4 +89,6 @@ class POKERDVS(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(20, ".npy")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            20, ".npy"
+        )

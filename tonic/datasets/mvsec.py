@@ -19,7 +19,7 @@ class MVSEC(Dataset):
 
     Parameters:
         save_to (string): Location to save files to on disk.
-        scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle. 
+        scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle.
                         If you already have the data on your system, make sure to place the .bag files in a subfolder
                         'MVSEC/{scene}/bag_files.bag'.
         transform (callable, optional): A callable of transforms to apply to events and / or images for both left and right cameras.
@@ -82,8 +82,8 @@ class MVSEC(Dataset):
     def __getitem__(self, index):
         """
         Returns:
-            tuple of (data, targets), where data is another tuple of (events_left, events_right, imu_left, 
-            imu_right, images_left, images_right) and targets is a tuple of (depth_rect_left, 
+            tuple of (data, targets), where data is another tuple of (events_left, events_right, imu_left,
+            imu_right, images_left, images_right) and targets is a tuple of (depth_rect_left,
             depth_rect_right, pose) for ground truths.
         """
         # decode data file
@@ -162,5 +162,12 @@ class MVSEC(Dataset):
             )
 
     def _check_exists(self):
-        files_present = list([check_integrity(os.path.join(self.location_on_system, self.scene, filename)) for (filename, md5_hash) in self.resources[self.scene]])
+        files_present = list(
+            [
+                check_integrity(
+                    os.path.join(self.location_on_system, self.scene, filename)
+                )
+                for (filename, md5_hash) in self.resources[self.scene]
+            ]
+        )
         return all(files_present)

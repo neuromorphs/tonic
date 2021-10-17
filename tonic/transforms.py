@@ -5,10 +5,10 @@ import numpy as np
 
 
 class Compose:
-    """Composes several transforms together. This a literal copy of torchvision.transforms.Compose function for convenience. 
+    """Composes several transforms together. This a literal copy of torchvision.transforms.Compose function for convenience.
 
     Parameters:
-        transforms (list of ``Transform`` objects): list of transform(s) to compose. 
+        transforms (list of ``Transform`` objects): list of transform(s) to compose.
                                                     Can combine Tonic, PyTorch Vision/Audio transforms.
 
     Example:
@@ -138,8 +138,8 @@ class MergePolarities:
 class NumpyAsType:
     """
     Change dtype of numpy ndarray to custom dtype.
-    
-    Parameters: 
+
+    Parameters:
         dtype: data type that the array should be cast to
     """
 
@@ -280,7 +280,7 @@ class RefractoryPeriod:
 
         .. math::
             t_n - t_{n-1} > t_{refrac}
-    
+
     for each pixel.
 
     Parameters:

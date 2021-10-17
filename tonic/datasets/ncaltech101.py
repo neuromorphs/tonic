@@ -5,6 +5,7 @@ from tonic.io import read_mnist_file
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
 
+
 class NCALTECH101(Dataset):
     """N-CALTECH101 dataset <https://www.garrickorchard.com/datasets/n-caltech101>. Events have (xytp) ordering.
     ::
@@ -72,4 +73,6 @@ class NCALTECH101(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(8709, ".bin")
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            8709, ".bin"
+        )

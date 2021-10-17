@@ -193,7 +193,9 @@ def list_files(root: str, suffix: str, prefix: bool = False) -> List[str]:
     return files
 
 
-def _quota_exceeded(response: "requests.models.Response") -> bool:  # type: ignore[name-defined]
+def _quota_exceeded(
+    response: "requests.models.Response",
+) -> bool:  # type: ignore[name-defined]
     try:
         start = next(response.iter_content(chunk_size=128, decode_unicode=True))
         return isinstance(start, str) and "Google Drive - Quota exceeded" in start
@@ -247,7 +249,9 @@ def download_file_from_google_drive(
         _save_response_content(response, fpath)
 
 
-def _get_confirm_token(response: "requests.models.Response") -> Optional[str]:  # type: ignore[name-defined]
+def _get_confirm_token(
+    response: "requests.models.Response",
+) -> Optional[str]:  # type: ignore[name-defined]
     for key, value in response.cookies.items():
         if key.startswith("download_warning"):
             return value
@@ -256,7 +260,9 @@ def _get_confirm_token(response: "requests.models.Response") -> Optional[str]:  
 
 
 def _save_response_content(
-    response: "requests.models.Response", destination: str, chunk_size: int = 32768,  # type: ignore[name-defined]
+    response: "requests.models.Response",
+    destination: str,
+    chunk_size: int = 32768,  # type: ignore[name-defined]
 ) -> None:
     with open(destination, "wb") as f:
         pbar = tqdm(total=None)
