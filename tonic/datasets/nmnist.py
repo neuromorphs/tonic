@@ -5,7 +5,6 @@ from pathlib import Path
 from tonic.io import read_mnist_file
 from tonic.dataset import Dataset
 from tonic.download_utils import (
-    check_integrity,
     download_and_extract_archive,
     extract_archive,
 )
@@ -28,18 +27,14 @@ class NMNIST(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same
-                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
     """
 
     url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/AABrCc6FewNZSNsoObWJqY74a?dl=1"
-    archive_filename = "nmnist-archive.zip"
-    archive_md5 = "c5b12b1213584bd3fe976b55fe43c835"
-    train_md5 = "20959b8e626244a1b502305a9e6e2031"
-    test_md5 = "69ca8762b2fe404d9b9bad1103e97832"
+    filename = "nmnist-archive.zip"
+    file_md5 = "c5b12b1213584bd3fe976b55fe43c835"
     train_filename = "Train.zip"
     test_filename = "Test.zip"
     classes = [
@@ -63,46 +58,33 @@ class NMNIST(Dataset):
         self,
         save_to,
         train=True,
-        download=True,
         transform=None,
         target_transform=None,
         first_saccade_only=False,
     ):
+        save_to = os.path.join(save_to, self.__class__.__name__)
         super(NMNIST, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
         self.train = train
-        self.location_on_system = os.path.join(save_to, "nmnist/")
         self.first_saccade_only = first_saccade_only
-        self.samples = []
-        self.targets = []
 
         if train:
-            self.file_md5 = self.train_md5
-            self.filename = self.train_filename
             self.folder_name = "Train"
         else:
-            self.file_md5 = self.test_md5
-            self.filename = self.test_filename
             self.folder_name = "Test"
 
-        if download:
+        if not self._check_exists():
             self.download()
-
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
+            extract_archive(os.path.join(self.location_on_system, self.train_filename))
+            extract_archive(os.path.join(self.location_on_system, self.test_filename))
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
             files.sort()
             for file in files:
                 if file.endswith("bin"):
-                    self.samples.append(path + "/" + file)
+                    self.data.append(path + "/" + file)
                     label_number = int(path[-1])
                     self.targets.append(label_number)
 
@@ -111,7 +93,7 @@ class NMNIST(Dataset):
         Returns:
             a tuple of (events, target) where target is the index of the target class.
         """
-        events = read_mnist_file(self.samples[index], dtype=self.dtype)
+        events = read_mnist_file(self.data[index], dtype=self.dtype)
         if self.first_saccade_only:
             events = events[events["t"] < 1e5]
         target = self.targets[index]
@@ -121,26 +103,8 @@ class NMNIST(Dataset):
             target = self.target_transform(target)
         return events, target
 
-    def __len__(self):
-        return len(self.samples)
+    def __len__(self) -> int:
+        return len(self.data)
 
     def _check_exists(self) -> bool:
-        folder = Path(self.location_on_system, self.folder_name)
-        file = Path(self.location_on_system, self.filename)
-        return (
-            file.exists()
-            and folder.exists()
-            and folder.is_dir()
-            and len(list(folder.glob("*/*.bin"))) >= 10000
-        )
-
-    def download(self):
-        if not self._check_exists():
-            download_and_extract_archive(
-                self.url,
-                self.location_on_system,
-                filename=self.archive_filename,
-                md5=self.archive_md5,
-            )
-            extract_archive(os.path.join(self.location_on_system, self.train_filename))
-            extract_archive(os.path.join(self.location_on_system, self.test_filename))
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(10000, ".bin")

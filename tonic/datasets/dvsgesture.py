@@ -26,8 +26,6 @@ class DVSGesture(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same
-                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
@@ -35,8 +33,8 @@ class DVSGesture(Dataset):
     # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
     # Test : https://www.neuromorphic-vision.com/public/downloads/ibmGestureTest.tar.gz
     base_url = "https://www.neuromorphic-vision.com/public/downloads/"
-    test_zip = base_url + "ibmGestureTest.tar.gz"
-    train_zip = base_url + "ibmGestureTrain.tar.gz"
+    test_url = base_url + "ibmGestureTest.tar.gz"
+    train_url = base_url + "ibmGestureTrain.tar.gz"
     test_md5 = "56070e45dadaa85fff82e0fbfbc06de5"
     train_md5 = "3a8f0d4120a166bac7591f77409cb105"
     test_filename = "ibmGestureTest.tar.gz"
@@ -60,31 +58,27 @@ class DVSGesture(Dataset):
     ordering = dtype.names
 
     def __init__(
-        self, save_to, train=True, download=True, transform=None, target_transform=None
+        self, save_to, train=True, transform=None, target_transform=None
     ):
+        save_to = os.path.join(save_to, self.__class__.__name__)
         super(DVSGesture, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
         self.train = train
 
         if train:
-            self.url = self.train_zip
+            self.url = self.train_url
             self.file_md5 = self.train_md5
             self.filename = self.train_filename
             self.folder_name = "ibmGestureTrain"
         else:
-            self.url = self.test_zip
+            self.url = self.test_url
             self.file_md5 = self.test_md5
             self.filename = self.test_filename
             self.folder_name = "ibmGestureTest"
 
-        if download:
+        if not self._check_exists():
             self.download()
-
-        if not self.check_exists():
-                raise RuntimeError(
-                    "Dataset not found or corrupted. You can use download=True to download it"
-                )
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
@@ -111,3 +105,6 @@ class DVSGesture(Dataset):
 
     def __len__(self):
         return len(self.data)
+
+    def _check_exists(self):
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(100, ".npy")
