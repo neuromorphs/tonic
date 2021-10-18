@@ -2,7 +2,12 @@ import os
 import numpy as np
 import h5py
 from tonic.dataset import Dataset
-from tonic.download_utils import check_integrity, download_and_extract_archive, download_url, list_files
+from tonic.download_utils import (
+    check_integrity,
+    download_and_extract_archive,
+    download_url,
+    list_files,
+)
 
 
 class DSEC(Dataset):
@@ -23,6 +28,7 @@ class DSEC(Dataset):
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
+
     base_url = "https://download.ifi.uzh.ch/rpg/DSEC/"
 
     recordings = {
@@ -72,19 +78,19 @@ class DSEC(Dataset):
         "test": [
             "thun_01_a",
             "thun_01_b",
-#             "interlaken_00_a",
-#             "interlaken_00_b",
-#             "interlaken_01_a",
-#             "zurich_city_12_a",
-#             "zurich_city_13_a",
-#             "zurich_city_13_b",
-#             "zurich_city_14_a",
-#             "zurich_city_14_b",
-#             "zurich_city_14_c",
-#             "zurich_city_15_a",
-        ]
+            "interlaken_00_a",
+            "interlaken_00_b",
+            "interlaken_01_a",
+            "zurich_city_12_a",
+            "zurich_city_13_a",
+            "zurich_city_13_b",
+            "zurich_city_14_a",
+            "zurich_city_14_b",
+            "zurich_city_14_c",
+            "zurich_city_15_a",
+        ],
     }
-    
+
     data_filenames = [
         ["events_left", ".zip"],
         ["events_right", ".zip"],
@@ -94,7 +100,7 @@ class DSEC(Dataset):
         ["images_rectified_left", ".zip"],
         ["images_rectified_right", ".zip"],
     ]
-    
+
     target_filenames = [
         ["disparity_event", ".zip"],
         ["disparity_image", ".zip"],
@@ -106,13 +112,14 @@ class DSEC(Dataset):
     ordering = dtype.names
 
     def __init__(self, save_to, train=True, transform=None, target_transform=None):
-        super(DSEC, self).__init__(save_to, transform=transform, target_transform=target_transform)
+        super(DSEC, self).__init__(
+            save_to, transform=transform, target_transform=target_transform
+        )
 
         self.train = train
         self.train_or_test = "train" if self.train else "test"
 
         self._check_exists()
-
 
     def __getitem__(self, index):
         """
@@ -121,50 +128,98 @@ class DSEC(Dataset):
             (image_timestamps, images_left, images_right)) and target is either a tuple of
             (disparity_timestamps, disparity_events, disparity_images) if train=True or None if train=False
         """
-        import hdf5plugin # necessary to read event files
-        from PIL import Image # necessary to read images
+        import hdf5plugin  # necessary to read event files
+        from PIL import Image  # necessary to read images
+
         recording = self.recordings[self.train_or_test][index]
         base_folder = os.path.join(self.location_on_system, recording)
-        
+
         # events
-        events_left_file = h5py.File(os.path.join(base_folder, "events_left", "events.h5"))["events"]
-        events_left = np.column_stack((events_left_file['x'][()], events_left_file['y'][()], events_left_file['t'][()], events_left_file['p'][()]))
+        events_left_file = h5py.File(
+            os.path.join(base_folder, "events_left", "events.h5")
+        )["events"]
+        events_left = np.column_stack(
+            (
+                events_left_file["x"][()],
+                events_left_file["y"][()],
+                events_left_file["t"][()],
+                events_left_file["p"][()],
+            )
+        )
 
-        events_right_file = h5py.File(os.path.join(base_folder, "events_right", "events.h5"))["events"]
-        events_right = np.column_stack((events_right_file['x'][()], events_right_file['y'][()], events_right_file['t'][()], events_right_file['p'][()]))
-        
+        events_right_file = h5py.File(
+            os.path.join(base_folder, "events_right", "events.h5")
+        )["events"]
+        events_right = np.column_stack(
+            (
+                events_right_file["x"][()],
+                events_right_file["y"][()],
+                events_right_file["t"][()],
+                events_right_file["p"][()],
+            )
+        )
+
         # images
-        images_rectified_left_filenames = list_files(os.path.join(base_folder, "images_rectified_left"), ".png", prefix=True)
-        images_left = np.stack([np.array(Image.open(file)) for file in images_rectified_left_filenames])
-        
-        images_rectified_right_filenames = list_files(os.path.join(base_folder, "images_rectified_right"), ".png", prefix=True)
-        images_right = np.stack([np.array(Image.open(file)) for file in images_rectified_right_filenames])
+        images_rectified_left_filenames = list_files(
+            os.path.join(base_folder, "images_rectified_left"), ".png", prefix=True
+        )
+        images_left = np.stack(
+            [np.array(Image.open(file)) for file in images_rectified_left_filenames]
+        )
 
-        with open(os.path.join(base_folder, "image_timestamps", f"{recording}_image_timestamps.txt")) as f:
+        images_rectified_right_filenames = list_files(
+            os.path.join(base_folder, "images_rectified_right"), ".png", prefix=True
+        )
+        images_right = np.stack(
+            [np.array(Image.open(file)) for file in images_rectified_right_filenames]
+        )
+
+        with open(
+            os.path.join(
+                base_folder, "image_timestamps", f"{recording}_image_timestamps.txt"
+            )
+        ) as f:
             image_timestamps = [int(line) for line in f.readlines()]
 
-        data = ((events_left, events_right), (image_timestamps, images_left, images_right))
-        
+        data = (
+            (events_left, events_right),
+            (image_timestamps, images_left, images_right),
+        )
+
         if self.transform is not None:
             data = self.transform(data)
 
         targets = None
         if self.train:
             # ground truth
-            disparity_event_filenames = list_files(os.path.join(base_folder, "disparity_event"), ".png", prefix=True)
-            disparity_events = np.stack([np.array(Image.open(file)) for file in disparity_event_filenames])
+            disparity_event_filenames = list_files(
+                os.path.join(base_folder, "disparity_event"), ".png", prefix=True
+            )
+            disparity_events = np.stack(
+                [np.array(Image.open(file)) for file in disparity_event_filenames]
+            )
 
-            disparity_image_filenames = list_files(os.path.join(base_folder, "disparity_image"), ".png", prefix=True)
-            disparity_images = np.stack([np.array(Image.open(file)) for file in disparity_event_filenames])
+            disparity_image_filenames = list_files(
+                os.path.join(base_folder, "disparity_image"), ".png", prefix=True
+            )
+            disparity_images = np.stack(
+                [np.array(Image.open(file)) for file in disparity_event_filenames]
+            )
 
-            with open(os.path.join(base_folder, "disparity_timestamps", f"{recording}_disparity_timestamps.txt")) as f:
+            with open(
+                os.path.join(
+                    base_folder,
+                    "disparity_timestamps",
+                    f"{recording}_disparity_timestamps.txt",
+                )
+            ) as f:
                 disparity_timestamps = [int(line) for line in f.readlines()]
 
             targets = (disparity_timestamps, disparity_events, disparity_images)
-            
+
             if self.target_transform is not None:
                 targets = self.target_transform(targets)
-        
+
         return data, targets
 
     def __len__(self):
@@ -174,9 +229,19 @@ class DSEC(Dataset):
         for recording in self.recordings[self.train_or_test]:
             scene_url = f"{self.base_url}{self.train_or_test}/{recording}/{recording}_"
             filenames = self.data_filenames
-            if self.train: filenames += self.target_filenames # add ground truth files when train=True
+            if self.train:
+                filenames += (
+                    self.target_filenames
+                )  # add ground truth files when train=True
             for filename, extension in filenames:
-                if check_integrity(os.path.join(self.location_on_system, recording, filename, f"{recording}_{filename + extension}")):
+                if check_integrity(
+                    os.path.join(
+                        self.location_on_system,
+                        recording,
+                        filename,
+                        f"{recording}_{filename + extension}",
+                    )
+                ):
                     continue
                 file_folder = os.path.join(self.location_on_system, recording, filename)
                 os.makedirs(file_folder, exist_ok=True)
