@@ -2,7 +2,7 @@ import os
 import loris
 import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import download_and_extract_archive, extract_archive
+from tonic.download_utils import extract_archive
 
 
 class NCARS(Dataset):
@@ -35,7 +35,7 @@ class NCARS(Dataset):
 
     sensor_size = None  # different for every recording
     minimum_y_value = 140
-    dtype = np.dtype([(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")])
+    dtype = np.dtype([("t", "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")])
     ordering = "txyp"
 
     def __init__(self, save_to, train=True, transform=None, target_transform=None):
@@ -67,7 +67,7 @@ class NCARS(Dataset):
             a tuple of (events, target) where target is the index of the target class.
         """
         events = loris.read_file(self.data[index])["events"]
-        events.dtype.names = ("t", "x", "y", "p")
+        events = np.lib.recfunctions.rename_fields(events, {'ts': 't', 'is_increase': 'p'})
         events["y"] -= self.minimum_y_value
         events["y"] = events["y"].max() - events["y"]
         target = self.targets[index]

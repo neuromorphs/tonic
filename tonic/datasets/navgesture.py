@@ -41,7 +41,7 @@ class NavGesture(Dataset):
     class_codes = ["do", "up", "le", "ri", "se", "ho"]
     int_classes = dict(zip(class_codes, range(len(class_codes))))
     sensor_size = (304, 240, 2)
-    dtype = np.dtype([(("ts", "t"), "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")])
+    dtype = np.dtype([("t", "<u8"), ("x", "<u2"), ("y", "<u2"), ("p", "?")])
     ordering = dtype.names
 
     def __init__(
@@ -98,7 +98,8 @@ class NavGesture(Dataset):
             loris.read_file(self.data[index])["events"],
             self.targets[index],
         )
-        events.dtype.names = ("t", "x", "y", "p")
+        events = np.lib.recfunctions.rename_fields(events, {'ts': 't', 'is_increase': 'p'})
+
         if self.transform is not None:
             events = self.transform(events)
         if self.target_transform is not None:

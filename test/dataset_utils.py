@@ -5,6 +5,7 @@ import pytest
 import numpy as np
 from unittest.mock import MagicMock
 from unittest.mock import patch
+import shutil
 
 
 class DatasetTestCase(unittest.TestCase):
@@ -94,4 +95,5 @@ class DatasetTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.KWARGS.update({"save_to": "/tmp"})
+        shutil.rmtree("/tmp/"+cls.DATASET_CLASS.__name__, ignore_errors=True)
         super().setUpClass()

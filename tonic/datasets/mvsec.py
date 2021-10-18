@@ -63,7 +63,7 @@ class MVSEC(Dataset):
     ordering = dtype.names
 
     def __init__(
-        self, save_to, scene, download=True, transform=None, target_transform=None
+        self, save_to, scene, transform=None, target_transform=None
     ):
         super(MVSEC, self).__init__(
             save_to, transform=transform, target_transform=target_transform
@@ -71,9 +71,7 @@ class MVSEC(Dataset):
         self.scene = scene
         if not scene in self.resources.keys():
             raise RuntimeError(
-                "Scene {} is not available or in the wrong format. Select one of: indoor_flying, outdoor_day, outdoor_night, motorcycle. ".format(
-                    scene
-                )
+                f"Scene {scene} is not available or in the wrong format. Select one of: indoor_flying, outdoor_day, outdoor_night, motorcycle."
             )
 
         if not self._check_exists():

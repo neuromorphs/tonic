@@ -4,7 +4,7 @@ from pathlib import Path
 
 from tonic.io import read_mnist_file
 from tonic.dataset import Dataset
-from tonic.download_utils import download_and_extract_archive, extract_archive
+from tonic.download_utils import extract_archive
 
 
 class NMNIST(Dataset):

@@ -1,11 +1,6 @@
 import os
 import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import (
-    check_integrity,
-    download_and_extract_archive,
-    extract_archive,
-)
 
 
 class DVSGesture(Dataset):

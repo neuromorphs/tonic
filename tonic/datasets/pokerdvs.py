@@ -1,11 +1,6 @@
 import os
 import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import (
-    check_integrity,
-    download_and_extract_archive,
-    extract_archive,
-)
 
 
 class POKERDVS(Dataset):
@@ -64,12 +59,12 @@ class POKERDVS(Dataset):
         if not self._check_exists():
             self.download()
 
-        file_path = self.location_on_system + "/" + self.folder_name
+        file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
             files.sort()
             for file in files:
                 if file.endswith("npy"):
-                    self.data.append(np.load(path + "/" + file))
+                    self.data.append(np.load(os.path.join(path, file)))
                     self.targets.append(self.int_classes[path[-2:]])
 
     def __getitem__(self, index):
