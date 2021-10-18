@@ -9,24 +9,6 @@ Events for a sample in both audio and vision datasets are output as numpy arrays
 
 .. currentmodule:: tonic.datasets
 
-Audio datasets
---------------
-Audio events typically have 3 event channels: time, frequency channel number and polarity.
-
-Heidelberg Spiking Datasets
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Spiking Heidelberg Dataset (SHD)
-""""""""""""""""""""""""""""""""
-.. autoclass:: SHD
-
-Spiking Speech Commands (SSC)
-"""""""""""""""""""""""""""""
-.. autoclass:: SSC
-
-N-TIDIGITS
-^^^^^^^^^^
-.. autoclass:: NTIDIGITS
-
 Vision datasets
 ---------------
 Vision events typically have 4 event channels: time, x and y pixel coordinates and polarity.
@@ -90,3 +72,22 @@ Visual Place Recognition
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: VPR
     :members: __getitem__
+
+
+Audio datasets
+--------------
+Audio events typically have 3 event channels: time, frequency channel number and polarity.
+
+Heidelberg Spiking Datasets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Spiking Heidelberg Dataset (SHD)
+""""""""""""""""""""""""""""""""
+.. autoclass:: SHD
+
+Spiking Speech Commands (SSC)
+"""""""""""""""""""""""""""""
+.. autoclass:: SSC
+
+N-TIDIGITS
+^^^^^^^^^^
+.. autoclass:: NTIDIGITS
