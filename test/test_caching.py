@@ -18,7 +18,7 @@ def test_caching_transforms():
     augmentation = transforms.Compose(
         [transforms.Downsample(time_factor=1, spatial_factor=1)]
     )
-    dataset = datasets.POKERDVS(save_to="./data", train=False, transform=preprocess)
+    dataset = datasets.POKERDVS(save_to="./data", train=True, transform=preprocess)
 
     dataset_cached = CachedDataset(dataset, transform=augmentation, num_copies=4)
 
