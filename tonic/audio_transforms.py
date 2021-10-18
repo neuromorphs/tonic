@@ -188,12 +188,10 @@ class AddNoise:
 
     def get_noise_sample(self, sample_len: int) -> torch.Tensor:
         """Get a random noise sample from the dataset"""
-        print(sample_len)
         # Find noise sample of minimum length
         while True:
             noise_idx = torch.randint(0, len(self.dataset), (1,)).item()
             noise = self.dataset[noise_idx][0]
-            print(noise.shape)
             if noise.shape[1] >= sample_len:
                 break
         # Sample a random part of the data recording
