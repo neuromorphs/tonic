@@ -96,8 +96,8 @@ class ButterFilter:
 
     def __post_init__(self):
         b_coeffs, a_coeffs = butter(self.order, self.freq, analog=self.analog, btype=self.btype, output="ba")
-        b_coeffs = torch.tensor(b_coeffs)
-        a_coeffs = torch.tensor(a_coeffs)
+        b_coeffs = torch.tensor(b_coeffs).float()
+        a_coeffs = torch.tensor(a_coeffs).float()
         self.filter = LFilter(a_coeffs, b_coeffs, self.clamp)
 
     def __call__(self, data):
