@@ -308,12 +308,7 @@ class TestTransforms:
         assert len(events) == len(orig_events)
         assert np.min(events["t"]) >= offset
         assert (events["t"] == (events["t"]).astype(int)).all()
-
-        if coefficient > 1:
-            assert (events["t"] - offset > orig_events["t"]).all()
-
-        if coefficient < 1:
-            assert (events["t"] - offset < orig_events["t"]).all()
+        assert all((orig_events["t"] * coefficient + offset).astype(int) == events["t"])
         assert events is not orig_events
 
     @pytest.mark.parametrize("n_noise_events", [100, 0])
