@@ -8,6 +8,9 @@ from tonic.download_utils import check_integrity, download_url
 class VPR(Dataset):
     """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805>.
     Events have (txyp) ordering.
+    
+    .. note::  To be able to read this dataset and its GPS files, you will need the `pynmea2` package installed. 
+
     ::
 
         @article{fischer2020event,
@@ -58,8 +61,8 @@ class VPR(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to, transform=None):
-        super(VPR, self).__init__(save_to, transform=transform)
+    def __init__(self, save_to, transform=None, target_transform=None):
+        super(VPR, self).__init__(save_to, transform=transform, target_transform=target_transform)
 
         if not self._check_exists():
             self.download()

@@ -40,6 +40,11 @@ DAVIS Event Camera Dataset
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: DAVISDATA
     :members: __getitem__
+    
+DSEC
+^^^^
+.. autoclass:: DSEC
+    :members: __getitem__
 
 DVS gestures
 ^^^^^^^^^^^^

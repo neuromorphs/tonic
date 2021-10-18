@@ -3,7 +3,7 @@ import struct
 import loris
 import numpy as np
 
-events_struct = [("x", np.uint16), ("y", np.uint16), ("t", np.int64), ("p", bool)]
+events_struct = [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
 
 
 def make_structured_array(x, y, t, p, dtype=events_struct):
@@ -77,10 +77,6 @@ def read_dvs_ibm(filename):
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
 
-    # x = (all_addr >> 17) & 0x007F
-    # y = (all_addr >> 2) & 0x007F
-    # p = (all_addr >> 1) & 0x1
-
     x = (all_addr >> 17) & 0x00001FFF
     y = (all_addr >> 2) & 0x00001FFF
     p = (all_addr >> 1) & 0x00000001
@@ -111,7 +107,7 @@ def read_dvs_red(filename):
     p = (all_addr >> 1) & 0x1
 
     xytp = make_structured_array(x, y, t, p)
-    shape = (132, 104)
+    shape = (346, 260)
     return shape, xytp
 
 
@@ -137,7 +133,7 @@ def read_dvs_346mini(filename):
     p = (all_addr >> 11) & 0x1
 
     xytp = make_structured_array(x, y, t, p)
-    shape = (260, 346)
+    shape = (132, 104)
     return shape, xytp
 
 
@@ -172,7 +168,6 @@ def read_mnist_file(bin_file, dtype):
         all_p[td_indices],
         dtype,
     )
-
     return xytp
 
 
