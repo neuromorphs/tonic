@@ -1,6 +1,6 @@
 collation
 =============
 
-PadTensor
----------
-.. autoclass:: tonic.collation.PadTensor
+PadTensors
+----------
+.. autoclass:: tonic.collation.PadTensors

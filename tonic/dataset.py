@@ -19,7 +19,7 @@ class Dataset:
     def __repr__(self):
         return "Dataset " + self.__class__.__name__
 
-    def download(self):
+    def download(self) -> None:
         """
         Downloads from a given url, places into target folder and verifies the file hash.
         """
@@ -27,7 +27,7 @@ class Dataset:
             self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
         )
 
-    def _is_file_present(self):
+    def _is_file_present(self) -> bool:
         """
         Check if the dataset file (can be .zip, .rosbag, .hdf5,...) is present on disk. No hashing.
         """
