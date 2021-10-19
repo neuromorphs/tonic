@@ -55,21 +55,21 @@ class Denoise:
 
 @dataclass(frozen=True)
 class DropEvent:
-    """Randomly drops events with drop_probability.
+    """Randomly drops events with p.
 
     Parameters:
-        drop_probability (float): probability of dropping out event.
-        random_drop_probability (bool): randomize the dropout probability
-                                 between 0 and drop_probability.
+        p (float): probability of dropping out event.
+        random_p (bool): randomize the dropout probability
+                                 between 0 and p.
     """
 
-    drop_probability: float = 0.5
-    random_drop_probability: bool = False
+    p: float = 0.5
+    random_p: bool = False
 
     def __call__(self, events):
 
         return functional.drop_event_numpy(
-            events, self.drop_probability, self.random_drop_probability
+            events, self.p, self.random_p
         )
 
 
@@ -185,21 +185,21 @@ class RandomCrop:
 
 @dataclass(frozen=True)
 class RandomFlipPolarity:
-    """Flips polarity of individual events with flip_probability.
+    """Flips polarity of individual events with p.
     Changes polarities 1 to -1 and polarities [-1, 0] to 1
 
     Parameters:
-        flip_probability (float): probability of flipping individual event polarities
+        p (float): probability of flipping individual event polarities
     """
 
-    flip_probability: float = 0.5
+    p: float = 0.5
 
     def __call__(self, events):
         events = events.copy()
         assert "p" in events.dtype.names
         flips = np.ones(len(events))
         probs = np.random.rand(len(events))
-        flips[probs < self.flip_probability] = -1
+        flips[probs < self.p] = -1
         events["p"] = events["p"] * flips
         return events
 
@@ -212,16 +212,16 @@ class RandomFlipLR:
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
-        flip_probability (float): probability of performing the flip
+        p (float): probability of performing the flip
     """
 
     sensor_size: Tuple[int, int, int]
-    flip_probability: float = 0.5
+    p: float = 0.5
 
     def __call__(self, events):
         events = events.copy()
         assert "x" in events.dtype.names
-        if np.random.rand() <= self.flip_probability:
+        if np.random.rand() <= self.p:
             events["x"] = self.sensor_size[0] - 1 - events["x"]
         return events
 
@@ -235,16 +235,16 @@ class RandomFlipUD:
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
-        flip_probability (float): probability of performing the flip
+        p (float): probability of performing the flip
     """
 
     sensor_size: Tuple[int, int, int]
-    flip_probability: float = 0.5
+    p: float = 0.5
 
     def __call__(self, events):
         events = events.copy()
         assert "y" in events.dtype.names
-        if np.random.rand() <= self.flip_probability:
+        if np.random.rand() <= self.p:
             events["y"] = self.sensor_size[1] - 1 - events["y"]
         return events
 
@@ -259,15 +259,15 @@ class RandomTimeReversal:
            p_i' = -1 * p_i
 
     Parameters:
-        flip_probability (float): probability of performing the flip
+        p (float): probability of performing the flip
     """
 
-    flip_probability: float = 0.5
+    p: float = 0.5
 
     def __call__(self, events):
         events = events.copy()
         assert "t" and "p" in events.dtype.names
-        if np.random.rand() < self.flip_probability:
+        if np.random.rand() < self.p:
             events["t"] = np.max(events["t"]) - events["t"]
             events["p"] *= -1
         return events

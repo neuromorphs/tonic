@@ -14,7 +14,7 @@ class TestChainedTransforms:
         sigma_x_y = 0
         transform = transforms.Compose(
             [
-                transforms.RandomTimeReversal(flip_probability=flip_probability),
+                transforms.RandomTimeReversal(p=flip_probability),
                 transforms.SpatialJitter(
                     sensor_size=sensor_size,
                     variance_x=variance_x,
@@ -60,9 +60,9 @@ class TestChainedTransforms:
 
         transform = transforms.Compose(
             [
-                transforms.DropEvent(drop_probability=drop_probability),
+                transforms.DropEvent(p=drop_probability),
                 transforms.RandomFlipUD(
-                    sensor_size=sensor_size, flip_probability=flip_probability
+                    sensor_size=sensor_size, p=flip_probability
                 ),
             ]
         )
@@ -103,9 +103,9 @@ class TestChainedTransforms:
         transform = transforms.Compose(
             [
                 transforms.TimeSkew(coefficient=coefficient, offset=offset),
-                transforms.RandomFlipPolarity(flip_probability=flip_probability_pol),
+                transforms.RandomFlipPolarity(p=flip_probability_pol),
                 transforms.RandomFlipLR(
-                    sensor_size=sensor_size, flip_probability=flip_probability_lr
+                    sensor_size=sensor_size, p=flip_probability_lr
                 ),
             ]
         )

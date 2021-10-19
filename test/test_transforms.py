@@ -24,28 +24,28 @@ class TestTransforms:
         assert events is not orig_events
 
     @pytest.mark.parametrize(
-        "drop_probability, random_drop_probability", [(0.2, False), (0.5, True)]
+        "p, random_p", [(0.2, False), (0.5, True)]
     )
-    def test_transform_drop_events(self, drop_probability, random_drop_probability):
+    def test_transform_drop_events(self, p, random_p):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.DropEvent(
-            drop_probability=drop_probability,
-            random_drop_probability=random_drop_probability,
+            p=p,
+            random_p=random_p,
         )
 
         events = transform(orig_events)
 
-        if random_drop_probability:
-            assert events.shape[0] >= (1 - drop_probability) * orig_events.shape[0], (
+        if random_p:
+            assert events.shape[0] >= (1 - p) * orig_events.shape[0], (
                 "Event dropout with random drop probability should result in less than "
-                " drop_probability*len(original) events dropped out."
+                " p*len(original) events dropped out."
             )
         else:
             assert np.isclose(
-                events.shape[0], (1 - drop_probability) * orig_events.shape[0]
+                events.shape[0], (1 - p) * orig_events.shape[0]
             ), (
-                "Event dropout should result in drop_probability*len(original) events"
+                "Event dropout should result in p*len(original) events"
                 " dropped out."
             )
         assert np.isclose(
@@ -111,12 +111,12 @@ class TestTransforms:
         ), "Cropping needs to map the events into the new space."
         assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1.0, 1.0])
-    def test_transform_flip_lr(self, flip_probability):
+    @pytest.mark.parametrize("p", [1.0, 1.0])
+    def test_transform_flip_lr(self, p):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.RandomFlipLR(
-            sensor_size=sensor_size, flip_probability=flip_probability
+            sensor_size=sensor_size, p=p
         )
 
         events = transform(orig_events)
@@ -127,15 +127,15 @@ class TestTransforms:
         )
         assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1.0, 0])
-    def test_transform_flip_polarity(self, flip_probability):
+    @pytest.mark.parametrize("p", [1.0, 0])
+    def test_transform_flip_polarity(self, p):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipPolarity(flip_probability=flip_probability)
+        transform = transforms.RandomFlipPolarity(p=p)
 
         events = transform(orig_events)
 
-        if flip_probability == 1:
+        if p == 1:
             assert np.array_equal(orig_events["p"] * -1, events["p"]), (
                 "When flipping polarity with probability 1, all event polarities must"
                 " flip"
@@ -147,12 +147,12 @@ class TestTransforms:
             )
         assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1.0, 1.0])
-    def test_transform_flip_ud(self, flip_probability):
+    @pytest.mark.parametrize("p", [1.0, 1.0])
+    def test_transform_flip_ud(self, p):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.RandomFlipUD(
-            sensor_size=sensor_size, flip_probability=flip_probability
+            sensor_size=sensor_size, p=p
         )
 
         events = transform(orig_events)
@@ -277,8 +277,8 @@ class TestTransforms:
             ).all()
         assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1000, 50])
-    def test_transform_time_reversal(self, flip_probability):
+    @pytest.mark.parametrize("p", [1000, 50])
+    def test_transform_time_reversal(self, p):
         orig_events, sensor_size = create_random_input()
 
         original_t = orig_events["t"][0]
@@ -286,7 +286,7 @@ class TestTransforms:
 
         max_t = np.max(orig_events["t"])
 
-        transform = transforms.RandomTimeReversal(flip_probability=flip_probability)
+        transform = transforms.RandomTimeReversal(p=p)
 
         events = transform(orig_events)
 
