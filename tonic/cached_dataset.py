@@ -107,3 +107,6 @@ class CachedDataset:
                 f"{self.transform}{self.target_transform}".encode()
             ).hexdigest()
         return Path(self.cache_path) / f"{item}_{copy}_{transform_hash}.h5"
+
+    def __len__(self):
+        return len(self.dataset)
