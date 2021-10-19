@@ -5,7 +5,7 @@ import numpy as np
 
 events_struct = [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
 
-
+# many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
 def make_structured_array(x, y, t, p, dtype=events_struct):
     """
     Make a structured array given lists of x, y, t, p
