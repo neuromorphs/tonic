@@ -14,53 +14,42 @@ def save_to_cache(data, targets, file_path: Union[str, Path]) -> None:
     Save data to caching path on disk in an hdf5 file. Can deal with data
     that is a dictionary.
     Args:
-        data: numpy ndarray-like, a list or dictionary thereof.
+        data: numpy ndarray-like or a list thereof.
         targets: same as data, can be None.
         file_path: caching file path.
     """
     with h5py.File(file_path, "w") as f:
-        # can be events, frames, imu, gps, target etc.
-        if type(data) != tuple:
-            data = (data,)
-        for i, data_piece in enumerate(data):
-            if type(data_piece) == dict:
-                for key, item in data_piece.items():
-                    f.create_dataset(f"data/{i}/{key}", data=item, compression='lzf')
-            else:
-                f.create_dataset(f"data/{i}", data=data_piece, compression='lzf')
-        if type(targets) != tuple:
-            targets = (targets,)
-        for j, target_piece in enumerate(targets):
-            if type(target_piece) == dict:
-                for key, item in target_piece.items():
-                    f.create_dataset(f"target/{j}/{key}", data=item)
-            else:
-                f.create_dataset(f"target/{j}", data=target_piece)
+        for name, data in zip(["data", "target"], [data, targets]):
+            if type(data) != tuple: data = (data,)
+            # can be events, frames, imu, gps, target etc.
+            for i, data_piece in enumerate(data):
+                if type(data_piece) == dict:
+                    for key, item in data_piece.items():
+                        f.create_dataset(f"{name}/{i}/{key}", data=item, compression='lzf' if type(item) == np.ndarray else None)
+                else:
+                    f.create_dataset(f"{name}/{i}", data=data_piece, compression='lzf' if type(data_piece) == np.ndarray else None)
 
 
 def load_from_cache(file_path: Union[str, Path]) -> Tuple:
     """
-    Load data from cache
+    Load data from file cache, separately for (data) and (targets). Can assemble dictionaries back together.
     Args:
-        file_path:
+        file_path: caching file path.
     Returns:
-        data
+        data, targets
     """
     data_list = []
     target_list = []
     with h5py.File(file_path, "r") as f:
-        for index in f['data'].keys():
-            if hasattr(f[f"data/{index}"], "keys"):
-                data = {key: f[f"data/{index}/{key}"][()] for key in f[f"data/{index}"].keys()}
-            else:
-                data = f[f"data/{index}"][()]
-            data_list.append(data)
-        for index in f['target'].keys():
-            if hasattr(f[f"target/{index}"], "keys"):
-                target = {key: f[f"target/{index}/{key}"][()] for key in f[f"target/{index}"].keys()}
-            else:
-                target = f[f"target/{index}"][()]
-            target_list.append(target)
+        for name, _list in zip(["data", "target"], [data_list, target_list]):
+            for index in f[name].keys():
+                if hasattr(f[f"{name}/{index}"], "keys"):
+                    data = {key: f[f"{name}/{index}/{key}"][()] for key in f[f"{name}/{index}"].keys()}
+                else:
+                    data = f[f"{name}/{index}"][()]
+                _list.append(data)
+    if len(data_list) == 1: data_list = data_list[0]
+    if len(target_list) == 1: target_list = target_list[0]
     return data_list, target_list
 
 
@@ -84,7 +73,7 @@ class CachedDataset:
             This is a useful parameter if the dataset is being augmented with slow, random transforms.
     """
 
-    dataset: Optional[Iterable] = None
+    dataset: Iterable
     cache_path: str
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
@@ -99,7 +88,6 @@ class CachedDataset:
             self.n_samples = len([name for name in os.listdir(self.cache_path) if os.path.isfile(name) and name.endswith('.hdf5')]) // self.num_copies
         else:
             self.n_samples = len(self.dataset)
-            
 
     def __getitem__(self, item) -> (object, object):
         copy = np.random.randint(self.num_copies)
