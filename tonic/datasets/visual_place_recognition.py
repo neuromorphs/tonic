@@ -85,7 +85,12 @@ class VPR(Dataset):
         imu = topics["/dvs/imu"]
         imu["ts"] = ((imu["ts"]-imu["ts"][0]) * 1e6).astype(int)
         images = topics["/dvs/image_raw"]
-        #         images["frames"] = np.stack(images["frames"]) # errors for some recordings
+        incorrect_shape_indices = [i for i, image in enumerate(images["frames"]) if not (image.shape[0] == 260 and image.shape[1] == 346)]
+        for index in incorrect_shape_indices: # fix frame shapes that don't match for some reason
+            shape_diff_x = self.sensor_size[0] - images["frames"][index].shape[1]
+            shape_diff_y = self.sensor_size[1] - images["frames"][index].shape[0]
+            images["frames"][index] = np.pad(images["frames"][index], [(0,shape_diff_y), (0,shape_diff_x), (0,0)])
+        images["frames"] = np.stack(images["frames"]) # errors for some recordings
         images["ts"] = ((images["ts"] - images["ts"][0]) * 1e6).astype(int)
         data = events, imu, images
 
