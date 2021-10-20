@@ -32,7 +32,7 @@ def test_linear_butter_filter_bank():
     import torch
 
     fb = LinearButterFilterBank(order=2, low_freq=100, sampling_freq=16000, num_filters=16, clamp=False)
-    data = torch.rand((1, 16_000)).double()
+    data = torch.rand((1, 16_000)).float()
 
     filter_out = fb(data)
     assert filter_out.shape == (16, 16_000)
@@ -43,7 +43,7 @@ def test_mel_butter_filter_bank():
     import torch
 
     fb = MelButterFilterBank(order=2, low_freq=100, sampling_freq=16000, num_filters=16, clamp=False)
-    data = torch.rand((1, 16_000)).double()
+    data = torch.rand((1, 16_000)).float()
 
     filter_out = fb(data)
     assert filter_out.shape == (16, 16_000)

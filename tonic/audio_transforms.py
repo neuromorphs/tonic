@@ -93,6 +93,7 @@ class ButterFilter:
     analog: bool
     btype: str
     clamp: bool
+    rectify: bool
 
     def __post_init__(self):
         b_coeffs, a_coeffs = butter(self.order, self.freq, analog=self.analog, btype=self.btype, output="ba")
@@ -100,8 +101,12 @@ class ButterFilter:
         a_coeffs = torch.tensor(a_coeffs).float()
         self.filter = LFilter(a_coeffs, b_coeffs, self.clamp)
 
-    def __call__(self, data):
-        return self.filter(data)
+    def __call__(self, data: torch.Tensor) -> torch.Tensor:
+        out = self.filter(data)
+        if self.rectify:
+            return torch.abs(out)
+        else:
+            return out
 
 
 @dataclass
@@ -109,9 +114,10 @@ class ButterFilterBank:
     order: int
     freq: List[Tuple[float, float]]
     clamp: bool
+    rectify: bool
 
     def __post_init__(self):
-        self.filters = [ButterFilter(self.order, freq, analog=False, btype="band", clamp=self.clamp) for freq in self.freq]
+        self.filters = [ButterFilter(self.order, freq, analog=False, btype="band", clamp=self.clamp, rectify=self.rectify) for freq in self.freq]
 
     def __call__(self, data):
         return torch.cat([filt(data) for filt in self.filters], dim=0)
@@ -124,6 +130,7 @@ class LinearButterFilterBank:
     sampling_freq: float = 16000
     num_filters: int = 64
     clamp: bool = False
+    rectify: bool = True
 
     def compute_freq_bands(self):
         filter_bandwidth = 2 / self.num_filters
@@ -136,7 +143,7 @@ class LinearButterFilterBank:
 
     def __post_init__(self):
         freq_bands = self.compute_freq_bands()
-        self.filterbank = ButterFilterBank(order=self.order, freq=freq_bands, clamp=self.clamp)
+        self.filterbank = ButterFilterBank(order=self.order, freq=freq_bands, clamp=self.clamp, rectify=self.rectify)
 
     def __call__(self, data):
         return self.filterbank(data)
