@@ -72,9 +72,7 @@ class SlicedDataset:
     def __getitem__(self, item) -> Any:
         dataset_index, slice_index = self.slice_dataset_map[item]
         data, targets = self.dataset[dataset_index]
-        data_slice = self.slicer.slice_with_metadata(
-            data, self.metadata[dataset_index][slice_index]
-        )
+        data_slice = self.slicer.slice_with_metadata(data, [self.metadata[dataset_index][slice_index],])[0]
         # TODO: target slicing
         if self.transform:
             data_slice = self.transform(data_slice)
