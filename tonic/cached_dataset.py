@@ -9,56 +9,85 @@ import numpy as np
 import logging
 
 
-def save_to_cache(processed_data, fname: Union[str, Path]) -> None:
+def save_to_cache(data, targets, file_path: Union[str, Path]) -> None:
     """
-    Save data to cache
+    Save data to caching path on disk in an hdf5 file. Can deal with data
+    that is a dictionary.
     Args:
-        processed_data:
-        fname:
+        data: numpy ndarray-like, a list or dictionary thereof.
+        targets: same as data, can be None.
+        file_path: caching file path.
     """
-    with h5py.File(fname, "w") as f:
+    with h5py.File(file_path, "w") as f:
         # can be events, frames, imu, gps, target etc.
-        for j, data_piece in enumerate(processed_data):
-            f.create_dataset(f"{j}", data=data_piece)
+        if type(data) != tuple:
+            data = (data,)
+        for i, data_piece in enumerate(data):
+            if type(data_piece) == dict:
+                for key, item in data_piece.items():
+                    f.create_dataset(f"data/{i}/{key}", data=item, compression='lzf')
+            else:
+                f.create_dataset(f"data/{i}", data=data_piece, compression='lzf')
+        if type(targets) != tuple:
+            targets = (targets,)
+        for j, target_piece in enumerate(targets):
+            if type(target_piece) == dict:
+                for key, item in target_piece.items():
+                    f.create_dataset(f"target/{j}/{key}", data=item)
+            else:
+                f.create_dataset(f"target/{j}", data=target_piece)
 
 
-def load_from_cache(fname: Union[str, Path]) -> Tuple:
+def load_from_cache(file_path: Union[str, Path]) -> Tuple:
     """
     Load data from cache
     Args:
-        fname:
+        file_path:
     Returns:
         data
     """
-    with h5py.File(fname, "r") as f:
-        data = tuple(f[key][()] for key in f.keys())
-    return data
+    data_list = []
+    target_list = []
+    with h5py.File(file_path, "r") as f:
+        for index in f['data'].keys():
+            if hasattr(f[f"data/{index}"], "keys"):
+                data = {key: f[f"data/{index}/{key}"][()] for key in f[f"data/{index}"].keys()}
+            else:
+                data = f[f"data/{index}"][()]
+            data_list.append(data)
+        for index in f['target'].keys():
+            if hasattr(f[f"target/{index}"], "keys"):
+                target = {key: f[f"target/{index}/{key}"][()] for key in f[f"target/{index}"].keys()}
+            else:
+                target = f[f"target/{index}"][()]
+            target_list.append(target)
+    return data_list, target_list
 
 
 @dataclass
 class CachedDataset:
     """
     CachedDataset caches the data samples to the hard drive for subsequent reads, thereby potentially improving data loading speeds.
-    This object is an iterator and can be used in place of the original dataset.
+    If dataset is None, then the length of this dataset will be inferred from the number of files in the caching folder. 
 
-    Args:
+    Parameters:
         dataset:
-            Dataset to be cached
+            Dataset to be cached. Can be None, if only files in cache_path should be used.
+        cache_path:
+            The preferred path where the cache will be written to and read from. Default is ./cache
         transform:
             Transforms to be applied on the data
         target_transform:
-            Transforms to be applied on the label
-        cache_path:
-            The preferred path where the cache will be written. Defaults to `./cache/`
+            Transforms to be applied on the label/targets
         num_copies:
             Number of copies of each sample to be cached.
-            This is a useful parameter if the dataset is being augmented with slow random transforms.
+            This is a useful parameter if the dataset is being augmented with slow, random transforms.
     """
 
-    dataset: Iterable
+    dataset: Optional[Iterable] = None
+    cache_path: str
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
-    cache_path: str = "./cache/"
     num_copies: int = 1
 
     def __post_init__(self):
@@ -66,50 +95,32 @@ class CachedDataset:
         # Create cache directory
         if not os.path.isdir(self.cache_path):
             os.makedirs(self.cache_path)
+        if self.dataset is None:
+            self.n_samples = len([name for name in os.listdir(self.cache_path) if os.path.isfile(name) and name.endswith('.hdf5')]) // self.num_copies
+        else:
+            self.n_samples = len(self.dataset)
+            
 
     def __getitem__(self, item) -> (object, object):
         copy = np.random.randint(self.num_copies)
-        fname = self.cache_fname_from_index(item, copy)
+        file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
         try:
-            data = load_from_cache(fname)
+            data, targets = load_from_cache(file_path)
         except FileNotFoundError as _:
             logging.info(
-                f"Data {item}: {fname} not in cache, generating it now", stacklevel=2
+                f"Data {item}: {file_path} not in cache, generating it now", stacklevel=2
             )
-            data = self.dataset[item]
-            save_to_cache(data, fname=fname)
+            data, targets = self.dataset[item]
+            save_to_cache(data, targets, file_path=file_path)
+            # format might change during save to hdf5,
+            # i.e. tensors -> np arrays
+            data, targets = load_from_cache(file_path)
 
-        data = list(data)
         if self.transform:
-            data[0] = self.transform(data[0])
+            data = self.transform(data)
         if self.target_transform:
-            data[-1] = self.target_transform(data[-1])
-        return data
+            targets = self.target_transform(targets)
+        return data, targets
 
     def __len__(self):
-        return len(self.dataset)
-
-    def cache_fname_from_index(self, item, copy: int = 0) -> Path:
-        """
-        Define a file naming scheme given an index of data
-        Args:
-            item:
-                item number
-            copy:
-                index of the particular copy to fetch from the cache
-
-        Returns:
-            filename
-        """
-        try:
-            transform_hash = hashlib.sha1(
-                f"{self.dataset.transform}{self.dataset.target_transform}".encode()
-            ).hexdigest()
-        except RuntimeError:
-            warn(
-                f"Parent dataset does not have transform and target_transform, which will lead to inconsistent caching results."
-            )
-            transform_hash = hashlib.sha1(
-                f"{self.transform}{self.target_transform}".encode()
-            ).hexdigest()
-        return Path(self.cache_path) / f"{item}_{copy}_{transform_hash}.h5"
+        return self.n_samples

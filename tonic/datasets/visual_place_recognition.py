@@ -83,8 +83,10 @@ class VPR(Dataset):
         )
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         imu = topics["/dvs/imu"]
+        imu["ts"] = ((imu["ts"]-imu["ts"][0]) * 1e6).astype(int)
         images = topics["/dvs/image_raw"]
         #         images["frames"] = np.stack(images["frames"]) # errors for some recordings
+        images["ts"] = ((images["ts"] - images["ts"][0]) * 1e6).astype(int)
         data = events, imu, images
 
         targets = self.read_gps_file(

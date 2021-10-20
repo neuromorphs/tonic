@@ -17,7 +17,7 @@ class Dataset:
         self.folder_name = ""
 
     def __repr__(self):
-        return "Dataset " + self.__class__.__name__
+        return self.__class__.__name__
 
     def download(self) -> None:
         """
