@@ -21,6 +21,7 @@ __Tonic__ provides publicly available event-based vision and audio datasets and 
 * **{doc}`Learn how to load data fast<tutorials/fast_dataloading>`** using disk-caching.
 * **{doc}`Batching when using events<tutorials/batching>`** is straightforward.
 * **{doc}`Slice your dataset into smaller chunks<tutorials/slicing>`** if you need to.
+* **{doc}`How to work with larger datasets that output multiple data<tutorials/large_datasets>`** for heavy-duty processing.
 * **{doc}`If you have your own data<tutorials/slicing>`** you can still use Tonic.
 
 ### API reference
@@ -49,6 +50,7 @@ getting_started/training_snn
 tutorials/nmnist
 tutorials/davis_data
 tutorials/fast_dataloading
+tutorials/large_datasets
 tutorials/batching
 tutorials/slicing
 tutorials/wrapping_own_data
