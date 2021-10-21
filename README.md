@@ -4,23 +4,30 @@
 [![codecov](https://codecov.io/gh/neuromorphs/tonic/branch/develop/graph/badge.svg?token=Q0BMYGUSZQ)](https://codecov.io/gh/neuromorphs/tonic)
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
 
 
-**Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. Have a look at the list of [supported datasets](https://tonic.readthedocs.io/en/latest/datasets.html) and [transformations](https://tonic.readthedocs.io/en/latest/transformations.html)!
-It's fully compatible with PyTorch Vision/Audio for an intuitive interface, so that you spend less time worrying about how to read files and more time on things that matter.
+**Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. It's like PyTorch Vision but for neuromorphic data!
+
+:rocket: **Stable version 1 out now!** [Check out the release notes here](https://tonic.readthedocs.io/en/latest/about/release_notes.html).
 
 ## Documentation
 You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
+
+* [Never worked with events?](https://tonic.readthedocs.io/en/latest/getting_started/intro-event-cameras.html) Start here.
+* [A first example](https://tonic.readthedocs.io/en/latest/tutorials/nmnist.html) to get a feeling for how Tonic works.
+* [Run tutorials in your browser](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials) quick and easy.
+* [List of datasets](https://tonic.readthedocs.io/en/latest/reference/datasets.html).
+* [List of transformations](https://tonic.readthedocs.io/en/latest/reference/transformations.html).
+* [About](https://tonic.readthedocs.io/en/latest/about/about.html) this project.
+* [Release notes](https://tonic.readthedocs.io/en/latest/about/release_notes.html) on version changes.
 
 ## Install
 ```bash
 pip install tonic
 ```
-If you prefer conda, please check out the [forge repository](https://github.com/conda-forge/tonic-feedstock).
-
-## Getting started
-Have a look at our [introduction](https://tonic.readthedocs.io/en/latest/getting_started.html) page to see how some of the moving parts work. There are some more short examples available [here](https://tonic.readthedocs.io/en/latest/examples.html).
+If you prefer conda, please check out the [conda forge repository](https://github.com/conda-forge/tonic-feedstock).
 
 ## Quickstart
 If you're looking for a minimal example to run, this is it!
@@ -47,10 +54,10 @@ events, target = next(iter(testloader))
 Have a question about how something works? Ideas for improvement? Feature request? Please get in touch here on GitHub via the [Discussions](https://github.com/neuromorphs/tonic/discussions) page!
 
 ## Contributing
-Please check out the [contributions]() page for details.
+Please check out the [contributions](https://tonic.readthedocs.io/en/latest/about/contribute.html) page for details.
 
 ## Citation
-If you find this package helpful, please use the following citation:
+If you find this package helpful, please consider citing it:
 
 ```BibTex
 @software{lenz_gregor_2021_5079802,
