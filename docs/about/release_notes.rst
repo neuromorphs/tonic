@@ -4,6 +4,7 @@ Release notes
 1.0.0
 -----
 This is a major release where we focused on performance improvements. In the interest of future maintainability, there are a few breaking changes.
+
 * dataset downloads and instantiation: The `download` parameter has been removed from all datasets. When previously we did slow hashing of files to verify strict file integrity, this is now only done once after the download is completed. The next time the same dataset is instantiated, only lightweight checks are going to be run to check if the right filenames and number of files are present. This considerably speeds up training scripts overall.
 * renamed some stochastic transforms for better consistency
 * default download path for datasets has changed. For previous Tonic users, it is recommended to just clear your data directory and download datasets again to avoid duplication on your hard drive.
