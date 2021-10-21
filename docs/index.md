@@ -16,6 +16,7 @@ __Tonic__ provides publicly available event-based vision and audio datasets and 
 * **{doc}`Links to external spiking neural network simulators<getting_started/intro-snns>`** to train your network.
 
 ### Tutorials
+If you want you can [run them yourself](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials) in your browser using Binder.
 * **{doc}`Run a first example<tutorials/nmnist>`** with this neuromorphic version of the MNIST dataset.
 * **{doc}`Load images alongside events<tutorials/davis_data>`** and apply augmentations.
 * **{doc}`Learn how to load data fast<tutorials/fast_dataloading>`** using disk-caching.
