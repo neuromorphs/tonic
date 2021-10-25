@@ -1,5 +1,5 @@
-Transforms
-==========================
+transforms
+============
 
 .. currentmodule:: tonic.transforms
 
@@ -34,21 +34,21 @@ Merge polarities
 ^^^^^^^^^^^^^^^^^
 .. autoclass:: MergePolarities
 
-Cropping
-^^^^^^^^
+Random crop
+^^^^^^^^^^^^
 .. autoclass:: RandomCrop
 
-Flip left/right and up/down
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Randomly flip left/right and up/down
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: RandomFlipLR
 .. autoclass:: RandomFlipUD
 
-Flip polarities
-^^^^^^^^^^^^^^^
+Randomly flip polarities
+^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: RandomFlipPolarity
 
-Reverse time
-^^^^^^^^^^^^
+Randomly reverse time
+^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: RandomTimeReversal
 
 Jitter events spatially
@@ -67,7 +67,9 @@ Refractory periods
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: RefractoryPeriod
 
-
+Align at time zero
+^^^^^^^^^^^^^^^^^^
+.. autoclass:: TimeAlignment
 
 Transform time
 ^^^^^^^^^^^^^^

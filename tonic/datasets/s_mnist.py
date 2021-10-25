@@ -2,10 +2,7 @@ import os
 import numpy as np
 from struct import unpack
 from tonic.dataset import Dataset
-from tonic.download_utils import (
-    download_and_extract_archive,
-    extract_archive,
-)
+from tonic.download_utils import download_and_extract_archive, extract_archive
 
 
 class SMNIST(Dataset):
@@ -24,7 +21,7 @@ class SMNIST(Dataset):
                                                 otherwise testing subset.
         duplicate (bool):                       If True, emits two spikes
                                                 per threshold crossing
-        num_neurons (integer):                  How many neurons to use to encode 
+        num_neurons (integer):                  How many neurons to use to encode
                                                 thresholds(must be odd)
         dt (float):                             Duration(in microseconds)
                                                 of each timestep

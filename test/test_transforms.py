@@ -11,7 +11,7 @@ class TestTransforms:
 
         transform = transforms.Denoise(filter_time=filter_time)
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) > 0, "Not all events should be filtered"
         assert len(events) < len(
@@ -21,35 +21,37 @@ class TestTransforms:
             "Denoising should not add additional events that were not present in"
             " original event stream"
         )
+        assert events is not orig_events
 
     @pytest.mark.parametrize(
-        "drop_probability, random_drop_probability", [(0.2, False), (0.5, True)]
+        "p, random_p", [(0.2, False), (0.5, True)]
     )
-    def test_transform_drop_events(self, drop_probability, random_drop_probability):
+    def test_transform_drop_events(self, p, random_p):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.DropEvent(
-            drop_probability=drop_probability,
-            random_drop_probability=random_drop_probability,
+            p=p,
+            random_p=random_p,
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
-        if random_drop_probability:
-            assert events.shape[0] >= (1 - drop_probability) * orig_events.shape[0], (
+        if random_p:
+            assert events.shape[0] >= (1 - p) * orig_events.shape[0], (
                 "Event dropout with random drop probability should result in less than "
-                " drop_probability*len(original) events dropped out."
+                " p*len(original) events dropped out."
             )
         else:
             assert np.isclose(
-                events.shape[0], (1 - drop_probability) * orig_events.shape[0]
+                events.shape[0], (1 - p) * orig_events.shape[0]
             ), (
-                "Event dropout should result in drop_probability*len(original) events"
+                "Event dropout should result in p*len(original) events"
                 " dropped out."
             )
         assert np.isclose(
             np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
         ), "Event dropout should maintain temporal order."
+        assert events is not orig_events
 
     @pytest.mark.parametrize(
         "coordinates, hot_pixel_frequency",
@@ -66,7 +68,7 @@ class TestTransforms:
             coordinates=coordinates, hot_pixel_frequency=hot_pixel_frequency
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) < len(orig_events)
 
@@ -76,8 +78,7 @@ class TestTransforms:
 
         if hot_pixel_frequency:
             assert not np.logical_and(events["x"] == 1, events["y"] == 1).sum()
-
-    #             import ipdb; ipdb.set_trace()
+        assert events is not orig_events
 
     @pytest.mark.parametrize("time_factor, spatial_factor", [(1, 0.25), (1e-3, 1)])
     def test_transform_downsample(self, time_factor, spatial_factor):
@@ -87,13 +88,14 @@ class TestTransforms:
             time_factor=time_factor, spatial_factor=spatial_factor
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert np.array_equal(
             (orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"]
         )
         assert np.array_equal(np.floor(orig_events["x"] * spatial_factor), events["x"])
         assert np.array_equal(np.floor(orig_events["y"] * spatial_factor), events["y"])
+        assert events is not orig_events
 
     @pytest.mark.parametrize("target_size", [(50, 50), (10, 5)])
     def test_transform_random_crop(self, target_size):
@@ -102,36 +104,38 @@ class TestTransforms:
         transform = transforms.RandomCrop(
             sensor_size=sensor_size, target_size=target_size
         )
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert np.all(events["x"]) < target_size[0] and np.all(
             events["y"] < target_size[1]
         ), "Cropping needs to map the events into the new space."
+        assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1.0, 1.0])
-    def test_transform_flip_lr(self, flip_probability):
+    @pytest.mark.parametrize("p", [1.0, 1.0])
+    def test_transform_flip_lr(self, p):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.RandomFlipLR(
-            sensor_size=sensor_size, flip_probability=flip_probability
+            sensor_size=sensor_size, p=p
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert ((sensor_size[0] - 1) - orig_events["x"] == events["x"]).all(), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
         )
+        assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1.0, 0])
-    def test_transform_flip_polarity(self, flip_probability):
+    @pytest.mark.parametrize("p", [1.0, 0])
+    def test_transform_flip_polarity(self, p):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipPolarity(flip_probability=flip_probability)
+        transform = transforms.RandomFlipPolarity(p=p)
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
-        if flip_probability == 1:
+        if p == 1:
             assert np.array_equal(orig_events["p"] * -1, events["p"]), (
                 "When flipping polarity with probability 1, all event polarities must"
                 " flip"
@@ -141,21 +145,45 @@ class TestTransforms:
                 "When flipping polarity with probability 0, no event polarities must"
                 " flip"
             )
+        assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1.0, 1.0])
-    def test_transform_flip_ud(self, flip_probability):
+    @pytest.mark.parametrize("p", [1.0, 1.0])
+    def test_transform_flip_ud(self, p):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.RandomFlipUD(
-            sensor_size=sensor_size, flip_probability=flip_probability
+            sensor_size=sensor_size, p=p
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert np.array_equal((sensor_size[1] - 1) - orig_events["y"], events["y"]), (
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
         )
+        assert events is not orig_events
+
+    def test_transform_merge_polarities(self):
+        orig_events, sensor_size = create_random_input()
+        transform = transforms.MergePolarities()
+        events = transform(orig_events)
+        assert len(np.unique(orig_events["p"])) == 2
+        assert len(np.unique(events["p"])) == 1
+        assert events is not orig_events
+
+    def test_transform_numpy_array(self):
+        orig_events, sensor_size = create_random_input()
+        transform = transforms.NumpyAsType(int)
+        events = transform(orig_events)
+        assert events.dtype == int
+        assert events is not orig_events
+
+    def test_transform_numpy_array_unstructured(self):
+        orig_events, sensor_size = create_random_input()
+        transform = transforms.NumpyAsType(int)
+        events = transform(orig_events)
+        assert events.dtype == int
+        assert events is not orig_events
 
     @pytest.mark.parametrize("refractory_period", [10000, 5000])
     def test_transform_refractory_period(self, refractory_period):
@@ -163,7 +191,7 @@ class TestTransforms:
 
         transform = transforms.RefractoryPeriod(refractory_period=refractory_period)
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) > 0, "Not all events should be filtered"
         assert len(events) < len(
@@ -175,6 +203,7 @@ class TestTransforms:
             "Added additional events that were not present in original event stream"
         )
         assert events.dtype == events.dtype
+        assert events is not orig_events
 
     @pytest.mark.parametrize(
         "variance, clip_outliers", [(30, False), (100, True), (3.5, True), (0.8, False)]
@@ -190,7 +219,7 @@ class TestTransforms:
             clip_outliers=clip_outliers,
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         if not clip_outliers:
             assert len(events) == len(orig_events)
@@ -217,6 +246,7 @@ class TestTransforms:
 
         else:
             assert len(events) < len(orig_events)
+        assert events is not orig_events
 
     @pytest.mark.parametrize(
         "std, clip_negative, sort_timestamps",
@@ -229,7 +259,7 @@ class TestTransforms:
             std=std, clip_negative=clip_negative, sort_timestamps=sort_timestamps
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         if clip_negative:
             assert (events["t"] >= 0).all()
@@ -245,9 +275,10 @@ class TestTransforms:
                 events["t"] - orig_events["t"]
                 == (events["t"] - orig_events["t"]).astype(int)
             ).all()
+        assert events is not orig_events
 
-    @pytest.mark.parametrize("flip_probability", [1000, 50])
-    def test_transform_time_reversal(self, flip_probability):
+    @pytest.mark.parametrize("p", [1000, 50])
+    def test_transform_time_reversal(self, p):
         orig_events, sensor_size = create_random_input()
 
         original_t = orig_events["t"][0]
@@ -255,34 +286,30 @@ class TestTransforms:
 
         max_t = np.max(orig_events["t"])
 
-        transform = transforms.RandomTimeReversal(flip_probability=flip_probability)
+        transform = transforms.RandomTimeReversal(p=p)
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         same_time = np.isclose(max_t - original_t, events["t"][0])
         same_polarity = np.isclose(events["p"][0], -1.0 * original_p)
 
         assert same_time, "When flipping time must map t_i' = max(t) - t_i"
         assert same_polarity, "When flipping time polarity should be flipped"
-        assert events.dtype == events.dtype
+        assert events is not orig_events
 
-    @pytest.mark.parametrize("coefficient, offset", [(3.1, 100), (0.7, 0), (2.7, 10)])
+    @pytest.mark.parametrize("coefficient, offset", [(3.1, 100), (0.3, 0), (2.7, 10)])
     def test_transform_time_skew(self, coefficient, offset):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.TimeSkew(coefficient=coefficient, offset=offset)
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) == len(orig_events)
         assert np.min(events["t"]) >= offset
         assert (events["t"] == (events["t"]).astype(int)).all()
-
-        if coefficient > 1:
-            assert (events["t"] - offset > orig_events["t"]).all()
-
-        if coefficient < 1:
-            assert (events["t"] - offset < orig_events["t"]).all()
+        assert all((orig_events["t"] * coefficient + offset).astype(int) == events["t"])
+        assert events is not orig_events
 
     @pytest.mark.parametrize("n_noise_events", [100, 0])
     def test_transform_uniform_noise(self, n_noise_events):
@@ -292,19 +319,21 @@ class TestTransforms:
             sensor_size=sensor_size, n_noise_events=n_noise_events
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) == len(orig_events) + n_noise_events
         assert np.isin(orig_events, events).all()
         assert np.isclose(
             np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
         ), "Event noise should maintain temporal order."
+        assert events is not orig_events
 
     def test_transform_time_alignment(self):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.TimeAlignment()
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert np.min(events["t"]) == 0
+        assert events is not orig_events

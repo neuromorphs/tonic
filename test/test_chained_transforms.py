@@ -14,7 +14,7 @@ class TestChainedTransforms:
         sigma_x_y = 0
         transform = transforms.Compose(
             [
-                transforms.RandomTimeReversal(flip_probability=flip_probability),
+                transforms.RandomTimeReversal(p=flip_probability),
                 transforms.SpatialJitter(
                     sensor_size=sensor_size,
                     variance_x=variance_x,
@@ -24,7 +24,7 @@ class TestChainedTransforms:
                 ),
             ]
         )
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
@@ -50,6 +50,7 @@ class TestChainedTransforms:
         assert (
             time_reversal
         ), "Condition of time reversal t_i' = max(t) - t_i has to be fullfilled"
+        assert events is not orig_events
 
     def testDropoutFlipUD(self):
         orig_events, sensor_size = create_random_input()
@@ -59,14 +60,14 @@ class TestChainedTransforms:
 
         transform = transforms.Compose(
             [
-                transforms.DropEvent(drop_probability=drop_probability),
+                transforms.DropEvent(p=drop_probability),
                 transforms.RandomFlipUD(
-                    sensor_size=sensor_size, flip_probability=flip_probability
+                    sensor_size=sensor_size, p=flip_probability
                 ),
             ]
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         drop_events = np.isclose(
             events.shape[0], (1 - drop_probability) * orig_events.shape[0]
@@ -89,6 +90,7 @@ class TestChainedTransforms:
             "When flipping up and down y must map to the opposite pixel, i.e. y' ="
             " sensor width - y"
         )
+        assert events is not orig_events
 
     def testTimeSkewFlipPolarityFlipLR(self):
         orig_events, sensor_size = create_random_input()
@@ -101,14 +103,14 @@ class TestChainedTransforms:
         transform = transforms.Compose(
             [
                 transforms.TimeSkew(coefficient=coefficient, offset=offset),
-                transforms.RandomFlipPolarity(flip_probability=flip_probability_pol),
+                transforms.RandomFlipPolarity(p=flip_probability_pol),
                 transforms.RandomFlipLR(
-                    sensor_size=sensor_size, flip_probability=flip_probability_lr
+                    sensor_size=sensor_size, p=flip_probability_lr
                 ),
             ]
         )
 
-        events = transform(orig_events.copy())
+        events = transform(orig_events)
 
         assert len(events) == len(orig_events)
         assert (events["t"] >= orig_events["t"]).all()
@@ -125,3 +127,4 @@ class TestChainedTransforms:
             "When flipping left and right x must map to the opposite pixel, i.e. x' ="
             " sensor width - x"
         )
+        assert events is not orig_events

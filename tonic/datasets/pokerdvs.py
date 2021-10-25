@@ -1,11 +1,6 @@
 import os
 import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import (
-    check_integrity,
-    download_and_extract_archive,
-    extract_archive,
-)
 
 
 class POKERDVS(Dataset):
@@ -25,13 +20,8 @@ class POKERDVS(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same
-                    name and correct hash is already in the directory, download is automatically skipped.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, targets).
     """
 
     base_url = "https://www.neuromorphic-vision.com/public/downloads/"
@@ -48,17 +38,12 @@ class POKERDVS(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(
-        self, save_to, train=True, download=True, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(POKERDVS, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
 
         self.train = train
-        self.location_on_system = save_to
-        self.data = []
-        self.targets = []
 
         if train:
             self.url = self.train_url
@@ -71,26 +56,22 @@ class POKERDVS(Dataset):
             self.filename = self.test_filename
             self.folder_name = "pips_test"
 
-        if download:
+        if not self._check_exists():
             self.download()
 
-        if not check_integrity(
-            os.path.join(self.location_on_system, self.filename), self.file_md5
-        ):
-            raise RuntimeError(
-                "Dataset not found or corrupted."
-                + " You can use download=True to download it"
-            )
-
-        file_path = self.location_on_system + "/" + self.folder_name
+        file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
             files.sort()
             for file in files:
                 if file.endswith("npy"):
-                    self.data.append(np.load(path + "/" + file))
+                    self.data.append(np.load(os.path.join(path, file)))
                     self.targets.append(self.int_classes[path[-2:]])
 
     def __getitem__(self, index):
+        """
+        Returns:
+            a tuple of (events, target) where target is the index of the target class.
+        """
         events, target = self.data[index], self.targets[index]
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         if self.transform is not None:
@@ -102,7 +83,7 @@ class POKERDVS(Dataset):
     def __len__(self):
         return len(self.data)
 
-    def download(self):
-        download_and_extract_archive(
-            self.url, self.location_on_system, filename=self.filename, md5=self.file_md5
+    def _check_exists(self):
+        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
+            20, ".npy"
         )

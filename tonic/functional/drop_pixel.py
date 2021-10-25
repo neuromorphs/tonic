@@ -3,14 +3,14 @@ import numpy as np
 
 # from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/preprocess.py#L188
 def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
-    """Identifies pixels that fire above above a certain frequency, averaged across 
+    """Identifies pixels that fire above above a certain frequency, averaged across
     whole event recording. Such _hot_ pixels are sometimes caused by faulty hardware.
-    
+
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
         hot_pixel_frequency: number of spikes per pixel allowed for the recording, any pixel
-                             firing above that number will be deactivated. 
-        
+                             firing above that number will be deactivated.
+
     Returns:
         list of (x/y) coordinates for excessively firing pixels.
     """
@@ -31,7 +31,7 @@ def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
 
 
 def drop_pixel_numpy(events: np.ndarray, coordinates):
-    """Drops events for pixel locations that fire 
+    """Drops events for pixel locations that fire
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]

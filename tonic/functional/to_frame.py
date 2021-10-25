@@ -23,7 +23,7 @@ def to_frame_numpy(
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        sensor_size: size of the sensor that was used [W,H]
+        sensor_size: size of the sensor that was used [W,H,P]
         time_window (None): window length in us.
         event_count (None): number of events per frame.
         n_time_bins (None): fixed number of frames, sliced along time axis.
@@ -32,7 +32,7 @@ def to_frame_numpy(
         include_incomplete (False): if True, includes overhang slice when time_window or event_count is specified. Not valid for bin_count methods.
 
     Returns:
-        numpy array of n rate-coded frames with channels p: (NxPxWxH)
+        numpy array with dimensions (TxPxHxW)
     """
     assert "x" and "y" and "t" and "p" in events.dtype.names
 
@@ -53,7 +53,7 @@ def to_frame_numpy(
         sensor_size_y = int(events["y"].max() + 1)
         sensor_size_p = len(np.unique(events["p"]))
         sensor_size = (sensor_size_x, sensor_size_y, sensor_size_p)
-    
+
     if time_window:
         event_slices = slice_by_time(
             events, time_window, overlap=overlap, include_incomplete=include_incomplete
@@ -69,5 +69,9 @@ def to_frame_numpy(
 
     frames = np.zeros((len(event_slices), *sensor_size[::-1]), dtype=int)
     for i, event_slice in enumerate(event_slices):
-        np.add.at(frames, (i, event_slice["p"].astype(int), event_slice["y"], event_slice["x"]), 1)
+        np.add.at(
+            frames,
+            (i, event_slice["p"].astype(int), event_slice["y"], event_slice["x"]),
+            1,
+        )
     return frames

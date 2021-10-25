@@ -1,6 +1,7 @@
 How do I wrap my own recordings?
 ================================
-If you have your own local recordings and want to make use of Tonic for quick dataloading and applying transformations, then you can wrap them in a custom class. You just need to provide a minimum set of methods ``__init__``, ``__getitem__`` and ``__len__`` and you are good to go. Here is a template class that reads event recordings from a local hdf5 file:
+If you have your own recordings on disk and want to make use of Tonic for quick dataloading and applying transformations, then you can wrap them in a custom class.
+The easiest option is to make use of a torchvision `DatasetFolder <https://pytorch.org/vision/main/datasets.html#torchvision.datasets.DatasetFolder>`_ class. If that doesn't apply in your case, you can write your own class, where you provide a minimum set of methods ``__init__``, ``__getitem__`` and ``__len__`` and you are good to go. Here is a template class that reads event recordings from a local hdf5 file:
 ::
 
   import numpy as np

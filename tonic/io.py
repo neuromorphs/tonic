@@ -3,9 +3,9 @@ import struct
 import loris
 import numpy as np
 
-events_struct = [("x", np.uint16), ("y", np.uint16), ("t", np.int64), ("p", bool)]
+events_struct = [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
 
-
+# many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
 def make_structured_array(x, y, t, p, dtype=events_struct):
     """
     Make a structured array given lists of x, y, t, p
@@ -21,7 +21,7 @@ def make_structured_array(x, y, t, p, dtype=events_struct):
     return np.fromiter(zip(x, y, t, p), dtype=dtype)
 
 
-def parse_aedat4(in_file):
+def read_aedat4(in_file):
     """
     Get the aer events from version 4 of .aedat file
 
@@ -33,15 +33,10 @@ def parse_aedat4(in_file):
     """
     event_data = loris.read_file(in_file)
     events = event_data["events"]
-
-    import ipdb
-
-    ipdb.set_trace()
-    xytp = make_structured_array(x, y, t, p)
-    return shape, xytp
+    return shape, events
 
 
-def parse_dvs_128(filename):
+def read_dvs_128(filename):
     """
     Get the aer events from DVS with resolution of rows and cols are (128, 128)
 
@@ -52,7 +47,7 @@ def parse_dvs_128(filename):
             (height, width) of the sensor array
         xytp: numpy structured array of events
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -66,7 +61,7 @@ def parse_dvs_128(filename):
     return shape, xytp
 
 
-def parse_dvs_ibm(filename):
+def read_dvs_ibm(filename):
     """
     Get the aer events from DVS with ibm gesture dataset
 
@@ -77,14 +72,10 @@ def parse_dvs_ibm(filename):
             (height, width) of the sensor array
         xytp: numpy structured array of events
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
-
-    # x = (all_addr >> 17) & 0x007F
-    # y = (all_addr >> 2) & 0x007F
-    # p = (all_addr >> 1) & 0x1
 
     x = (all_addr >> 17) & 0x00001FFF
     y = (all_addr >> 2) & 0x00001FFF
@@ -95,7 +86,7 @@ def parse_dvs_ibm(filename):
     return shape, xytp
 
 
-def parse_dvs_red(filename):
+def read_dvs_red(filename):
     """
     Get the aer events from DVS with resolution of (260, 346)
     Args:
@@ -106,7 +97,7 @@ def parse_dvs_red(filename):
 
         xytp: numpy structured array of events
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -116,11 +107,11 @@ def parse_dvs_red(filename):
     p = (all_addr >> 1) & 0x1
 
     xytp = make_structured_array(x, y, t, p)
-    shape = (132, 104)
+    shape = (346, 260)
     return shape, xytp
 
 
-def parse_dvs_346mini(filename):
+def read_dvs_346mini(filename):
     """
     Get the aer events from DVS with resolution of (132,104)
 
@@ -132,7 +123,7 @@ def parse_dvs_346mini(filename):
         xytp: numpy structure of xytp
 
     """
-    data_version, data_start = parse_aedat_header_from_file(filename)
+    data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -142,7 +133,7 @@ def parse_dvs_346mini(filename):
     p = (all_addr >> 11) & 0x1
 
     xytp = make_structured_array(x, y, t, p)
-    shape = (260, 346)
+    shape = (132, 104)
     return shape, xytp
 
 
@@ -177,11 +168,10 @@ def read_mnist_file(bin_file, dtype):
         all_p[td_indices],
         dtype,
     )
-
     return xytp
 
 
-def parse_aedat_header_from_file(filename):
+def read_aedat_header_from_file(filename):
     """
     Get the aedat file version and start index of the binary data.
 

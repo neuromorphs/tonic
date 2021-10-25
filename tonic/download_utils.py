@@ -156,44 +156,9 @@ def download_url(
     if not check_integrity(fpath, md5):
         raise RuntimeError("File not found or corrupted.")
 
-
-def list_dir(root: str, prefix: bool = False) -> List[str]:
-    """List all directories at a given root
-
-    Args:
-        root (str): Path to directory whose folders need to be listed
-        prefix (bool, optional): If true, prepends the path to each result, otherwise
-            only returns the name of the directories found
-    """
-    root = os.path.expanduser(root)
-    directories = [p for p in os.listdir(root) if os.path.isdir(os.path.join(root, p))]
-    if prefix is True:
-        directories = [os.path.join(root, d) for d in directories]
-    return directories
-
-
-def list_files(root: str, suffix: str, prefix: bool = False) -> List[str]:
-    """List all files ending with a suffix at a given root
-
-    Args:
-        root (str): Path to directory whose folders need to be listed
-        suffix (str or tuple): Suffix of the files to match, e.g. '.png' or ('.jpg', '.png').
-            It uses the Python "str.endswith" method and is passed directly
-        prefix (bool, optional): If true, prepends the path to each result, otherwise
-            only returns the name of the files found
-    """
-    root = os.path.expanduser(root)
-    files = [
-        p
-        for p in os.listdir(root)
-        if os.path.isfile(os.path.join(root, p)) and p.endswith(suffix)
-    ]
-    if prefix is True:
-        files = [os.path.join(root, d) for d in files]
-    return files
-
-
-def _quota_exceeded(response: "requests.models.Response") -> bool:  # type: ignore[name-defined]
+def _quota_exceeded(
+    response: "requests.models.Response",
+) -> bool:  # type: ignore[name-defined]
     try:
         start = next(response.iter_content(chunk_size=128, decode_unicode=True))
         return isinstance(start, str) and "Google Drive - Quota exceeded" in start
@@ -247,7 +212,9 @@ def download_file_from_google_drive(
         _save_response_content(response, fpath)
 
 
-def _get_confirm_token(response: "requests.models.Response") -> Optional[str]:  # type: ignore[name-defined]
+def _get_confirm_token(
+    response: "requests.models.Response",
+) -> Optional[str]:  # type: ignore[name-defined]
     for key, value in response.cookies.items():
         if key.startswith("download_warning"):
             return value
@@ -256,7 +223,9 @@ def _get_confirm_token(response: "requests.models.Response") -> Optional[str]:  
 
 
 def _save_response_content(
-    response: "requests.models.Response", destination: str, chunk_size: int = 32768,  # type: ignore[name-defined]
+    response: "requests.models.Response",
+    destination: str,
+    chunk_size: int = 32768,  # type: ignore[name-defined]
 ) -> None:
     with open(destination, "wb") as f:
         pbar = tqdm(total=None)
@@ -454,5 +423,24 @@ def download_and_extract_archive(
 def iterable_to_str(iterable: Iterable) -> str:
     return "'" + "', '".join([str(item) for item in iterable]) + "'"
 
+
+def list_files(root: str, suffix: str, prefix: bool = False) -> List[str]:
+    """List all files ending with a suffix at a given root
+    Args:
+        root (str): Path to directory whose folders need to be listed
+        suffix (str or tuple): Suffix of the files to match, e.g. '.png' or ('.jpg', '.png').
+            It uses the Python "str.endswith" method and is passed directly
+        prefix (bool, optional): If true, prepends the path to each result, otherwise
+            only returns the name of the files found
+    """
+    root = os.path.expanduser(root)
+    files = [
+        p
+        for p in os.listdir(root)
+        if os.path.isfile(os.path.join(root, p)) and p.endswith(suffix)
+    ]
+    if prefix is True:
+        files = [os.path.join(root, d) for d in files]
+    return files
 
 T = TypeVar("T", str, bytes)

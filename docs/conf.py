@@ -12,8 +12,7 @@
 #
 import os
 import sys
-
-sys.path.insert(0, os.path.abspath(".."))
+import tonic
 
 # -- Project information -----------------------------------------------------
 
@@ -21,14 +20,8 @@ project = "Tonic"
 copyright = "2019-2021, the neuromorphs of Telluride"
 author = "Gregor Lenz"
 
-try:
-    import tonic
-
-    version = ".".join(tonic.__version__.split("."))
-    release = tonic.__version__
-except ImportError:
-    version = ""
-    release = ""
+version = ".".join(tonic.__version__.split("."))
+release = tonic.__version__
 
 master_doc = "index"
 
@@ -42,6 +35,10 @@ extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "myst_nb"]
 # Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
+
+# MyST settings
+jupyter_execute_notebooks = "off"
+suppress_warnings = ["myst.header"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -58,7 +55,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "sphinx_book_theme"
 html_logo = "_static/tonic-logo-black.png"
+html_favicon = "_static/tonic_favicon.png"
 html_show_sourcelink = True
+html_sourcelink_suffix = ""
 
 html_theme_options = {
     "logo_only": True,

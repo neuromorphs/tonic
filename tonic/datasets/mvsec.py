@@ -19,16 +19,11 @@ class MVSEC(Dataset):
 
     Parameters:
         save_to (string): Location to save files to on disk.
-        scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle
-        download (bool): Choose to download data or verify existing files. If True and a file with the same name is in the directory,
-                        it will be verified and re-download is automatically skipped. If False, existing files will be
-                        be verified. If you already have the data on your system, make sure to place it in a subfolder
-                        'MVSEC/{scene}', where {scene} is one of the available strings (see parameter above).
+        scene (string): Choose one of 4 scenes: outdoor_night, outdoor_day, indoor_flying, motorcycle.
+                        If you already have the data on your system, make sure to place the .bag files in a subfolder
+                        'MVSEC/{scene}/bag_files.bag'.
         transform (callable, optional): A callable of transforms to apply to events and / or images for both left and right cameras.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a mix of data and ground truth in a tuple of
-        (events_left, events_right, imu_left, imu_right, images_left, images_right, depth_rect_left, depth_rect_right, pose).
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     resources = {
@@ -68,24 +63,27 @@ class MVSEC(Dataset):
     ordering = dtype.names
 
     def __init__(
-        self, save_to, scene, download=True, transform=None, target_transform=None
+        self, save_to, scene, transform=None, target_transform=None
     ):
         super(MVSEC, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        self.location_on_system = os.path.join(save_to, "MVSEC")
         self.scene = scene
         if not scene in self.resources.keys():
             raise RuntimeError(
-                "Scene {} is not available or in the wrong format. Select one of: indoor_flying, outdoor_day, outdoor_night, motorcycle. ".format(
-                    scene
-                )
+                f"Scene {scene} is not available or in the wrong format. Select one of: indoor_flying, outdoor_day, outdoor_night, motorcycle."
             )
 
-        if download:
+        if not self._check_exists():
             self.download()
 
     def __getitem__(self, index):
+        """
+        Returns:
+            tuple of (data, targets), where data is another tuple of (events_left, events_right, imu_left,
+            imu_right, images_left, images_right) and targets is a tuple of (depth_rect_left,
+            depth_rect_right, pose) for ground truths.
+        """
         # decode data file
         filename = os.path.join(
             self.location_on_system,
@@ -97,7 +95,7 @@ class MVSEC(Dataset):
         events_left["ts"] -= events_left["ts"][0]
         events_left["ts"] *= 1e6
         events_left = np.column_stack(
-            (events_left["x"], events_left["y"], events_left["ts"], events_left["pol"],)
+            (events_left["x"], events_left["y"], events_left["ts"], events_left["pol"])
         )
         events_left = np.lib.recfunctions.unstructured_to_structured(
             events_left, self.dtype
@@ -122,6 +120,7 @@ class MVSEC(Dataset):
         images_left = np.stack(images_left["frames"])
         images_right = topics["/davis/right/image_raw"]
         images_right = np.stack(images_right["frames"])
+        data = events_left, events_right, imu_left, imu_right, images_left, images_right
 
         # decode ground truth file
         filename = os.path.join(
@@ -139,51 +138,34 @@ class MVSEC(Dataset):
         depth_rect_right = topics["/davis/right/depth_image_rect"]
         depth_rect_right = np.stack(depth_rect_right["frames"])
         pose = topics["/davis/left/pose"]
+        targets = depth_rect_left, depth_rect_right, pose
 
         if self.transform is not None:
-            events_left = self.transform(events_left)
-        if self.transform is not None:
-            events_right = self.transform(events_right)
-        return (
-            events_left,
-            events_right,
-            imu_left,
-            imu_right,
-            images_left,
-            images_right,
-            depth_rect_left,
-            depth_rect_right,
-            pose,
-        )
+            data = self.transform(data)
+        if self.target_transform is not None:
+            targets = self.transform(targets)
+        return data, targets
 
     def __len__(self):
-        return (
-            len(self.resources[self.scene]) // 2
-        )  # divided by two because of data and ground truth file per recording
+        # divided by two because of data and ground truth file per recording
+        return len(self.resources[self.scene]) // 2
 
     def download(self):
         for (filename, md5_hash) in self.resources[self.scene]:
-            url = os.path.join(self.base_url, self.scene, filename)
-            print("Downloading {}...".format(filename))
             download_url(
-                url,
-                os.path.join(self.location_on_system, self.scene),
+                url=os.path.join(self.base_url, self.scene, filename),
+                root=os.path.join(self.location_on_system, self.scene),
                 filename=filename,
                 md5=md5_hash,
             )
 
-    def verify_file_integrity(self):
-        print(
-            "Checking folder {}".format(
-                os.path.join(self.location_on_system, self.scene)
-            )
-        )
-        for (filename, md5_hash) in self.resources[self.scene]:
-            print("Checking integrity of file {}".format(filename))
-            if not check_integrity(
-                os.path.join(self.location_on_system, self.scene, filename), md5_hash,
-            ):
-                raise RuntimeError(
-                    "File not found or corrupted."
-                    + " You can use download=True to download it"
+    def _check_exists(self):
+        files_present = list(
+            [
+                check_integrity(
+                    os.path.join(self.location_on_system, self.scene, filename)
                 )
+                for (filename, md5_hash) in self.resources[self.scene]
+            ]
+        )
+        return all(files_present)

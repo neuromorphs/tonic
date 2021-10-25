@@ -1,4 +1,4 @@
-Datasets
+datasets
 ========
 
 All datasets are subclasses of :class:`tonic.datasets.Dataset` and need certain methods implemented: ``__init__``,  ``__getitem__`` and ``__len__``. This design is inspired by torchvision's way to provide datasets.
@@ -8,6 +8,71 @@ Even though the arguments that can be passed to a dataset might differ a bit fro
 Events for a sample in both audio and vision datasets are output as numpy arrays with shape (N,E), where N is the number of events and E is the number of event channels.
 
 .. currentmodule:: tonic.datasets
+
+Vision datasets
+---------------
+Vision events typically have 4 event channels: time, x and y pixel coordinates and polarity.
+
+ASL-DVS
+^^^^^^^
+.. autoclass:: ASLDVS
+    :members: __getitem__
+
+DAVIS Event Camera Dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: DAVISDATA
+    :members: __getitem__
+    
+DSEC
+^^^^
+.. autoclass:: DSEC
+    :members: __getitem__
+
+DVS gestures
+^^^^^^^^^^^^
+.. autoclass:: DVSGesture
+    :members: __getitem__
+
+MVSEC
+^^^^^
+.. autoclass:: MVSEC
+    :members: __getitem__
+
+N-CALTECH 101
+^^^^^^^^^^^^^
+.. autoclass:: NCALTECH101
+    :members: __getitem__
+
+N-CARS
+^^^^^^
+.. autoclass:: NCARS
+    :members: __getitem__
+
+N-MNIST
+^^^^^^^
+.. autoclass:: NMNIST
+    :members: __getitem__
+
+Spiking MNIST
+^^^^^^^^^^^^^
+.. autoclass:: SMNIST
+    :members: __getitem__
+
+NavGesture
+^^^^^^^^^^
+.. autoclass:: NavGesture
+    :members: __getitem__
+
+POKER DVS
+^^^^^^^^^
+.. autoclass:: POKERDVS
+    :members: __getitem__
+
+Visual Place Recognition
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: VPR
+    :members: __getitem__
+
 
 Audio datasets
 --------------
@@ -26,51 +91,3 @@ Spiking Speech Commands (SSC)
 N-TIDIGITS
 ^^^^^^^^^^
 .. autoclass:: NTIDIGITS
-
-Vision datasets
----------------
-Vision events typically have 4 event channels: time, x and y pixel coordinates and polarity.
-
-ASL-DVS
-^^^^^^^
-.. autoclass:: ASLDVS
-
-DAVIS Event Camera Dataset
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: DAVISDATA
-
-DVS gestures
-^^^^^^^^^^^^
-.. autoclass:: DVSGesture
-
-MVSEC
-^^^^^
-.. autoclass:: MVSEC
-
-N-CALTECH 101
-^^^^^^^^^^^^^
-.. autoclass:: NCALTECH101
-
-N-CARS
-^^^^^^
-.. autoclass:: NCARS
-
-N-MNIST
-^^^^^^^
-.. autoclass:: NMNIST
-
-Spiking MNIST
-^^^^^^^^^^^^^
-.. autoclass:: SMNIST
-
-NavGesture
-^^^^^^^^^^
-.. autoclass:: NavGesture
-
-POKER DVS
-^^^^^^^^^
-.. autoclass:: POKERDVS
-
-Visual Place Recognition
-^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: VPR

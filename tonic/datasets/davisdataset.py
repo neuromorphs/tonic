@@ -22,15 +22,11 @@ class DAVISDATA(Dataset):
 
     Parameters:
         save_to (string): Location to save files to on disk. Will save files in a sub folder 'davis_dataset'.
-        recording (string): Use the name of the recording or a list thereof to load it, for example 'dynamic_6dof'
+        recording (string): Use the name of the recording or a list thereof to download it, for example 'dynamic_6dof'
                             or ['slider_far', 'urban']. See project homepage for a list of available recordings.
-                            Can use 'all' to load every recording.
-        download (bool): Choose to download data or verify existing files. If True and a file with the same
-                    name and correct hash is already in the directory, download is automatically skipped.
+                            Can use 'all' to download all available recordings.
         transform (callable, optional): A callable of transforms to apply to events and/or images.
-
-    Returns:
-        A dataset object that can be indexed or iterated over. One sample returns a tuple of (events, imu, images, opti_track_ground_truth).
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     base_url = "http://rpg.ifi.uzh.ch/datasets/davis/"
@@ -65,15 +61,13 @@ class DAVISDATA(Dataset):
     sensor_size = (240, 180, 2)
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
+    folder_name = ""
 
-    def __init__(
-        self, save_to, recording, download=True, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, recording, transform=None, target_transform=None):
         super(DAVISDATA, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
-        folder_name = "davis_dataset"
-        self.location_on_system = os.path.join(save_to, folder_name)
+
         self.selection = (
             list(self.recordings.keys()) if recording == "all" else recording
         )
@@ -88,10 +82,14 @@ class DAVISDATA(Dataset):
                     )
                 )
 
-        if download:
+        if not self._check_exists():
             self.download()
 
     def __getitem__(self, index):
+        """
+        Returns:
+            tuple of (data, target), where data is another tuple of (events, imu, images) and target is the opti track ground truth
+        """
         filename = os.path.join(self.location_on_system, self.selection[index] + ".bag")
         topics = importRosbag(filename, log="ERROR")
         events = topics["/dvs/events"]
@@ -101,14 +99,23 @@ class DAVISDATA(Dataset):
             (events["ts"], events["x"], events["y"], events["pol"])
         )
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
-        imu = topics["/dvs/imu"]
+        if "/dvs/imu" in topics.keys():
+            imu = topics["/dvs/imu"]
+            imu["ts"] = ((imu["ts"]-imu["ts"][0]) * 1e6).astype(int)
+        else:
+            imu = None
         images = topics["/dvs/image_raw"]
         images["frames"] = np.stack(images["frames"])
+        images["ts"] = ((images["ts"] - images["ts"][0]) * 1e6).astype(int)
+        data = (events, imu, images)
         target = topics["/optitrack/davis"]
+        target["ts"] = ((target["ts"] - target["ts"][0]) * 1e6).astype(int)
 
         if self.transform is not None:
-            events = self.transform(events)
-        return events, imu, images, target
+            data = self.transform(data)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+        return data, target
 
     def __len__(self):
         return len(self.selection)
@@ -122,13 +129,14 @@ class DAVISDATA(Dataset):
                 md5=self.recordings[recording],
             )
 
-    def verify_file_hashes(self):
-        for recording in self.selection:
-            if not check_integrity(
-                os.path.join(self.location_on_system, recording + ".bag"),
-                self.recordings[recording],
-            ):
-                raise RuntimeError(
-                    "Recording not found or corrupted."
-                    + " You can use download=True to download it"
+    def _check_exists(self):
+        # check if all filenames are correct
+        files_present = list(
+            [
+                check_integrity(
+                    os.path.join(self.location_on_system, recording + ".bag")
                 )
+                for recording in self.selection
+            ]
+        )
+        return all(files_present)
