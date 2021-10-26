@@ -35,7 +35,6 @@ class FixLength:
                     padding.append((0, self.length - data_length))
                 else:
                     padding.append((0, 0))
-            print(padding)
             return np.pad(data, padding)
 
 
