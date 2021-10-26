@@ -6,3 +6,4 @@ pytest
 h5py
 scipy
 matplotlib
+librosa
