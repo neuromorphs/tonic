@@ -26,9 +26,9 @@ class DSEC(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset. No ground truth available for test set.
-        recording (str, optional): You can load a selection of recordings by providing a string or a list thereof, 
-                                   such as 'interlaken_00_c' or ['thun_00_a', 'zurich_city_00_a']. Cannot mix across
-                                   train/test.
+        recording (str, optional): Optional parameter to load a selection of recordings by providing a string or a list 
+                                   thereof, such as 'interlaken_00_c' or ['thun_00_a', 'zurich_city_00_a']. Cannot mix 
+                                   across train/test. Defaults to None which downloads all train or test recordings.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
