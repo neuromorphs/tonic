@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import h5py
+from typing import Optional, List, Union, Callable
 from tonic.dataset import Dataset
 from tonic.download_utils import (
     check_integrity,
@@ -25,6 +26,9 @@ class DSEC(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset. No ground truth available for test set.
+        recording (str, optional): You can load a selection of recordings by providing a string or a list thereof, 
+                                   such as 'interlaken_00_c' or ['thun_00_a', 'zurich_city_00_a']. Cannot mix across
+                                   train/test.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
@@ -111,13 +115,38 @@ class DSEC(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to, train=True, transform=None, target_transform=None):
+    def __init__(
+        self,
+        save_to: str,
+        train: bool = True,
+        recording: Optional[Union[str, List[str]]] = None,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+    ):
         super(DSEC, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
 
         self.train = train
         self.train_or_test = "train" if self.train else "test"
+
+        if recording:
+            self.selection = recording
+            if not isinstance(self.selection, list):
+                self.selection = [self.selection]
+
+            for recording in self.selection:
+                if recording not in self.recordings[self.train_or_test]:
+                    raise RuntimeError(
+                        f"Recording {recording} is not in {self.train_or_test} set."
+                    )
+        else:
+            self.selection = self.recordings[self.train_or_test]
+
+        self.filenames = self.data_filenames
+        if self.train:
+            # add ground truth files when train=True
+            self.filenames += self.target_filenames
 
         self._check_exists()
 
@@ -131,7 +160,7 @@ class DSEC(Dataset):
         import hdf5plugin  # necessary to read event files
         from PIL import Image  # necessary to read images
 
-        recording = self.recordings[self.train_or_test][index]
+        recording = self.selection[index]
         base_folder = os.path.join(self.location_on_system, recording)
 
         # events
@@ -179,7 +208,8 @@ class DSEC(Dataset):
                 base_folder, "image_timestamps", f"{recording}_image_timestamps.txt"
             )
         ) as f:
-            image_timestamps = [int(line) for line in f.readlines()]
+            image_timestamps = np.array([int(line) for line in f.readlines()])
+        image_timestamps -= image_timestamps[0]
 
         data = (
             (events_left, events_right),
@@ -213,7 +243,8 @@ class DSEC(Dataset):
                     f"{recording}_disparity_timestamps.txt",
                 )
             ) as f:
-                disparity_timestamps = [int(line) for line in f.readlines()]
+                disparity_timestamps = np.array([int(line) for line in f.readlines()])
+            disparity_timestamps -= disparity_timestamps[0]
 
             targets = (disparity_timestamps, disparity_events, disparity_images)
 
@@ -223,17 +254,12 @@ class DSEC(Dataset):
         return data, targets
 
     def __len__(self):
-        return len(self.recordings[self.train_or_test])
+        return len(self.selection)
 
     def _check_exists(self):
-        for recording in self.recordings[self.train_or_test]:
+        for recording in self.selection:
             scene_url = f"{self.base_url}{self.train_or_test}/{recording}/{recording}_"
-            filenames = self.data_filenames
-            if self.train:
-                filenames += (
-                    self.target_filenames
-                )  # add ground truth files when train=True
-            for filename, extension in filenames:
+            for filename, extension in self.filenames:
                 if check_integrity(
                     os.path.join(
                         self.location_on_system,
