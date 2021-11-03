@@ -259,15 +259,17 @@ class AddNoise:
 
         # Normalize if specified
         if self.normed:
-            return self.normalize(signal_with_snr)
+            return normalize(signal_with_snr)
         else:
             return signal_with_snr
 
-    @staticmethod
-    def normalize(signal):
-        """Normalize the signal"""
-        signal -= signal.mean()
-        max_val = np.max(np.abs(signal))
-        if max_val > 0:
-            signal /= max_val
-        return signal
+
+def normalize(signal):
+    """Normalize the signal"""
+    signal -= signal.mean()
+    max_val = np.max(np.abs(signal))
+    if max_val > 0:
+        signal /= max_val
+    return signal
+
+
