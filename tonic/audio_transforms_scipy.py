@@ -156,7 +156,9 @@ class ButterFilterBank:
     analog: bool = False
 
     def __post_init__(self):
-        self.filters = [ButterFilter(self.order, freq, analog=self.analog, btype="band", rectify=self.rectify, axis=self.axis) for freq in self.freq]
+        self.filters = [
+            ButterFilter(self.order, freq, analog=self.analog, btype="band", rectify=self.rectify, axis=self.axis) for
+            freq in self.freq]
 
     def __call__(self, data):
         return np.concatenate([filt(data) for filt in self.filters], axis=0)
@@ -178,7 +180,7 @@ class LinearButterFilterBank:
         high_freq = self.sampling_freq / 2 / (1 + filter_bandwidth) - 1
         freqs = np.linspace(self.low_freq, high_freq, self.num_filters)
 
-        return np.array([freqs, freqs * (1 + filter_bandwidth)]).T/ nyquist
+        return np.array([freqs, freqs * (1 + filter_bandwidth)]).T / nyquist
 
     def __post_init__(self):
         freq_bands = self.compute_freq_bands()
@@ -186,7 +188,6 @@ class LinearButterFilterBank:
 
     def __call__(self, data):
         return self.filterbank(data)
-
 
 
 @dataclass
@@ -206,13 +207,13 @@ class MelButterFilterBank(LinearButterFilterBank):
         high_freq = self.sampling_freq / 2 / (1 + filter_bandwidth) - 1
         freqs = np.linspace(self.low_freq, high_freq, self.num_filters)
 
-        freq_bands = np.array([freqs, freqs * (1 + filter_bandwidth)])/ nyquist
+        freq_bands = np.array([freqs, freqs * (1 + filter_bandwidth)]) / nyquist
 
         low_freq = self.hz2mel(self.low_freq)
         high_freq = self.hz2mel(self.sampling_freq / 2 / (1 + filter_bandwidth) - 1)
         freqs = self.mel2hz(np.linspace(low_freq, high_freq, self.num_filters))
 
-        return np.array([freqs, freqs * (1 + filter_bandwidth)]).T/nyquist
+        return np.array([freqs, freqs * (1 + filter_bandwidth)]).T / nyquist
 
 
 @dataclass
@@ -273,3 +274,12 @@ def normalize(signal):
     return signal
 
 
+@dataclass
+class DivisiveNormalization:
+    frame_dt: float  # Frame clock step
+    num_frames_avg: int  # Number of frames to average over
+    gating_clock_dt: float  # Clock frequency of gating E(t)
+    dt: float = 1  # Global clock step
+
+    def __call__(self, events: np.ndarray):
+        raise NotImplementedError
