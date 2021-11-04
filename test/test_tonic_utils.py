@@ -35,7 +35,7 @@ def test_pytorch_batch_collation_dense_tensor():
 
     batch, label = next(iter(dataloader))
 
-    max_time = int(events2["t"][-1]) + 1
+    max_time = int(events2["t"][-1])
     assert batch.shape[0] == max_time // time_window
     assert batch.shape[1] == batch_size
     assert batch.shape[2] == sensor_size[2]
