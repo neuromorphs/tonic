@@ -112,7 +112,7 @@ class DSEC(Dataset):
     ]
 
     sensor_size = (346, 260, 2)
-    dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
+    dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
     def __init__(
@@ -175,6 +175,7 @@ class DSEC(Dataset):
                 events_left_file["p"][()],
             )
         )
+        events_left = np.lib.recfunctions.unstructured_to_structured(events_left, self.dtype)
 
         events_right_file = h5py.File(
             os.path.join(base_folder, "events_right", "events.h5")
@@ -187,6 +188,7 @@ class DSEC(Dataset):
                 events_right_file["p"][()],
             )
         )
+        events_right = np.lib.recfunctions.unstructured_to_structured(events_right, self.dtype)
 
         # images
         images_rectified_left_filenames = list_files(
