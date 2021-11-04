@@ -94,7 +94,7 @@ class CachedDataset:
         file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
         try:
             data, targets = load_from_cache(file_path)
-        except FileNotFoundError as _:
+        except (FileNotFoundError, OSError) as _:
             logging.info(
                 f"Data {item}: {file_path} not in cache, generating it now", stacklevel=2
             )
