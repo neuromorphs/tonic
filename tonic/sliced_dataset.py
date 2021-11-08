@@ -9,15 +9,16 @@ from .slicers import Slicer
 def save_metadata(path, metadata):
     os.makedirs(path, exist_ok=True)
     with h5py.File(os.path.join(path, 'slice_metadata.h5'), "w") as f:
-        f.create_dataset(f"metadata", data=metadata)
+        for i, data in enumerate(metadata):
+            f.create_dataset(f"metadata_{i}", data=data)
     print("Metadata written to disk.")
 
 
 def load_metadata(path):
     with h5py.File(os.path.join(path, 'slice_metadata.h5'), "r") as f:
-        metadata = f["metadata"][()]
-    return metadata
+        metadata = [f[f"metadata_{i}"][()] for i in range(len(f.keys()))]
     print("Read metadata from disk.")
+    return metadata
 
 
 @dataclass
