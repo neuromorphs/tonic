@@ -111,7 +111,7 @@ class DSEC(Dataset):
         ["disparity_timestamps", ".txt"],
     ]
 
-    sensor_size = (346, 260, 2)
+    sensor_size = (640, 480, 2)
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
