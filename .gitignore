@@ -2,6 +2,9 @@ cache
 metadata
 docs/_build
 data
+
+.vscode
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
