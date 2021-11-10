@@ -1,4 +1,5 @@
 import os
+import shutil
 from typing import Callable, Optional, Tuple, Iterable, Union
 from warnings import warn
 from dataclasses import dataclass
@@ -57,13 +58,17 @@ def load_from_cache(file_path: Union[str, Path]) -> Tuple:
 class CachedDataset:
     """
     CachedDataset caches the data samples to the hard drive for subsequent reads, thereby potentially improving data loading speeds.
-    If dataset is None, then the length of this dataset will be inferred from the number of files in the caching folder. 
+    If dataset is None, then the length of this dataset will be inferred from the number of files in the caching folder. Pay
+    attention to the cache path you're providing, as CachedDataset will simply check if there is a file present with the index that
+    it is looking for. When using train/test splits, it is wise to also take that into account in the cache path.
 
     Parameters:
         dataset:
             Dataset to be cached. Can be None, if only files in cache_path should be used.
         cache_path:
-            The preferred path where the cache will be written to and read from. Default is ./cache
+            The preferred path where the cache will be written to and read from.
+        reset_cache:
+            When True, will clear out the cache path during initialisation. Default is False
         transform:
             Transforms to be applied on the data
         target_transform:
@@ -75,6 +80,7 @@ class CachedDataset:
 
     dataset: Iterable
     cache_path: str
+    reset_cache: bool = False
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
     num_copies: int = 1
@@ -83,6 +89,9 @@ class CachedDataset:
         super().__init__()
         # Create cache directory
         if not os.path.isdir(self.cache_path):
+            os.makedirs(self.cache_path)
+        if self.reset_cache:
+            shutil.rmtree(self.cache_path)
             os.makedirs(self.cache_path)
         if self.dataset is None:
             self.n_samples = len([name for name in os.listdir(self.cache_path) if os.path.isfile(name) and name.endswith('.hdf5')]) // self.num_copies
