@@ -54,7 +54,7 @@ class SlicedDataset:
         if self.metadata_path:
             try:
                 self.metadata = load_metadata(self.metadata_path)
-            except FileNotFoundError as _:
+            except (FileNotFoundError, OSError) as _:
                 self.metadata = self.generate_metadata()
                 save_metadata(self.metadata_path, self.metadata)
         else:

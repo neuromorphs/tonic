@@ -67,7 +67,7 @@ def to_frame_numpy(
     elif n_event_bins:
         event_slices = slice_by_event_bins(events, n_event_bins, overlap=overlap)
 
-    frames = np.zeros((len(event_slices), *sensor_size[::-1]), dtype=int)
+    frames = np.zeros((len(event_slices), *sensor_size[::-1]), dtype=np.int16)
     for i, event_slice in enumerate(event_slices):
         np.add.at(
             frames,
