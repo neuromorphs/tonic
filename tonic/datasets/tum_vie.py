@@ -4,7 +4,12 @@ import h5py
 from numpy.lib import recfunctions
 from importRosbag.importRosbag import importRosbag
 from tonic.dataset import Dataset
-from tonic.download_utils import check_integrity, download_url, download_and_extract_archive, list_files
+from tonic.download_utils import (
+    check_integrity,
+    download_url,
+    download_and_extract_archive,
+    list_files,
+)
 from typing import Union, List, Callable, Optional
 
 
@@ -17,10 +22,10 @@ class TUMVIE(Dataset):
 
     The dataset contains:
 
-        Stereo event data Prophesee Gen4 HD (1280x720 pixels)
-        Stereo grayscale frames at 20Hz (1024x1024 pixels)
-        IMU data at 200Hz
-        6dof motion capture data at 120Hz (beginning and end of each sequence)
+    * Stereo event data Prophesee Gen4 HD (1280x720 pixels)
+    * Stereo grayscale frames at 20Hz (1024x1024 pixels)
+    * IMU data at 200Hz
+    * 6dof motion capture data at 120Hz (beginning and end of each sequence)
 
     Timestamps between all sensors are synchronized in hardware. 
     
@@ -48,10 +53,29 @@ class TUMVIE(Dataset):
     """
 
     base_url = "https://tumevent-vi.vision.in.tum.de/"
-    recordings = ["mocap-1d-trans", "mocap-3d-trans", "mocap-6dof", "mocap-desk", "mocap-desk2", "mocap-shake", 
-                  "mocap-shake2", "office-maze", "running-easy", "running-hard", "skate-easy", "skate-hard", 
-                  "loop-floor0", "loop-floor1", "loop-floor2", "loop-floor3", "floor2-dark", "slide", "bike-easy",
-                  "bike-hard", "bike-dark"]
+    recordings = [
+        "mocap-1d-trans",
+        "mocap-3d-trans",
+        "mocap-6dof",
+        "mocap-desk",
+        "mocap-desk2",
+        "mocap-shake",
+        "mocap-shake2",
+        "office-maze",
+        "running-easy",
+        "running-hard",
+        "skate-easy",
+        "skate-hard",
+        "loop-floor0",
+        "loop-floor1",
+        "loop-floor2",
+        "loop-floor3",
+        "floor2-dark",
+        "slide",
+        "bike-easy",
+        "bike-hard",
+        "bike-dark",
+    ]
     filenames = ["events_left.h5", "events_right.h5", "vi_gt_data.tar.gz"]
 
     sensor_size = (1280, 720, 2)
@@ -59,39 +83,41 @@ class TUMVIE(Dataset):
     ordering = dtype.names
     folder_name = ""
 
-    def __init__(self, 
-                 save_to: str, 
-                 recording: Union[str, List[str]],
-                 transform: Optional[Callable] = None,
-                 target_transform: Optional[Callable] = None,
-                ):
+    def __init__(
+        self,
+        save_to: str,
+        recording: Union[str, List[str]],
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+    ):
         super(TUMVIE, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
 
-        self.selection = (
-            list(self.recordings.keys()) if recording == "all" else recording
-        )
-        if type(self.selection) != list: self.selection = [self.selection]
+        if recording == "all" or ["all"]:
+            self.selection = self.recordings
+        else:
+            self.selection = recording if type(recording) == list else [recording]
 
-        for recording in self.selection:
-            if recording not in self.recordings:
-                raise RuntimeError(f"Recording {recording} is not available.")
+            for recording in self.selection:
+                if recording not in self.recordings:
+                    raise RuntimeError(f"Recording {recording} is not available.")
 
         self._check_exists()
 
     def __getitem__(self, index):
         """
         Returns:
-            tuple of (data, target), where data is another tuple of (events, imu, images) and target is the opti track ground truth
+            tuple of (data, target), where data is a dictionary of (events_left, events_right, imu)
+            and targets is a dictionary of (images_left, images_right, mocap).
         """
         base_folder = os.path.join(self.location_on_system, self.selection[index])
-        
+
         import hdf5plugin  # necessary to read event files
         from PIL import Image  # necessary to read images
 
         events_left_file = h5py.File(
-            os.path.join(base_folder, self.selection[index]+"-events_left.h5")
+            os.path.join(base_folder, self.selection[index] + "-events_left.h5")
         )["events"]
         events_left = np.column_stack(
             (
@@ -101,10 +127,12 @@ class TUMVIE(Dataset):
                 events_left_file["y"][()],
             )
         )
-        events_left = np.lib.recfunctions.unstructured_to_structured(events_left, self.dtype)
+        events_left = np.lib.recfunctions.unstructured_to_structured(
+            events_left, self.dtype
+        )
 
         events_right_file = h5py.File(
-            os.path.join(base_folder, self.selection[index]+"-events_right.h5")
+            os.path.join(base_folder, self.selection[index] + "-events_right.h5")
         )["events"]
         events_right = np.column_stack(
             (
@@ -114,7 +142,9 @@ class TUMVIE(Dataset):
                 events_right_file["y"][()],
             )
         )
-        events_right = np.lib.recfunctions.unstructured_to_structured(events_right, self.dtype)
+        events_right = np.lib.recfunctions.unstructured_to_structured(
+            events_right, self.dtype
+        )
 
         imu_data = []
         with open(os.path.join(base_folder, "imu_data.txt")) as f:
@@ -122,14 +152,14 @@ class TUMVIE(Dataset):
             for line in f.readlines():
                 imu_data.append([float(num) for num in line.split()])
         imu_data = np.array(imu_data)
-                
+
         mocap_data = []
         with open(os.path.join(base_folder, "mocap_data.txt")) as f:
             header = f.readline()
             for line in f.readlines():
                 mocap_data.append([float(num) for num in line.split()])
         mocap_data = np.array(mocap_data)
-        
+
         # images
         images_left_filenames = list_files(
             os.path.join(base_folder, "left_images"), ".jpg", prefix=True
@@ -138,14 +168,13 @@ class TUMVIE(Dataset):
             [np.array(Image.open(file)) for file in images_left_filenames]
         )
         with open(
-            os.path.join(
-                base_folder, "left_images", "image_timestamps_left.txt"
-            )
+            os.path.join(base_folder, "left_images", "image_timestamps_left.txt")
         ) as f:
-            images_left_timestamps = np.array([float(line) for line in f.readlines()[1:]])
+            images_left_timestamps = np.array(
+                [float(line) for line in f.readlines()[1:]]
+            )
         images_left_timestamps -= images_left_timestamps[0]
 
-        
         images_right_filenames = list_files(
             os.path.join(base_folder, "right_images"), ".jpg", prefix=True
         )
@@ -153,18 +182,24 @@ class TUMVIE(Dataset):
             [np.array(Image.open(file)) for file in images_right_filenames]
         )
         with open(
-            os.path.join(
-                base_folder, "right_images", "image_timestamps_right.txt"
-            )
+            os.path.join(base_folder, "right_images", "image_timestamps_right.txt")
         ) as f:
-            images_right_timestamps = np.array([float(line) for line in f.readlines()[1:]])
+            images_right_timestamps = np.array(
+                [float(line) for line in f.readlines()[1:]]
+            )
         images_right_timestamps -= images_right_timestamps[0]
-        
-        data = {"events_left": events_left, "events_right": events_right, "imu": imu_data}
-        targets = {"images_left": {"frames": images_left, "ts": images_left_timestamps},
-                   "images_right": {"frames": images_right, "ts": images_right_timestamps},
-                   "mocap": mocap_data}
-        
+
+        data = {
+            "events_left": events_left,
+            "events_right": events_right,
+            "imu": imu_data,
+        }
+        targets = {
+            "images_left": {"frames": images_left, "ts": images_left_timestamps},
+            "images_right": {"frames": images_right, "ts": images_right_timestamps},
+            "mocap": mocap_data,
+        }
+
         if self.transform is not None:
             data = self.transform(data)
         if self.target_transform is not None:
@@ -179,10 +214,12 @@ class TUMVIE(Dataset):
             file_folder = os.path.join(self.location_on_system, recording)
             os.makedirs(file_folder, exist_ok=True)
             for filename in self.filenames:
-                if check_integrity(os.path.join(file_folder, f"{recording}-{filename}")): continue
+                if check_integrity(
+                    os.path.join(file_folder, f"{recording}-{filename}")
+                ):
+                    continue
                 url = f"{self.base_url}{recording}/{recording}-{filename}"
                 if filename.endswith("tar.gz"):
                     download_and_extract_archive(url, file_folder)
                 else:
                     download_url(url, file_folder)
-
