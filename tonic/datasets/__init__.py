@@ -9,6 +9,7 @@ from .nmnist import NMNIST
 from .ntidigits import NTIDIGITS
 from .pokerdvs import POKERDVS
 from .s_mnist import SMNIST
+from .tum_vie import TUMVIE
 from .visual_place_recognition import VPR
 
 __all__ = [
@@ -24,5 +25,6 @@ __all__ = [
     "SHD",
     "SMNIST",
     "SSC",
+    "TUMVIE",
     "VPR",
 ]
