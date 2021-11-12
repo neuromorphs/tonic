@@ -1,6 +1,5 @@
 import os
 import struct
-import loris
 import numpy as np
 
 events_struct = [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
@@ -22,6 +21,7 @@ def make_structured_array(x, y, t, p, dtype=events_struct):
 
 
 def read_aedat4(in_file):
+    import loris
     """
     Get the aer events from version 4 of .aedat file
 

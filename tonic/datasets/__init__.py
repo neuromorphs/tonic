@@ -4,9 +4,7 @@ from .dsec import DSEC
 from .dvsgesture import DVSGesture
 from .hsd import SHD, SSC
 from .mvsec import MVSEC
-from .navgesture import NavGesture
 from .ncaltech101 import NCALTECH101
-from .ncars import NCARS
 from .nmnist import NMNIST
 from .ntidigits import NTIDIGITS
 from .pokerdvs import POKERDVS
@@ -19,9 +17,7 @@ __all__ = [
     "DSEC",
     "DVSGesture",
     "MVSEC",
-    "NavGesture",
     "NCALTECH101",
-    "NCARS",
     "NMNIST",
     "NTIDIGITS",
     "POKERDVS",

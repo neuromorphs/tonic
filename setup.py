@@ -19,7 +19,7 @@ setuptools.setup(
     url="https://github.com/neuromorphs/tonic",
     include_package_data=False,
     packages=setuptools.find_packages(),
-    install_requires=["numpy", "h5py", "importRosbag>=1.0.3", "loris", "scipy", "tqdm", "typing_extensions"],
+    install_requires=["numpy", "h5py", "importRosbag>=1.0.3", "scipy", "tqdm", "typing_extensions"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
