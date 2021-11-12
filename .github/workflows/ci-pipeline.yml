@@ -1,6 +1,6 @@
-name: Testing and coverage
+name: Testing, coverage and publishing to PyPI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   multitest:
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Python
+      - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
@@ -41,3 +41,21 @@ jobs:
           coverage xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
+
+  build-and-publish:
+    needs: multitest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Build a binary wheel and a source tarball
+        run: |
+          python setup.py sdist bdist_wheel
+      - name: Publish distribution package to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_DEPLOYMENT }}
