@@ -1,0 +1,47 @@
+name: Testing and coverage
+
+on: [push]
+
+jobs:
+  multitest:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        python-version: ["3.7", "3.8", "3.9"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install -r requirements.txt
+          pip install .
+      - name: Test with pytest
+        run: |
+          pytest
+
+  coverage:
+    needs: multitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Generate coverage report
+        run: |
+          pip install pytest
+          pip install coverage
+          pip install -r requirements.txt
+          pip install .
+          coverage run -m pytest test
+          coverage xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
