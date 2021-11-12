@@ -18,9 +18,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install requirements
         run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          pip install -r requirements.txt
+          pip install -r test/requirements.txt
           pip install .
       - name: Test with pytest
         run: |
@@ -37,9 +35,7 @@ jobs:
           python-version: 3.8
       - name: Generate coverage report
         run: |
-          pip install pytest
-          pip install coverage
-          pip install -r requirements.txt
+          pip install -r test/requirements.txt
           pip install .
           coverage run -m pytest test
           coverage xml

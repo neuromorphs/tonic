@@ -1,7 +1,0 @@
-numpy
-torch
-importRosbag
-pytest
-h5py
-scipy
-matplotlib
