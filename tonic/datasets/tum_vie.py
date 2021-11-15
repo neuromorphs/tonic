@@ -29,6 +29,10 @@ class TUMVIE(Dataset):
 
     Timestamps between all sensors are synchronized in hardware. 
     
+    .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
+
+    .. note:: Use `bike-night` instead of `bike-dark` in the list of recordings if you want that specific one.
+
     ::
 
         @string{iros="International Conference on Intelligent Robots and Systems (IROS)"}
@@ -74,7 +78,7 @@ class TUMVIE(Dataset):
         "slide",
         "bike-easy",
         "bike-hard",
-        "bike-dark",
+        "bike-night",
     ]
     filenames = ["events_left.h5", "events_right.h5", "vi_gt_data.tar.gz"]
 
