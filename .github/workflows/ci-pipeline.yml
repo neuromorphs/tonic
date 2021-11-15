@@ -61,3 +61,20 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.PYPI_DEPLOYMENT }}
+
+  documentation:
+    needs: multitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          pip install -r docs/requirements.txt
+          pip install .
+      - name: Build documentation
+        run: |
+          cd docs && make clean && make html # Use SPHINXOPTS="-W" to fail on warning.
