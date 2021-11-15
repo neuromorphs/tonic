@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-20.04, windows-2022]
         python-version: ["3.7", "3.8", "3.9"]
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,9 @@ jobs:
           pip install .
       - name: Test with pytest
         run: |
-          pytest
+          pytest test
+        env:
+            CI: true
 
   coverage:
     needs: multitest
