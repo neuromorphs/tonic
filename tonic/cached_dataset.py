@@ -21,14 +21,23 @@ def save_to_cache(data, targets, file_path: Union[str, Path]) -> None:
     """
     with h5py.File(file_path, "w") as f:
         for name, data in zip(["data", "target"], [data, targets]):
-            if type(data) != tuple: data = (data,)
+            if type(data) != tuple:
+                data = (data,)
             # can be events, frames, imu, gps, target etc.
             for i, data_piece in enumerate(data):
                 if type(data_piece) == dict:
                     for key, item in data_piece.items():
-                        f.create_dataset(f"{name}/{i}/{key}", data=item, compression='lzf' if type(item) == np.ndarray else None)
+                        f.create_dataset(
+                            f"{name}/{i}/{key}",
+                            data=item,
+                            compression="lzf" if type(item) == np.ndarray else None,
+                        )
                 else:
-                    f.create_dataset(f"{name}/{i}", data=data_piece, compression='lzf' if type(data_piece) == np.ndarray else None)
+                    f.create_dataset(
+                        f"{name}/{i}",
+                        data=data_piece,
+                        compression="lzf" if type(data_piece) == np.ndarray else None,
+                    )
 
 
 def load_from_cache(file_path: Union[str, Path]) -> Tuple:
@@ -45,12 +54,17 @@ def load_from_cache(file_path: Union[str, Path]) -> Tuple:
         for name, _list in zip(["data", "target"], [data_list, target_list]):
             for index in f[name].keys():
                 if hasattr(f[f"{name}/{index}"], "keys"):
-                    data = {key: f[f"{name}/{index}/{key}"][()] for key in f[f"{name}/{index}"].keys()}
+                    data = {
+                        key: f[f"{name}/{index}/{key}"][()]
+                        for key in f[f"{name}/{index}"].keys()
+                    }
                 else:
                     data = f[f"{name}/{index}"][()]
                 _list.append(data)
-    if len(data_list) == 1: data_list = data_list[0]
-    if len(target_list) == 1: target_list = target_list[0]
+    if len(data_list) == 1:
+        data_list = data_list[0]
+    if len(target_list) == 1:
+        target_list = target_list[0]
     return data_list, target_list
 
 
@@ -94,7 +108,17 @@ class CachedDataset:
             shutil.rmtree(self.cache_path)
             os.makedirs(self.cache_path)
         if self.dataset is None:
-            self.n_samples = len([name for name in os.listdir(self.cache_path) if os.path.isfile(name) and name.endswith('.hdf5')]) // self.num_copies
+            self.n_samples = (
+                len(
+                    [
+                        name
+                        for name in os.listdir(self.cache_path)
+                        if os.path.isfile(os.path.join(self.cache_path, name))
+                        and name.endswith(".hdf5")
+                    ]
+                )
+                // self.num_copies
+            )
         else:
             self.n_samples = len(self.dataset)
 
@@ -105,7 +129,8 @@ class CachedDataset:
             data, targets = load_from_cache(file_path)
         except (FileNotFoundError, OSError) as _:
             logging.info(
-                f"Data {item}: {file_path} not in cache, generating it now", stacklevel=2
+                f"Data {item}: {file_path} not in cache, generating it now",
+                stacklevel=2,
             )
             data, targets = self.dataset[item]
             save_to_cache(data, targets, file_path=file_path)

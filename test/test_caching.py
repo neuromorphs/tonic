@@ -10,9 +10,15 @@ from tonic import CachedDataset
 
 def test_caching_pokerdvs():
     dataset = datasets.POKERDVS(save_to="./data", train=False)
-    dataset = CachedDataset(dataset, cache_path="./cache/cache1")
-    for data, label in dataset:
-        print(data.shape, label)
+    cache_path="./cache/test1"
+    cached_dataset = CachedDataset(dataset, cache_path)
+
+    # cache all samples
+    for data, label in cached_dataset:
+        pass
+    
+    assert len(dataset) == len(cached_dataset)
+    assert len(os.listdir(cache_path)) == len(dataset)
 
 def test_caching_transforms():
     sensor_size = datasets.POKERDVS.sensor_size
@@ -24,7 +30,7 @@ def test_caching_transforms():
     )
     dataset = datasets.POKERDVS(save_to="./data", train=True, transform=preprocess)
 
-    dataset_cached = CachedDataset(dataset, cache_path="./cache/cache2", transform=augmentation, num_copies=4)
+    dataset_cached = CachedDataset(dataset, cache_path="./cache/test2", transform=augmentation, num_copies=4)
 
     for (data, label), (data2, label2) in zip(dataset, dataset_cached):
         assert (data == data2).all()
@@ -55,3 +61,16 @@ def test_caching_reset():
     data, target = dataset_cached[0]
     assert data.shape != dummy_content.shape
     assert data.shape[0] > 100
+
+def test_caching_from_files():
+    dataset = datasets.POKERDVS(save_to="./data", train=False)
+    cache_path="./cache/test4"
+    dataset = CachedDataset(dataset, cache_path)
+    
+    n_cached_samples = 10
+    for i in range(n_cached_samples):
+        events, target = dataset[i]
+        
+    dataset = CachedDataset(dataset=None, cache_path=cache_path)
+    assert len(dataset) == n_cached_samples
+    assert len(os.listdir(cache_path)) == len(dataset)
