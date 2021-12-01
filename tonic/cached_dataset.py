@@ -76,6 +76,10 @@ class CachedDataset:
     attention to the cache path you're providing, as CachedDataset will simply check if there is a file present with the index that
     it is looking for. When using train/test splits, it is wise to also take that into account in the cache path.
 
+    .. note:: When you change the transform that is applied before caching, CachedDataset cannot know about this and will present you
+              with an old file. To avoid this you either have to clear your cache folder manually when needed, incorporate all 
+              transformation parameters into the cache path which creates a tree of cache files or use reset_cache=True. 
+
     Parameters:
         dataset:
             Dataset to be cached. Can be None, if only files in cache_path should be used.
