@@ -10,7 +10,7 @@ import numpy as np
 import logging
 
 
-def save_to_cache(data, targets, file_path: Union[str, Path], compression: Union[str, None]) -> None:
+def save_to_cache(data, targets, file_path: Union[str, Path], compression: bool = True) -> None:
     """
     Save data to caching path on disk in an hdf5 file. Can deal with data
     that is a dictionary.
@@ -18,7 +18,7 @@ def save_to_cache(data, targets, file_path: Union[str, Path], compression: Union
         data: numpy ndarray-like or a list thereof.
         targets: same as data, can be None.
         file_path: caching file path.
-        compression: compression algorithm to use -> default: "lzf"
+        compression: Whether to apply compression. (default = True - uses lzf compression)
     """
     with h5py.File(file_path, "w") as f:
         for name, data in zip(["data", "target"], [data, targets]):
@@ -31,13 +31,13 @@ def save_to_cache(data, targets, file_path: Union[str, Path], compression: Union
                         f.create_dataset(
                             f"{name}/{i}/{key}",
                             data=item,
-                            compression=compression if type(item) == np.ndarray else None,
+                            compression="lzf" if type(item) == np.ndarray and compression else None,
                         )
                 else:
                     f.create_dataset(
                         f"{name}/{i}",
                         data=data_piece,
-                        compression=compression if type(data_piece) == np.ndarray else None,
+                        compression="lzf" if type(data_piece) == np.ndarray and compression else None,
                     )
 
 
@@ -96,7 +96,7 @@ class CachedDataset:
             Number of copies of each sample to be cached.
             This is a useful parameter if the dataset is being augmented with slow, random transforms.
         compression:
-            Compression algorithm being used in the cache. (default=None)
+            Whether to apply compression (if true uses lzf compression)
     """
 
     dataset: Iterable
@@ -105,7 +105,7 @@ class CachedDataset:
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
     num_copies: int = 1
-    compression: Union[str, None] = 'lzf'
+    compression: bool = True
 
     def __post_init__(self):
         super().__init__()
