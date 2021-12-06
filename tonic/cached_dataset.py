@@ -10,7 +10,7 @@ import numpy as np
 import logging
 
 
-def save_to_cache(data, targets, file_path: Union[str, Path]) -> None:
+def save_to_cache(data, targets, file_path: Union[str, Path], compression: Union[str, None]) -> None:
     """
     Save data to caching path on disk in an hdf5 file. Can deal with data
     that is a dictionary.
@@ -18,6 +18,7 @@ def save_to_cache(data, targets, file_path: Union[str, Path]) -> None:
         data: numpy ndarray-like or a list thereof.
         targets: same as data, can be None.
         file_path: caching file path.
+        compression: compression algorithm to use -> default: "lzf"
     """
     with h5py.File(file_path, "w") as f:
         for name, data in zip(["data", "target"], [data, targets]):
@@ -30,13 +31,13 @@ def save_to_cache(data, targets, file_path: Union[str, Path]) -> None:
                         f.create_dataset(
                             f"{name}/{i}/{key}",
                             data=item,
-                            compression="lzf" if type(item) == np.ndarray else None,
+                            compression=compression if type(item) == np.ndarray else None,
                         )
                 else:
                     f.create_dataset(
                         f"{name}/{i}",
                         data=data_piece,
-                        compression="lzf" if type(data_piece) == np.ndarray else None,
+                        compression=compression if type(data_piece) == np.ndarray else None,
                     )
 
 
@@ -77,8 +78,8 @@ class CachedDataset:
     it is looking for. When using train/test splits, it is wise to also take that into account in the cache path.
 
     .. note:: When you change the transform that is applied before caching, CachedDataset cannot know about this and will present you
-              with an old file. To avoid this you either have to clear your cache folder manually when needed, incorporate all 
-              transformation parameters into the cache path which creates a tree of cache files or use reset_cache=True. 
+              with an old file. To avoid this you either have to clear your cache folder manually when needed, incorporate all
+              transformation parameters into the cache path which creates a tree of cache files or use reset_cache=True.
 
     Parameters:
         dataset:
@@ -94,6 +95,8 @@ class CachedDataset:
         num_copies:
             Number of copies of each sample to be cached.
             This is a useful parameter if the dataset is being augmented with slow, random transforms.
+        compression:
+            Compression algorithm being used in the cache. (default=None)
     """
 
     dataset: Iterable
@@ -102,6 +105,7 @@ class CachedDataset:
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
     num_copies: int = 1
+    compression: Union[str, None] = 'lzf'
 
     def __post_init__(self):
         super().__init__()
@@ -137,7 +141,7 @@ class CachedDataset:
                 stacklevel=2,
             )
             data, targets = self.dataset[item]
-            save_to_cache(data, targets, file_path=file_path)
+            save_to_cache(data, targets, file_path=file_path, compression=self.compression)
             # format might change during save to hdf5,
             # i.e. tensors -> np arrays
             data, targets = load_from_cache(file_path)
