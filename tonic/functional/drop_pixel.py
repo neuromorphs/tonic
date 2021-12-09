@@ -51,3 +51,15 @@ def drop_pixel_numpy(events: np.ndarray, coordinates):
         dropped_pixel_mask = np.logical_or(current_mask, dropped_pixel_mask)
 
     return events[np.invert(dropped_pixel_mask)]
+
+
+def drop_pixel_raster(raster: np.ndarray, coordinates):
+
+    assert len(raster.shape) == 4 or len(raster.shape) == 3
+
+    for x, y in coordinates:
+        raster[..., y, x] = 0
+
+    return raster
+
+
