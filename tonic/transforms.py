@@ -89,13 +89,19 @@ class DropPixel:
     hot_pixel_frequency: Optional = None
 
     def __call__(self, events):
-        if self.hot_pixel_frequency:
-            self.coordinates = functional.identify_hot_pixel(
-                events=events, hot_pixel_frequency=self.hot_pixel_frequency
-            )
 
-        return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates)
+        if "x" and "t" and "p" in events.dtype.names:
 
+            if self.hot_pixel_frequency:
+                self.coordinates = functional.identify_hot_pixel(
+                    events=events, hot_pixel_frequency=self.hot_pixel_frequency
+                )
+
+            return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates)
+
+        elif len(events.shape)==4 or len(events.shape)==3:
+
+            return functional.drop_pixel.drop_pixel_raster(events, self.coordinates)
 
 @dataclass(frozen=True)
 class Downsample:
