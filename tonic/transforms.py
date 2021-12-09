@@ -90,7 +90,7 @@ class DropPixel:
 
     def __call__(self, events):
 
-        if "x" and "t" and "p" in events.dtype.names:
+        if events.dtype.names is not None:
 
             if self.hot_pixel_frequency:
                 self.coordinates = functional.identify_hot_pixel(
