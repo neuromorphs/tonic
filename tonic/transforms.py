@@ -91,7 +91,7 @@ class DropPixel:
     def __call__(self, events):
 
         if events.dtype.names is not None:
-
+            # assert "x", "y", "p" in events.dtype.names
             if self.hot_pixel_frequency:
                 self.coordinates = functional.identify_hot_pixel(
                     events=events, hot_pixel_frequency=self.hot_pixel_frequency
@@ -100,6 +100,10 @@ class DropPixel:
             return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates)
 
         elif len(events.shape)==4 or len(events.shape)==3:
+            if self.hot_pixel_frequency:
+                self.coordinates = functional.identify_hot_pixel_raster(
+                    events=events, hot_pixel_frequency=self.hot_pixel_frequency
+                )
 
             return functional.drop_pixel.drop_pixel_raster(events, self.coordinates)
 
