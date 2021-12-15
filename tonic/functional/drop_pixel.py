@@ -77,6 +77,17 @@ def drop_pixel_numpy(events: np.ndarray, coordinates):
 
 
 def drop_pixel_raster(raster: np.ndarray, coordinates):
+    """Drops events for pixel locations
+
+        Parameters:
+            events: ndarray of shape [p, h, w] or [t, p, h, w]
+            ordering: ordering of the event tuple inside of events. This function requires 'x' and
+                      'y' to be in the ordering
+            coordinates: list of (x,y) coordinates for which all events will be deleted.
+
+        Returns:
+            The filtered raster or frame
+        """
     assert len(raster.shape) == 4 or len(raster.shape) == 3
 
     for x, y in coordinates:
