@@ -30,6 +30,29 @@ def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
     return hot_pixels
 
 
+def identify_hot_pixel_raster(events: np.ndarray, hot_pixel_frequency: float):
+    """Identifies pixels that fire above a certain predefined spike amount, supports both
+
+        Parameters:
+            events: ndarray of shape [P, H, W] or [T, P, H, W]
+            hot_pixel_frequency: number of spikes per pixel allowed for the recording, any pixel
+                                 firing above that number will be deactivated.
+
+        Returns:
+            list of (x/y) coordinates for excessively firing pixels.
+        """
+    if len(events.shape) == 3:
+        # if dim =3, the input is frame
+        merged_polarity = events.copy().sum(0)
+    elif len(events.shape) == 4:
+        # if dimension is 4, input is raster
+        merged_polarity = events.copy().sum(0).sum(0)
+
+    ind = np.argwhere(merged_polarity > hot_pixel_frequency)
+    a =1
+    return tuple(zip(ind[:, 0], ind[:, 1]))
+
+
 def drop_pixel_numpy(events: np.ndarray, coordinates):
     """Drops events for pixel locations that fire
 
@@ -54,12 +77,9 @@ def drop_pixel_numpy(events: np.ndarray, coordinates):
 
 
 def drop_pixel_raster(raster: np.ndarray, coordinates):
-
     assert len(raster.shape) == 4 or len(raster.shape) == 3
 
     for x, y in coordinates:
-        raster[..., y, x] = 0
+        raster[..., x, y] = 0
 
     return raster
-
-
