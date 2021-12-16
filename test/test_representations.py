@@ -85,6 +85,15 @@ class TestRepresentations:
         transform = transforms.ToFrame(sensor_size=None, time_window=25000)
         frames = transform(orig_events)
         assert frames.shape[1:] == sensor_size[::-1]
+        
+    def test_representation_frame_audio(self):
+        sensor_size = (200, 1, 1)
+        orig_events, _ = create_random_input(sensor_size=sensor_size, dtype=np.dtype([("x", int), ("t", int), ("p", int)]))
+        transform = transforms.ToFrame(sensor_size=sensor_size, time_window=25000)
+        frames = transform(orig_events)
+#         breakpoint()
+        assert frames.shape[1:] == sensor_size[1::-1]
+
 
     @pytest.mark.parametrize(
         "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]
