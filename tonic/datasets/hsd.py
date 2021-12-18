@@ -91,7 +91,7 @@ class SHD(HSD):
             self.download()
 
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
-        self.classes = file["extra/keys"]
+        self.classes = file["extra/keys"][()]
 
 
 class SSC(HSD):
@@ -149,4 +149,4 @@ class SSC(HSD):
             self.download()
 
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
-        self.classes = file["extra/keys"]
+        self.classes = file["extra/keys"][()]
