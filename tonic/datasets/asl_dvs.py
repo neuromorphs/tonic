@@ -2,7 +2,7 @@ import os
 import numpy as np
 from numpy.lib import recfunctions
 import scipy.io as scio
-from typing import Tuple, Any, Optional
+from typing import Tuple, Any, Optional, List, Dict, Union
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
 

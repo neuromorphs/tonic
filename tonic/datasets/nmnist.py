@@ -89,7 +89,7 @@ class NMNIST(Dataset):
         Returns:
             a tuple of (events, target) where target is the index of the target class.
         """
-        events = read_mnist_file(self.data[index], dtype=self.dtype)
+        events = read_mnist_file(self.data[index], self.dtype)
         if self.first_saccade_only:
             events = events[events["t"] < 1e5]
         target = self.targets[index]

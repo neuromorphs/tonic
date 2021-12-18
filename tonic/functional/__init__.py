@@ -1,7 +1,7 @@
 from .crop import crop_numpy
 from .denoise import denoise_numpy
 from .drop_event import drop_event_numpy
-from .drop_pixel import drop_pixel_numpy, identify_hot_pixel, identify_hot_pixel_raster
+from .drop_pixel import drop_pixel_numpy, identify_hot_pixel
 from .refractory_period import refractory_period_numpy
 from .slicing import (
     slice_by_time,

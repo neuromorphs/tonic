@@ -80,29 +80,6 @@ class TestTransforms:
             assert not np.logical_and(events["x"] == 1, events["y"] == 1).sum()
         assert events is not orig_events
 
-    @pytest.mark.parametrize(
-        "coordinates, hot_pixel_frequency",
-        [(((9, 11), (10, 12), (11, 13)), None), (None, 5000)],
-    )
-    def test_transform_drop_pixel_raster(self, coordinates, hot_pixel_frequency):
-        raster_test = np.random.randint(0, 100, (50, 2, 100, 200))
-        frame_test = np.random.randint(0, 100, (2, 100, 200))
-        transform = transforms.DropPixel(
-            coordinates=coordinates, hot_pixel_frequency=hot_pixel_frequency
-        )
-        raster = transform(raster_test)
-        frame = transform(frame_test)
-
-        if coordinates:
-            for x, y in coordinates:
-                assert raster[:, :, x, y].sum() == 0
-                assert frame[:, x, y].sum() == 0
-        if hot_pixel_frequency:
-            merged_polarity_raster = raster.sum(0).sum(0)
-            merged_polarity_frame  = frame.sum(0)
-            assert not merged_polarity_frame[merged_polarity_frame>5000].sum().sum()
-            assert not merged_polarity_raster[merged_polarity_raster > 5000].sum().sum()
-
     @pytest.mark.parametrize("time_factor, spatial_factor", [(1, 0.25), (1e-3, 1)])
     def test_transform_downsample(self, time_factor, spatial_factor):
         orig_events, sensor_size = create_random_input()
@@ -258,13 +235,13 @@ class TestTransforms:
             )
 
             assert (
-                    events["x"] - orig_events["x"]
-                    == (events["x"] - orig_events["x"]).astype(int)
+                events["x"] - orig_events["x"]
+                == (events["x"] - orig_events["x"]).astype(int)
             ).all()
 
             assert (
-                    events["y"] - orig_events["y"]
-                    == (events["y"] - orig_events["y"]).astype(int)
+                events["y"] - orig_events["y"]
+                == (events["y"] - orig_events["y"]).astype(int)
             ).all()
 
         else:
@@ -295,8 +272,8 @@ class TestTransforms:
             np.testing.assert_array_equal(events["y"], orig_events["y"])
             np.testing.assert_array_equal(events["p"], orig_events["p"])
             assert (
-                    events["t"] - orig_events["t"]
-                    == (events["t"] - orig_events["t"]).astype(int)
+                events["t"] - orig_events["t"]
+                == (events["t"] - orig_events["t"]).astype(int)
             ).all()
         assert events is not orig_events
 
