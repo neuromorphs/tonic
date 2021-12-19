@@ -26,11 +26,9 @@ class CIFAR10DVS(Dataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
-    url = "https://www.googleapis.com/drive/v3/files/1blZ4xdclZknP5Kn7AtaY1jecl4OiTJdl?alt=media&key=AIzaSyBxmZ889HtsojRJB2h6lCzbSTKxh2VqiGk"
+    url = "https://drive.google.com/file/d/1blZ4xdclZknP5Kn7AtaY1jecl4OiTJdl"
 
     # For backup, if the above fails, try this (not a direct link to the file):
-    # url = "https://drive.google.com/uc?export=download&id=1blZ4xdclZknP5Kn7AtaY1jecl4OiTJdl"
-    # or this:
     # https://mega.nz/file/6wFmUDxJ#aFjZDveS64vOmLtSqSUkxMstC1Vm5jq9gK_1mMZy1zI
 
     filename = "1blZ4xdclZknP5Kn7AtaY1jecl4OiTJdl.zip"
