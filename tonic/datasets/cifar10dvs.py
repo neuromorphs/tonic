@@ -26,12 +26,9 @@ class CIFAR10DVS(Dataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
-    url = "https://drive.google.com/file/d/1blZ4xdclZknP5Kn7AtaY1jecl4OiTJdl"
+    url = "http://cifar10dvs.ridger.top/CIFAR10DVS.zip"
 
-    # For backup, if the above fails, try this (not a direct link to the file):
-    # https://mega.nz/file/6wFmUDxJ#aFjZDveS64vOmLtSqSUkxMstC1Vm5jq9gK_1mMZy1zI
-
-    filename = "1blZ4xdclZknP5Kn7AtaY1jecl4OiTJdl.zip"
+    filename = "CIFAR10DVS.zip"
     file_md5 = "ce3a4a0682dc0943703bd8f749a7701c"
     data_filename = ["airplane.zip",
                      "automobile.zip",
@@ -53,6 +50,11 @@ class CIFAR10DVS(Dataset):
             save_to, transform=transform, target_transform=target_transform
         )
 
+        # classes for CIFAR10DVS dataset
+
+        classes = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7,
+                   'ship': 8, 'truck': 9}
+
         if not self._check_exists():
             self.download()
             for filename in self.data_filename:
@@ -64,7 +66,7 @@ class CIFAR10DVS(Dataset):
             for file in files:
                 if file.endswith("aedat4"):
                     self.data.append(path + "/" + file)
-                    label_number = os.path.basename(path)
+                    label_number = classes[os.path.basename(path)]
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
@@ -73,7 +75,7 @@ class CIFAR10DVS(Dataset):
             a tuple of (events, target) where target is the index of the target class.
         """
         events = read_aedat4(self.data[index])
-        events.dtype.names= ['t', 'x', 'y', 'p']  # for correctly reading the data
+        events.dtype.names = ['t', 'x', 'y', 'p']  # for correctly reading the data
         target = self.targets[index]
 
         if self.transform is not None:
