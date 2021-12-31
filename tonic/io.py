@@ -2,6 +2,7 @@ import os
 import struct
 import numpy as np
 
+
 events_struct = [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
 
 # many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
@@ -19,7 +20,6 @@ def make_structured_array(x, y, t, p, dtype=events_struct):
     """
     return np.fromiter(zip(x, y, t, p), dtype=dtype)
 
-
 def read_aedat4(in_file):
     import loris
     """
@@ -28,12 +28,11 @@ def read_aedat4(in_file):
     Args:
         in_file: str The name of the .aedat file
     Returns:
-        shape (Tuple): Shape of the sensor (height, width)
         xytp:   numpy structured array of events
     """
     event_data = loris.read_file(in_file)
     events = event_data["events"]
-    return shape, events
+    return events
 
 
 def read_dvs_128(filename):

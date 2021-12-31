@@ -25,7 +25,7 @@ USER_AGENT = "tonic"
 def _urlretrieve(url: str, filename: str, chunk_size: int = 1024) -> None:
     with open(filename, "wb") as fh:
         with urllib.request.urlopen(
-            urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+                urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         ) as response:
             with tqdm(total=response.length) as pbar:
                 for chunk in iter(lambda: response.read(chunk_size), ""):
@@ -61,7 +61,7 @@ def _get_redirect_url(url: str, max_hops: int = 3) -> str:
 
     for _ in range(max_hops + 1):
         with urllib.request.urlopen(
-            urllib.request.Request(url, headers=headers)
+                urllib.request.Request(url, headers=headers)
         ) as response:
             if response.url == url or response.url is None:
                 return url
@@ -88,11 +88,11 @@ def _get_google_drive_file_id(url: str) -> Optional[str]:
 
 
 def download_url(
-    url: str,
-    root: str,
-    filename: Optional[str] = None,
-    md5: Optional[str] = None,
-    max_redirect_hops: int = 3,
+        url: str,
+        root: str,
+        filename: Optional[str] = None,
+        md5: Optional[str] = None,
+        max_redirect_hops: int = 3,
 ) -> None:
     """Download a file from a url and place it in root.
 
@@ -158,11 +158,11 @@ _ZIP_COMPRESSION_MAP: Dict[str, int] = {
 
 def _extract_zip(from_path: str, to_path: str, compression: Optional[str]) -> None:
     with zipfile.ZipFile(
-        from_path,
-        "r",
-        compression=_ZIP_COMPRESSION_MAP[compression]
-        if compression
-        else zipfile.ZIP_STORED,
+            from_path,
+            "r",
+            compression=_ZIP_COMPRESSION_MAP[compression]
+            if compression
+            else zipfile.ZIP_STORED,
     ) as zip:
         zip.extractall(to_path)
 
@@ -235,7 +235,7 @@ def _detect_file_type(file: str) -> Tuple[str, Optional[str], Optional[str]]:
 
 
 def _decompress(
-    from_path: str, to_path: Optional[str] = None, remove_finished: bool = False
+        from_path: str, to_path: Optional[str] = None, remove_finished: bool = False
 ) -> str:
     r"""Decompress a file.
 
@@ -271,7 +271,7 @@ def _decompress(
 
 
 def extract_archive(
-    from_path: str, to_path: Optional[str] = None, remove_finished: bool = False
+        from_path: str, to_path: Optional[str] = None, remove_finished: bool = False
 ) -> str:
     """Extract an archive.
 
@@ -307,12 +307,12 @@ def extract_archive(
 
 
 def download_and_extract_archive(
-    url: str,
-    download_root: str,
-    extract_root: Optional[str] = None,
-    filename: Optional[str] = None,
-    md5: Optional[str] = None,
-    remove_finished: bool = False,
+        url: str,
+        download_root: str,
+        extract_root: Optional[str] = None,
+        filename: Optional[str] = None,
+        md5: Optional[str] = None,
+        remove_finished: bool = False,
 ) -> None:
     download_root = os.path.expanduser(download_root)
     if extract_root is None:
@@ -349,5 +349,6 @@ def list_files(root: str, suffix: str, prefix: bool = False) -> List[str]:
     if prefix is True:
         files = [os.path.join(root, d) for d in files]
     return files
+
 
 T = TypeVar("T", str, bytes)
