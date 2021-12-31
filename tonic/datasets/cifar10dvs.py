@@ -43,7 +43,7 @@ class CIFAR10DVS(Dataset):
 
     folder_name = "CIFAR10DVS"
 
-    sensor_size = (128, 128, 2)  # all recordings are of different size
+    sensor_size = (128, 128, 2)
 
     def __init__(self, save_to, transform=None, target_transform=None):
         super(CIFAR10DVS, self).__init__(
