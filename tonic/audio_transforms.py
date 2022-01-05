@@ -1,10 +1,8 @@
-import torch
-from typing import Tuple, List, Union, Iterator
-import torch.nn.functional as F
-from dataclasses import dataclass
-from scipy.signal import butter
-from torchaudio.functional import lfilter
+import librosa
 import numpy as np
+from dataclasses import dataclass
+from scipy.signal import butter, sosfilt
+from typing import Tuple, List, Union, Iterator
 
 
 @dataclass
@@ -25,27 +23,14 @@ class FixLength:
     length: int
     axis: int = 1
 
-    def __call__(self, data: torch.Tensor):
-        data_length = data.shape[self.axis]
-        if data_length == self.length:
-            return data
-        elif data_length > self.length:
-            data_splits = torch.split(data, self.length, self.axis)
-            return data_splits[0]
-        else:
-            padding = []
-            for cur_axis, axis_len in enumerate(data.shape):
-                if cur_axis == self.axis:
-                    padding = [0, self.length - data_length] + padding
-                else:
-                    padding = [0, 0] + padding
-            return F.pad(data, padding)
+    def __call__(self, data: np.ndarray):
+        return librosa.util.fix_length(data, self.length, self.axis)
 
 
 @dataclass
 class Bin:
     """
-    Bin the given data along a specified axis at the specivied new frequency
+    Bin the given data along a specified axis at the specified new frequency
 
     Parameters:
         orig_freq: float
@@ -67,60 +52,116 @@ class Bin:
     new_freq: float
     axis: int
 
-    def __call__(self, data: torch.Tensor):
-        splits = torch.split(data, int(self.orig_freq/self.new_freq), dim=self.axis)
-        data = [torch.sum(split, dim=self.axis, keepdim=True) for split in splits]
-        return torch.cat(data, self.axis)
+    def __call__(self, data: np.ndarray):
+        data_len = data.shape[self.axis]
+        n_splits = int(data_len / (self.orig_freq / self.new_freq))
+        splits = np.array_split(data, n_splits, axis=self.axis)
+        data = [np.sum(split, axis=self.axis, keepdims=True) for split in splits]
+        return np.concatenate(data, self.axis)
 
 
 @dataclass
-class LFilter:
+class SOSFilter:
     """
-    See documentation of torchaudio.functional.lfilter for detailed explanation of parameters
-    """
-    a_coeffs: torch.Tensor
-    b_coeffs: torch.Tensor
-    clamp: bool
+    SOS filter
 
-    def __call__(self, data):
-        return lfilter(data, a_coeffs=self.a_coeffs, b_coeffs=self.b_coeffs, clamp=False)
+    Parameters
+    ----------
+
+    coeffs:
+        coefficients of the second order filter
+    axis:
+        Axis along with the filter needs to be applied
+
+    See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sosfilt.html for more details
+    """
+    coeffs: np.ndarray
+    axis: int
+
+    def __call__(self, signal):
+        return sosfilt(self.coeffs, signal, axis=self.axis)
 
 
 @dataclass
 class ButterFilter:
+    """
+    Butter filter
+
+    Parameters
+    ----------
+
+    order:
+        Order of filter to be used
+    freq:
+        Frequency for the filter (float or (float, float))
+    analog:
+        True if analog filter
+    btype:
+        Filter type, {‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’}
+    rectify:
+        If true, the output is the absolute value of the filtered output
+    axis:
+        Axis along which the filter needs to be applied
+
+    See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
+    """
     order: int
     freq: Union[float, Tuple[float, float]]
     analog: bool
     btype: str
-    clamp: bool
     rectify: bool
+    axis: int
 
     def __post_init__(self):
-        b_coeffs, a_coeffs = butter(self.order, self.freq, analog=self.analog, btype=self.btype, output="ba")
-        b_coeffs = torch.tensor(b_coeffs).float()
-        a_coeffs = torch.tensor(a_coeffs).float()
-        self.filter = LFilter(a_coeffs, b_coeffs, self.clamp)
+        coeffs = butter(self.order, self.freq, analog=self.analog, btype=self.btype, output="sos")
+        self.filter = SOSFilter(coeffs, axis=self.axis)
 
-    def __call__(self, data: torch.Tensor) -> torch.Tensor:
+    def __call__(self, data: np.ndarray) -> np.ndarray:
         out = self.filter(data)
         if self.rectify:
-            return torch.abs(out)
+            return np.abs(out)
         else:
             return out
 
 
 @dataclass
 class ButterFilterBank:
+    """
+    Butter filter bank
+
+    Parameters
+    ----------
+
+    order:
+        Order of filter to be used
+    freq:
+        Frequency for the filter (float or (float, float))
+    analog:
+        True if analog filter
+    btype:
+        Filter type, {‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’}
+    rectify:
+        If true, the output is the absolute value of the filtered output
+    axis:
+        Axis along which the filter needs to be applied
+    analog:
+        If true, the filter will be analog. False by default
+
+    See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
+    """
     order: int
     freq: List[Tuple[float, float]]
-    clamp: bool
     rectify: bool
+    axis: int
+    analog: bool = False
 
     def __post_init__(self):
-        self.filters = [ButterFilter(self.order, freq, analog=False, btype="band", clamp=self.clamp, rectify=self.rectify) for freq in self.freq]
+        self.filters = [
+            ButterFilter(self.order, freq, analog=self.analog, btype="band", rectify=self.rectify, axis=self.axis) for
+            freq in self.freq]
 
     def __call__(self, data):
-        return torch.cat([filt(data) for filt in self.filters], dim=0)
+        return np.concatenate([filt(data) for filt in self.filters], axis=0)
 
 
 @dataclass
@@ -129,8 +170,8 @@ class LinearButterFilterBank:
     low_freq: float = 100
     sampling_freq: float = 16000
     num_filters: int = 64
-    clamp: bool = False
     rectify: bool = True
+    axis: int = -1
 
     def compute_freq_bands(self):
         filter_bandwidth = 2 / self.num_filters
@@ -139,15 +180,14 @@ class LinearButterFilterBank:
         high_freq = self.sampling_freq / 2 / (1 + filter_bandwidth) - 1
         freqs = np.linspace(self.low_freq, high_freq, self.num_filters)
 
-        return torch.tensor([freqs, freqs * (1 + filter_bandwidth)]).T/ nyquist
+        return np.array([freqs, freqs * (1 + filter_bandwidth)]).T / nyquist
 
     def __post_init__(self):
         freq_bands = self.compute_freq_bands()
-        self.filterbank = ButterFilterBank(order=self.order, freq=freq_bands, clamp=self.clamp, rectify=self.rectify)
+        self.filterbank = ButterFilterBank(order=self.order, freq=freq_bands, rectify=self.rectify, axis=self.axis)
 
     def __call__(self, data):
         return self.filterbank(data)
-
 
 
 @dataclass
@@ -167,13 +207,13 @@ class MelButterFilterBank(LinearButterFilterBank):
         high_freq = self.sampling_freq / 2 / (1 + filter_bandwidth) - 1
         freqs = np.linspace(self.low_freq, high_freq, self.num_filters)
 
-        freq_bands = np.array([freqs, freqs * (1 + filter_bandwidth)])/ nyquist
+        freq_bands = np.array([freqs, freqs * (1 + filter_bandwidth)]) / nyquist
 
         low_freq = self.hz2mel(self.low_freq)
         high_freq = self.hz2mel(self.sampling_freq / 2 / (1 + filter_bandwidth) - 1)
         freqs = self.mel2hz(np.linspace(low_freq, high_freq, self.num_filters))
 
-        return torch.tensor([freqs, freqs * (1 + filter_bandwidth)]).T/nyquist
+        return np.array([freqs, freqs * (1 + filter_bandwidth)]).T / nyquist
 
 
 @dataclass
@@ -193,18 +233,18 @@ class AddNoise:
     snr: float
     normed: bool = True
 
-    def get_noise_sample(self, sample_len: int) -> torch.Tensor:
+    def get_noise_sample(self, sample_len: int) -> np.ndarray:
         """Get a random noise sample from the dataset"""
         # Find noise sample of minimum length
         while True:
-            noise_idx = torch.randint(0, len(self.dataset), (1,)).item()
+            noise_idx = np.random.randint(0, len(self.dataset), (1,)).item()
             noise = self.dataset[noise_idx][0]
             if noise.shape[1] >= sample_len:
                 break
         # Sample a random part of the data recording
         noise_signal_len = noise.shape[1]
         if noise_signal_len > sample_len:
-            start_t = torch.randint(0, noise_signal_len - sample_len, (1,)).item()
+            start_t = np.random.randint(0, noise_signal_len - sample_len, (1,)).item()
             noise = noise[:, start_t:start_t + sample_len]
         return noise
 
@@ -220,15 +260,26 @@ class AddNoise:
 
         # Normalize if specified
         if self.normed:
-            return self.normalize(signal_with_snr)
+            return normalize(signal_with_snr)
         else:
             return signal_with_snr
 
-    @staticmethod
-    def normalize(signal):
-        """Normalize the signal"""
-        signal -= signal.mean()
-        max_val = torch.max(torch.abs(signal))
-        if max_val > 0:
-            signal /= max_val
-        return signal
+
+def normalize(signal):
+    """Normalize the signal"""
+    signal -= signal.mean()
+    max_val = np.max(np.abs(signal))
+    if max_val > 0:
+        signal /= max_val
+    return signal
+
+
+#@dataclass
+#class DivisiveNormalization:
+#    frame_dt: float  # Frame clock step
+#    num_frames_avg: int  # Number of frames to average over
+#    gating_clock_dt: float  # Clock frequency of gating E(t)
+#    dt: float = 1  # Global clock step
+#
+#    def __call__(self, events: np.ndarray):
+#        raise NotImplementedError
