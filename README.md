@@ -1,6 +1,6 @@
 ![tonic](tonic-logo-padded.png)
 [![PyPI](https://img.shields.io/pypi/v/tonic)](https://pypi.org/project/tonic/)
-[![Travis Build Status](https://travis-ci.com/neuromorphs/tonic.svg?branch=master)](https://travis-ci.com/neuromorphs/tonic)
+[![Github actions CI pipeline](https://github.com/neuromorphs/tonic/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/neuromorphs/tonic/actions/workflows/ci-pipeline.yml)
 [![codecov](https://codecov.io/gh/neuromorphs/tonic/branch/develop/graph/badge.svg?token=Q0BMYGUSZQ)](https://codecov.io/gh/neuromorphs/tonic)
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)

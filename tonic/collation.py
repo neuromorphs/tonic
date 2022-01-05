@@ -26,7 +26,7 @@ class PadTensors:
 
         max_length = max([sample.shape[0] for sample, target in batch])
         for sample, target in batch:
-            sample = torch.tensor(sample)
+            if not isinstance(sample, torch.Tensor): sample = torch.tensor(sample)
             samples_output.append(
                 torch.cat(
                     (

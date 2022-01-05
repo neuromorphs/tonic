@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from numpy.lib import recfunctions
 from importRosbag.importRosbag import importRosbag
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url

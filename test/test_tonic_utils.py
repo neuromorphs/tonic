@@ -1,7 +1,7 @@
 import tonic
 import tonic.transforms as transforms
 from utils import create_random_input
-
+from sys import platform
 
 class DummyDataset:
     def __init__(self, events, transform):
@@ -35,7 +35,7 @@ def test_pytorch_batch_collation_dense_tensor():
 
     batch, label = next(iter(dataloader))
 
-    max_time = int(events2["t"][-1]) + 1
+    max_time = int(events2["t"][-1])
     assert batch.shape[0] == max_time // time_window
     assert batch.shape[1] == batch_size
     assert batch.shape[2] == sensor_size[2]
@@ -43,5 +43,5 @@ def test_pytorch_batch_collation_dense_tensor():
 
 def test_plotting():
     events, sensor_size = create_random_input()
-
-    tonic.utils.plot_event_grid(events)
+    # this test doesn't finish on Windows
+    if platform == 'linux': tonic.utils.plot_event_grid(events)
