@@ -12,10 +12,8 @@ jobs:
         python-version: ["3.7", "3.8", "3.9"]
     steps:
       - uses: actions/checkout@v2
-      - name: print os string
-        run: echo ${{ matrix.os }}
       - if: matrix.os == 'ubuntu-20.04'
-        name: install audio librabry libsndfile
+        name: install audio library libsndfile
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -36,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: install audio library libsndfile
+        run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
@@ -55,6 +55,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: install audio library libsndfile
+        run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
@@ -75,6 +77,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: install audio library libsndfile
+        run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
