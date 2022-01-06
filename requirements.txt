@@ -1,9 +1,0 @@
-numpy
-torch
-importRosbag
-loris
-pytest
-h5py
-scipy
-matplotlib
-librosa
