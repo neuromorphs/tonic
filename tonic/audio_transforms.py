@@ -136,10 +136,6 @@ class ButterFilterBank:
         Order of filter to be used
     freq:
         Frequency for the filter (float or (float, float))
-    analog:
-        True if analog filter
-    btype:
-        Filter type, {‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’}
     rectify:
         If true, the output is the absolute value of the filtered output
     axis:
@@ -166,9 +162,31 @@ class ButterFilterBank:
 
 @dataclass
 class LinearButterFilterBank:
+    """
+    Butter filter bank
+
+    Parameters
+    ----------
+
+    order:
+        Order of filter to be used
+    low_freq:
+        Lower/cutoff frequency the filter (float or (float, float))
+    sampling_freq:
+        Sampling frequency of the signal, also serves as higher frequency of the filter bank.
+    analog:
+        True if analog filter
+    rectify:
+        If true, the output is the absolute value of the filtered output
+    axis:
+        Axis along which the filter needs to be applied
+
+    See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
+    """
     order: int = 2
     low_freq: float = 100
     sampling_freq: float = 16000
+    analog: bool = False
     num_filters: int = 64
     rectify: bool = True
     axis: int = -1
@@ -192,6 +210,27 @@ class LinearButterFilterBank:
 
 @dataclass
 class MelButterFilterBank(LinearButterFilterBank):
+    """
+    Butter filter bank with frequencies along the mel scale
+
+    Parameters
+    ----------
+
+    order:
+        Order of filter to be used
+    low_freq:
+        Lower/cutoff frequency the filter (float or (float, float))
+    sampling_freq:
+        Sampling frequency of the signal, also serves as higher frequency of the filter bank.
+    analog:
+        True if analog filter
+    rectify:
+        If true, the output is the absolute value of the filtered output
+    axis:
+        Axis along which the filter needs to be applied
+
+    See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
+    """
     @staticmethod
     def hz2mel(freq):
         return 2595 * np.log10(1 + freq / 700)
