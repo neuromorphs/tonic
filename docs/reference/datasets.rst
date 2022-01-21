@@ -18,6 +18,11 @@ ASL-DVS
 .. autoclass:: ASLDVS
     :members: __getitem__
 
+Cifar10-DVS
+^^^^^^^^^^^
+.. autoclass:: CIFAR10DVS
+    :members: __getitem__
+
 DAVIS Event Camera Dataset
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: DAVISDATA
@@ -73,14 +78,12 @@ Audio datasets
 --------------
 Audio events typically have 3 event channels: time, frequency channel number and polarity.
 
-Heidelberg Spiking Datasets
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Spiking Heidelberg Dataset (SHD)
-""""""""""""""""""""""""""""""""
+Spiking Heidelberg Digits (SHD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: SHD
 
 Spiking Speech Commands (SSC)
-"""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: SSC
 
 N-TIDIGITS

@@ -44,7 +44,7 @@ class HSD(Dataset):
 
 
 class SHD(HSD):
-    """Spiking Heidelberg Dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
+    """Spiking Heidelberg Digits. One of two Heidelberg Spiking Digits <https://arxiv.org/abs/1910.07407>.
     Events have (txp) ordering.
     ::
 
