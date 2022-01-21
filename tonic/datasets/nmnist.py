@@ -29,11 +29,16 @@ class NMNIST(Dataset):
         first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
     """
 
-    url = "https://www.dropbox.com/sh/tg2ljlbmtzygrag/AABrCc6FewNZSNsoObWJqY74a?dl=1"
-    filename = "nmnist-archive.zip"
-    file_md5 = "c5b12b1213584bd3fe976b55fe43c835"
-    train_filename = "Train.zip"
-    test_filename = "Test.zip"
+    base_url = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
+    train_url = base_url + "39c25547-014b-4137-a934-9d29fa53c7a0/file_downloaded"
+    train_filename = "train.zip"
+    train_md5 = "20959b8e626244a1b502305a9e6e2031"
+    train_folder = "Train"
+    test_url = base_url + "05a4d654-7e03-4c15-bdfa-9bb2bcbea494/file_downloaded"
+    test_filename = "test.zip"
+    test_md5 = "69ca8762b2fe404d9b9bad1103e97832"
+    test_folder = "Test"
+
     classes = [
         "0 - zero",
         "1 - one",
@@ -66,14 +71,18 @@ class NMNIST(Dataset):
         self.first_saccade_only = first_saccade_only
 
         if train:
-            self.folder_name = "Train"
+            self.filename = self.train_filename
+            self.url = self.train_url
+            self.file_md5 = self.train_md5
+            self.folder_name = self.train_folder
         else:
-            self.folder_name = "Test"
+            self.filename = self.test_filename
+            self.url = self.test_url
+            self.file_md5 = self.test_md5
+            self.folder_name = self.test_folder
 
         if not self._check_exists():
             self.download()
-            extract_archive(os.path.join(self.location_on_system, self.train_filename))
-            extract_archive(os.path.join(self.location_on_system, self.test_filename))
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
