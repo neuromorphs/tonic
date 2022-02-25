@@ -7,12 +7,18 @@ Dataset base class
     :members:
     :private-members:
 
-CachedDataset
---------------
+Caching
+-------
+.. autoclass:: tonic.MemoryCachedDataset
+    :members:
+
+.. autoclass:: tonic.DiskCachedDataset
+    :members:
+
 .. autoclass:: tonic.CachedDataset
     :members:
 
-SlicedDataset
---------------
+Slicing
+-------
 .. autoclass:: tonic.SlicedDataset
     :members:
