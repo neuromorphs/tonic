@@ -12,7 +12,7 @@ jobs:
         python-version: ["3.7", "3.8", "3.9"]
     steps:
       - uses: actions/checkout@v2
-      - if: matrix.os == 'ubuntu-20.04'
+      - if: matrix.os == 'ubuntu-latest'
         name: install audio library libsndfile
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
       - name: Set up Python ${{ matrix.python-version }}
