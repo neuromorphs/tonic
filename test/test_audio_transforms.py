@@ -24,7 +24,7 @@ def test_bin():
     data_binned = bin_transform(data)
 
     assert data_binned.shape == (1, 8 * 100)
-    assert pytest.approx(data.sum(), data_binned.sum(), 1e-7)
+    assert data.sum() == pytest.approx(data_binned.sum(), 1e-7)
 
 
 def test_linear_butter_filter_bank():
