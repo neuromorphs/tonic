@@ -1,12 +1,13 @@
 ![tonic](tonic-logo-padded.png)
 [![PyPI](https://img.shields.io/pypi/v/tonic)](https://pypi.org/project/tonic/)
-[![Github actions CI pipeline](https://github.com/neuromorphs/tonic/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/neuromorphs/tonic/actions/workflows/ci-pipeline.yml)
 [![codecov](https://codecov.io/gh/neuromorphs/tonic/branch/develop/graph/badge.svg?token=Q0BMYGUSZQ)](https://codecov.io/gh/neuromorphs/tonic)
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
 
+Linux: [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)
+Windows: [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-2022)](https://github.com/neuromorphs/tonic)
 
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. It's like PyTorch Vision but for neuromorphic data!
 
