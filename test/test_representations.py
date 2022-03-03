@@ -99,6 +99,13 @@ class TestRepresentations:
         frames = transform(orig_events)
         assert frames.shape[1:] == sensor_size[1::-1]
 
+    def test_representation_image(self):
+        sensor_size = (100, 100, 2)
+        orig_events, _ = create_random_input(n_events=10000, sensor_size=sensor_size)
+        transform = transforms.ToImage(sensor_size=sensor_size)
+        image = transform(orig_events)
+        assert image.shape == sensor_size[::-1]
+
     @pytest.mark.parametrize(
         "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]
     )

@@ -91,6 +91,10 @@ Frames
 ^^^^^^
 .. autoclass:: ToFrame
 
+Single image
+^^^^^^^^^^^^
+.. autoclass:: ToImage
+
 Time surfaces
 ^^^^^^^^^^^^^
 .. autoclass:: ToTimesurface
