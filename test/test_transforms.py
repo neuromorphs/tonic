@@ -23,16 +23,11 @@ class TestTransforms:
         )
         assert events is not orig_events
 
-    @pytest.mark.parametrize(
-        "p, random_p", [(0.2, False), (0.5, True)]
-    )
+    @pytest.mark.parametrize("p, random_p", [(0.2, False), (0.5, True)])
     def test_transform_drop_events(self, p, random_p):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.DropEvent(
-            p=p,
-            random_p=random_p,
-        )
+        transform = transforms.DropEvent(p=p, random_p=random_p)
 
         events = transform(orig_events)
 
@@ -42,11 +37,8 @@ class TestTransforms:
                 " p*len(original) events dropped out."
             )
         else:
-            assert np.isclose(
-                events.shape[0], (1 - p) * orig_events.shape[0]
-            ), (
-                "Event dropout should result in p*len(original) events"
-                " dropped out."
+            assert np.isclose(events.shape[0], (1 - p) * orig_events.shape[0]), (
+                "Event dropout should result in p*len(original) events" " dropped out."
             )
         assert np.isclose(
             np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
@@ -99,8 +91,8 @@ class TestTransforms:
                 assert frame[:, x, y].sum() == 0
         if hot_pixel_frequency:
             merged_polarity_raster = raster.sum(0).sum(0)
-            merged_polarity_frame  = frame.sum(0)
-            assert not merged_polarity_frame[merged_polarity_frame>5000].sum().sum()
+            merged_polarity_frame = frame.sum(0)
+            assert not merged_polarity_frame[merged_polarity_frame > 5000].sum().sum()
             assert not merged_polarity_raster[merged_polarity_raster > 5000].sum().sum()
 
     @pytest.mark.parametrize("time_factor, spatial_factor", [(1, 0.25), (1e-3, 1)])
@@ -138,9 +130,7 @@ class TestTransforms:
     def test_transform_flip_lr(self, p):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipLR(
-            sensor_size=sensor_size, p=p
-        )
+        transform = transforms.RandomFlipLR(sensor_size=sensor_size, p=p)
 
         events = transform(orig_events)
 
@@ -174,9 +164,7 @@ class TestTransforms:
     def test_transform_flip_ud(self, p):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.RandomFlipUD(
-            sensor_size=sensor_size, p=p
-        )
+        transform = transforms.RandomFlipUD(sensor_size=sensor_size, p=p)
 
         events = transform(orig_events)
 
@@ -258,13 +246,13 @@ class TestTransforms:
             )
 
             assert (
-                    events["x"] - orig_events["x"]
-                    == (events["x"] - orig_events["x"]).astype(int)
+                events["x"] - orig_events["x"]
+                == (events["x"] - orig_events["x"]).astype(int)
             ).all()
 
             assert (
-                    events["y"] - orig_events["y"]
-                    == (events["y"] - orig_events["y"]).astype(int)
+                events["y"] - orig_events["y"]
+                == (events["y"] - orig_events["y"]).astype(int)
             ).all()
 
         else:
@@ -295,8 +283,8 @@ class TestTransforms:
             np.testing.assert_array_equal(events["y"], orig_events["y"])
             np.testing.assert_array_equal(events["p"], orig_events["p"])
             assert (
-                    events["t"] - orig_events["t"]
-                    == (events["t"] - orig_events["t"]).astype(int)
+                events["t"] - orig_events["t"]
+                == (events["t"] - orig_events["t"]).astype(int)
             ).all()
         assert events is not orig_events
 
