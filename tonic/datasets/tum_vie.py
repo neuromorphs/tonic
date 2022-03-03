@@ -15,9 +15,9 @@ from typing import Union, List, Callable, Optional
 
 class TUMVIE(Dataset):
     """Visual-Inertial Event Dataset <https://vision.in.tum.de/data/datasets/visual-inertial-event-dataset>.
-    TUM-VIE is an event camera dataset for developing 3D perception and navigation algorithms. It contains 
-    handheld and head-mounted sequences in indoor and outdoor environments with rapid motion during sports 
-    and high dynamic range. TUM-VIE includes challenging sequences where state-of-the art VIO fails or 
+    TUM-VIE is an event camera dataset for developing 3D perception and navigation algorithms. It contains
+    handheld and head-mounted sequences in indoor and outdoor environments with rapid motion during sports
+    and high dynamic range. TUM-VIE includes challenging sequences where state-of-the art VIO fails or
     results in large drift. Hence, it can help to push the boundary on event-based visual-inertial algorithms.
 
     The dataset contains:
@@ -27,8 +27,8 @@ class TUMVIE(Dataset):
     * IMU data at 200Hz
     * 6dof motion capture data at 120Hz (beginning and end of each sequence)
 
-    Timestamps between all sensors are synchronized in hardware. 
-    
+    Timestamps between all sensors are synchronized in hardware.
+
     .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
 
     .. note:: Use `bike-night` instead of `bike-dark` in the list of recordings if you want that specific one.

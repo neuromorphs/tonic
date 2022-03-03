@@ -13,21 +13,21 @@ from tonic.download_utils import (
 
 class DSEC(Dataset):
     """DSEC dataset <https://dsec.ifi.uzh.ch/>. Events have (xytp) ordering.
-    
+
     .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
 
-    .. note:: This is a fairly large dataset, so in order to speed up training scripts, Tonic will only 
-              do some lightweight file verification based on the filenames whenever you instantiate this 
+    .. note:: This is a fairly large dataset, so in order to speed up training scripts, Tonic will only
+              do some lightweight file verification based on the filenames whenever you instantiate this
               class. If your download gets interrupted and you are left with a corrupted file on disk,
               Tonic will not be able to detect that and just proceed to download files that are not yet
-              on disk. If you experience issues loading a particular recording, delete that folder 
+              on disk. If you experience issues loading a particular recording, delete that folder
               manually and Tonic will re-download it the next time.
 
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset. No ground truth available for test set.
-        recording (str, optional): Optional parameter to load a selection of recordings by providing a string or a list 
-                                   thereof, such as 'interlaken_00_c' or ['thun_00_a', 'zurich_city_00_a']. Cannot mix 
+        recording (str, optional): Optional parameter to load a selection of recordings by providing a string or a list
+                                   thereof, such as 'interlaken_00_c' or ['thun_00_a', 'zurich_city_00_a']. Cannot mix
                                    across train/test. Defaults to None which downloads all train or test recordings.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
@@ -153,7 +153,7 @@ class DSEC(Dataset):
     def __getitem__(self, index):
         """
         Returns:
-            a tuple of (data, target) where data is another tuple of ((events_left, events_right), 
+            a tuple of (data, target) where data is another tuple of ((events_left, events_right),
             (image_timestamps, images_left, images_right)) and target is either a tuple of
             (disparity_timestamps, disparity_events, disparity_images) if train=True or None if train=False
         """
@@ -175,7 +175,9 @@ class DSEC(Dataset):
                 events_left_file["p"][()],
             )
         )
-        events_left = np.lib.recfunctions.unstructured_to_structured(events_left, self.dtype)
+        events_left = np.lib.recfunctions.unstructured_to_structured(
+            events_left, self.dtype
+        )
 
         events_right_file = h5py.File(
             os.path.join(base_folder, "events_right", "events.h5")
@@ -188,7 +190,9 @@ class DSEC(Dataset):
                 events_right_file["p"][()],
             )
         )
-        events_right = np.lib.recfunctions.unstructured_to_structured(events_right, self.dtype)
+        events_right = np.lib.recfunctions.unstructured_to_structured(
+            events_right, self.dtype
+        )
 
         # images
         images_rectified_left_filenames = list_files(

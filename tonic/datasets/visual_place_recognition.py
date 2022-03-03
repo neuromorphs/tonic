@@ -8,8 +8,8 @@ from tonic.download_utils import check_integrity, download_url
 class VPR(Dataset):
     """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805>.
     Events have (txyp) ordering.
-    
-    .. note::  To be able to read this dataset and its GPS files, you will need the `pynmea2` package installed. 
+
+    .. note::  To be able to read this dataset and its GPS files, you will need the `pynmea2` package installed.
 
     ::
 
@@ -62,7 +62,9 @@ class VPR(Dataset):
     ordering = dtype.names
 
     def __init__(self, save_to, transform=None, target_transform=None):
-        super(VPR, self).__init__(save_to, transform=transform, target_transform=target_transform)
+        super(VPR, self).__init__(
+            save_to, transform=transform, target_transform=target_transform
+        )
 
         if not self._check_exists():
             self.download()
@@ -83,14 +85,24 @@ class VPR(Dataset):
         )
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         imu = topics["/dvs/imu"]
-        imu["ts"] = ((imu["ts"]-imu["ts"][0]) * 1e6).astype(int)
+        imu["ts"] = ((imu["ts"] - imu["ts"][0]) * 1e6).astype(int)
         images = topics["/dvs/image_raw"]
-        incorrect_shape_indices = [i for i, image in enumerate(images["frames"]) if not (image.shape[0] == 260 and image.shape[1] == 346)]
-        for index in incorrect_shape_indices: # fix frame shapes that don't match for some reason
+        incorrect_shape_indices = [
+            i
+            for i, image in enumerate(images["frames"])
+            if not (image.shape[0] == 260 and image.shape[1] == 346)
+        ]
+        for (
+            index
+        ) in (
+            incorrect_shape_indices
+        ):  # fix frame shapes that don't match for some reason
             shape_diff_x = self.sensor_size[0] - images["frames"][index].shape[1]
             shape_diff_y = self.sensor_size[1] - images["frames"][index].shape[0]
-            images["frames"][index] = np.pad(images["frames"][index], [(0,shape_diff_y), (0,shape_diff_x), (0,0)])
-        images["frames"] = np.stack(images["frames"]) # errors for some recordings
+            images["frames"][index] = np.pad(
+                images["frames"][index], [(0, shape_diff_y), (0, shape_diff_x), (0, 0)]
+            )
+        images["frames"] = np.stack(images["frames"])  # errors for some recordings
         images["ts"] = ((images["ts"] - images["ts"][0]) * 1e6).astype(int)
         data = events, imu, images
 

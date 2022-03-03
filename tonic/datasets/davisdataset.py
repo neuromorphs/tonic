@@ -102,7 +102,7 @@ class DAVISDATA(Dataset):
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         if "/dvs/imu" in topics.keys():
             imu = topics["/dvs/imu"]
-            imu["ts"] = ((imu["ts"]-imu["ts"][0]) * 1e6).astype(int)
+            imu["ts"] = ((imu["ts"] - imu["ts"][0]) * 1e6).astype(int)
         else:
             imu = None
         images = topics["/dvs/image_raw"]

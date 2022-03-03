@@ -30,16 +30,18 @@ class CIFAR10DVS(Dataset):
 
     filename = "CIFAR10DVS.zip"
     file_md5 = "ce3a4a0682dc0943703bd8f749a7701c"
-    data_filename = ["airplane.zip",
-                     "automobile.zip",
-                     "bird.zip",
-                     "cat.zip",
-                     "deer.zip",
-                     "dog.zip",
-                     "frog.zip",
-                     "horse.zip",
-                     "ship.zip",
-                     "truck.zip"]
+    data_filename = [
+        "airplane.zip",
+        "automobile.zip",
+        "bird.zip",
+        "cat.zip",
+        "deer.zip",
+        "dog.zip",
+        "frog.zip",
+        "horse.zip",
+        "ship.zip",
+        "truck.zip",
+    ]
 
     folder_name = "CIFAR10DVS"
 
@@ -52,8 +54,18 @@ class CIFAR10DVS(Dataset):
 
         # classes for CIFAR10DVS dataset
 
-        classes = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7,
-                   'ship': 8, 'truck': 9}
+        classes = {
+            "airplane": 0,
+            "automobile": 1,
+            "bird": 2,
+            "cat": 3,
+            "deer": 4,
+            "dog": 5,
+            "frog": 6,
+            "horse": 7,
+            "ship": 8,
+            "truck": 9,
+        }
 
         if not self._check_exists():
             self.download()
@@ -75,7 +87,7 @@ class CIFAR10DVS(Dataset):
             a tuple of (events, target) where target is the index of the target class.
         """
         events = read_aedat4(self.data[index])
-        events.dtype.names = ['t', 'x', 'y', 'p']  # for correctly reading the data
+        events.dtype.names = ["t", "x", "y", "p"]  # for correctly reading the data
         target = self.targets[index]
 
         if self.transform is not None:

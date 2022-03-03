@@ -20,8 +20,10 @@ def make_structured_array(x, y, t, p, dtype=events_struct):
     """
     return np.fromiter(zip(x, y, t, p), dtype=dtype)
 
+
 def read_aedat4(in_file):
     import loris
+
     """
     Get the aer events from version 4 of .aedat file
 

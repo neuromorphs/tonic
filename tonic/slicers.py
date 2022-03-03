@@ -4,7 +4,7 @@ from typing import Any, List, Tuple
 from . import functional
 import numpy as np
 
-# some slicing methods have been copied and/or adapted from 
+# some slicing methods have been copied and/or adapted from
 # https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/preprocess.py
 class Slicer(Protocol):
     def get_slice_metadata(self, data: Any) -> List[Any]:

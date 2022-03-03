@@ -62,9 +62,7 @@ class MVSEC(Dataset):
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(
-        self, save_to, scene, transform=None, target_transform=None
-    ):
+    def __init__(self, save_to, scene, transform=None, target_transform=None):
         super(MVSEC, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )

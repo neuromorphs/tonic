@@ -33,14 +33,14 @@ def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
 def identify_hot_pixel_raster(events: np.ndarray, hot_pixel_frequency: float):
     """Identifies pixels that fire above a certain predefined spike amount, supports both
 
-        Parameters:
-            events: ndarray of shape [P, H, W] or [T, P, H, W]
-            hot_pixel_frequency: number of spikes per pixel allowed for the recording, any pixel
-                                 firing above that number will be deactivated.
+    Parameters:
+        events: ndarray of shape [P, H, W] or [T, P, H, W]
+        hot_pixel_frequency: number of spikes per pixel allowed for the recording, any pixel
+                             firing above that number will be deactivated.
 
-        Returns:
-            list of (x/y) coordinates for excessively firing pixels.
-        """
+    Returns:
+        list of (x/y) coordinates for excessively firing pixels.
+    """
     if len(events.shape) == 3:
         # if dim =3, the input is frame
         merged_polarity = events.copy().sum(0)
@@ -49,7 +49,7 @@ def identify_hot_pixel_raster(events: np.ndarray, hot_pixel_frequency: float):
         merged_polarity = events.copy().sum(0).sum(0)
 
     ind = np.argwhere(merged_polarity > hot_pixel_frequency)
-    a =1
+    a = 1
     return tuple(zip(ind[:, 0], ind[:, 1]))
 
 
@@ -79,15 +79,15 @@ def drop_pixel_numpy(events: np.ndarray, coordinates):
 def drop_pixel_raster(raster: np.ndarray, coordinates):
     """Drops events for pixel locations
 
-        Parameters:
-            events: ndarray of shape [p, h, w] or [t, p, h, w]
-            ordering: ordering of the event tuple inside of events. This function requires 'x' and
-                      'y' to be in the ordering
-            coordinates: list of (x,y) coordinates for which all events will be deleted.
+    Parameters:
+        events: ndarray of shape [p, h, w] or [t, p, h, w]
+        ordering: ordering of the event tuple inside of events. This function requires 'x' and
+                  'y' to be in the ordering
+        coordinates: list of (x,y) coordinates for which all events will be deleted.
 
-        Returns:
-            The filtered raster or frame
-        """
+    Returns:
+        The filtered raster or frame
+    """
     assert len(raster.shape) == 4 or len(raster.shape) == 3
 
     for x, y in coordinates:
