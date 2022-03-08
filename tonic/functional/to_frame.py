@@ -84,7 +84,7 @@ def to_frame_numpy(
                 1,
             )
     else:
-        frames = np.zeros((len(event_slices), *sensor_size[1::-1]), dtype=np.int16)
+        frames = np.zeros((len(event_slices), sensor_size[2], sensor_size[0]), dtype=np.int16)
         for i, event_slice in enumerate(event_slices):
             np.add.at(
                 frames,
