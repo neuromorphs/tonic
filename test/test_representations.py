@@ -92,7 +92,7 @@ class TestRepresentations:
         transform = transforms.ToFrame(sensor_size=sensor_size, time_window=25000)
         frames = transform(orig_events)
 #         breakpoint()
-        assert frames.shape[1:] == (sensor_size[0], sensor_size[2])
+        assert frames.shape[1:] == (sensor_size[2], sensor_size[0])
 
 
     @pytest.mark.parametrize(
