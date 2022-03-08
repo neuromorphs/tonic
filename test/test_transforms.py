@@ -160,6 +160,28 @@ class TestTransforms:
             )
         assert events is not orig_events
 
+    @pytest.mark.parametrize("p", [1.0, 0])
+    def test_transform_flip_polarity_bools(self, p):
+        orig_events, sensor_size = create_random_input(
+            dtype=np.dtype([("x", int), ("y", int), ("t", int), ("p", bool)])
+        )
+
+        transform = transforms.RandomFlipPolarity(p=p)
+
+        events = transform(orig_events)
+
+        if p == 1:
+            assert np.array_equal(orig_events["p"] * -1, events["p"]), (
+                "When flipping polarity with probability 1, all event polarities must"
+                " flip"
+            )
+        else:
+            assert np.array_equal(orig_events["p"], events["p"]), (
+                "When flipping polarity with probability 0, no event polarities must"
+                " flip"
+            )
+        assert events is not orig_events
+
     @pytest.mark.parametrize("p", [1.0, 1.0])
     def test_transform_flip_ud(self, p):
         orig_events, sensor_size = create_random_input()

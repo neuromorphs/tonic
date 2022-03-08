@@ -525,7 +525,8 @@ class ToFrame:
 @dataclass(frozen=True)
 class ToImage:
     """Counts up all events to a *single* image of size sensor_size. ToImage will typically
-    be used in combination with SlicedDataset to cut a recording into smaller chunks.
+    be used in combination with SlicedDataset to cut a recording into smaller chunks that 
+    are then individually binned to frames. 
     """
 
     sensor_size: Tuple[int, int, int]
