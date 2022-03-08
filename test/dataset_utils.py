@@ -95,5 +95,5 @@ class DatasetTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.KWARGS.update({"save_to": "/tmp"})
-        shutil.rmtree("/tmp/"+cls.DATASET_CLASS.__name__, ignore_errors=True)
+        shutil.rmtree("/tmp/" + cls.DATASET_CLASS.__name__, ignore_errors=True)
         super().setUpClass()

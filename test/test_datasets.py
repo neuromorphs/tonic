@@ -11,6 +11,7 @@ from tonic.download_utils import download_url
 
 base_url = "https://www.neuromorphic-vision.com/public/downloads/dataset_samples/"
 
+
 class ASLDVSTestCaseTest(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.ASLDVS
     FEATURE_TYPES = (datasets.ASLDVS.dtype,)
@@ -21,10 +22,10 @@ class ASLDVSTestCaseTest(dataset_utils.DatasetTestCase):
         testfolder = os.path.join(tmpdir, "ASLDVS/a")
         os.makedirs(testfolder, exist_ok=True)
         filename = "a_0244.mat"
-        download_url(url=base_url+filename, root=testfolder, filename=filename)
+        download_url(url=base_url + filename, root=testfolder, filename=filename)
         return {"n_samples": 1}
 
-    
+
 class DVSGestureTestCaseTrain(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.DVSGesture
     FEATURE_TYPES = (datasets.DVSGesture.dtype,)
@@ -60,40 +61,39 @@ class NCaltech101TestCase(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NCALTECH101
     FEATURE_TYPES = (datasets.NCALTECH101.dtype,)
     TARGET_TYPES = (int,)
-    KWARGS = {}    
-    
+    KWARGS = {}
+
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "NCALTECH101/Caltech101/airplanes/")
         os.makedirs(testfolder, exist_ok=True)
         filename = "image_0006.bin"
-        download_url(url=base_url+filename, root=testfolder, filename=filename)
+        download_url(url=base_url + filename, root=testfolder, filename=filename)
         return {"n_samples": 1}
-    
-    
+
+
 class NMNISTTestCaseTrain(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NMNIST
     FEATURE_TYPES = (datasets.NMNIST.dtype,)
     TARGET_TYPES = (int,)
-    KWARGS = {"train": True}    
-    
+    KWARGS = {"train": True}
+
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "NMNIST/Train/1/")
         os.makedirs(testfolder, exist_ok=True)
         filename = "image_0006.bin"
-        download_url(url=base_url+filename, root=testfolder, filename="24901.bin")
+        download_url(url=base_url + filename, root=testfolder, filename="24901.bin")
         return {"n_samples": 1}
 
-    
+
 class NMNISTTestCaseTest(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NMNIST
     FEATURE_TYPES = (datasets.NMNIST.dtype,)
     TARGET_TYPES = (int,)
     KWARGS = {"train": False}
-    
+
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "NMNIST/Test/1/")
         os.makedirs(testfolder, exist_ok=True)
         filename = "image_0006.bin"
-        download_url(url=base_url+filename, root=testfolder, filename="04652.bin")
+        download_url(url=base_url + filename, root=testfolder, filename="04652.bin")
         return {"n_samples": 1}
-

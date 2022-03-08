@@ -1,8 +1,10 @@
 import pytest
 import numpy as np
 
+
 def test_standardize_data_length():
     from tonic.audio_transforms import FixLength
+
     sdl = FixLength(100, 1)
 
     # Data is longer
@@ -31,7 +33,9 @@ def test_linear_butter_filter_bank():
     from tonic.audio_transforms import LinearButterFilterBank
     import numpy as np
 
-    fb = LinearButterFilterBank(order=2, low_freq=100, sampling_freq=16000, num_filters=16)
+    fb = LinearButterFilterBank(
+        order=2, low_freq=100, sampling_freq=16000, num_filters=16
+    )
     data = np.random.random((1, 16_000))
 
     filter_out = fb(data)
@@ -57,13 +61,14 @@ def test_add_noise():
             return 1000
 
         def __getitem__(self, item):
-            sig_len = np.random.randint(12000, 20000, (1, )).item()
+            sig_len = np.random.randint(12000, 20000, (1,)).item()
             return np.random.random((1, sig_len)), 0
 
-    data = np.sin(np.arange(0, 16_000*0.001, 0.001))[None, ...]
+    data = np.sin(np.arange(0, 16_000 * 0.001, 0.001))[None, ...]
     print(data.shape)
 
     from tonic.audio_transforms import AddNoise
+
     noise_dataset = DummyNoiseDataset()
 
     print(noise_dataset[0][0].shape)

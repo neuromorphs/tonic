@@ -20,6 +20,7 @@ class FixLength:
     Returns:
         torch.Tensor of the same dimension
     """
+
     length: int
     axis: int = 1
 
@@ -48,6 +49,7 @@ class Bin:
         torch.Tensor binned data
 
     """
+
     orig_freq: float
     new_freq: float
     axis: int
@@ -75,6 +77,7 @@ class SOSFilter:
 
     See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sosfilt.html for more details
     """
+
     coeffs: np.ndarray
     axis: int
 
@@ -105,6 +108,7 @@ class ButterFilter:
 
     See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
     """
+
     order: int
     freq: Union[float, Tuple[float, float]]
     analog: bool
@@ -113,7 +117,9 @@ class ButterFilter:
     axis: int
 
     def __post_init__(self):
-        coeffs = butter(self.order, self.freq, analog=self.analog, btype=self.btype, output="sos")
+        coeffs = butter(
+            self.order, self.freq, analog=self.analog, btype=self.btype, output="sos"
+        )
         self.filter = SOSFilter(coeffs, axis=self.axis)
 
     def __call__(self, data: np.ndarray) -> np.ndarray:
@@ -145,6 +151,7 @@ class ButterFilterBank:
 
     See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
     """
+
     order: int
     freq: List[Tuple[float, float]]
     rectify: bool
@@ -153,8 +160,16 @@ class ButterFilterBank:
 
     def __post_init__(self):
         self.filters = [
-            ButterFilter(self.order, freq, analog=self.analog, btype="band", rectify=self.rectify, axis=self.axis) for
-            freq in self.freq]
+            ButterFilter(
+                self.order,
+                freq,
+                analog=self.analog,
+                btype="band",
+                rectify=self.rectify,
+                axis=self.axis,
+            )
+            for freq in self.freq
+        ]
 
     def __call__(self, data):
         return np.concatenate([filt(data) for filt in self.filters], axis=0)
@@ -183,6 +198,7 @@ class LinearButterFilterBank:
 
     See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
     """
+
     order: int = 2
     low_freq: float = 100
     sampling_freq: float = 16000
@@ -202,7 +218,9 @@ class LinearButterFilterBank:
 
     def __post_init__(self):
         freq_bands = self.compute_freq_bands()
-        self.filterbank = ButterFilterBank(order=self.order, freq=freq_bands, rectify=self.rectify, axis=self.axis)
+        self.filterbank = ButterFilterBank(
+            order=self.order, freq=freq_bands, rectify=self.rectify, axis=self.axis
+        )
 
     def __call__(self, data):
         return self.filterbank(data)
@@ -231,6 +249,7 @@ class MelButterFilterBank(LinearButterFilterBank):
 
     See https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter for more details on parameters.
     """
+
     @staticmethod
     def hz2mel(freq):
         return 2595 * np.log10(1 + freq / 700)
@@ -268,6 +287,7 @@ class AddNoise:
         normed:
             If set to false, the signal max value will not be normalized. True by default.
     """
+
     dataset: Iterator
     snr: float
     normed: bool = True
@@ -284,7 +304,7 @@ class AddNoise:
         noise_signal_len = noise.shape[1]
         if noise_signal_len > sample_len:
             start_t = np.random.randint(0, noise_signal_len - sample_len, (1,)).item()
-            noise = noise[:, start_t:start_t + sample_len]
+            noise = noise[:, start_t : start_t + sample_len]
         return noise
 
     def __call__(self, signal):
@@ -313,8 +333,8 @@ def normalize(signal):
     return signal
 
 
-#@dataclass
-#class DivisiveNormalization:
+# @dataclass
+# class DivisiveNormalization:
 #    frame_dt: float  # Frame clock step
 #    num_frames_avg: int  # Number of frames to average over
 #    gating_clock_dt: float  # Clock frequency of gating E(t)

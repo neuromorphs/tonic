@@ -8,14 +8,14 @@ from .slicers import Slicer
 
 def save_metadata(path, metadata):
     os.makedirs(path, exist_ok=True)
-    with h5py.File(os.path.join(path, 'slice_metadata.h5'), "w") as f:
+    with h5py.File(os.path.join(path, "slice_metadata.h5"), "w") as f:
         for i, data in enumerate(metadata):
             f.create_dataset(f"metadata_{i}", data=data)
     print("Metadata written to disk.")
 
 
 def load_metadata(path):
-    with h5py.File(os.path.join(path, 'slice_metadata.h5'), "r") as f:
+    with h5py.File(os.path.join(path, "slice_metadata.h5"), "r") as f:
         metadata = [f[f"metadata_{i}"][()] for i in range(len(f.keys()))]
     print("Read metadata from disk.")
     return metadata
@@ -59,22 +59,27 @@ class SlicedDataset:
                 save_metadata(self.metadata_path, self.metadata)
         else:
             self.metadata = self.generate_metadata()
-        self.slice_dataset_map = [(sample_index, slice_index) 
-                                  for sample_index, sample_metadata in enumerate(self.metadata) 
-                                  for slice_index in range(len(sample_metadata))]
-        
+        self.slice_dataset_map = [
+            (sample_index, slice_index)
+            for sample_index, sample_metadata in enumerate(self.metadata)
+            for slice_index in range(len(sample_metadata))
+        ]
+
     def generate_metadata(self):
         """
         Slices every sample in the wrapped dataset and returns start and stop metadata
         for each slice.
         """
         return [self.slicer.get_slice_metadata(data) for data, targets in self.dataset]
-        
+
     def __getitem__(self, item) -> Any:
         dataset_index, slice_index = self.slice_dataset_map[item]
         data, targets = self.dataset[dataset_index]
-        data_slice = self.slicer.slice_with_metadata(data, [self.metadata[dataset_index][slice_index],])
-        if len(data_slice) == 1: data_slice = data_slice[0]
+        data_slice = self.slicer.slice_with_metadata(
+            data, [self.metadata[dataset_index][slice_index]]
+        )
+        if len(data_slice) == 1:
+            data_slice = data_slice[0]
         # TODO: target slicing
         if self.transform:
             data_slice = self.transform(data_slice)

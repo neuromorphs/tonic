@@ -11,7 +11,7 @@ def test_sliced_dataset():
         target_number += len(data) // 200
 
     slicer = SliceByEventCount(event_count=200)
-    sliced_dataset = SlicedDataset(dataset, slicer, metadata_path='./cache/metadata')
+    sliced_dataset = SlicedDataset(dataset, slicer, metadata_path="./cache/metadata")
 
     for data, label in sliced_dataset:
         assert len(data) == 200

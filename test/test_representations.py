@@ -33,7 +33,8 @@ class TestRepresentations:
         include_incomplete,
         sensor_size,
     ):
-        orig_events, _ = create_random_input(sensor_size=sensor_size)
+        n_events = 10000
+        orig_events, _ = create_random_input(sensor_size=sensor_size, n_events=n_events)
 
         transform = transforms.ToFrame(
             sensor_size=sensor_size,
@@ -61,8 +62,8 @@ class TestRepresentations:
                 )
 
         if event_count is not None:
+            assert event_count == frames[0].sum()
             stride = event_count - overlap
-            n_events = orig_events.shape[0]
             if include_incomplete:
                 assert frames.shape[0] == int(
                     np.ceil((n_events - event_count) / stride) + 1
@@ -77,6 +78,8 @@ class TestRepresentations:
 
         if n_event_bins is not None:
             assert frames.shape[0] == n_event_bins
+            assert frames[0].sum() == (1 + overlap) * (n_events // n_event_bins)
+
         assert frames is not orig_events
 
     def test_representation_frame_inferred(self):
@@ -85,15 +88,23 @@ class TestRepresentations:
         transform = transforms.ToFrame(sensor_size=None, time_window=25000)
         frames = transform(orig_events)
         assert frames.shape[1:] == sensor_size[::-1]
-        
+
     def test_representation_frame_audio(self):
-        sensor_size = (200, 1, 2)
-        orig_events, _ = create_random_input(sensor_size=sensor_size, dtype=np.dtype([("x", int), ("t", int), ("p", int)]))
+        sensor_size = (200, 1, 1\2)
+        orig_events, _ = create_random_input(
+            sensor_size=sensor_size,
+            dtype=np.dtype([("x", int), ("t", int), ("p", int)]),
+        )
         transform = transforms.ToFrame(sensor_size=sensor_size, time_window=25000)
         frames = transform(orig_events)
-#         breakpoint()
         assert frames.shape[1:] == (sensor_size[2], sensor_size[0])
 
+    def test_representation_image(self):
+        sensor_size = (100, 100, 2)
+        orig_events, _ = create_random_input(n_events=10000, sensor_size=sensor_size)
+        transform = transforms.ToImage(sensor_size=sensor_size)
+        image = transform(orig_events)
+        assert image.shape == sensor_size[::-1]
 
     @pytest.mark.parametrize(
         "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]

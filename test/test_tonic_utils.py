@@ -3,6 +3,7 @@ import tonic.transforms as transforms
 from utils import create_random_input
 from sys import platform
 
+
 class DummyDataset:
     def __init__(self, events, transform):
         self.events = events
@@ -44,4 +45,5 @@ def test_pytorch_batch_collation_dense_tensor():
 def test_plotting():
     events, sensor_size = create_random_input()
     # this test doesn't finish on Windows
-    if platform == 'linux': tonic.utils.plot_event_grid(events)
+    if platform == "linux":
+        tonic.utils.plot_event_grid(events)

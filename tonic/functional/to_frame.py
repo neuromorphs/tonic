@@ -47,7 +47,7 @@ def to_frame_numpy(
             "Please assign a value to exactly one of the parameters time_window,"
             " event_count, n_time_bins or n_event_bins."
         )
-        
+
     if not sensor_size:
         sensor_size_x = int(events["x"].max() + 1)
         sensor_size_p = len(np.unique(events["p"]))
@@ -56,7 +56,7 @@ def to_frame_numpy(
             sensor_size = (sensor_size_x, sensor_size_y, sensor_size_p)
         else:
             sensor_size = (sensor_size_x, 1, sensor_size_p)
-            
+
     # test for single polarity
     if sensor_size[2] == 1:
         events["p"] = 0
@@ -74,7 +74,6 @@ def to_frame_numpy(
     elif n_event_bins:
         event_slices = slice_by_event_bins(events, n_event_bins, overlap=overlap)
 
-    
     if "y" in events.dtype.names:
         frames = np.zeros((len(event_slices), *sensor_size[::-1]), dtype=np.int16)
         for i, event_slice in enumerate(event_slices):
@@ -86,9 +85,5 @@ def to_frame_numpy(
     else:
         frames = np.zeros((len(event_slices), sensor_size[2], sensor_size[0]), dtype=np.int16)
         for i, event_slice in enumerate(event_slices):
-            np.add.at(
-                frames,
-                (i, event_slice["p"].astype(int), event_slice["x"]),
-                1,
-            )
+            np.add.at(frames, (i, event_slice["p"].astype(int), event_slice["x"]), 1)
     return frames

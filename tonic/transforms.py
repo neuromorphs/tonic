@@ -68,9 +68,7 @@ class DropEvent:
 
     def __call__(self, events):
 
-        return functional.drop_event_numpy(
-            events, self.p, self.random_p
-        )
+        return functional.drop_event_numpy(events, self.p, self.random_p)
 
 
 @dataclass
@@ -85,8 +83,8 @@ class DropPixel:
         hot_pixel_frequency: drop pixels completely that fire higher than the given frequency.
     """
 
-    coordinates: Optional = None
-    hot_pixel_frequency: Optional = None
+    coordinates: Optional[Tuple] = None
+    hot_pixel_frequency: Optional[int] = None
 
     def __call__(self, events):
 
@@ -97,15 +95,18 @@ class DropPixel:
                     events=events, hot_pixel_frequency=self.hot_pixel_frequency
                 )
 
-            return functional.drop_pixel_numpy(events=events, coordinates=self.coordinates)
+            return functional.drop_pixel_numpy(
+                events=events, coordinates=self.coordinates
+            )
 
-        elif len(events.shape)==4 or len(events.shape)==3:
+        elif len(events.shape) == 4 or len(events.shape) == 3:
             if self.hot_pixel_frequency:
                 self.coordinates = functional.identify_hot_pixel_raster(
                     events=events, hot_pixel_frequency=self.hot_pixel_frequency
                 )
 
             return functional.drop_pixel.drop_pixel_raster(events, self.coordinates)
+
 
 @dataclass(frozen=True)
 class Downsample:
@@ -519,6 +520,24 @@ class ToFrame:
             overlap=self.overlap,
             include_incomplete=self.include_incomplete,
         )
+
+
+@dataclass(frozen=True)
+class ToImage:
+    """Counts up all events to a *single* image of size sensor_size. ToImage will typically
+    be used in combination with SlicedDataset to cut a recording into smaller chunks that 
+    are then individually binned to frames. 
+    """
+
+    sensor_size: Tuple[int, int, int]
+
+    def __call__(self, events):
+
+        frames = functional.to_frame_numpy(
+            events=events, sensor_size=self.sensor_size, event_count=len(events)
+        )
+
+        return frames.squeeze(0)
 
 
 @dataclass(frozen=True)
