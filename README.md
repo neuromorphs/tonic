@@ -5,9 +5,7 @@
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
-
-Linux: [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)
-Windows: [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-2022)](https://github.com/neuromorphs/tonic)
+[![Discord](https://img.shields.io/discord/852094154188259338)](https://discord.gg/V6FHBZURkg)
 
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. It's like PyTorch Vision but for neuromorphic data!
 
@@ -28,7 +26,16 @@ You can find the full documentation on Tonic [on this site](https://tonic.readth
 ```bash
 pip install tonic
 ```
-If you prefer conda, please check out the [conda forge repository](https://github.com/conda-forge/tonic-feedstock).
+or (thanks to @Tobias-Fischer)
+```
+conda install -c conda-forge tonic
+```
+
+This package has been tested on:
+
+| Linux    | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)|
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| **Windows**  | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-2022)](https://github.com/neuromorphs/tonic) |
 
 ## Quickstart
 If you're looking for a minimal example to run, this is it!
@@ -51,8 +58,9 @@ testloader = DataLoader(testset, shuffle=True)
 events, target = next(iter(testloader))
 ```
 
-## Discussion
-Have a question about how something works? Ideas for improvement? Feature request? Please get in touch here on GitHub via the [Discussions](https://github.com/neuromorphs/tonic/discussions) page!
+## Discussion and questions
+Have a question about how something works? Ideas for improvement? Feature request? Please get in touch on the #tonic [Discord channel](https://discord.gg/V6FHBZURkg)
+ or alternatively here on GitHub via the [Discussions](https://github.com/neuromorphs/tonic/discussions) page!
 
 ## Contributing
 Please check out the [contributions](https://tonic.readthedocs.io/en/latest/about/contribute.html) page for details.
