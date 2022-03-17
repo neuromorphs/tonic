@@ -113,7 +113,7 @@ class TestChainedTransforms:
         assert np.min(events["t"]) >= 0
 
         assert (
-            events["p"] == orig_events["p"] * (-1)
+            events["p"] == np.invert(orig_events["p"].astype(bool)).astype(int)
         ).all(), "Polarities should be flipped."
 
         same_pixel = np.isclose(

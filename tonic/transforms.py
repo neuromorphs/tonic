@@ -208,10 +208,8 @@ class RandomFlipPolarity:
     def __call__(self, events):
         events = events.copy()
         assert "p" in events.dtype.names
-        flips = np.ones(len(events))
-        probs = np.random.rand(len(events))
-        flips[probs < self.p] = -1
-        events["p"] = events["p"] * flips
+        if np.random.rand() <= self.p:
+            events["p"] = np.invert(events["p"].astype(bool)).astype(events.dtype["p"])
         return events
 
 
