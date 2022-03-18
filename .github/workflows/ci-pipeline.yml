@@ -24,8 +24,7 @@ jobs:
           pip install -r test/requirements.txt
           pip install .
       - name: Test with pytest
-        run: |
-          pytest test
+        run: pytest test
         env:
             CI: true
 
@@ -70,6 +69,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.PYPI_DEPLOYMENT }}
+          skip_existing: true
 
   documentation:
     needs: multitest
@@ -87,5 +87,4 @@ jobs:
           pip install -r docs/requirements.txt
           pip install .
       - name: Build documentation
-        run: |
-          cd docs && make clean && make html # Use SPHINXOPTS="-W" to fail on warning.
+        run: cd docs && make clean && make html # Use SPHINXOPTS="-W" to fail on warning.
