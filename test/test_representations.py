@@ -90,14 +90,14 @@ class TestRepresentations:
         assert frames.shape[1:] == sensor_size[::-1]
 
     def test_representation_frame_audio(self):
-        sensor_size = (200, 1, 1)
+        sensor_size = (200, 1, 2)
         orig_events, _ = create_random_input(
             sensor_size=sensor_size,
             dtype=np.dtype([("x", int), ("t", int), ("p", int)]),
         )
         transform = transforms.ToFrame(sensor_size=sensor_size, time_window=25000)
         frames = transform(orig_events)
-        assert frames.shape[1:] == sensor_size[1::-1]
+        assert frames.shape[1:] == (sensor_size[2], sensor_size[0])
 
     def test_representation_image(self):
         sensor_size = (100, 100, 2)
