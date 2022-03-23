@@ -48,8 +48,26 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
 
-  build-and-publish:
+  documentation:
     needs: multitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install audio library libsndfile
+        run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          pip install -r docs/requirements.txt
+          pip install .
+      - name: Build documentation
+        run: cd docs && make clean && make html # Use SPHINXOPTS="-W" to fail on warning.
+
+  build-and-publish:
+    needs: documentation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -70,21 +88,3 @@ jobs:
         with:
           password: ${{ secrets.PYPI_DEPLOYMENT }}
           skip_existing: true
-
-  documentation:
-    needs: multitest
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: install audio library libsndfile
-        run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          pip install -r docs/requirements.txt
-          pip install .
-      - name: Build documentation
-        run: cd docs && make clean && make html # Use SPHINXOPTS="-W" to fail on warning.
