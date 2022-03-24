@@ -137,7 +137,7 @@ class TestRepresentations:
 
         surfaces = transform(orig_events)
 
-        assert surfaces.shape[0] == len(orig_events)
+        assert surfaces.shape[0] == int(sensor_size[0]/surface_size+0.5)*int(sensor_size[1]/surface_size+0.5)
         assert surfaces.shape[1] == 2
         assert surfaces.shape[2] == surface_size
         assert surfaces.shape[3] == surface_size
