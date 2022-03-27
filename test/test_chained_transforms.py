@@ -26,6 +26,9 @@ class TestChainedTransforms:
         )
         events = transform(orig_events)
 
+        assert 'RandomTimeReversal' in str(transform)
+        assert 'SpatialJitter' in str(transform)
+        
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
             events["x"].all(), orig_events["x"].all(), atol=variance_x
