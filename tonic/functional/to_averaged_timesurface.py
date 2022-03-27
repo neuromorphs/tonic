@@ -93,7 +93,6 @@ def to_averaged_timesurface(
     except Exception as e:
       print("Error: num_workers>1 needs joblib installed.")
     use_joblib = True
-    ts_jobs, cells_jobs = max(1, round(num_workers/4)), max(1, round(num_workers*3/4))
   else:
     use_joblib = False
 
@@ -115,7 +114,7 @@ def to_averaged_timesurface(
       for i in range(len(cell_mem))])
   else:  
     get_cell_time_surfaces = lambda cell_buffer: np.stack(
-      Parallel(n_jobs=ts_jobs)(
+      Parallel(n_jobs=num_workers)(
         delayed(_get_time_surface)(cell_buffer[i], cell_buffer[:i], radius, temporal_window, tau, decay)
         for i in range(len(cell_buffer))
       )
@@ -132,8 +131,8 @@ def to_averaged_timesurface(
     histograms = np.stack([get_cell_histogram(c) for c in range(n_cells)])
   else:
     histograms = np.stack(
-      Parallel(n_jobs=cells_jobs)(
+      Parallel(n_jobs=num_workers)(
         delayed(get_cell_histogram)(c) for c in range(n_cells)
       )
     )
-  return histograms    
+  return histograms
