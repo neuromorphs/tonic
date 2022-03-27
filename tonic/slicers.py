@@ -49,9 +49,9 @@ class Slicer(Protocol):
 class SliceByTime:
     """
     Return xytp split according to fixed timewindow and overlap size
-    <        <overlap>        >
-    |   window1      |
-             |   window2      |
+    >        <overlap>
+    >|    window1     |
+    >        |   window2     |
 
     Parameters:
         time_window: int

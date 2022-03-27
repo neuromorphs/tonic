@@ -217,7 +217,7 @@ class CachedDataset(DiskCachedDataset):
         warn(
             "CachedDataset is deprecated and will be removed in a future release. "
             + "It currently points to DiskCachedDataset to distinguish it from "
-            + "MemoryCachedDataset, please use that in the future.",
+            + "MemoryCachedDataset. Documentation available under https://tonic.readthedocs.io/en/latest/reference/data_classes.html#caching",
             DeprecationWarning,
             stacklevel=2,
         )

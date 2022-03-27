@@ -13,7 +13,8 @@ napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 
 # MyST settings
-jupyter_execute_notebooks = "off"
+# jupyter_execute_notebooks = "off"
+execution_timeout = 300
 suppress_warnings = ["myst.header"]
 
 # Add any paths that contain templates here, relative to this directory.
