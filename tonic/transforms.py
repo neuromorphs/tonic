@@ -438,6 +438,7 @@ class ToAveragedTimesurface:
         temporal_window (float): how far back to look for past events for the time averaging
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
+        num_workers (int): number of workers to be deployed on the histograms computation. When >1, joblib is required. 
     """
 
     sensor_size: Tuple[int, int, int]
@@ -446,9 +447,8 @@ class ToAveragedTimesurface:
     temporal_window: int = 5e5
     tau: int = 5e3
     decay: str = "lin"
-
+    num_workers: int = 1
     def __call__(self, events):
-
         return functional.to_averaged_timesurface(
             events,
             sensor_size=self.sensor_size,
@@ -457,6 +457,7 @@ class ToAveragedTimesurface:
             temporal_window=self.temporal_window,
             tau=self.tau,
             decay=self.decay,
+            num_workers=self.num_workers
         )
 
 

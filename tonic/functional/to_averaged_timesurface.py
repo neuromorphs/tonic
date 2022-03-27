@@ -1,8 +1,10 @@
 import numpy as np
-from joblib import Parallel, delayed, cpu_count
 import math
 
 def _gen_pixel_to_cell_mapper(w, h, K, px_dtype):
+  """
+  Matrix that allows to map a pixel to a cell via indexing.
+  """
   matrix = np.zeros((h, w), dtype=px_dtype)
   for i in range(h):
     for j in range(w):
@@ -13,12 +15,18 @@ def _gen_pixel_to_cell_mapper(w, h, K, px_dtype):
   return matrix
   
 def _get_cell_mems(events, n_cells, n_pols, pixel_to_cell_mapper):
+  """
+  Generates the local memories of all cells in the frame.
+  """
   cell_mems = [[[] for c in range(n_cells)] for p in range(n_pols)]
   for event in events:
     cell_mems[max(event['p'], 0)][pixel_to_cell_mapper[event['y'], event['x']]].append(event)
   return cell_mems[:]
 
 def _bsearch_window(t_start, cell_mem):
+  """
+  Performs binary search to find the index of the first timestamp included in the time window (t_start = t_event - temporal_window).
+  """
   l, r, start = 0, len(cell_mem)-1, 0
   while l<=r:
     m = (l+r)//2
@@ -31,7 +39,10 @@ def _bsearch_window(t_start, cell_mem):
       break
   return start
 
-def _get_time_surface(event, cell_mem, radius, temporal_window, tau):
+def _get_time_surface(event, cell_mem, radius, temporal_window, tau, decay='exp'):
+  """
+  Accumulates the time surfaces of all the events included in the time window. 
+  """
   ts = np.zeros((2*radius+1, 2*radius+1), dtype=np.float32)
   # Getting starting timestamp.
   t_start = max(0, event['t'] - temporal_window)
@@ -43,7 +54,7 @@ def _get_time_surface(event, cell_mem, radius, temporal_window, tau):
     x, y = (event['x'] - mem_event['x']) + radius, (event['y'] - mem_event['y']) + radius
     # Check if event is in neighourbhood and, if so, adding it to the time surface.
     if check_coords(x, y):
-      ts[y,x] += np.exp(-(event['t'] - mem_event['t']).astype(np.float32)/tau)
+      ts[y,x] += np.exp(-(event['t'] - mem_event['t']).astype(np.float32)/tau) if decay=='exp' else (event['t'] - mem_event['t']).astype(np.float32)/(3*tau)+1
   return ts
   
 def to_averaged_timesurface(
@@ -53,7 +64,8 @@ def to_averaged_timesurface(
     surface_size=3,
     temporal_window=5e5,
     tau=5e3,
-    decay="lin"
+    decay="lin",
+    num_workers=1
 ):
   """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
@@ -65,6 +77,7 @@ def to_averaged_timesurface(
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
+        num_workers (int): number of workers to be deployed on the histograms computation. 
     Returns:
         array of histograms (numpy.Array with shape (n_cells, n_pols, surface_size, surface_size))
   """
@@ -74,9 +87,17 @@ def to_averaged_timesurface(
   assert "x" and "y" and "t" and "p" in events.dtype.names
   assert decay=='lin' or decay=='exp'
 
-  # Temporary division of resources.
-  ts_jobs, cells_jobs = round(cpu_count()*0.2), round(cpu_count()*0.6)
-  
+  if num_workers>1:
+    use_joblib = True
+    try:
+      from joblib import Parallel, delayed
+    except Exception as e:
+      print("Error: num_workers>1 needs joblib installed.")
+    ts_jobs, cells_jobs = min(1, round(num_workers/4+0.5)), min(1, round(num_workers*3/4))
+    print(ts_jobs, cells_jobs)
+  else:
+    use_joblib = False
+
   # Getting sensor sizes, number of cells in the frame and initializing the data structures.
   width, height, n_pols = sensor_size
   n_cells = math.ceil(width/surface_size)*math.ceil(height/surface_size)
@@ -87,18 +108,16 @@ def to_averaged_timesurface(
   
   # Organizing the events in cells (local memories of HATS paper). 
   cell_mems = _get_cell_mems(events=events, n_cells=n_cells, n_pols=n_pols, pixel_to_cell_mapper=pixel_to_cell_mapper)
-
-  use_joblib = True
-  
+    
   # Time surfaces associated to each event in a cell.
   if not use_joblib:
     get_cell_time_surfaces = lambda cell_mem: np.stack([
-      _get_time_surface(event=cell_mem[i], cell_mem=cell_mem[:i], radius=radius, temporal_window=temporal_window, tau=tau)
+      _get_time_surface(event=cell_mem[i], cell_mem=cell_mem[:i], radius=radius, temporal_window=temporal_window, tau=tau, decay=decay)
       for i in range(len(cell_mem))])
   else:  
     get_cell_time_surfaces = lambda cell_buffer: np.stack(
       Parallel(n_jobs=ts_jobs)(
-        delayed(_get_time_surface)(cell_buffer[i], cell_buffer[:i], radius, temporal_window, tau)
+        delayed(_get_time_surface)(cell_buffer[i], cell_buffer[:i], radius, temporal_window, tau, decay)
         for i in range(len(cell_buffer))
       )
     )
@@ -118,15 +137,4 @@ def to_averaged_timesurface(
         delayed(get_cell_histogram)(c) for c in range(n_cells)
       )
     )
-  
-  return histograms  
-
-if __name__ == "__main__":
-  import tonic
-  from timeit import default_timer
-  ds = tonic.datasets.NMNIST(save_to="./train_data", train=True)
-  events, labels = ds[0]
-  start = default_timer()
-  h = to_averaged_timesurface(events, ds.sensor_size, cell_size=5, surface_size=5) 
-  print(f"histogram shape: {h.shape}, time: {(default_timer()-start)*1e3:.2f}ms.")
-  
+  return histograms    
