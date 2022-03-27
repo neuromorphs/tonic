@@ -88,13 +88,12 @@ def to_averaged_timesurface(
   assert decay=='lin' or decay=='exp'
 
   if num_workers>1:
-    use_joblib = True
     try:
       from joblib import Parallel, delayed
     except Exception as e:
       print("Error: num_workers>1 needs joblib installed.")
-    ts_jobs, cells_jobs = min(1, round(num_workers/4+0.5)), min(1, round(num_workers*3/4))
-    print(ts_jobs, cells_jobs)
+    use_joblib = True
+    ts_jobs, cells_jobs = max(1, round(num_workers/4)), max(1, round(num_workers*3/4))
   else:
     use_joblib = False
 
