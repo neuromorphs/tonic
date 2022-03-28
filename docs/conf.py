@@ -17,7 +17,7 @@ napoleon_numpy_docstring = True
 execution_timeout = 300
 suppress_warnings = ["myst.header"]
 execution_show_tb = True
-execution_excludepatterns = ["large_datasets"]
+execution_excludepatterns = ["large_datasets.ipynb"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
