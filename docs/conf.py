@@ -16,6 +16,8 @@ napoleon_numpy_docstring = True
 # jupyter_execute_notebooks = "off"
 execution_timeout = 300
 suppress_warnings = ["myst.header"]
+execution_show_tb = True
+execution_excludepatterns = ["large_datasets"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

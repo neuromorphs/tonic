@@ -448,6 +448,7 @@ class ToAveragedTimesurface:
     tau: int = 5e3
     decay: str = "lin"
     num_workers: int = 1
+
     def __call__(self, events):
         return functional.to_averaged_timesurface(
             events,
@@ -457,7 +458,7 @@ class ToAveragedTimesurface:
             temporal_window=self.temporal_window,
             tau=self.tau,
             decay=self.decay,
-            num_workers=self.num_workers
+            num_workers=self.num_workers,
         )
 
 
@@ -465,6 +466,7 @@ class ToAveragedTimesurface:
 class ToFrame:
     """Accumulate events to frames by slicing along constant time (time_window),
     constant number of events (spike_count) or constant number of frames (n_time_bins / n_event_bins).
+    All the events in one slice are added up in a frame for each polarity.
     You can set one of the first 4 parameters to choose the slicing method. Depending on which method you choose,
     overlap will assume different functionality, whether that might be temporal overlap, number of events
     or fraction of a bin. As a rule of thumb, here are some considerations if you are unsure which slicing
