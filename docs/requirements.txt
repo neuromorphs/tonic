@@ -2,3 +2,4 @@ sphinx>=4.0
 sphinx-book-theme
 myst_nb
 pbr
+torchvision
