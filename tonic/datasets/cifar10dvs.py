@@ -101,5 +101,5 @@ class CIFAR10DVS(Dataset):
 
     def _check_exists(self):
         return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            1000, ".aedat"
+            1000, ".aedat4"
         )
