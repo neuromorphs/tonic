@@ -30,7 +30,10 @@ or (thanks to @Tobias-Fischer)
 ```
 conda install -c conda-forge tonic
 ```
-
+For the latest pre-release on the develop branch that passed the tests:
+```
+pip install tonic --pre
+```
 This package has been tested on:
 
 | Linux    | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)|
