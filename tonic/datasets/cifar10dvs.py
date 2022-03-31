@@ -44,7 +44,8 @@ class CIFAR10DVS(Dataset):
     ]
 
     folder_name = "CIFAR10DVS"
-
+    dtype = np.dtype([("t", np.int64), ("x", np.int16), ("y", np.int16), ("p", np.int8)])
+    ordering = dtype.names
     sensor_size = (128, 128, 2)
 
     def __init__(self, save_to, transform=None, target_transform=None):
@@ -87,7 +88,8 @@ class CIFAR10DVS(Dataset):
             a tuple of (events, target) where target is the index of the target class.
         """
         events = read_aedat4(self.data[index])
-        events.dtype.names = ["t", "x", "y", "p"]  # for correctly reading the data
+        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
+        
         target = self.targets[index]
 
         if self.transform is not None:
