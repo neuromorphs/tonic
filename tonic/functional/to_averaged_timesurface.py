@@ -1,4 +1,4 @@
-\import numpy as np
+import numpy as np
 import math
 
 def _gen_pixel_to_cell_mapper(w, h, K, px_dtype):
@@ -51,7 +51,7 @@ def _get_time_surface(event, cell_mem, radius, temporal_window, tau, decay='exp'
   start = _bsearch_window(t_start=t_start, cell_mem=cell_mem)
   for mem_event in cell_mem[start:]:
     # Getting event coordinates in the neighbourhood.
-    x, y = (event['x'].astype(np.int32) - mem_event['x']) + radius, (event['y'].astype(int32) - mem_event['y']) + radius
+    x, y = (event['x'] - mem_event['x']) + radius, (event['y'] - mem_event['y']) + radius
     # Check if event is in neighourbhood and, if so, adding it to the time surface.
     if check_coords(x, y):
       ts[y,x] += np.exp(-(event['t'] - mem_event['t']).astype(np.float32)/tau) if decay=='exp' else (event['t'] - mem_event['t']).astype(np.float32)/(3*tau)+1
