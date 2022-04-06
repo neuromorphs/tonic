@@ -1,17 +1,19 @@
+#! /usr/bin/env python3
+
 import numpy as np
 import math
 
-def _gen_pixel_to_cell_mapper(w, h, K, px_dtype):
+def _gen_pixel_to_cell_mapper(h, w, cell_size):
   """
   Matrix that allows to map a pixel to a cell via indexing.
   """
-  matrix = np.zeros((h, w), dtype=px_dtype)
+  matrix = np.zeros((h, w), dtype=np.int32)
   for i in range(h):
     for j in range(w):
       # Since each frame axis is divided in cells of width _K, the cell index related to that axis can be computed by integer division x//_K.
-      cell_y, cell_x = i//K, j//K
+      cell_y, cell_x = i//cell_size, j//cell_size
       # Getting the index associated to cell coordinates.
-      matrix[i,j] = cell_y*math.ceil(w/K) + cell_x
+      matrix[i,j] = cell_y*math.ceil(w/cell_size) + cell_x
   return matrix
   
 def _get_cell_mems(events, n_cells, n_pols, pixel_to_cell_mapper):
@@ -20,51 +22,41 @@ def _get_cell_mems(events, n_cells, n_pols, pixel_to_cell_mapper):
   """
   cell_mems = [[[] for c in range(n_cells)] for p in range(n_pols)]
   for event in events:
-    cell_mems[max(event['p'], 0)][pixel_to_cell_mapper[event['y'], event['x']]].append(event)
-  return cell_mems[:]
+    cell_mems[int(event['p'])][pixel_to_cell_mapper[event['y'], event['x']]].append(event)
+  cell_mems = [[np.hstack(cell_mems[p][c]) if cell_mems[p][c] else np.empty((0,)) for c in range(n_cells)] for p in range(n_pols)]
+  return cell_mems
 
-def _bsearch_window(t_start, cell_mem):
+def _get_time_surface(event, cell_mem, surface_size=10, temporal_window=500, tau=500, decay='exp'):
   """
-  Performs binary search to find the index of the first timestamp included in the time window (t_start = t_event - temporal_window).
+  Accumulates the time surfaces of all the events included in the time window of the given event. 
   """
-  l, r, start = 0, len(cell_mem)-1, 0
-  while l<=r:
-    m = (l+r)//2
-    if cell_mem[m]['t'] > t_start:
-      r, start = m-1, m
-    elif cell_mem[m]['t'] < t_start:
-      l = m+1
-    else:
-      start = m
-      break
-  return start
-
-def _get_time_surface(event, cell_mem, radius, temporal_window, tau, decay='exp'):
-  """
-  Accumulates the time surfaces of all the events included in the time window. 
-  """
-  ts = np.zeros((2*radius+1, 2*radius+1), dtype=np.float32)
+  # Empty cell.
+  if cell_mem.size==0:
+    return np.zeros((surface_size, surface_size))
+  radius = np.array(surface_size//2).astype(cell_mem['x'].dtype)
   # Getting starting timestamp.
   t_start = max(0, event['t'] - temporal_window)
-  check_coords = lambda x, y: x>=0 and y>=0 and x <= 2*radius and y <= 2*radius
-  # Getting start timestamp of temporal window.
-  start = _bsearch_window(t_start=t_start, cell_mem=cell_mem)
-  for mem_event in cell_mem[start:]:
-    # Getting event coordinates in the neighbourhood.
-    x, y = (event['x'] - mem_event['x']) + radius, (event['y'] - mem_event['y']) + radius
-    # Check if event is in neighourbhood and, if so, adding it to the time surface.
-    if check_coords(x, y):
-      ts[y,x] += np.exp(-(event['t'] - mem_event['t']).astype(np.float32)/tau) if decay=='exp' else (event['t'] - mem_event['t']).astype(np.float32)/(3*tau)+1
-  return ts
-  
+  # Computing surface coordinates for events.
+  x_surface, y_surface = (event['x'] + radius - cell_mem['x']), (event['y'] + radius - cell_mem['y'])
+  # Filtering events out of surface and time window.
+  mask = np.asarray((x_surface>=0) & (x_surface<=2*radius) & (y_surface>=0) & (y_surface<=2*radius) & (cell_mem['t']>=t_start)).nonzero()[0]
+  if mask.size==0:
+    return np.zeros((surface_size, surface_size))
+  # Time surfaces tensor.
+  ts = np.zeros((mask.size, surface_size, surface_size), dtype=np.float32)
+  # For each event, the corresponding time surface is computed using the coordinates previously calculated. 
+  ts[np.arange(mask.size), y_surface[mask], x_surface[mask]] = np.exp(-(event['t'] - cell_mem['t'][mask]).astype(np.float32)/tau) if decay=='exp' else (event['t'] - cell_mem['t'][mask]).astype(np.float32)/(3*tau) + 1
+  # The time surfaces are accumulated and returned in output.
+  return np.sum(ts, axis=0)
+
 def to_averaged_timesurface(
     events,
-    sensor_size,
+    sensor_size=(128, 128, 2),
     cell_size=10,
     surface_size=3,
     temporal_window=5e5,
     tau=5e3,
-    decay="lin",
+    decay="exp",
     num_workers=1
 ):
   """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
@@ -73,8 +65,8 @@ def to_averaged_timesurface(
     Parameters:
         cell_size (int): size of each square in the grid
         surface_size (int): has to be odd
-        temporal_window (float): how far back to look for past events for the time averaging
-        tau (float): time constant to decay events around occuring event with.
+        temporal_window (int): how far back to look for past events for the time averaging. Expressed in microseconds.
+        tau (int): time constant to decay events around occuring event with. Expressed in microseconds.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         merge_polarities (bool): flag that tells whether polarities should be taken into account separately or not.
         num_workers (int): number of workers to be deployed on the histograms computation. 
@@ -82,8 +74,8 @@ def to_averaged_timesurface(
         array of histograms (numpy.Array with shape (n_cells, n_pols, surface_size, surface_size))
   """
   
-  radius = surface_size // 2
-  assert surface_size > 0 and surface_size <= cell_size
+  assert surface_size <= cell_size
+  assert surface_size%2 != 0
   assert "x" and "y" and "t" and "p" in events.dtype.names
   assert decay=='lin' or decay=='exp'
 
@@ -98,33 +90,25 @@ def to_averaged_timesurface(
 
   # Getting sensor sizes, number of cells in the frame and initializing the data structures.
   width, height, n_pols = sensor_size
-  n_cells = math.ceil(width/surface_size)*math.ceil(height/surface_size)
+  n_cells = math.ceil(width/cell_size)*math.ceil(height/cell_size)
   histograms = np.zeros((n_cells, n_pols, surface_size, surface_size))
      
   # Matrix for associating an event to a cell via indexing.
-  pixel_to_cell_mapper = _gen_pixel_to_cell_mapper(w=width, h=height, K=surface_size, px_dtype=events["x"].dtype)
+  pixel_to_cell_mapper = _gen_pixel_to_cell_mapper(w=width, h=height, cell_size=cell_size)
   
   # Organizing the events in cells (local memories of HATS paper). 
   cell_mems = _get_cell_mems(events=events, n_cells=n_cells, n_pols=n_pols, pixel_to_cell_mapper=pixel_to_cell_mapper)
-    
+  
   # Time surfaces associated to each event in a cell.
-  if not use_joblib:
-    get_cell_time_surfaces = lambda cell_mem: np.stack([
-      _get_time_surface(event=cell_mem[i], cell_mem=cell_mem[:i], radius=radius, temporal_window=temporal_window, tau=tau, decay=decay)
-      for i in range(len(cell_mem))])
-  else:  
-    get_cell_time_surfaces = lambda cell_buffer: np.stack(
-      Parallel(n_jobs=num_workers)(
-        delayed(_get_time_surface)(cell_buffer[i], cell_buffer[:i], radius, temporal_window, tau, decay)
-        for i in range(len(cell_buffer))
-      )
-    )
+  get_cell_time_surfaces = lambda cell_mem: np.stack([
+    _get_time_surface(event=cell_mem[i], cell_mem=cell_mem[:i], surface_size=surface_size, temporal_window=temporal_window, tau=tau, decay=decay)
+    for i in range(cell_mem.shape[0])])
 
   # Histogram associated to a cell, obtained by accumulatig the time surfaces of each event in the cell.
   get_cell_histogram = lambda cell: np.stack([
-    np.sum(get_cell_time_surfaces(cell_mems[pol][cell]), axis=0)/max(sum([len(cell_mems[pol][cell]) for pol in range(n_pols)]), 1)
-    if cell_mems[pol][cell] else
-    np.zeros((2*radius+1, 2*radius+1))
+    np.sum(get_cell_time_surfaces(cell_mems[pol][cell]), axis=0)/max(sum([cell_mems[p][cell].shape[0] for p in range(n_pols)]), 1)
+    if cell_mems[pol][cell].size>0 else
+    np.zeros((surface_size, surface_size))
     for pol in range(n_pols)])
 
   if not use_joblib:
