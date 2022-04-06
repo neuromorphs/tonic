@@ -127,19 +127,19 @@ class TestRepresentations:
             assert surfaces.shape[3] == sensor_size[0]
         assert surfaces is not orig_events
 
-    @pytest.mark.parametrize("surface_size, tau, num_workers, decay", [(7, 100, 1, "lin"), (3, 1000, 4, "exp")])
-    def test_representation_avg_time_surface(self, surface_size, tau, num_workers, decay):
+    @pytest.mark.parametrize("surface_size, cell_size, tau, num_workers, decay", [(7, 9, 100, 1, "lin"), (3, 4, 1000, 4, "exp")])
+    def test_representation_avg_time_surface(self, surface_size, cell_size, tau, num_workers, decay):
         orig_events, sensor_size = create_random_input()
 
         transform = transforms.ToAveragedTimesurface(
-            sensor_size=sensor_size, surface_size=surface_size, tau=tau, num_workers=num_workers, decay=decay
+            sensor_size=sensor_size, surface_size=surface_size, cell_size=cell_size, tau=tau, num_workers=num_workers, decay=decay
         )
 
         surfaces = transform(orig_events)
         import math 
         assert len(surfaces.shape) == 4
-        assert surfaces.shape[0] == math.ceil(sensor_size[0]/surface_size)*math.ceil(sensor_size[1]/surface_size)
-        assert surfaces.shape[1] == 2
+        assert surfaces.shape[0] == math.ceil(sensor_size[0]/cell_size)*math.ceil(sensor_size[1]/cell_size)
+        assert surfaces.shape[1] == sensor_size[2]
         assert surfaces.shape[2] == surface_size
         assert surfaces.shape[3] == surface_size
         assert surfaces is not orig_events
