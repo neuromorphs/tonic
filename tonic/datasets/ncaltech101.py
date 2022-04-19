@@ -26,9 +26,9 @@ class NCALTECH101(Dataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
-    url = "https://www.dropbox.com/sh/iuv7o3h2gv6g4vd/AADYPdhIBK7g_fPCLKmG6aVpa?dl=1"
+    url = "https://data.mendeley.com/public-files/datasets/cy6cvx3ryv/files/36b5c52a-b49d-4853-addb-a836a8883e49/file_downloaded" 
     filename = "N-Caltech101-archive.zip"
-    file_md5 = "989af2c704103341d616b748b5daa70c"
+    file_md5 = "66201824eabb0239c7ab992480b50ba3"
     data_filename = "Caltech101.zip"
     folder_name = "Caltech101"
 
@@ -43,7 +43,6 @@ class NCALTECH101(Dataset):
 
         if not self._check_exists():
             self.download()
-            extract_archive(os.path.join(self.location_on_system, self.data_filename))
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
