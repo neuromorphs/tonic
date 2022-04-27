@@ -18,7 +18,12 @@ def make_structured_array(x, y, t, p, dtype=events_struct):
     Returns:
         xytp: numpy structured array
     """
-    return np.fromiter(zip(x, y, t, p), dtype=dtype)
+    struct_arr = np.empty_like(x, dtype=dtype)
+    struct_arr["x"] = x
+    struct_arr["y"] = y
+    struct_arr["t"] = t
+    struct_arr["p"] = p
+    return struct_arr
 
 
 def read_aedat4(in_file):
