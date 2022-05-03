@@ -3,10 +3,11 @@ import struct
 import numpy as np
 
 
-events_struct = [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
+events_struct = np.dtype([("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)])
 
 # many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
-def make_structured_array(x, y, t, p, dtype=events_struct):
+def make_structured_array(*args, dtype=events_struct):
+    # TODO change the docstring
     """
     Make a structured array given lists of x, y, t, p
 
@@ -18,11 +19,12 @@ def make_structured_array(x, y, t, p, dtype=events_struct):
     Returns:
         xytp: numpy structured array
     """
-    struct_arr = np.empty_like(x, dtype=dtype)
-    struct_arr["x"] = x
-    struct_arr["y"] = y
-    struct_arr["t"] = t
-    struct_arr["p"] = p
+    assert not isinstance(args[-1], np.dtype), "The `dtype` must be provided as a keyword argument."
+    names = dtype.names
+    assert len(args) == len(names)
+    struct_arr = np.empty_like(args[0], dtype=dtype)
+    for arg,name in zip(args,names):
+        struct_arr[name] = arg
     return struct_arr
 
 

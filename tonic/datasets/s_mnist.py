@@ -3,6 +3,7 @@ import numpy as np
 from struct import unpack
 from tonic.dataset import Dataset
 from tonic.download_utils import download_and_extract_archive, extract_archive
+from tonic.io import make_structured_array
 
 
 class SMNIST(Dataset):
@@ -167,10 +168,12 @@ class SMNIST(Dataset):
             spike_time[1::2] = double_spike_time + 1
 
         # stack and add artificial polarity of 1
-        events = np.column_stack(
-            (spike_time * self.dt, spike_idx, np.ones(spike_idx.shape[0]))
+        events = make_structured_array(
+            spike_time * self.dt, 
+            spike_idx, 
+            1, 
+            dtype=self.dtype
         )
-        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         target = self.label_data[index]
 
         if self.transform is not None:

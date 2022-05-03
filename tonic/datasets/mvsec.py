@@ -3,6 +3,7 @@ import numpy as np
 from importRosbag.importRosbag import importRosbag
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url
+from tonic.io import make_structured_array
 
 
 class MVSEC(Dataset):
@@ -92,25 +93,23 @@ class MVSEC(Dataset):
         events_left = topics["/davis/left/events"]
         events_left["ts"] -= events_left["ts"][0]
         events_left["ts"] *= 1e6
-        events_left = np.column_stack(
-            (events_left["x"], events_left["y"], events_left["ts"], events_left["pol"])
+        events_left = make_structured_array(
+            events_left["x"], 
+            events_left["y"], 
+            events_left["ts"], 
+            events_left["pol"],
+            dtype=self.dtype
         )
-        events_left = np.lib.recfunctions.unstructured_to_structured(
-            events_left, self.dtype
-        )
+
         events_right = topics["/davis/right/events"]
         events_right["ts"] -= events_right["ts"][0]
         events_right["ts"] *= 1e6
-        events_right = np.column_stack(
-            (
-                events_right["x"],
-                events_right["y"],
-                events_right["ts"],
-                events_right["pol"],
-            )
-        )
-        events_right = np.lib.recfunctions.unstructured_to_structured(
-            events_right, self.dtype
+        events_right = make_structured_array(
+            events_right["x"],
+            events_right["y"],
+            events_right["ts"],
+            events_right["pol"],
+            dtype=self.dtype
         )
         imu_left = topics["/davis/left/imu"]
         imu_right = topics["/davis/right/imu"]

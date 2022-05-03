@@ -5,6 +5,7 @@ import scipy.io as scio
 from typing import Tuple, Any, Optional
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
+from tonic.io import make_structured_array
 
 
 class ASLDVS(Dataset):
@@ -64,15 +65,13 @@ class ASLDVS(Dataset):
             (events, target) where target is index of the target class.
         """
         events, target = scio.loadmat(self.data[index]), self.targets[index]
-        events = np.column_stack(
-            [
-                events["ts"],
-                events["x"],
-                self.sensor_size[1] - 1 - events["y"],
-                events["pol"],
-            ]
+        events = make_structured_array(
+            events["ts"], 
+            events["x"], 
+            self.sensor_size[1] - 1 - events["y"], 
+            events["pol"], 
+            dtype=self.dtype
         )
-        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         if self.transform is not None:
             events = self.transform(events)
         if self.target_transform is not None:
