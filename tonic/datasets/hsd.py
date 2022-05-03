@@ -2,6 +2,7 @@ import os
 import numpy as np
 import h5py
 from tonic.dataset import Dataset
+from tonic.io import make_structured_array
 
 
 class HSD(Dataset):
@@ -15,17 +16,13 @@ class HSD(Dataset):
 
     def __getitem__(self, index):
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
-        # adding artificial polarity of 1
-        events = np.vstack(
-            (
-                file["spikes/times"][index],
-                file["spikes/units"][index],
-                np.ones(file["spikes/times"][index].shape[0]),
-            )
-        ).T
-        # convert to microseconds
-        events[:, 0] *= 1e6
-        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
+        # adding artificial polarity of 1 and convert to microseconds
+        events = make_structured_array(
+            file["spikes/times"][index]*1e6,
+            file["spikes/units"][index],
+            1,
+            dtype=self.dtype
+        )
         target = file["labels"][index].astype(int)
         if self.transform is not None:
             events = self.transform(events)

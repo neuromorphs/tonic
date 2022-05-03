@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from importRosbag.importRosbag import importRosbag
+from tonic.io import make_structured_array
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url
 
@@ -80,10 +81,13 @@ class VPR(Dataset):
         events = topics["/dvs/events"]
         events["ts"] -= events["ts"][0]
         events["ts"] *= 1e6
-        events = np.column_stack(
-            (events["ts"], events["x"], events["y"], events["pol"])
+        events = make_structured_array(
+            events["ts"], 
+            events["x"], 
+            events["y"], 
+            events["pol"], 
+            dtype=self.dtype
         )
-        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         imu = topics["/dvs/imu"]
         imu["ts"] = ((imu["ts"] - imu["ts"][0]) * 1e6).astype(int)
         images = topics["/dvs/image_raw"]

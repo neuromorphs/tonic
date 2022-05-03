@@ -11,6 +11,7 @@ from tonic.download_utils import (
     list_files,
 )
 from typing import Union, List, Callable, Optional
+from tonic.io import make_structured_array
 
 
 class TUMVIE(Dataset):
@@ -123,31 +124,23 @@ class TUMVIE(Dataset):
         events_left_file = h5py.File(
             os.path.join(base_folder, self.selection[index] + "-events_left.h5")
         )["events"]
-        events_left = np.column_stack(
-            (
-                events_left_file["p"][()],
-                events_left_file["t"][()],
-                events_left_file["x"][()],
-                events_left_file["y"][()],
-            )
-        )
-        events_left = np.lib.recfunctions.unstructured_to_structured(
-            events_left, self.dtype
+        events_left = make_structured_array(
+            events_left_file["p"][()],
+            events_left_file["t"][()],
+            events_left_file["x"][()],
+            events_left_file["y"][()],
+            dtype=self.dtype
         )
 
         events_right_file = h5py.File(
             os.path.join(base_folder, self.selection[index] + "-events_right.h5")
         )["events"]
-        events_right = np.column_stack(
-            (
-                events_right_file["p"][()],
-                events_right_file["t"][()],
-                events_right_file["x"][()],
-                events_right_file["y"][()],
-            )
-        )
-        events_right = np.lib.recfunctions.unstructured_to_structured(
-            events_right, self.dtype
+        events_right = make_structured_array(
+            events_right_file["p"][()],
+            events_right_file["t"][()],
+            events_right_file["x"][()],
+            events_right_file["y"][()],
+            dtype=self.dtype
         )
 
         imu_data = []
