@@ -174,7 +174,7 @@ def read_mnist_file(bin_file, dtype):
         all_y[td_indices],
         all_ts[td_indices],
         all_p[td_indices],
-        dtype,
+        dtype=dtype,
     )
     return xytp
 
