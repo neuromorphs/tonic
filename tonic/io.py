@@ -7,17 +7,13 @@ events_struct = np.dtype([("x", np.int16), ("y", np.int16), ("t", np.int64), ("p
 
 # many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
 def make_structured_array(*args, dtype=events_struct):
-    # TODO change the docstring
     """
-    Make a structured array given lists of x, y, t, p
+    Make a structured array given a varaibale number of argument values
 
     Args:
-        x: List of x values
-        y: List of y values
-        t: List of times
-        p: List of polarities boolean
+        *args: Values in the form of nested lists or tuples or numpy arrays. Every except the first argument can be of a primitive data type like int or float
     Returns:
-        xytp: numpy structured array
+        struct_arr: numpy structured array with the shape of the first argument
     """
     assert not isinstance(args[-1], np.dtype), "The `dtype` must be provided as a keyword argument."
     names = dtype.names
