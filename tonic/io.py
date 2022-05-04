@@ -8,7 +8,7 @@ events_struct = np.dtype([("x", np.int16), ("y", np.int16), ("t", np.int64), ("p
 # many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
 def make_structured_array(*args, dtype=events_struct):
     """
-    Make a structured array given a varaibale number of argument values
+    Make a structured array given a variable number of argument values
 
     Args:
         *args: Values in the form of nested lists or tuples or numpy arrays. Every except the first argument can be of a primitive data type like int or float
