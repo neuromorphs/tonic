@@ -3,6 +3,7 @@ import numpy as np
 import h5py
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url
+from tonic.io import make_structured_array
 
 
 class NTIDIGITS(Dataset):
@@ -55,18 +56,19 @@ class NTIDIGITS(Dataset):
         )
 
     def __getitem__(self, index):
-        if self.train:
-            target = bytes.decode(self.data_file["train_labels"][index])
-            timestamps = np.array(self.data_file["train_timestamps/" + target])
-            addresses = np.array(self.data_file["train_addresses/" + target])
-        else:
-            target = bytes.decode(self.data_file["test_labels"][index])
-            timestamps = np.array(self.data_file["test_timestamps/" + target])
-            addresses = np.array(self.data_file["test_addresses/" + target])
+        prefix = "train" if self.train else "test"
+        target = bytes.decode(self.data_file[f"{prefix}_labels"][index])
+        timestamps = np.array(self.data_file[f"{prefix}_timestamps/" + target])
+        addresses = np.array(self.data_file[f"{prefix}_addresses/" + target])
+
         # convert timestamps to microseconds
         timestamps *= 10e5
-        events = np.column_stack((timestamps, addresses, np.ones(timestamps.shape[0])))
-        events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
+        events = make_structured_array(
+            timestamps, 
+            addresses, 
+            1, 
+            dtype=self.dtype
+        )
 
         if self.transform is not None:
             events = self.transform(events)
