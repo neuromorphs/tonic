@@ -69,7 +69,7 @@ def slice_by_time_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0)
     assert overlap < 1
 
     times = events["t"]
-    time_window = times[-1] // bin_count * (1 + overlap)
+    time_window = (times[-1] - times[0]) // bin_count * (1 + overlap)
     stride = time_window * (1 - overlap)
 
     window_start_times = np.arange(bin_count) * stride + times[0]
