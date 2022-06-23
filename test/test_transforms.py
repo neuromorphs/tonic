@@ -1,10 +1,26 @@
 import pytest
 import numpy as np
 import tonic.transforms as transforms
+import itertools
 from utils import create_random_input
 
 
 class TestTransforms:
+    @pytest.mark.parametrize("min, max", itertools.product((None, 0, 1000), (None, 5000)))
+    def test_crop_time(self, min, max):
+        orig_events, sensor_size = create_random_input()
+
+        transform = transforms.CropTime(min=min, max=max)
+
+        events = transform(orig_events)
+
+        assert events is not orig_events
+        if min is not None:
+            assert not events['t'][0] < min
+        if max is not None:
+            assert not events['t'][-1] > max
+
+
     @pytest.mark.parametrize("filter_time", [10000, 5000])
     def test_transform_denoise(self, filter_time):
         orig_events, sensor_size = create_random_input()

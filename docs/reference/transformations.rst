@@ -13,6 +13,9 @@ This is useful if you have to build a more complex transformation pipeline.
 Transforms on events
 --------------------
 
+Crop time
+^^^^^^^^^
+.. autoclass:: CropTime
 
 Denoising
 ^^^^^^^^^

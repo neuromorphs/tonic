@@ -35,6 +35,22 @@ class Compose:
         return format_string
 
 
+@dataclass
+class CropTime:
+    """Drops events with timestamps below min and above max."""
+    
+    min: int = None
+    max: int = None
+
+    def __call__(self, events):
+        assert 't' in events.dtype.names
+        if self.min is None:
+            self.min = events['t'][0]
+        if self.max is None:
+            self.max = events['t'][-1]
+        return events[(events['t'] >= self.min) & (events['t'] <= self.max)]
+
+
 @dataclass(frozen=True)
 class Denoise:
     """Drops events that are 'not sufficiently connected to other events in the recording.'
@@ -120,7 +136,7 @@ class Downsample:
         spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
     """
 
-    time_factor: float = 1e-3
+    time_factor: float = 1
     spatial_factor: float = 1
 
     def __call__(self, events):
