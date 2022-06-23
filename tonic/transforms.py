@@ -524,6 +524,43 @@ class ToFrame:
 
 
 @dataclass(frozen=True)
+class ToSparseTensor:
+    """
+    Sparse tensor PyTorch drop-in replacement for ToFrame. See https://pytorch.org/docs/stable/sparse.html for details
+    about sparse tensors. A sparse tensor will use the events as indices in the order (tpxy) and values
+    of 1 for each index, which signify a spike. The shape of the tensor will be (TCWH).
+    Turn event array (N,E) into sparse Tensor (B,T,H,W) if E is 4 (mostly event camera recordings),
+    otherwise into sparse tensor (B,T,H) mostly for audio recordings.
+    """
+
+    sensor_size: Tuple[int, int, int]
+    time_window: Optional[float] = None
+    event_count: Optional[int] = None
+    n_time_bins: Optional[int] = None
+    n_event_bins: Optional[int] = None
+    overlap: float = 0
+    include_incomplete: bool = False
+
+    def __call__(self, events):
+        try:
+            import torch
+        except ImportError:
+            raise ImportError("PyTorch not installed.")
+
+        dense_frames = functional.to_frame_numpy(
+            events=events,
+            sensor_size=self.sensor_size,
+            time_window=self.time_window,
+            event_count=self.event_count,
+            n_time_bins=self.n_time_bins,
+            n_event_bins=self.n_event_bins,
+            overlap=self.overlap,
+            include_incomplete=self.include_incomplete,
+        )
+        return torch.from_numpy(dense_frames).to_sparse()
+        
+
+@dataclass(frozen=True)
 class ToImage:
     """Counts up all events to a *single* image of size sensor_size. ToImage will typically
     be used in combination with SlicedDataset to cut a recording into smaller chunks that 

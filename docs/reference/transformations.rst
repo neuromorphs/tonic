@@ -91,6 +91,10 @@ Frames
 ^^^^^^
 .. autoclass:: ToFrame
 
+Sparse tensors
+^^^^^^^^^^^^^^
+.. autoclass:: ToSparseTensor
+
 Single image
 ^^^^^^^^^^^^
 .. autoclass:: ToImage
