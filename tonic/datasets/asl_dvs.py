@@ -28,7 +28,7 @@ class ASLDVS(Dataset):
 
     url = "https://www.dropbox.com/sh/ibq0jsicatn7l6r/AACNrNELV56rs1YInMWUs9CAa?dl=1"
     filename = "ASLDVS.zip"
-    file_md5 = "20f1dbf961f9a45179f6e489e93c8f2c"
+    file_md5 = "33f8b87bf45edc0bfed0de41822279b9"
     folder_name = ""
 
     classes = [chr(letter) for letter in range(97, 123)]  # generate alphabet
