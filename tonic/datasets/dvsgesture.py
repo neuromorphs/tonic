@@ -49,7 +49,7 @@ class DVSGesture(Dataset):
     ]
 
     sensor_size = (128, 128, 2)
-    dtype = np.dtype([("x", int), ("y", int), ("p", int), ("t", int)])
+    dtype = np.dtype([("x", np.int16), ("y", np.int16), ("p", bool), ("t", np.int64)])
     ordering = dtype.names
 
     def __init__(self, save_to, train=True, transform=None, target_transform=None):
