@@ -21,6 +21,8 @@ class MemoryCachedDataset:
     Parameters:
         dataset:
             Dataset to be cached to memory.
+        device:
+            Device to cache to. This is preferably a torch device. Will cache to CPU memory if None (default).
         transform:
             Transforms to be applied on the data
         target_transform:
@@ -28,6 +30,7 @@ class MemoryCachedDataset:
     """
 
     dataset: Iterable
+    device: Optional[str] = None
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
 
@@ -40,6 +43,9 @@ class MemoryCachedDataset:
             data, targets = self.data_dict[index]
         except KeyError as _:
             data, targets = self.dataset[index]
+            if self.device is not None:
+                data = data.to(self.device)
+                targets = targets.to(self.device)
             self.data_dict[index] = (data, targets)
 
         if self.transform:
