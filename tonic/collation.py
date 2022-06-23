@@ -28,16 +28,18 @@ class PadTensors:
         for sample, target in batch:
             if not isinstance(sample, torch.Tensor):
                 sample = torch.tensor(sample)
+            if not isinstance(target, torch.Tensor):
+                target = torch.tensor(target)
             samples_output.append(
                 torch.cat(
                     (
                         sample,
-                        torch.zeros(max_length - sample.shape[0], *sample.shape[1:]),
+                        torch.zeros(max_length - sample.shape[0], *sample.shape[1:], device=sample.device),
                     )
                 )
             )
             targets_output.append(target)
         return (
             torch.stack(samples_output, 0 if self.batch_first else 1),
-            torch.tensor(targets_output),
+            torch.tensor(targets_output, device=target.device),
         )
