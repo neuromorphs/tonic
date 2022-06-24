@@ -31,7 +31,7 @@ def test_pytorch_batch_collation_dense_tensor():
     )  # simulate recordings of different length
     batch_size = 2
     dataloader = torch.utils.data.DataLoader(
-        dataset, collate_fn=tonic.collation.PadTensors(), batch_size=batch_size
+        dataset, collate_fn=tonic.collation.PadTensors(batch_first=False), batch_size=batch_size
     )
 
     batch, label = next(iter(dataloader))
