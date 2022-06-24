@@ -17,7 +17,7 @@ class PadTensors:
 
     """
 
-    def __init__(self, batch_first: bool = False):
+    def __init__(self, batch_first: bool = True):
         self.batch_first = batch_first
 
     def __call__(self, batch):
@@ -30,14 +30,15 @@ class PadTensors:
                 sample = torch.tensor(sample)
             if not isinstance(target, torch.Tensor):
                 target = torch.tensor(target)
-            samples_output.append(
-                torch.cat(
+            if sample.is_sparse:
+                sample.sparse_resize_((max_length, *sample.shape[1:]), sample.sparse_dim(), sample.dense_dim())
+            else:
+                sample = torch.cat(
                     (
                         sample,
                         torch.zeros(max_length - sample.shape[0], *sample.shape[1:], device=sample.device),
-                    )
-                )
-            )
+                    ))
+            samples_output.append(sample)
             targets_output.append(target)
         return (
             torch.stack(samples_output, 0 if self.batch_first else 1),
