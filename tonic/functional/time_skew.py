@@ -21,6 +21,12 @@ def time_skew_numpy(events: np.ndarray, coefficient: float, offset: int = 0):
 
     assert "t" in events.dtype.names
 
+    if isinstance(coefficient, tuple):
+        coefficient = (coefficient[1] - coefficient[0]) * np.random.random_sample() + coefficient[0]
+
+    if isinstance(offset, tuple):
+        offset = (offset[1] - offset[0]) * np.random.random_sample() + offset[0]
+
     events["t"] = events["t"] * coefficient + offset
 
     return events

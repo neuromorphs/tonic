@@ -213,7 +213,7 @@ class RandomCrop:
 @dataclass(frozen=True)
 class RandomFlipPolarity:
     """Flips polarity of individual events with p.
-    Changes polarities 1 to -1 and polarities [-1, 0] to 1
+    Changes polarities 1 to 0 and polarities [-1, 0] to 1
 
     Parameters:
         p (float): probability of flipping individual event polarities
@@ -281,20 +281,21 @@ class RandomTimeReversal:
         .. math::
            t_i' = max(t) - t_i
 
-           p_i' = -1 * p_i
-
     Parameters:
         p (float): probability of performing the flip
+        reverse_polarities (bool): if the time is reversed, also flip the polarities.
     """
 
     p: float = 0.5
+    reverse_polarities: bool = True
 
     def __call__(self, events):
         events = events.copy()
         assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.p:
             events["t"] = np.max(events["t"]) - events["t"]
-            events["p"] *= -1
+            if self.reverse_polarities:
+                events["p"] = np.invert(events["p"].astype(bool)).astype(events.dtype["p"])
         return events
 
 
@@ -313,9 +314,10 @@ class RefractoryPeriod:
     """
 
     refractory_period: float
+    random_period: bool = False
 
     def __call__(self, events):
-        return functional.refractory_period_numpy(events, self.refractory_period)
+        return functional.refractory_period_numpy(events, self.refractory_period, self.random_period)
 
 
 @dataclass(frozen=True)
@@ -371,19 +373,20 @@ class TimeJitter:
     distribution and adding them to each timestamp.
 
     Parameters:
-        std (float): change the standard deviation of the time jitter
+        std (sequence or float): the standard deviation of the time jitter, picked randomly between 0 and value. 
         clip_negative (bool): drops events that have negative timestamps
         sort_timestamps (bool): sort the events by timestamps after jitter
     """
 
-    std: float = 1
+    std: float
     clip_negative: bool = False
     sort_timestamps: bool = False
+    random_std: bool = False
 
     def __call__(self, events):
         events = events.copy()
         return functional.time_jitter_numpy(
-            events, self.std, self.clip_negative, self.sort_timestamps
+            events, self.std, self.clip_negative, self.sort_timestamps, self.random_std
         )
 
 
