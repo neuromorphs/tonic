@@ -24,7 +24,7 @@ class DVSLip(Dataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
-    base_url = "https://nextcloud.univ-lille.fr/index.php/s/rQPwf6JLP92x8MJ/download/DVS-Lip.zip"
+    base_url = "https://drive.google.com/file/d/1dBEgtmctTTWJlWnuWxFtk8gfOdVVpkQ0/view"
     filename = "DVS-Lip.zip"
     base_folder = "DVS-Lip"
     file_md5 = "2dcb959255122d4cdeb6094ca282494b"
@@ -63,7 +63,12 @@ class DVSLip(Dataset):
             self.base_folder, 'train' if self.train else 'test')
 
         if not self._check_exists():
-            self.download()
+            print(f"""
+                  WARNING: this dataset is available from Google Drive and must be downloaded manually.
+                  Please download the zip file ( {self.url} ), place the zip file in {self.location_on_system}, 
+                  and extract its content in the same directory.""")  
+            exit()
+            # self.download()
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
 
