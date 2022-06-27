@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from tonic.dataset import Dataset
+from tonic.download_utils import extract_archive
 
 
 class DVSLip(Dataset):
@@ -30,28 +31,164 @@ class DVSLip(Dataset):
     file_md5 = "2dcb959255122d4cdeb6094ca282494b"
 
     sensor_size = (128, 128, 2)
-    dtype = np.dtype([("x", np.int16), ("y", np.int16),
-                      ("p", bool), ("t", np.int64)])
+    dtype = np.dtype([("x", np.int16), ("y", np.int16), ("p", bool), ("t", np.int64)])
     ordering = dtype.names
 
-    classes = ['accused', 'action', 'allow', 'allowed', 'america', 'american', 'another', 'around', 'attacks', 'banks',
-               'become', 'being', 'benefit', 'benefits', 'between', 'billion', 'called', 'capital', 'challenge',
-               'change', 'chief', 'couple', 'court', 'death', 'described', 'difference', 'different', 'during',
-               'economic', 'education', 'election', 'england', 'evening', 'everything', 'exactly', 'general', 'germany',
-               'giving', 'ground', 'happen', 'happened', 'having', 'heavy', 'house', 'hundreds', 'immigration', 'judge',
-               'labour', 'leaders', 'legal', 'little', 'london', 'majority', 'meeting', 'military', 'million', 'minutes',
-               'missing', 'needs', 'number', 'numbers', 'paying', 'perhaps', 'point', 'potential', 'press', 'price',
-               'question', 'really', 'right', 'russia', 'russian', 'saying', 'security', 'several', 'should',
-               'significant', 'spend', 'spent', 'started', 'still', 'support', 'syria', 'syrian', 'taken', 'taking',
-               'terms', 'these', 'thing', 'think', 'times', 'tomorrow', 'under', 'warning', 'water', 'welcome', 'words',
-               'worst', 'years', 'young']  # 100 labels
+    classes = [
+        "accused",
+        "action",
+        "allow",
+        "allowed",
+        "america",
+        "american",
+        "another",
+        "around",
+        "attacks",
+        "banks",
+        "become",
+        "being",
+        "benefit",
+        "benefits",
+        "between",
+        "billion",
+        "called",
+        "capital",
+        "challenge",
+        "change",
+        "chief",
+        "couple",
+        "court",
+        "death",
+        "described",
+        "difference",
+        "different",
+        "during",
+        "economic",
+        "education",
+        "election",
+        "england",
+        "evening",
+        "everything",
+        "exactly",
+        "general",
+        "germany",
+        "giving",
+        "ground",
+        "happen",
+        "happened",
+        "having",
+        "heavy",
+        "house",
+        "hundreds",
+        "immigration",
+        "judge",
+        "labour",
+        "leaders",
+        "legal",
+        "little",
+        "london",
+        "majority",
+        "meeting",
+        "military",
+        "million",
+        "minutes",
+        "missing",
+        "needs",
+        "number",
+        "numbers",
+        "paying",
+        "perhaps",
+        "point",
+        "potential",
+        "press",
+        "price",
+        "question",
+        "really",
+        "right",
+        "russia",
+        "russian",
+        "saying",
+        "security",
+        "several",
+        "should",
+        "significant",
+        "spend",
+        "spent",
+        "started",
+        "still",
+        "support",
+        "syria",
+        "syrian",
+        "taken",
+        "taking",
+        "terms",
+        "these",
+        "thing",
+        "think",
+        "times",
+        "tomorrow",
+        "under",
+        "warning",
+        "water",
+        "welcome",
+        "words",
+        "worst",
+        "years",
+        "young",
+    ]  # 100 labels
 
-    ambigious_classes = ['action', 'allow', 'allowed', 'america', 'american', 'around', 'being', 'benefit', 'benefits',
-                         'billion', 'called', 'challenge', 'change', 'court', 'difference', 'different', 'election',
-                         'evening', 'giving', 'ground', 'happen', 'happened', 'having', 'heavy', 'legal', 'little',
-                         'meeting', 'million', 'missing', 'needs', 'number', 'numbers', 'paying', 'press', 'price',
-                         'russia', 'russian', 'spend', 'spent', 'syria', 'syrian', 'taken', 'taking', 'terms', 'these',
-                         'thing', 'think', 'times', 'words', 'worst']  # the 25 word pairs that are ambiguous (see paper)
+    ambigious_classes = [
+        "action",
+        "allow",
+        "allowed",
+        "america",
+        "american",
+        "around",
+        "being",
+        "benefit",
+        "benefits",
+        "billion",
+        "called",
+        "challenge",
+        "change",
+        "court",
+        "difference",
+        "different",
+        "election",
+        "evening",
+        "giving",
+        "ground",
+        "happen",
+        "happened",
+        "having",
+        "heavy",
+        "legal",
+        "little",
+        "meeting",
+        "million",
+        "missing",
+        "needs",
+        "number",
+        "numbers",
+        "paying",
+        "press",
+        "price",
+        "russia",
+        "russian",
+        "spend",
+        "spent",
+        "syria",
+        "syrian",
+        "taken",
+        "taking",
+        "terms",
+        "these",
+        "thing",
+        "think",
+        "times",
+        "words",
+        "worst",
+    ]  # the 25 word pairs that are ambiguous (see paper)
 
     def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(DVSLip, self).__init__(
@@ -60,15 +197,24 @@ class DVSLip(Dataset):
         self.train = train
         self.url = self.base_url
         self.folder_name = os.path.join(
-            self.base_folder, 'train' if self.train else 'test')
+            self.base_folder, "train" if self.train else "test"
+        )
 
         if not self._check_exists():
-            print(f"""
-                  WARNING: this dataset is available from Google Drive and must be downloaded manually.
-                  Please download the zip file ( {self.url} ), place the zip file in {self.location_on_system}, 
-                  and extract its content in the same directory.""")  
-            exit()
-            # self.download()
+            if self._is_file_present():  # check if zip file is manually downloaded
+                archive = os.path.join(self.location_on_system, self.filename)
+                print(f"Extracting {archive} to {self.location_on_system}...")
+                extract_archive(
+                    archive,
+                    remove_finished=True,
+                )
+            else:
+                print(
+                    f"""
+                    WARNING: this dataset is available from Google Drive and must be downloaded manually.
+                    Please download the zip file ( {self.url} ) and place it in {self.location_on_system}."""
+                )
+                exit()
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
 
@@ -76,10 +222,9 @@ class DVSLip(Dataset):
             label = self.classes.index(act_dir)
 
             for file in os.listdir(os.path.join(file_path, act_dir)):
-                if file.endswith('npy'):
+                if file.endswith("npy"):
                     self.targets.append(label)
                     self.data.append(os.path.join(file_path, act_dir, file))
-                    
 
     def __getitem__(self, index):
         """
@@ -87,13 +232,13 @@ class DVSLip(Dataset):
             a tuple of (events, target) where target is the index of the target class.
         """
         orig_events = np.load(self.data[index])
-        
+
         events = np.empty(orig_events.shape, dtype=self.dtype)
-        events['x'] = orig_events['x']
-        events['y'] = orig_events['y']
-        events['t'] = orig_events['t']
-        events['p'] = orig_events['p']
-        
+        events["x"] = orig_events["x"]
+        events["y"] = orig_events["y"]
+        events["t"] = orig_events["t"]
+        events["p"] = orig_events["p"]
+
         target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events)
@@ -105,6 +250,8 @@ class DVSLip(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            100, ".npy"
-        )
+        return os.path.isdir(
+            os.path.join(
+                self.location_on_system, self.folder_name
+            )  # check if directory exists
+        ) and self._folder_contains_at_least_n_files_of_type(100, ".npy")
