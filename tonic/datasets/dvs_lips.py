@@ -137,7 +137,7 @@ class DVSLip(Dataset):
         "young",
     ]  # 100 labels
 
-    ambigious_classes = [
+    ambiguous_classes = [
         "action",
         "allow",
         "allowed",
