@@ -97,3 +97,36 @@ class NMNISTTestCaseTest(dataset_utils.DatasetTestCase):
         filename = "image_0006.bin"
         download_url(url=base_url + filename, root=testfolder, filename="04652.bin")
         return {"n_samples": 1}
+
+
+class DVSLipTestCaseTrain(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.DVSLip
+    FEATURE_TYPES = (datasets.DVSLip.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": True}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "DVSLip/DVS-Lip/train/accused")
+        os.makedirs(testfolder, exist_ok=True)
+        events, sensor_size = create_random_input(
+            dtype=np.dtype([("t", "<i4"), ("x", "i1"), ("y", "i1"), ("p", "i1")])
+        )
+        np.save(testfolder + "/0.npy", events)
+        np.save(testfolder + "/1.npy", events)
+        return {"n_samples": 2}
+
+
+class DVSLipTestCaseTest(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.DVSLip
+    FEATURE_TYPES = (datasets.DVSLip.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": False}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "DVSLip/DVS-Lip/test/accused")
+        os.makedirs(testfolder, exist_ok=True)
+        events, sensor_size = create_random_input(
+            dtype=np.dtype([("t", "<i4"), ("x", "i1"), ("y", "i1"), ("p", "i1")])
+        )
+        np.save(testfolder + "/0.npy", events)
+        return {"n_samples": 1}

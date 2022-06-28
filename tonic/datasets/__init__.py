@@ -12,6 +12,7 @@ from .pokerdvs import POKERDVS
 from .s_mnist import SMNIST
 from .tum_vie import TUMVIE
 from .visual_place_recognition import VPR
+from .dvs_lips import DVSLip
 
 __all__ = [
     "ASLDVS",
@@ -29,4 +30,5 @@ __all__ = [
     "SSC",
     "TUMVIE",
     "VPR",
+    "DVSLip"
 ]
