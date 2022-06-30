@@ -1,11 +1,9 @@
 import numpy as np
 import math
-from tonic.transforms import ToFrame
-
 
 def to_bina_rep_numpy(
     events: np.ndarray,
-    to_frame_transform: ToFrame,
+    to_frame_transform,
     n_frames: int = 1,
     n_bits: int = 8,
 ):
@@ -22,7 +20,7 @@ def to_bina_rep_numpy(
         (numpy.ndarray) the sequence of bina-rep event frames with dimensions (TxPxHxW).
     """
     assert "x" and "t" and "p" in events.dtype.names
-    assert to_frame_transform is not None and type(to_frame_transform) == ToFrame
+    assert to_frame_transform is not None and type(to_frame_transform).__name__ == "ToFrame"
     assert n_frames >= 1
     assert n_bits >= 2
     
