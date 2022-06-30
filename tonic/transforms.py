@@ -643,7 +643,7 @@ class ToVoxelGrid:
         )
 
 
-@dataclass(frozen=True)
+@dataclass()
 class ToBinaRep:
     """Representation that takes T*B binary event frames to produce a sequence of T frames of N-bit numbers.
     To do so, N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
@@ -655,9 +655,9 @@ class ToBinaRep:
         n_bits (int): the number N of bits used in the N-bit representation.
     """
 
+    n_frames: Optional[int] = 1
+    n_bits: Optional[int] = 8
     to_frame_transform: Optional[ToFrame] = None
-    n_frames: Optional[int] = (1,)
-    n_bits: Optional[int] = (8,)
 
     def __post_init__(self):
         if self.to_frame_transform is None:
