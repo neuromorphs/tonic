@@ -73,6 +73,11 @@ Visual Place Recognition
 .. autoclass:: VPR
     :members: __getitem__
 
+DVS-Lip
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: DVSLip
+    :members: __getitem__
+
 
 Audio datasets
 --------------
