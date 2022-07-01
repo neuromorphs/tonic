@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+
 def to_bina_rep_numpy(
     events: np.ndarray,
     to_frame_transform,
@@ -20,10 +21,13 @@ def to_bina_rep_numpy(
         (numpy.ndarray) the sequence of bina-rep event frames with dimensions (TxPxHxW).
     """
     assert "x" and "t" and "p" in events.dtype.names
-    assert to_frame_transform is not None and type(to_frame_transform).__name__ == "ToFrame"
+    assert (
+        to_frame_transform is not None
+        and type(to_frame_transform).__name__ == "ToFrame"
+    )
     assert n_frames >= 1
     assert n_bits >= 2
-    
+
     ev_frames = to_frame_transform(events)
 
     if ev_frames.shape[0] != n_bits * n_frames:
@@ -56,10 +60,9 @@ def bina_rep(frames: np.ndarray) -> np.ndarray:
     """
     mask = 2 ** np.arange(frames.shape[0] - 1, -1, -1, dtype=np.float32)
     arr_mask = [
-        mask
-        for _ in range(frames.shape[1] * frames.shape[2] * frames.shape[3])
+        mask for _ in range(frames.shape[1] * frames.shape[2] * frames.shape[3])
     ]
     mask = np.stack(arr_mask, axis=-1)
     mask = np.reshape(mask, frames.shape)
 
-    return np.sum(mask * frames, 0) / (2**mask.shape[0] -1)
+    return np.sum(mask * frames, 0) / (2 ** mask.shape[0] - 1)
