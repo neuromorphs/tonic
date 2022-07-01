@@ -62,4 +62,4 @@ def bina_rep(frames: np.ndarray) -> np.ndarray:
     mask = np.stack(arr_mask, axis=-1)
     mask = np.reshape(mask, frames.shape)
 
-    return np.sum(mask * frames, 0) / (mask.shape[0] ** 2)
+    return np.sum(mask * frames, 0) / (2**mask.shape[0] -1)
