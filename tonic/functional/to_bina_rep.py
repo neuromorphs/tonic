@@ -22,7 +22,7 @@ def to_bina_rep_numpy(
     Returns:
         (numpy.ndarray) the sequence of bina-rep event frames with dimensions (TxPxHxW).
     """
-    assert "x" and "t" and "p" in events.dtype.names
+    assert "x" and "y" and "t" and "p" in events.dtype.names
     assert (
         to_frame_transform is not None
         and type(to_frame_transform).__name__ == "ToFrame"
