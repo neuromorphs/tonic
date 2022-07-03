@@ -262,12 +262,16 @@ class TestRepresentations:
 
         orig_events, _ = create_random_input(sensor_size=sensor_size, n_events=n_events)
 
-        transform = transforms.ToBinaRep(
-            n_frames=n_frames,
-            n_bits=n_bits,
-            to_frame_transform=transforms.ToFrame(
-                sensor_size, n_time_bins=n_frames * n_bits
-            ),
+        transform = transforms.Compose(
+            [
+                transforms.ToFrame(
+                    sensor_size=sensor_size, n_time_bins=n_frames * n_bits
+                ),
+                transforms.ToBinaRep(
+                    n_frames=n_frames,
+                    n_bits=n_bits,
+                ),
+            ]
         )
 
         frames = transform(orig_events)

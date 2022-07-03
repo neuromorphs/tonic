@@ -643,32 +643,40 @@ class ToVoxelGrid:
         )
 
 
-@dataclass()
+@dataclass(frozen=True)
 class ToBinaRep:
     """Representation that takes T*B binary event frames to produce a sequence of T frames of N-bit numbers.
     To do so, N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
     Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective Representation for Event-based cameras
     https://arxiv.org/pdf/2202.13662.pdf
+
     Parameters:
-        to_frame_transform (tonic.transforms.ToFrame): the ToFrame transform that creates the T*B binary event frames. Defaults to None.
         n_frames (int): the number T of bina-rep frames.
         n_bits (int): the number N of bits used in the N-bit representation.
+
+
+    Example:
+        >>> n_time_bins = n_frames * n_bits
+        >>>
+        >>> transforms.Compose([
+        >>>     transforms.ToFrame(
+        >>>         sensor_size=sensor_size,
+        >>>         n_time_bins=n_time_bins,
+        >>>     ),
+        >>>     transforms.ToBinaRep(
+        >>>         n_frames=n_frames,
+        >>>         n_bits=n_bits,
+        >>>     ),
+        >>> ])
     """
 
     n_frames: Optional[int] = 1
     n_bits: Optional[int] = 8
-    to_frame_transform: Optional[ToFrame] = None
 
-    def __post_init__(self):
-        if self.to_frame_transform is None:
-            self.to_frame_transform = ToFrame(
-                None, n_time_bins=self.n_frames * self.n_bits
-            )
-
-    def __call__(self, events):
+    def __call__(self, event_frames):
 
         return functional.to_bina_rep_numpy(
-            events, self.to_frame_transform, self.n_frames, self.n_bits
+            event_frames, self.n_frames, self.n_bits
         )
 
 

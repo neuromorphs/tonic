@@ -11,12 +11,12 @@ def to_bina_rep_numpy(
     To do so, N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
     Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective Representation for Event-based cameras
     https://arxiv.org/pdf/2202.13662.pdf
-    
+
     Parameters:
         event_frames: numpy.ndarray of shape (T*BxPxHxW). The sequence of event frames.
         n_frames (int): the number T of bina-rep frames.
         n_bits (int): the number N of bits used in the N-bit representation.
-        
+
     Returns:
         (numpy.ndarray) the sequence of bina-rep event frames with dimensions (TxPxHxW).
     """
