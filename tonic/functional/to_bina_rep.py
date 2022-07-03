@@ -3,8 +3,7 @@ import math
 
 
 def to_bina_rep_numpy(
-    events: np.ndarray,
-    to_frame_transform,
+    event_frames: np.ndarray,
     n_frames: int = 1,
     n_bits: int = 8,
 ):
@@ -14,37 +13,30 @@ def to_bina_rep_numpy(
     https://arxiv.org/pdf/2202.13662.pdf
     
     Parameters:
-        events: numpy.ndarray of shape [num_events, num_event_channels].
-        to_frame_transform (tonic.transforms.ToFrame): the ToFrame transform that creates the T*B binary event frames.
+        event_frames: numpy.ndarray of shape (T*BxPxHxW). The sequence of event frames.
         n_frames (int): the number T of bina-rep frames.
         n_bits (int): the number N of bits used in the N-bit representation.
         
     Returns:
         (numpy.ndarray) the sequence of bina-rep event frames with dimensions (TxPxHxW).
     """
-    assert "x" and "y" and "t" and "p" in events.dtype.names
-    assert (
-        to_frame_transform is not None
-        and type(to_frame_transform).__name__ == "ToFrame"
-    )
+    assert type(event_frames) == np.ndarray and len(event_frames.shape) == 4
     assert n_frames >= 1
     assert n_bits >= 2
 
-    ev_frames = to_frame_transform(events)
-
-    if ev_frames.shape[0] != n_bits * n_frames:
+    if event_frames.shape[0] != n_bits * n_frames:
         raise ValueError(
-            "to_frame_transform must create the right number of event frames to the targeted"
+            "the input event_frames must have the right number of frames to the targeted"
             f"sequence of {n_frames} bina-rep event frames of {n_bits}-bit representation."
-            f"Obtained: {ev_frames.shape[0]} frames. Expected: {n_frames}x{n_bits}={n_bits * n_frames} frames."
+            f"Got: {event_frames.shape[0]} frames. Expected: {n_frames}x{n_bits}={n_bits * n_frames} frames."
         )
 
-    ev_frames = (ev_frames > 0).astype(np.float32)  # get binary event_frames
+    event_frames = (event_frames > 0).astype(np.float32)  # get binary event_frames
 
-    bina_rep_seq = np.zeros((n_frames, *ev_frames.shape[1:]), dtype=np.float32)
+    bina_rep_seq = np.zeros((n_frames, *event_frames.shape[1:]), dtype=np.float32)
 
     for i in range(n_frames):
-        frames = ev_frames[i * n_bits : (i + 1) * n_bits]
+        frames = event_frames[i * n_bits : (i + 1) * n_bits]
         bina_rep_frame = bina_rep(frames)
         bina_rep_seq[i] = bina_rep_frame
 
