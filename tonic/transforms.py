@@ -38,17 +38,17 @@ class Compose:
 @dataclass
 class CropTime:
     """Drops events with timestamps below min and above max."""
-    
+
     min: int = None
     max: int = None
 
     def __call__(self, events):
-        assert 't' in events.dtype.names
+        assert "t" in events.dtype.names
         if self.min is None:
-            self.min = events['t'][0]
+            self.min = events["t"][0]
         if self.max is None:
-            self.max = events['t'][-1]
-        return events[(events['t'] >= self.min) & (events['t'] <= self.max)]
+            self.max = events["t"][-1]
+        return events[(events["t"] >= self.min) & (events["t"] <= self.max)]
 
 
 @dataclass(frozen=True)
@@ -454,7 +454,7 @@ class ToAveragedTimesurface:
         temporal_window (float): how far back to look for past events for the time averaging
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
-        num_workers (int): number of workers to be deployed on the histograms computation. When >1, joblib is required. 
+        num_workers (int): number of workers to be deployed on the histograms computation. When >1, joblib is required.
     """
 
     sensor_size: Tuple[int, int, int]
@@ -574,13 +574,13 @@ class ToSparseTensor:
             include_incomplete=self.include_incomplete,
         )
         return torch.from_numpy(dense_frames).to_sparse()
-        
+
 
 @dataclass(frozen=True)
 class ToImage:
     """Counts up all events to a *single* image of size sensor_size. ToImage will typically
-    be used in combination with SlicedDataset to cut a recording into smaller chunks that 
-    are then individually binned to frames. 
+    be used in combination with SlicedDataset to cut a recording into smaller chunks that
+    are then individually binned to frames.
     """
 
     sensor_size: Tuple[int, int, int]
@@ -640,6 +640,43 @@ class ToVoxelGrid:
 
         return functional.to_voxel_grid_numpy(
             events.copy(), self.sensor_size, self.n_time_bins
+        )
+
+
+@dataclass(frozen=True)
+class ToBinaRep:
+    """Representation that takes T*B binary event frames to produce a sequence of T frames of N-bit numbers.
+    To do so, N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
+    Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective Representation for Event-based cameras
+    https://arxiv.org/pdf/2202.13662.pdf
+
+    Parameters:
+        n_frames (int): the number T of bina-rep frames.
+        n_bits (int): the number N of bits used in the N-bit representation.
+
+
+    Example:
+        >>> n_time_bins = n_frames * n_bits
+        >>>
+        >>> transforms.Compose([
+        >>>     transforms.ToFrame(
+        >>>         sensor_size=sensor_size,
+        >>>         n_time_bins=n_time_bins,
+        >>>     ),
+        >>>     transforms.ToBinaRep(
+        >>>         n_frames=n_frames,
+        >>>         n_bits=n_bits,
+        >>>     ),
+        >>> ])
+    """
+
+    n_frames: Optional[int] = 1
+    n_bits: Optional[int] = 8
+
+    def __call__(self, event_frames):
+
+        return functional.to_bina_rep_numpy(
+            event_frames, self.n_frames, self.n_bits
         )
 
 

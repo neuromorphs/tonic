@@ -82,7 +82,6 @@ class TestRepresentations:
 
         assert frames is not orig_events
 
-
     @pytest.mark.parametrize(
         "time_window, event_count, n_time_bins, n_event_bins, overlap,"
         " include_incomplete, sensor_size",
@@ -112,7 +111,9 @@ class TestRepresentations:
         sensor_size,
     ):
         n_events = 10000
-        orig_events, sensor_size = create_random_input(sensor_size=sensor_size, n_events=n_events)
+        orig_events, sensor_size = create_random_input(
+            sensor_size=sensor_size, n_events=n_events
+        )
 
         transform = transforms.ToSparseTensor(
             sensor_size=sensor_size,
@@ -158,11 +159,12 @@ class TestRepresentations:
 
         if n_event_bins is not None:
             assert sparse_tensor.shape[0] == n_event_bins
-            assert sparse_tensor[0].to_dense().sum() == (1 + overlap) * (n_events // n_event_bins)
+            assert sparse_tensor[0].to_dense().sum() == (1 + overlap) * (
+                n_events // n_event_bins
+            )
 
         assert sparse_tensor is not orig_events
 
-        
     def test_representation_frame_inferred(self):
         sensor_size = (20, 10, 2)
         orig_events, _ = create_random_input(n_events=30000, sensor_size=sensor_size)
@@ -208,18 +210,31 @@ class TestRepresentations:
             assert surfaces.shape[3] == sensor_size[0]
         assert surfaces is not orig_events
 
-    @pytest.mark.parametrize("surface_size, cell_size, tau, num_workers, decay", [(7, 9, 100, 1, "lin"), (3, 4, 1000, 1, "exp")])
-    def test_representation_avg_time_surface(self, surface_size, cell_size, tau, num_workers, decay):
+    @pytest.mark.parametrize(
+        "surface_size, cell_size, tau, num_workers, decay",
+        [(7, 9, 100, 1, "lin"), (3, 4, 1000, 1, "exp")],
+    )
+    def test_representation_avg_time_surface(
+        self, surface_size, cell_size, tau, num_workers, decay
+    ):
         orig_events, sensor_size = create_random_input(n_events=1000)
 
         transform = transforms.ToAveragedTimesurface(
-            sensor_size=sensor_size, surface_size=surface_size, cell_size=cell_size, tau=tau, num_workers=num_workers, decay=decay
+            sensor_size=sensor_size,
+            surface_size=surface_size,
+            cell_size=cell_size,
+            tau=tau,
+            num_workers=num_workers,
+            decay=decay,
         )
 
         surfaces = transform(orig_events)
-        import math 
+        import math
+
         assert len(surfaces.shape) == 4
-        assert surfaces.shape[0] == math.ceil(sensor_size[0]/cell_size)*math.ceil(sensor_size[1]/cell_size)
+        assert surfaces.shape[0] == math.ceil(sensor_size[0] / cell_size) * math.ceil(
+            sensor_size[1] / cell_size
+        )
         assert surfaces.shape[1] == sensor_size[2]
         assert surfaces.shape[2] == surface_size
         assert surfaces.shape[3] == surface_size
@@ -236,3 +251,32 @@ class TestRepresentations:
         volume = transform(orig_events)
         assert volume.shape == (n_time_bins, *sensor_size[1::-1])
         assert volume is not orig_events
+
+    @pytest.mark.parametrize(
+        "n_frames, n_bits",
+        [(1, 8), (2, 8), (3, 8), (1, 16), (2, 16)],
+    )
+    def test_bina_rep(self, n_frames, n_bits):
+        n_events = 10000
+        sensor_size = (128, 128, 2)
+
+        orig_events, _ = create_random_input(sensor_size=sensor_size, n_events=n_events)
+
+        transform = transforms.Compose(
+            [
+                transforms.ToFrame(
+                    sensor_size=sensor_size, n_time_bins=n_frames * n_bits
+                ),
+                transforms.ToBinaRep(
+                    n_frames=n_frames,
+                    n_bits=n_bits,
+                ),
+            ]
+        )
+
+        frames = transform(orig_events)
+
+        assert len(frames.shape) == 4
+        assert frames.shape[0] == n_frames
+        assert frames.shape[1:] == sensor_size[::-1]
+        assert frames is not orig_events

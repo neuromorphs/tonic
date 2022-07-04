@@ -110,6 +110,10 @@ Voxel grid
 ^^^^^^^^^^^
 .. autoclass:: ToVoxelGrid
 
+Bina-Rep event frames
+^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ToBinaRep
+
 
 Target transforms
 -----------------
