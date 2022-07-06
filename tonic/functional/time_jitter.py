@@ -6,6 +6,7 @@ def time_jitter_numpy(
     std: float = 1,
     clip_negative: bool = False,
     sort_timestamps: bool = False,
+    random_std: bool = False,
 ):
     """Changes timestamp for each event by drawing samples from a Gaussian
     distribution and adding them to each timestamp.
@@ -22,6 +23,9 @@ def time_jitter_numpy(
 
     assert "t" in events.dtype.names
 
+    if random_std:
+        std *= np.random.rand()
+    
     shifts = np.random.normal(0, std, len(events))
 
     events["t"] = events["t"] + shifts

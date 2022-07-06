@@ -1,4 +1,5 @@
 from .crop import crop_numpy
+from .decimate import decimate_numpy
 from .denoise import denoise_numpy
 from .drop_event import drop_event_numpy
 from .drop_pixel import drop_pixel_numpy, identify_hot_pixel, identify_hot_pixel_raster
@@ -20,6 +21,7 @@ from .to_bina_rep import to_bina_rep_numpy
 
 __all__ = [
     "crop_numpy",
+    "decimate_numpy",
     "denoise",
     "drop_event_numpy",
     "drop_pixel_numpy",
