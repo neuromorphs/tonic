@@ -69,6 +69,21 @@ class Denoise:
         return functional.denoise_numpy(events=events, filter_time=self.filter_time)
 
 
+@dataclass
+class Decimation:
+    """Deterministically drops every nth event for every spatial location x (and potentially y).
+
+    Parameters:
+        n (int): The event stream for each x/y location is reduced to 1/n.
+    """
+
+    n: int
+
+    def __call__(self, events):
+
+        return functional.decimate_numpy(events=events, n=self.n)
+
+
 @dataclass(frozen=True)
 class DropEvent:
     """Randomly drops events with p.
@@ -81,6 +96,9 @@ class DropEvent:
 
     p: float = 0.5
     random_p: bool = False
+
+    def __post_init__(self):
+        assert 0 <= self.p <= 1
 
     def __call__(self, events):
 
@@ -221,6 +239,9 @@ class RandomFlipPolarity:
 
     p: float = 0.5
 
+    def __post_init__(self):
+        assert 0 <= self.p <= 1
+
     def __call__(self, events):
         events = events.copy()
         assert "p" in events.dtype.names
@@ -242,6 +263,9 @@ class RandomFlipLR:
 
     sensor_size: Tuple[int, int, int]
     p: float = 0.5
+
+    def __post_init__(self):
+        assert 0 <= self.p <= 1
 
     def __call__(self, events):
         events = events.copy()
@@ -266,6 +290,9 @@ class RandomFlipUD:
     sensor_size: Tuple[int, int, int]
     p: float = 0.5
 
+    def __post_init__(self):
+        assert 0 <= self.p <= 1
+
     def __call__(self, events):
         events = events.copy()
         assert "y" in events.dtype.names
@@ -288,6 +315,9 @@ class RandomTimeReversal:
 
     p: float = 0.5
     reverse_polarities: bool = True
+
+    def __post_init__(self):
+        assert 0 <= self.p <= 1
 
     def __call__(self, events):
         events = events.copy()

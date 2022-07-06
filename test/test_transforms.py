@@ -6,7 +6,9 @@ from utils import create_random_input
 
 
 class TestTransforms:
-    @pytest.mark.parametrize("min, max", itertools.product((None, 0, 1000), (None, 5000)))
+    @pytest.mark.parametrize(
+        "min, max", itertools.product((None, 0, 1000), (None, 5000))
+    )
     def test_crop_time(self, min, max):
         orig_events, sensor_size = create_random_input()
 
@@ -16,10 +18,9 @@ class TestTransforms:
 
         assert events is not orig_events
         if min is not None:
-            assert not events['t'][0] < min
+            assert not events["t"][0] < min
         if max is not None:
-            assert not events['t'][-1] > max
-
+            assert not events["t"][-1] > max
 
     @pytest.mark.parametrize("filter_time", [10000, 5000])
     def test_transform_denoise(self, filter_time):
@@ -60,6 +61,18 @@ class TestTransforms:
             np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
         ), "Event dropout should maintain temporal order."
         assert events is not orig_events
+
+    def test_transform_decimation(self):
+        n = 10
+
+        orig_events, sensor_size = create_random_input(
+            sensor_size=(1, 1, 2), n_events=1000
+        )
+        transform = transforms.Decimation(n=n)
+
+        events = transform(orig_events)
+
+        assert len(events) == 100
 
     @pytest.mark.parametrize(
         "coordinates, hot_pixel_frequency",
@@ -142,7 +155,7 @@ class TestTransforms:
         ), "Cropping needs to map the events into the new space."
         assert events is not orig_events
 
-    @pytest.mark.parametrize("p", [1.0, 1.0])
+    @pytest.mark.parametrize("p", [1.0, 0])
     def test_transform_flip_lr(self, p):
         orig_events, sensor_size = create_random_input()
 
@@ -150,10 +163,13 @@ class TestTransforms:
 
         events = transform(orig_events)
 
-        assert ((sensor_size[0] - 1) - orig_events["x"] == events["x"]).all(), (
-            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x"
-        )
+        if p == 1:
+            assert ((sensor_size[0] - 1) - orig_events["x"] == events["x"]).all(), (
+                "When flipping left and right x must map to the opposite pixel, i.e. x' ="
+                " sensor width - x"
+            )
+        else:
+            assert np.array_equal(orig_events, events)
         assert events is not orig_events
 
     @pytest.mark.parametrize("p", [1.0, 0])
@@ -165,7 +181,9 @@ class TestTransforms:
         events = transform(orig_events)
 
         if p == 1:
-            assert np.array_equal(np.invert(orig_events["p"].astype(bool)), events["p"]), (
+            assert np.array_equal(
+                np.invert(orig_events["p"].astype(bool)), events["p"]
+            ), (
                 "When flipping polarity with probability 1, all event polarities must"
                 " flip"
             )
@@ -187,7 +205,9 @@ class TestTransforms:
         events = transform(orig_events)
 
         if p == 1:
-            assert np.array_equal(np.invert(orig_events["p"].astype(bool)), events["p"]), (
+            assert np.array_equal(
+                np.invert(orig_events["p"].astype(bool)), events["p"]
+            ), (
                 "When flipping polarity with probability 1, all event polarities must"
                 " flip"
             )
@@ -198,7 +218,7 @@ class TestTransforms:
             )
         assert events is not orig_events
 
-    @pytest.mark.parametrize("p", [1.0, 1.0])
+    @pytest.mark.parametrize("p", [1.0, 0])
     def test_transform_flip_ud(self, p):
         orig_events, sensor_size = create_random_input()
 
@@ -206,10 +226,15 @@ class TestTransforms:
 
         events = transform(orig_events)
 
-        assert np.array_equal((sensor_size[1] - 1) - orig_events["y"], events["y"]), (
-            "When flipping left and right x must map to the opposite pixel, i.e. x' ="
-            " sensor width - x"
-        )
+        if p == 1:
+            assert np.array_equal(
+                (sensor_size[1] - 1) - orig_events["y"], events["y"]
+            ), (
+                "When flipping left and right x must map to the opposite pixel, i.e. x' ="
+                " sensor width - x"
+            )
+        else:
+            assert np.array_equal(orig_events, events)
         assert events is not orig_events
 
     def test_transform_merge_polarities(self):
@@ -338,7 +363,9 @@ class TestTransforms:
 
         if p == 1:
             flipped_time = np.isclose(max_t - original_t, events["t"][0])
-            flipped_polarity = np.array_equal(np.invert(orig_events["p"].astype(bool)), events["p"])
+            flipped_polarity = np.array_equal(
+                np.invert(orig_events["p"].astype(bool)), events["p"]
+            )
             assert flipped_time, "When flipping time must map t_i' = max(t) - t_i"
             assert flipped_polarity, "When flipping time, polarity should be flipped"
         elif p == 0:

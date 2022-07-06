@@ -21,6 +21,10 @@ Denoising
 ^^^^^^^^^
 .. autoclass:: Denoise
 
+Drop events deterministically
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: Decimation
+
 Drop events randomly
 ^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: DropEvent
