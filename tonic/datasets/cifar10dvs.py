@@ -44,7 +44,9 @@ class CIFAR10DVS(Dataset):
     ]
 
     folder_name = "CIFAR10DVS"
-    dtype = np.dtype([("t", np.int64), ("x", np.int16), ("y", np.int16), ("p", np.int8)])
+    dtype = np.dtype(
+        [("t", np.int64), ("x", np.int16), ("y", np.int16), ("p", np.int8)]
+    )
     ordering = dtype.names
     sensor_size = (128, 128, 2)
 
@@ -89,7 +91,7 @@ class CIFAR10DVS(Dataset):
         """
         events = read_aedat4(self.data[index])
         events = np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
-        
+
         target = self.targets[index]
 
         if self.transform is not None:
@@ -102,6 +104,7 @@ class CIFAR10DVS(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            1000, ".aedat4"
+        return (
+            self._is_file_present()
+            and self._folder_contains_at_least_n_files_of_type(1000, ".aedat4")
         )

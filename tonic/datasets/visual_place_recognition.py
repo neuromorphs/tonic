@@ -82,11 +82,7 @@ class VPR(Dataset):
         events["ts"] -= events["ts"][0]
         events["ts"] *= 1e6
         events = make_structured_array(
-            events["ts"], 
-            events["x"], 
-            events["y"], 
-            events["pol"], 
-            dtype=self.dtype
+            events["ts"], events["x"], events["y"], events["pol"], dtype=self.dtype
         )
         imu = topics["/dvs/imu"]
         imu["ts"] = ((imu["ts"] - imu["ts"][0]) * 1e6).astype(int)

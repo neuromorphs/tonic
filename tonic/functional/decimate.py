@@ -17,16 +17,16 @@ def decimate_numpy(events: np.ndarray, n: int):
     output_events = []
     if "y" in events.dtype.names:
         max_y = np.max(events["y"])
-        memory = np.zeros((max_x+1, max_y+1))
+        memory = np.zeros((max_x + 1, max_y + 1))
 
         for event in events:
             memory[event["x"], event["y"]] += 1
             if memory[event["x"], event["y"]] >= n:
                 memory[event["x"], event["y"]] = 0
                 output_events.append(event)
-    
+
     else:
-        memory = np.zeros((max_x+1))
+        memory = np.zeros((max_x + 1))
 
         for event in events:
             memory[event["x"]] += 1

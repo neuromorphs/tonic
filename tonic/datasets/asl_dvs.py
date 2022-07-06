@@ -66,11 +66,11 @@ class ASLDVS(Dataset):
         """
         events, target = scio.loadmat(self.data[index]), self.targets[index]
         events = make_structured_array(
-            events["ts"], 
-            events["x"], 
-            self.sensor_size[1] - 1 - events["y"], 
-            events["pol"], 
-            dtype=self.dtype
+            events["ts"],
+            events["x"],
+            self.sensor_size[1] - 1 - events["y"],
+            events["pol"],
+            dtype=self.dtype,
         )
         if self.transform is not None:
             events = self.transform(events)
@@ -82,6 +82,7 @@ class ASLDVS(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            100800, ".mat"
+        return (
+            self._is_file_present()
+            and self._folder_contains_at_least_n_files_of_type(100800, ".mat")
         )

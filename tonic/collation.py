@@ -31,13 +31,22 @@ class PadTensors:
             if not isinstance(target, torch.Tensor):
                 target = torch.tensor(target)
             if sample.is_sparse:
-                sample.sparse_resize_((max_length, *sample.shape[1:]), sample.sparse_dim(), sample.dense_dim())
+                sample.sparse_resize_(
+                    (max_length, *sample.shape[1:]),
+                    sample.sparse_dim(),
+                    sample.dense_dim(),
+                )
             else:
                 sample = torch.cat(
                     (
                         sample,
-                        torch.zeros(max_length - sample.shape[0], *sample.shape[1:], device=sample.device),
-                    ))
+                        torch.zeros(
+                            max_length - sample.shape[0],
+                            *sample.shape[1:],
+                            device=sample.device
+                        ),
+                    )
+                )
             samples_output.append(sample)
             targets_output.append(target)
         return (

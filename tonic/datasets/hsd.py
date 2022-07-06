@@ -18,10 +18,10 @@ class HSD(Dataset):
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
         # adding artificial polarity of 1 and convert to microseconds
         events = make_structured_array(
-            file["spikes/times"][index]*1e6,
+            file["spikes/times"][index] * 1e6,
             file["spikes/units"][index],
             1,
-            dtype=self.dtype
+            dtype=self.dtype,
         )
         target = file["labels"][index].astype(int)
         if self.transform is not None:
@@ -35,8 +35,9 @@ class HSD(Dataset):
         return len(file["labels"])
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            1, ".h5"
+        return (
+            self._is_file_present()
+            and self._folder_contains_at_least_n_files_of_type(1, ".h5")
         )
 
 

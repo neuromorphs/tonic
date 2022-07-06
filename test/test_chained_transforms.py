@@ -26,9 +26,9 @@ class TestChainedTransforms:
         )
         events = transform(orig_events)
 
-        assert 'RandomTimeReversal' in str(transform)
-        assert 'SpatialJitter' in str(transform)
-        
+        assert "RandomTimeReversal" in str(transform)
+        assert "SpatialJitter" in str(transform)
+
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
             events["x"].all(), orig_events["x"].all(), atol=variance_x
@@ -44,7 +44,9 @@ class TestChainedTransforms:
         assert (
             events["y"] != orig_events["y"]
         ).any(), "Y coordinates should be different."
-        assert np.array_equal(np.invert(orig_events["p"].astype(bool)), events["p"]), "Polarities should be flipped."
+        assert np.array_equal(
+            np.invert(orig_events["p"].astype(bool)), events["p"]
+        ), "Polarities should be flipped."
         time_reversal = (
             events["t"] == np.max(orig_events["t"]) - orig_events["t"]
         ).all()

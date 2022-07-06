@@ -25,7 +25,7 @@ def time_jitter_numpy(
 
     if random_std:
         std *= np.random.rand()
-    
+
     shifts = np.random.normal(0, std, len(events))
 
     events["t"] = events["t"] + shifts

@@ -129,7 +129,7 @@ class TUMVIE(Dataset):
             events_left_file["t"][()],
             events_left_file["x"][()],
             events_left_file["y"][()],
-            dtype=self.dtype
+            dtype=self.dtype,
         )
 
         events_right_file = h5py.File(
@@ -140,7 +140,7 @@ class TUMVIE(Dataset):
             events_right_file["t"][()],
             events_right_file["x"][()],
             events_right_file["y"][()],
-            dtype=self.dtype
+            dtype=self.dtype,
         )
 
         imu_data = []

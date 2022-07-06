@@ -312,8 +312,8 @@ class AddNoise:
         noise = self.get_noise_sample(sample_len=signal.shape[1])
 
         # mix signal with noise with given SNR
-        signal_power = (signal ** 2).mean()
-        noise_power = (noise ** 2).mean()
+        signal_power = (signal**2).mean()
+        noise_power = (noise**2).mean()
         noise_scale = (signal_power / noise_power) * 10 ** (-self.snr / 10)
         signal_with_snr = signal + noise_scale * noise
 

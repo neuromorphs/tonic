@@ -94,11 +94,11 @@ class MVSEC(Dataset):
         events_left["ts"] -= events_left["ts"][0]
         events_left["ts"] *= 1e6
         events_left = make_structured_array(
-            events_left["x"], 
-            events_left["y"], 
-            events_left["ts"], 
+            events_left["x"],
+            events_left["y"],
+            events_left["ts"],
             events_left["pol"],
-            dtype=self.dtype
+            dtype=self.dtype,
         )
 
         events_right = topics["/davis/right/events"]
@@ -109,7 +109,7 @@ class MVSEC(Dataset):
             events_right["y"],
             events_right["ts"],
             events_right["pol"],
-            dtype=self.dtype
+            dtype=self.dtype,
         )
         imu_left = topics["/davis/left/imu"]
         imu_right = topics["/davis/right/imu"]

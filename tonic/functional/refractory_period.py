@@ -1,7 +1,11 @@
 import numpy as np
 
 
-def refractory_period_numpy(events, refractory_period=10000, random_period=False,):
+def refractory_period_numpy(
+    events,
+    refractory_period=10000,
+    random_period=False,
+):
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
 

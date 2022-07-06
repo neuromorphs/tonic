@@ -57,7 +57,9 @@ def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
 
     else:
         sensor_size_x = int(events["x"].max() + 1)
-        frame_transform = transforms.ToFrame(sensor_size=(sensor_size_x, 1, 1), n_time_bins=sensor_size_x*2)
+        frame_transform = transforms.ToFrame(
+            sensor_size=(sensor_size_x, 1, 1), n_time_bins=sensor_size_x * 2
+        )
 
         frames = frame_transform(events)
         plt.imshow(frames.squeeze().T)

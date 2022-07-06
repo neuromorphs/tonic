@@ -3,7 +3,9 @@ import struct
 import numpy as np
 
 
-events_struct = np.dtype([("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)])
+events_struct = np.dtype(
+    [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
+)
 
 # many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
 def make_structured_array(*args, dtype=events_struct):
@@ -15,11 +17,13 @@ def make_structured_array(*args, dtype=events_struct):
     Returns:
         struct_arr: numpy structured array with the shape of the first argument
     """
-    assert not isinstance(args[-1], np.dtype), "The `dtype` must be provided as a keyword argument."
+    assert not isinstance(
+        args[-1], np.dtype
+    ), "The `dtype` must be provided as a keyword argument."
     names = dtype.names
     assert len(args) == len(names)
     struct_arr = np.empty_like(args[0], dtype=dtype)
-    for arg,name in zip(args,names):
+    for arg, name in zip(args, names):
         struct_arr[name] = arg
     return struct_arr
 
@@ -157,7 +161,7 @@ def read_mnist_file(bin_file, dtype):
     all_ts = ((raw_data[2::5] & 127) << 16) | (raw_data[3::5] << 8) | (raw_data[4::5])
 
     # Process time stamp overflow events
-    time_increment = 2 ** 13
+    time_increment = 2**13
     overflow_indices = np.where(all_y == 240)[0]
     for overflow_index in overflow_indices:
         all_ts[overflow_index:] += time_increment

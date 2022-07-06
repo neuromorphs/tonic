@@ -169,10 +169,7 @@ class SMNIST(Dataset):
 
         # stack and add artificial polarity of 1
         events = make_structured_array(
-            spike_time * self.dt, 
-            spike_idx, 
-            1, 
-            dtype=self.dtype
+            spike_time * self.dt, spike_idx, 1, dtype=self.dtype
         )
         target = self.label_data[index]
 

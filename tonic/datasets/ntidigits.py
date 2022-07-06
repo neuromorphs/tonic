@@ -63,12 +63,7 @@ class NTIDIGITS(Dataset):
 
         # convert timestamps to microseconds
         timestamps *= 10e5
-        events = make_structured_array(
-            timestamps, 
-            addresses, 
-            1, 
-            dtype=self.dtype
-        )
+        events = make_structured_array(timestamps, addresses, 1, dtype=self.dtype)
 
         if self.transform is not None:
             events = self.transform(events)
@@ -83,6 +78,7 @@ class NTIDIGITS(Dataset):
             return len(self.data_file["test_labels"])
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            1, ".hdf5"
+        return (
+            self._is_file_present()
+            and self._folder_contains_at_least_n_files_of_type(1, ".hdf5")
         )

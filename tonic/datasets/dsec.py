@@ -169,22 +169,22 @@ class DSEC(Dataset):
             os.path.join(base_folder, "events_left", "events.h5")
         )["events"]
         events_left = make_structured_array(
-                events_left_file["x"][()],
-                events_left_file["y"][()],
-                events_left_file["t"][()],
-                events_left_file["p"][()],
-                dtype=self.dtype
+            events_left_file["x"][()],
+            events_left_file["y"][()],
+            events_left_file["t"][()],
+            events_left_file["p"][()],
+            dtype=self.dtype,
         )
 
         events_right_file = h5py.File(
             os.path.join(base_folder, "events_right", "events.h5")
         )["events"]
         events_right = make_structured_array(
-                events_right_file["x"][()],
-                events_right_file["y"][()],
-                events_right_file["t"][()],
-                events_right_file["p"][()],
-                dtype=self.dtype
+            events_right_file["x"][()],
+            events_right_file["y"][()],
+            events_right_file["t"][()],
+            events_right_file["p"][()],
+            dtype=self.dtype,
         )
 
         # images

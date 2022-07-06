@@ -30,5 +30,5 @@ __all__ = [
     "SSC",
     "TUMVIE",
     "VPR",
-    "DVSLip"
+    "DVSLip",
 ]

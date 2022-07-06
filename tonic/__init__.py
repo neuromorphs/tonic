@@ -4,5 +4,5 @@ from .cached_dataset import CachedDataset, DiskCachedDataset, MemoryCachedDatase
 from .sliced_dataset import SlicedDataset
 from pbr.version import VersionInfo
 
-all = ('__version__')
-__version__ = VersionInfo('tonic').release_string()
+all = "__version__"
+__version__ = VersionInfo("tonic").release_string()

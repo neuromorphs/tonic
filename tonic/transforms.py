@@ -325,7 +325,9 @@ class RandomTimeReversal:
         if np.random.rand() < self.p:
             events["t"] = np.max(events["t"]) - events["t"]
             if self.reverse_polarities:
-                events["p"] = np.invert(events["p"].astype(bool)).astype(events.dtype["p"])
+                events["p"] = np.invert(events["p"].astype(bool)).astype(
+                    events.dtype["p"]
+                )
         return events
 
 
@@ -347,7 +349,9 @@ class RefractoryPeriod:
     random_period: bool = False
 
     def __call__(self, events):
-        return functional.refractory_period_numpy(events, self.refractory_period, self.random_period)
+        return functional.refractory_period_numpy(
+            events, self.refractory_period, self.random_period
+        )
 
 
 @dataclass(frozen=True)
@@ -403,7 +407,7 @@ class TimeJitter:
     distribution and adding them to each timestamp.
 
     Parameters:
-        std (sequence or float): the standard deviation of the time jitter, picked randomly between 0 and value. 
+        std (sequence or float): the standard deviation of the time jitter, picked randomly between 0 and value.
         clip_negative (bool): drops events that have negative timestamps
         sort_timestamps (bool): sort the events by timestamps after jitter
     """
@@ -708,9 +712,7 @@ class ToBinaRep:
 
     def __call__(self, event_frames):
 
-        return functional.to_bina_rep_numpy(
-            event_frames, self.n_frames, self.n_bits
-        )
+        return functional.to_bina_rep_numpy(event_frames, self.n_frames, self.n_bits)
 
 
 @dataclass(frozen=True)

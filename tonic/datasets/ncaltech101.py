@@ -26,7 +26,7 @@ class NCALTECH101(Dataset):
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
-    url = "https://data.mendeley.com/public-files/datasets/cy6cvx3ryv/files/36b5c52a-b49d-4853-addb-a836a8883e49/file_downloaded" 
+    url = "https://data.mendeley.com/public-files/datasets/cy6cvx3ryv/files/36b5c52a-b49d-4853-addb-a836a8883e49/file_downloaded"
     filename = "N-Caltech101-archive.zip"
     file_md5 = "66201824eabb0239c7ab992480b50ba3"
     data_filename = "Caltech101.zip"
@@ -72,6 +72,7 @@ class NCALTECH101(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            8709, ".bin"
+        return (
+            self._is_file_present()
+            and self._folder_contains_at_least_n_files_of_type(8709, ".bin")
         )
