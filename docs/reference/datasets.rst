@@ -90,7 +90,3 @@ Spiking Heidelberg Digits (SHD)
 Spiking Speech Commands (SSC)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: SSC
-
-N-TIDIGITS
-^^^^^^^^^^
-.. autoclass:: NTIDIGITS
