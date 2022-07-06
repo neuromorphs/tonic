@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/python/black
-    rev: master
+    rev: 22.6.0 
     hooks:
     - id: black
       language_version: python3
