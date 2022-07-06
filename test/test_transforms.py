@@ -386,17 +386,15 @@ class TestTransforms:
         assert all((orig_events["t"] * coefficient + offset).astype(int) == events["t"])
         assert events is not orig_events
 
-    @pytest.mark.parametrize("n_noise_events", [100, 0])
-    def test_transform_uniform_noise(self, n_noise_events):
+    @pytest.mark.parametrize("n", [100, 0])
+    def test_transform_uniform_noise(self, n):
         orig_events, sensor_size = create_random_input()
 
-        transform = transforms.UniformNoise(
-            sensor_size=sensor_size, n_noise_events=n_noise_events
-        )
+        transform = transforms.UniformNoise(sensor_size=sensor_size, n=n)
 
         events = transform(orig_events)
 
-        assert len(events) == len(orig_events) + n_noise_events
+        assert len(events) == len(orig_events) + n
         assert np.isin(orig_events, events).all()
         assert np.isclose(
             np.sum((events["t"] - np.sort(events["t"])) ** 2), 0

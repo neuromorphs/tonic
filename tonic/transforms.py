@@ -37,7 +37,15 @@ class Compose:
 
 @dataclass
 class CropTime:
-    """Drops events with timestamps below min and above max."""
+    """Drops events with timestamps below min and above max.
+
+    Parameters:
+        min (int): The minimum timestamp below which all events are dropped.
+        max (int): The maximum timestamp above which all events are dropped.
+
+    Example:
+        >>> transform = tonic.transforms.CropTime(min=1000, max=20000)
+    """
 
     min: int = None
     max: int = None
@@ -59,11 +67,15 @@ class Denoise:
     where events occur isolated in time.
 
     Parameters:
-        filter_time (float): maximum temporal distance to next event, otherwise dropped.
-                    Lower values will mean higher constraints, therefore less events.
+        filter_time (float): minimum temporal distance to next event, otherwise dropped.
+                    Lower values will mean higher constraints, therefore less output events.
+                    Use same unit of time as the events have.
+
+    Example:
+        >>> transform = tonic.transforms.Denoise(filter_time=10000)
     """
 
-    filter_time: float = 10000
+    filter_time: float
 
     def __call__(self, events):
         return functional.denoise_numpy(events=events, filter_time=self.filter_time)
@@ -75,6 +87,9 @@ class Decimation:
 
     Parameters:
         n (int): The event stream for each x/y location is reduced to 1/n.
+
+    Example:
+        >>> transform = tonic.transforms.Decimation(n=5)
     """
 
     n: int
@@ -86,12 +101,14 @@ class Decimation:
 
 @dataclass(frozen=True)
 class DropEvent:
-    """Randomly drops events with p.
+    """Randomly drops events with probability p. If random_p is selected, the drop probability is randomized between 0 and p.
 
     Parameters:
-        p (float): probability of dropping out event.
-        random_p (bool): randomize the dropout probability
-                                 between 0 and p.
+        p (float): probability of dropping events.
+        random_p (bool): randomize the dropout probability between 0 and p.
+
+    Example:
+        >>> transform = tonic.transforms.DropEvent(p=0.2, random_p=True)
     """
 
     p: float = 0.5
@@ -115,6 +132,11 @@ class DropPixel:
     Parameters:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
         hot_pixel_frequency: drop pixels completely that fire higher than the given frequency.
+
+    Example:
+        >>> from tonic.transforms import DropPixel
+        >>> transform1 = DropPixel(coordinates=[[10,10], [10,11], [11,10], [11,11]])
+        >>> transform2 = DropPixel(hot_pixel_frequency=60) # Hertz
     """
 
     coordinates: Optional[Tuple] = None
@@ -139,7 +161,7 @@ class DropPixel:
                     events=events, hot_pixel_frequency=self.hot_pixel_frequency
                 )
 
-            return functional.drop_pixel.drop_pixel_raster(events, self.coordinates)
+            return functional.drop_pixel_raster(events, self.coordinates)
 
 
 @dataclass(frozen=True)
@@ -150,8 +172,16 @@ class Downsample:
     This transform does not drop any events.
 
     Parameters:
-        time_factor (float): value to multiply timestamps with. Default is 0.001.
+        time_factor (float): value to multiply timestamps with. Default is 1.
         spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
+                                Note that when using subsequential transforms that require
+                                sensor_size, you must change the spatial values for the later
+                                transformation.
+
+    Example:
+        >>> from tonic.transforms import Downsample
+        >>> transform1 = Downsample(time_factor=0.001) # change us to ms
+        >>> transform2 = Downsample(spatial_factor=0.25) # reduce focal plane to 1/4.
     """
 
     time_factor: float = 1
@@ -171,38 +201,16 @@ class Downsample:
 class MergePolarities:
     """
     After this transform there is only a single polarity left which is zero.
+    This transform does not have any parameters.
+
+    Example:
+        >>> transform = tonic.transforms.MergePolarities()
     """
 
     def __call__(self, events):
         events = events.copy()
         events["p"] = np.zeros_like(events["p"])
         return events
-
-
-@dataclass(frozen=True)
-class NumpyAsType:
-    """
-    Change dtype of numpy ndarray to custom dtype.
-
-    Parameters:
-        dtype: data type that the array should be cast to
-    """
-
-    dtype: np.dtype
-
-    def __call__(self, events):
-        source_is_structured_array = (
-            hasattr(events.dtype, "names") and events.dtype.names != None
-        )
-        target_is_structured_array = (
-            hasattr(self.dtype, "names") and self.dtype.names != None
-        )
-        if source_is_structured_array and not target_is_structured_array:
-            return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
-        elif source_is_structured_array and target_is_structured_array:
-            return NotImplementedError
-        elif not target_is_structured_array and not source_is_structured_array:
-            return events.astype(self.dtype)
 
 
 @dataclass(frozen=True)
@@ -216,6 +224,9 @@ class RandomCrop:
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
         target_size: a tuple of x,y target sensor size
+
+    Example:
+        >>> transform = tonic.transforms.RandomCrop(sensor_size=(340, 240, 2), target_size=(50, 50))
     """
 
     sensor_size: Tuple[int, int, int]
@@ -235,6 +246,9 @@ class RandomFlipPolarity:
 
     Parameters:
         p (float): probability of flipping individual event polarities
+
+    Example:
+        >>> transform = tonic.transforms.RandomFlipPolarity(p=0.3)
     """
 
     p: float = 0.5
@@ -259,6 +273,9 @@ class RandomFlipLR:
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
         p (float): probability of performing the flip
+
+    Example:
+        >>> transform = tonic.transforms.RandomFlipLR(p=0.3)
     """
 
     sensor_size: Tuple[int, int, int]
@@ -285,6 +302,9 @@ class RandomFlipUD:
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
         p (float): probability of performing the flip
+
+    Example:
+        >>> transform = tonic.transforms.RandomFlipUD(p=0.3)
     """
 
     sensor_size: Tuple[int, int, int]
@@ -310,7 +330,10 @@ class RandomTimeReversal:
 
     Parameters:
         p (float): probability of performing the flip
-        reverse_polarities (bool): if the time is reversed, also flip the polarities.
+        reverse_polarities (bool): if the time is reversed, also flip the polarities. True by default.
+
+    Example:
+        >>> transform = tonic.transforms.RandomTimeReversal(p=0.3)
     """
 
     p: float = 0.5
@@ -432,14 +455,19 @@ class TimeSkew:
     Parameters:
         coefficient: a real-valued multiplier applied to the timestamps of the events.
                      E.g. a coefficient of 2.0 will double the effective delay between any
-                     pair of events.
+                     pair of events. Can provide a tuple for a range of values.
         offset: value by which the timestamps will be shifted after multiplication by
                 the coefficient. Negative offsets are permissible but may result in
-                in an exception if timestamps are shifted below 0.
+                in an exception if timestamps are shifted below 0. Tuple of values might
+                be provided as a range to sample from.
+
+    Example:
+        >>> transform1 = TimeSkew(coefficient=1.3, offset=100)
+        >>> transform2 = TimeSkew(coefficient=[0.8, 1.2], offset=[0, 150])
     """
 
-    coefficient: float
-    offset: float = 0
+    coefficient: Union[float, Tuple[float, float]]
+    offset: Union[float, Tuple[float, float]] = 0
 
     def __call__(self, events):
         events = events.copy()
@@ -448,19 +476,24 @@ class TimeSkew:
 
 @dataclass(frozen=True)
 class UniformNoise:
-    """Introduces a fixed number of noise events that are uniformly distributed across event dimensions, e.g. x, y, t and p.
+    """Introduces a fixed number of n noise events that are uniformly distributed across event dimensions, e.g. x, y, t and p.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
-        n_noise_events: number of events that are added to the sample.
+        n: number of events that are added to the sample.
+        randomize_n: randomize the number of added events between 0 and n.
+
+    Example:
+        >>> transform = tonic.transforms.UniformNoise(sensor_size=(340, 240, 2), n=3000, randomize_n=True)
     """
 
     sensor_size: Tuple[int, int, int]
-    n_noise_events: int
+    n: int
+    randomize_n: bool = False
 
     def __call__(self, events):
-
-        noise_events = np.zeros(self.n_noise_events, dtype=events.dtype)
+        n = self.n * np.random.rand() if self.randomize_n else self.n
+        noise_events = np.zeros(n, dtype=events.dtype)
         for channel in events.dtype.names:
             event_channel = events[channel]
             if channel == "x":
@@ -471,11 +504,55 @@ class UniformNoise:
                 low, high = 0, self.sensor_size[2]
             if channel == "t":
                 low, high = events["t"].min(), events["t"].max()
-            noise_events[channel] = np.random.uniform(
-                low=low, high=high, size=self.n_noise_events
-            )
+            noise_events[channel] = np.random.uniform(low=low, high=high, size=n)
         events = np.concatenate((events, noise_events))
         return events[np.argsort(events["t"])]
+
+
+@dataclass(frozen=True)
+class NumpyAsType:
+    """
+    Change dtype of numpy ndarray to custom dtype. This transform is necessary for example if you want
+    to load raw events using a PyTorch dataloader. The original events coming from any dataset in Tonic
+    are structured numpy arrays, so that they can be indexed as events["t"] or events["p"] etc. Pytorch's
+    dataloader however does not support the conversion from structured numpy arrays to Tensors, that's
+    why we need to employ at least NumpyAsType(int) to convert the structured array into an unstructured
+    one before handing it to the dataloader.
+
+    Parameters:
+        dtype: data type that the array should be cast to.
+
+    Example:
+        >>> # indexing the dataset directly provides structured numpy arrays
+        >>> dataset = tonic.datasets.NMNIST(save_to='data')
+        >>> events, targets = dataset[100]
+        >>>
+        >>> # this doesn't work
+        >>> dataloader = torch.utils.data.DataLoader(dataset)
+        >>> events, targets = next(iter(dataloader))
+        >>>
+        >>> # we need to convert to unstructured arrays
+        >>> transform = tonic.transforms.NumpyAsType(int)
+        >>> dataset = tonic.datasets.NMNIST(save_to='data', transform=transform)
+        >>> dataloader = torch.utils.data.DataLoader(dataset)
+        >>> events, targets = next(iter(dataloader))
+    """
+
+    dtype: np.dtype
+
+    def __call__(self, events):
+        source_is_structured_array = (
+            hasattr(events.dtype, "names") and events.dtype.names != None
+        )
+        target_is_structured_array = (
+            hasattr(self.dtype, "names") and self.dtype.names != None
+        )
+        if source_is_structured_array and not target_is_structured_array:
+            return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
+        elif source_is_structured_array and target_is_structured_array:
+            return NotImplementedError
+        elif not target_is_structured_array and not source_is_structured_array:
+            return events.astype(self.dtype)
 
 
 @dataclass(frozen=True)
@@ -540,7 +617,9 @@ class ToFrame:
       an overlap between 0 and 1 to provide some robustness.
 
     Parameters:
-        sensor_size: a 3-tuple of x,y,p for sensor_size
+        sensor_size: a 3-tuple of x,y,p for sensor_size. If omitted, the sensor size is calculated for that sample. However,
+                    do use this feature sparingly as when not all pixels fire in a sample, this might cause issues with batching/
+                    stacking tensors further down the line.
         time_window (float): time window length for one frame. Use the same time unit as timestamps in the event recordings.
                              Good if you want temporal consistency in your training, bad if you need some visual consistency
                              for every frame if the recording's activity is not consistent.
@@ -552,9 +631,15 @@ class ToFrame:
         overlap (float): overlap between frames defined either in time units, number of events or number of bins between 0 and 1.
         include_incomplete (bool): if True, includes overhang slice when time_window or spike_count is specified.
                                    Not valid for bin_count methods.
+
+    Example:
+        >>> from tonic.transforms import ToFrame
+        >>> transform1 = ToFrame(time_window=10000, overlap=300, include_incomplete=True)
+        >>> transform2 = ToFrame(spike_count=3000, overlap=100, include_incomplete=True)
+        >>> transform3 = ToFrame(n_time_bins=100, overlap=0.1)
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: Optional[Tuple[int, int, int]]
     time_window: Optional[float] = None
     event_count: Optional[int] = None
     n_time_bins: Optional[int] = None
@@ -580,10 +665,31 @@ class ToFrame:
 class ToSparseTensor:
     """
     Sparse tensor PyTorch drop-in replacement for ToFrame. See https://pytorch.org/docs/stable/sparse.html for details
-    about sparse tensors. A sparse tensor will use the events as indices in the order (tpxy) and values
-    of 1 for each index, which signify a spike. The shape of the tensor will be (TCWH).
-    Turn event array (N,E) into sparse Tensor (B,T,H,W) if E is 4 (mostly event camera recordings),
-    otherwise into sparse tensor (B,T,H) mostly for audio recordings.
+    about sparse tensors. The dense shape of the tensor will be (TCWH) and can be inflated by calling to_dense().
+    You need to have PyTorch installed for this transformation. Under the hood this transform calls ToFrame() with the
+    same parameters, converts to a pytorch tensor and calls to_sparse().
+
+    Parameters:
+        sensor_size: a 3-tuple of x,y,p for sensor_size. If omitted, the sensor size is calculated for that sample. However,
+                    do use this feature sparingly as when not all pixels fire in a sample, this might cause issues with batching/
+                    stacking tensors further down the line.
+        time_window (float): time window length for one frame. Use the same time unit as timestamps in the event recordings.
+                             Good if you want temporal consistency in your training, bad if you need some visual consistency
+                             for every frame if the recording's activity is not consistent.
+        spike_count (int): number of events per frame. Good for training CNNs which do not care about temporal consistency.
+        n_time_bins (int): fixed number of frames, sliced along time axis. Good for generating a pre-determined number of
+                           frames which might help with batching.
+        n_event_bins (int): fixed number of frames, sliced along number of events in the recording. Good for generating a
+                            pre-determined number of frames which might help with batching.
+        overlap (float): overlap between frames defined either in time units, number of events or number of bins between 0 and 1.
+        include_incomplete (bool): if True, includes overhang slice when time_window or spike_count is specified.
+                                   Not valid for bin_count methods.
+
+    Example:
+        >>> from tonic.transforms import ToSparseTensor
+        >>> transform1 = ToSparseTensor(time_window=10000, overlap=300, include_incomplete=True)
+        >>> transform2 = ToSparseTensor(spike_count=3000, overlap=100, include_incomplete=True)
+        >>> transform3 = ToSparseTensor(n_time_bins=100, overlap=0.1)
     """
 
     sensor_size: Tuple[int, int, int]

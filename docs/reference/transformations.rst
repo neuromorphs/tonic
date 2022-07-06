@@ -66,10 +66,6 @@ Jitter events temporally
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: TimeJitter
 
-Convert data type
-^^^^^^^^^^^^^^^^^
-.. autoclass:: NumpyAsType
-
 Refractory periods
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: RefractoryPeriod
@@ -90,6 +86,10 @@ Add uniform noise
 Event Representations
 ---------------------
 
+Convert data type
+^^^^^^^^^^^^^^^^^
+.. autoclass:: NumpyAsType
+    
 Averaged time surfaces
 ^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: ToAveragedTimesurface
