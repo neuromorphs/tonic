@@ -44,9 +44,7 @@ class TestChainedTransforms:
         assert (
             events["y"] != orig_events["y"]
         ).any(), "Y coordinates should be different."
-        assert (
-            events["p"] == orig_events["p"] * (-1)
-        ).all(), "Polarities should be flipped."
+        assert np.array_equal(np.invert(orig_events["p"].astype(bool)), events["p"]), "Polarities should be flipped."
         time_reversal = (
             events["t"] == np.max(orig_events["t"]) - orig_events["t"]
         ).all()

@@ -326,24 +326,23 @@ class TestTransforms:
             ).all()
         assert events is not orig_events
 
-    @pytest.mark.parametrize("p", [1000, 50])
+    @pytest.mark.parametrize("p", [1, 0])
     def test_transform_time_reversal(self, p):
         orig_events, sensor_size = create_random_input()
 
         original_t = orig_events["t"][0]
-        original_p = orig_events["p"][0]
-
         max_t = np.max(orig_events["t"])
 
         transform = transforms.RandomTimeReversal(p=p)
-
         events = transform(orig_events)
 
-        same_time = np.isclose(max_t - original_t, events["t"][0])
-        same_polarity = np.isclose(events["p"][0], -1.0 * original_p)
-
-        assert same_time, "When flipping time must map t_i' = max(t) - t_i"
-        assert same_polarity, "When flipping time polarity should be flipped"
+        if p == 1:
+            flipped_time = np.isclose(max_t - original_t, events["t"][0])
+            flipped_polarity = np.array_equal(np.invert(orig_events["p"].astype(bool)), events["p"])
+            assert flipped_time, "When flipping time must map t_i' = max(t) - t_i"
+            assert flipped_polarity, "When flipping time, polarity should be flipped"
+        elif p == 0:
+            assert np.array_equal(orig_events, events)
         assert events is not orig_events
 
     @pytest.mark.parametrize("coefficient, offset", [(3.1, 100), (0.3, 0), (2.7, 10)])
