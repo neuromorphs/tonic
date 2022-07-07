@@ -7,7 +7,7 @@ from tonic.io import make_structured_array
 
 
 class MVSEC(Dataset):
-    """`Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>`_
+    """`MVSEC <https://daniilidis-group.github.io/mvsec/>`_
     ::
 
         @article{zihao2018multi,

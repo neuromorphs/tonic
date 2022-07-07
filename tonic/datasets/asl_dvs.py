@@ -9,7 +9,7 @@ from tonic.io import make_structured_array
 
 
 class ASLDVS(Dataset):
-    """`ASL-DVS dataset <https://github.com/PIX2NVS/NVS2Graph>`_
+    """`ASL-DVS <https://github.com/PIX2NVS/NVS2Graph>`_
     ::
 
         @inproceedings{bi2019graph,

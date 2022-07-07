@@ -15,7 +15,7 @@ from tonic.io import make_structured_array
 
 
 class TUMVIE(Dataset):
-    """`Visual-Inertial Event Dataset <https://vision.in.tum.de/data/datasets/visual-inertial-event-dataset>`_
+    """`TUM-VIE <https://vision.in.tum.de/data/datasets/visual-inertial-event-dataset>`_
 
     TUM-VIE is an event camera dataset for developing 3D perception and navigation algorithms. It contains
     handheld and head-mounted sequences in indoor and outdoor environments with rapid motion during sports

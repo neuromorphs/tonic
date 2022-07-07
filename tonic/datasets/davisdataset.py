@@ -8,7 +8,7 @@ from tonic.io import make_structured_array
 
 
 class DAVISDATA(Dataset):
-    """`DAVIS Event Camera dataset <http://rpg.ifi.uzh.ch/davis_data.html>`_
+    """`DAVIS event camera dataset <http://rpg.ifi.uzh.ch/davis_data.html>`_
     ::
 
         @article{mueggler2017event,

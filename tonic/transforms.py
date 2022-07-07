@@ -40,31 +40,30 @@ class CropTime:
     """Drops events with timestamps below min and above max.
 
     Parameters:
-        min (int): The minimum timestamp below which all events are dropped.
+        min (int): The minimum timestamp below which all events are dropped. Zero by default.
         max (int): The maximum timestamp above which all events are dropped.
 
     Example:
         >>> transform = tonic.transforms.CropTime(min=1000, max=20000)
     """
 
-    min: int = None
+    min: int = 0
     max: int = None
 
     def __call__(self, events):
         assert "t" in events.dtype.names
-        if self.min is None:
-            self.min = events["t"][0]
         if self.max is None:
-            self.max = events["t"][-1]
+            self.max = np.max(events["t"])
         return events[(events["t"] >= self.min) & (events["t"] <= self.max)]
 
 
 @dataclass(frozen=True)
 class Denoise:
-    """Drops events that are 'not sufficiently connected to other events in the recording.'
-    In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
-    of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to filter noisy recordings
-    where events occur isolated in time.
+    """Drops events that are spatio-temporally not sufficiently close enough
+    to other events in the sample. In practise that means that an event is
+    dropped if no other event occured within a spatial neighbourhood
+    of 1 pixel and a temporal neighbourhood of filter_time time units.
+    Useful to filter noisy recordings where events occur isolated in time.
 
     Parameters:
         filter_time (float): minimum temporal distance to next event, otherwise dropped.
@@ -200,8 +199,7 @@ class Downsample:
 @dataclass(frozen=True)
 class MergePolarities:
     """
-    After this transform there is only a single polarity left which is zero.
-    This transform does not have any parameters.
+    Sets all polarities to zero. This transform does not have any parameters.
 
     Example:
         >>> transform = tonic.transforms.MergePolarities()
@@ -215,7 +213,7 @@ class MergePolarities:
 
 @dataclass(frozen=True)
 class RandomCrop:
-    """Crops the sensor size to a smaller sensor in a random location.
+    """Crops the sensor size to a smaller size in a random location.
 
     x' = x - new_sensor_start_x
 
@@ -266,7 +264,7 @@ class RandomFlipPolarity:
 
 @dataclass(frozen=True)
 class RandomFlipLR:
-    """Flips events in x. Pixels map as:
+    """Flips events in x with probability p. Pixels map as:
 
         x' = width - x
 
@@ -295,7 +293,7 @@ class RandomFlipLR:
 @dataclass(frozen=True)
 class RandomFlipUD:
     """
-    Flips events and images in y. Pixels map as:
+    Flips events in y with probability p. Pixels map as:
 
         y' = height - y
 
@@ -323,21 +321,21 @@ class RandomFlipUD:
 
 @dataclass(frozen=True)
 class RandomTimeReversal:
-    """Temporal flip is defined as:
+    """Reverses temporal order of events with probability p.
 
         .. math::
            t_i' = max(t) - t_i
 
     Parameters:
         p (float): probability of performing the flip
-        reverse_polarities (bool): if the time is reversed, also flip the polarities. True by default.
+        flip_polarities (bool): if the time is reversed, also flip the polarities. True by default.
 
     Example:
         >>> transform = tonic.transforms.RandomTimeReversal(p=0.3)
     """
 
     p: float = 0.5
-    reverse_polarities: bool = True
+    flip_polarities: bool = True
 
     def __post_init__(self):
         assert 0 <= self.p <= 1
@@ -347,7 +345,7 @@ class RandomTimeReversal:
         assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.p:
             events["t"] = np.max(events["t"]) - events["t"]
-            if self.reverse_polarities:
+            if self.flip_polarities:
                 events["p"] = np.invert(events["p"].astype(bool)).astype(
                     events.dtype["p"]
                 )
@@ -379,26 +377,28 @@ class RefractoryPeriod:
 
 @dataclass(frozen=True)
 class SpatialJitter:
-    """Changes position for each pixel by drawing samples from a multivariate
-    Gaussian distribution with the following properties:
+    """Changes x/y coordinate for each event by adding samples from a multivariate
+    Gaussian distribution. It with the following properties:
 
-        mean = [x,y]
-        covariance matrix = [[variance_x, sigma_x_y],[sigma_x_y, variance_y]]
+        .. math::
+            mean = [x,y]
+
+            \Sigma = [[var_x, sigma_{xy}],[sigma_{xy}, var_y]]
 
     Jittered events that lie outside the focal plane will be dropped if clip_outliers is True.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
-        variance_x (float): squared sigma value for the distribution in the x direction
-        variance_y (float): squared sigma value for the distribution in the y direction
-        sigma_x_y (float): changes skewness of distribution, only change if you want shifts along diagonal axis.
+        var_x (float): variance for the distribution in the x direction
+        var_y (float): variance for the distribution in the y direction
+        sigma_xy (float): changes skewness of distribution, only change if you want shifts along diagonal axis.
         clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
     sensor_size: Tuple[int, int, int]
-    variance_x: float = 1
-    variance_y: float = 1
-    sigma_x_y: float = 0
+    var_x: float = 1
+    var_y: float = 1
+    sigma_xy: float = 0
     clip_outliers: bool = False
 
     def __call__(self, events):
@@ -415,7 +415,7 @@ class SpatialJitter:
 
 @dataclass
 class TimeAlignment:
-    """Removes offset for timestamps, so that first events starts at time zero."""
+    """Removes offset for timestamps, so that first event starts at time zero."""
 
     def __call__(self, events):
         events = events.copy()
@@ -426,17 +426,18 @@ class TimeAlignment:
 
 @dataclass(frozen=True)
 class TimeJitter:
-    """Changes timestamp for each event by drawing samples from a Gaussian
-    distribution and adding them to each timestamp.
+    """Changes timestamp for each event by adding samples from a Gaussian
+    distribution.
 
     Parameters:
-        std (sequence or float): the standard deviation of the time jitter, picked randomly between 0 and value.
-        clip_negative (bool): drops events that have negative timestamps
-        sort_timestamps (bool): sort the events by timestamps after jitter
+        std (sequence or float): the standard deviation of the time jitter.
+        clip_negative (bool): drops events that have negative timestamps.
+        sort_timestamps (bool): sort the events by timestamps after jitter.
+        random_std (bool): if True, randomize std between 0 and std.
     """
 
     std: float
-    clip_negative: bool = False
+    clip_negative: bool = True
     sort_timestamps: bool = False
     random_std: bool = False
 
@@ -449,8 +450,7 @@ class TimeJitter:
 
 @dataclass(frozen=True)
 class TimeSkew:
-    """Skew all event timestamps according to a linear transform,
-    potentially sampled from a distribution of acceptable functions.
+    """Skew all event timestamps according to a linear transform.
 
     Parameters:
         coefficient: a real-valued multiplier applied to the timestamps of the events.
@@ -476,7 +476,7 @@ class TimeSkew:
 
 @dataclass(frozen=True)
 class UniformNoise:
-    """Introduces a fixed number of n noise events that are uniformly distributed across event dimensions, e.g. x, y, t and p.
+    """Introduces a fixed number of n noise events that are uniformly distributed across event dimensions such as x, y, t and p.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
@@ -557,7 +557,7 @@ class NumpyAsType:
 
 @dataclass(frozen=True)
 class ToAveragedTimesurface:
-    """Representation that creates averaged timesurfaces for each event for one recording. Taken from the paper
+    """Create averaged timesurfaces for each event. Taken from the paper
     Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
     https://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf
 
@@ -664,7 +664,7 @@ class ToFrame:
 @dataclass(frozen=True)
 class ToSparseTensor:
     """
-    Sparse tensor PyTorch drop-in replacement for ToFrame. See https://pytorch.org/docs/stable/sparse.html for details
+    PyTorch sparse tensor drop-in replacement for ToFrame. See https://pytorch.org/docs/stable/sparse.html for details
     about sparse tensors. The dense shape of the tensor will be (TCWH) and can be inflated by calling to_dense().
     You need to have PyTorch installed for this transformation. Under the hood this transform calls ToFrame() with the
     same parameters, converts to a pytorch tensor and calls to_sparse().
@@ -739,7 +739,7 @@ class ToImage:
 
 @dataclass(frozen=True)
 class ToTimesurface:
-    """Representation that creates timesurfaces for each event in the recording. Modeled after the paper
+    """Create global or local time surfaces for each event. Modeled after the paper
     Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
     https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476
 
@@ -770,7 +770,8 @@ class ToTimesurface:
 @dataclass(frozen=True)
 class ToVoxelGrid:
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
-    Implements the event volume from Zhu et al. 2019, Unsupervised event-based learning of optical flow, depth, and egomotion
+    Implements the event volume from Zhu et al. 2019, Unsupervised event-based learning
+    of optical flow, depth, and egomotion.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
@@ -788,7 +789,7 @@ class ToVoxelGrid:
 
 @dataclass(frozen=True)
 class ToBinaRep:
-    """Representation that takes T*B binary event frames to produce a sequence of T frames of N-bit numbers.
+    """Takes T*B binary event frames to produce a sequence of T frames of N-bit numbers.
     To do so, N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
     Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective Representation for Event-based cameras
     https://arxiv.org/pdf/2202.13662.pdf

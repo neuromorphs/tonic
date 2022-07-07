@@ -7,7 +7,7 @@ from tonic.io import make_structured_array
 
 
 class SMNIST(Dataset):
-    """Spiking sequential MNIST.
+    """Spiking sequential `MNIST <http://yann.lecun.com/exdb/mnist/>`_
 
     Sequential MNIST (sMNIST) is a standard benchmark task for time series
     classification where each input consists of sequences of 784 pixel

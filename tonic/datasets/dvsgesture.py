@@ -4,9 +4,11 @@ from tonic.dataset import Dataset
 
 
 class DVSGesture(Dataset):
-    """`DVSGesture dataset <http://research.ibm.com/dvsgesture/>`_
+    """`IBM DVS Gestures <http://research.ibm.com/dvsgesture/>`_
 
-    .. note::  This is (exceptionally) a preprocessed version of the original dataset, where recordings that originally contained multiple labels have already been cut into respective samples. Also temporal precision is reduced to ms.
+    .. note::  This is (exceptionally) a preprocessed version of the original dataset,
+               where recordings that originally contained multiple labels have already
+               been cut into respective samples. Also temporal precision is reduced to ms.
 
     ::
 

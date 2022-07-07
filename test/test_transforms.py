@@ -6,9 +6,7 @@ from utils import create_random_input
 
 
 class TestTransforms:
-    @pytest.mark.parametrize(
-        "min, max", itertools.product((None, 0, 1000), (None, 5000))
-    )
+    @pytest.mark.parametrize("min, max", itertools.product((0, 1000), (None, 5000)))
     def test_crop_time(self, min, max):
         orig_events, sensor_size = create_random_input()
 
