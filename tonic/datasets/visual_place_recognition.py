@@ -7,7 +7,9 @@ from tonic.download_utils import check_integrity, download_url
 
 
 class VPR(Dataset):
-    """Event-Based Visual Place Recognition With Ensembles of Temporal Windows <https://zenodo.org/record/4302805>.
+    """`Visual Place Recognition <https://zenodo.org/record/4302805>`_
+
+    Event-Based Visual Place Recognition With Ensembles of Temporal Windows.
     Events have (txyp) ordering.
 
     .. note::  To be able to read this dataset and its GPS files, you will need the `pynmea2` package installed.

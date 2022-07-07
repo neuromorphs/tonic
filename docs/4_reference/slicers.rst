@@ -1,4 +1,4 @@
-slicers
+Slicers
 =======
 
 .. automodule:: tonic.slicers

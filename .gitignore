@@ -2,6 +2,7 @@ cache
 metadata
 docs/_build
 data
+generated
 
 .vscode
 

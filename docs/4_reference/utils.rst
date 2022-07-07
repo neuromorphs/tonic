@@ -1,4 +1,4 @@
-utils
+Utils
 =======
 
 .. currentmodule:: tonic.utils
@@ -9,4 +9,3 @@ Plot event grid
 ----------------
 
 .. autofunction:: plot_event_grid
-

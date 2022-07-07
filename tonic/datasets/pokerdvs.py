@@ -4,7 +4,9 @@ from tonic.dataset import Dataset
 
 
 class POKERDVS(Dataset):
-    """POKER DVS <http://www2.imse-cnm.csic.es/caviar/POKERDVS.html>. Events have (txyp) ordering.
+    """`POKER-DVS <http://www2.imse-cnm.csic.es/caviar/POKERDVS.html>`_
+
+    Events have (txyp) ordering.
     ::
 
         @article{serrano2015poker,

@@ -5,7 +5,7 @@ from tonic.download_utils import extract_archive
 
 
 class DVSLip(Dataset):
-    """DVS-Lip dataset <https://sites.google.com/view/event-based-lipreading>. Events have (xypt) ordering.
+    """`DVS-Lip dataset <https://sites.google.com/view/event-based-lipreading>`_
     ::
 
         @inproceedings{tan2022multi,

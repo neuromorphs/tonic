@@ -1,12 +1,18 @@
 import tonic
 
 project = "Tonic"
-copyright = "2019-2021, the neuromorphs of Telluride"
+copyright = "2019-2022, the neuromorphs of Telluride"
 author = "Gregor Lenz"
 
 master_doc = "index"
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "pbr.sphinxext", "myst_nb"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "pbr.sphinxext",
+    "myst_nb",
+    "sphinx.ext.autosummary",
+]
 
 # Napoleon settings
 napoleon_google_docstring = True

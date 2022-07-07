@@ -7,7 +7,9 @@ from tonic.download_utils import extract_archive
 
 
 class NCALTECH101(Dataset):
-    """N-CALTECH101 dataset <https://www.garrickorchard.com/datasets/n-caltech101>. Events have (xytp) ordering.
+    """`N-CALTECH101 <https://www.garrickorchard.com/datasets/n-caltech101>`_
+
+    Events have (xytp) ordering.
     ::
 
         @article{orchard2015converting,

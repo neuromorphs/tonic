@@ -13,7 +13,7 @@ from tonic.io import make_structured_array
 
 
 class DSEC(Dataset):
-    """DSEC dataset <https://dsec.ifi.uzh.ch/>. Events have (xytp) ordering.
+    """`DSEC dataset <https://dsec.ifi.uzh.ch/>`_
 
     .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
 

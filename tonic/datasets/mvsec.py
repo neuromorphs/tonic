@@ -7,7 +7,7 @@ from tonic.io import make_structured_array
 
 
 class MVSEC(Dataset):
-    """The Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>. Events have (xytp) ordering.
+    """`Multi Vehicle Stereo Event Camera Dataset <https://daniilidis-group.github.io/mvsec/>`_
     ::
 
         @article{zihao2018multi,

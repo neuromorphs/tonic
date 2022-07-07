@@ -7,8 +7,8 @@ from tonic.download_utils import extract_archive
 
 
 class CIFAR10DVS(Dataset):
-    """Li, H., Liu, H., Ji, X., Li, G., & Shi, L. (2017). Cifar10-dvs: an event-stream dataset for object
-    classification. Frontiers in neuroscience, 11, 309. ::
+    """`CIFAR10-DVS <https://www.frontiersin.org/articles/10.3389/fnins.2017.00309/full>`_
+    ::
 
         @article{li2017cifar10,
         title={Cifar10-dvs: an event-stream dataset for object classification},

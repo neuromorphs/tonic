@@ -42,8 +42,7 @@ class HSD(Dataset):
 
 
 class SHD(HSD):
-    """Spiking Heidelberg Digits. One of two Heidelberg Spiking Digits <https://arxiv.org/abs/1910.07407>.
-    Events have (txp) ordering.
+    """`Spiking Heidelberg Digits <https://arxiv.org/abs/1910.07407>`_
     ::
 
         @article{cramer2020heidelberg,
@@ -93,8 +92,7 @@ class SHD(HSD):
 
 
 class SSC(HSD):
-    """Spiking Speech Commands dataset. One of two Heidelberg Spiking Datasets <https://arxiv.org/abs/1910.07407>.
-    Events have (txp) ordering.
+    """`Spiking Speech Commands <https://arxiv.org/abs/1910.07407>`_
     ::
 
         @article{cramer2020heidelberg,
