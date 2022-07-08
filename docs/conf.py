@@ -1,7 +1,7 @@
 import tonic
 
 project = "Tonic"
-copyright = "2019-2022, the neuromorphs of Telluride"
+copyright = "2019-present, the neuromorphs of Telluride"
 author = "Gregor Lenz"
 
 master_doc = "index"
@@ -12,7 +12,19 @@ extensions = [
     "pbr.sphinxext",
     "myst_nb",
     "sphinx.ext.autosummary",
+    "sphinx_gallery.gen_gallery",
 ]
+
+sphinx_gallery_conf = {
+    "examples_dirs": "gallery/",  # path to your example scripts
+    "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
+    # "backreferences_dir": "gen_modules/backreferences",
+    "matplotlib_animations": True,
+    "doc_module": ("tonic",),
+    # "binder": True,
+    "download_all_examples": False,
+    "ignore_pattern": r"utils\.py",
+}
 
 # Napoleon settings
 napoleon_google_docstring = True

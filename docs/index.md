@@ -45,6 +45,7 @@ If you want you can [run them yourself](https://mybinder.org/v2/gh/neuromorphs/t
 ```{toctree}
 :hidden:
 1_getting_started/getting_started
+auto_examples/index
 2_tutorials/tutorials
 3_how-tos/how-tos
 4_reference/reference

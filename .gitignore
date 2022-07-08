@@ -3,7 +3,7 @@ metadata
 docs/_build
 data
 generated
-
+auto_examples
 .vscode
 
 # Byte-compiled / optimized / DLL files
