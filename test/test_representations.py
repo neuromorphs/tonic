@@ -249,7 +249,8 @@ class TestRepresentations:
         )
 
         volume = transform(orig_events)
-        assert volume.shape == (n_time_bins, *sensor_size[1::-1])
+
+        assert volume.shape == (n_time_bins, 1, *sensor_size[1::-1])
         assert volume is not orig_events
 
     @pytest.mark.parametrize(

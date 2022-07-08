@@ -54,6 +54,8 @@ def to_voxel_grid_numpy(events, sensor_size, n_time_bins=10):
         vals_right[valid_indices],
     )
 
-    voxel_grid = np.reshape(voxel_grid, (n_time_bins, sensor_size[1], sensor_size[0]))
+    voxel_grid = np.reshape(
+        voxel_grid, (n_time_bins, 1, sensor_size[1], sensor_size[0])
+    )
 
     return voxel_grid
