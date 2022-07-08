@@ -49,3 +49,17 @@ def test_plotting():
     # this test doesn't finish on Windows
     if platform == "linux":
         tonic.utils.plot_event_grid(events)
+
+
+def test_plotting():
+    events, sensor_size = create_random_input()
+
+    transform = tonic.transforms.ToFrame(
+        sensor_size=sensor_size,
+        time_window=100000,
+    )
+
+    # this test doesn't finish on Windows
+    if platform == "linux":
+        frames = transform(events)
+        animation = tonic.utils.plot_animation(frames)

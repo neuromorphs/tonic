@@ -3,7 +3,8 @@ import tonic.transforms as transforms
 
 
 def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
-    """Plot events accumulated in a voxel grid for visual inspection.
+    """Plot events accumulated as frames equal to the product
+    of axes for visual inspection.
 
     Parameters:
         events: Structured numpy array of shape [num_events, num_event_channels].
@@ -21,7 +22,6 @@ def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
         None
     """
     try:
-        from matplotlib import animation, rc
         import matplotlib.pyplot as plt
     except ImportError:
         raise ImportError(
@@ -65,3 +65,54 @@ def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
         plt.imshow(frames.squeeze().T)
         plt.xlabel("Time")
         plt.ylabel("Channels")
+
+
+def plot_animation(frames: np.ndarray):
+    """Helper function that animates a tensor of frames of shape (TCHW).
+
+    Parameters:
+        frames: numpy array or tensor of shape (TCHW)
+
+    Example:
+        >>> import tonic
+        >>> nmnist = tonic.datasets.NMNIST(save_to='./data', train=False)
+        >>> events, label = nmnist[0]
+        >>>
+        >>> transform = tonic.transforms.ToFrame(
+        >>>     sensor_size=nmnist.sensor_size,
+        >>>     time_window=10000,
+        >>> )
+        >>>
+        >>> frames = transform(events)
+        >>> animation = tonic.utils.plot_animation(frames)
+
+    Returns:
+        None
+    """
+    try:
+        from matplotlib import animation
+        import matplotlib.pyplot as plt
+    except ImportError:
+        raise ImportError(
+            "Please install the matplotlib package to plot events. This is an optional"
+            " dependency."
+        )
+    fig = plt.figure(figsize=(2, 2))
+    if frames[0].shape[0] == 2:
+        first_frame = frames[0][1] - frames[0][0]
+    else:
+        first_frame = frames[0][0]
+    ax = plt.imshow(first_frame)
+    plt.axis("off")
+
+    def animate(frame):
+        if frame.shape[0] == 2:
+            frame = frame[1] - frame[0]
+        else:
+            frame = frame[0]
+        ax.set_data(frame)
+        return ax
+
+    ani = animation.FuncAnimation(fig, animate, frames=frames, interval=100)
+    plt.show()
+    return ani
