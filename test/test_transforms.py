@@ -360,12 +360,11 @@ class TestTransforms:
         events = transform(orig_events)
 
         if p == 1:
-            flipped_time = np.isclose(max_t - original_t, events["t"][0])
-            flipped_polarity = np.array_equal(
-                np.invert(orig_events["p"].astype(bool)), events["p"]
+            assert np.array_equal(orig_events["t"], max_t - events["t"][::-1])
+            assert np.array_equal(
+                orig_events["p"],
+                np.invert(events["p"][::-1].astype(bool)),
             )
-            assert flipped_time, "When flipping time must map t_i' = max(t) - t_i"
-            assert flipped_polarity, "When flipping time, polarity should be flipped"
         elif p == 0:
             assert np.array_equal(orig_events, events)
         assert events is not orig_events

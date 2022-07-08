@@ -45,14 +45,11 @@ class TestChainedTransforms:
             events["y"] != orig_events["y"]
         ).any(), "Y coordinates should be different."
         assert np.array_equal(
-            np.invert(orig_events["p"].astype(bool)), events["p"]
-        ), "Polarities should be flipped."
-        time_reversal = (
-            events["t"] == np.max(orig_events["t"]) - orig_events["t"]
-        ).all()
-        assert (
-            time_reversal
-        ), "Condition of time reversal t_i' = max(t) - t_i has to be fullfilled"
+            orig_events["p"], np.invert(events["p"][::-1].astype(bool))
+        )
+        assert np.array_equal(
+            orig_events["t"], np.max(orig_events["t"]) - events["t"][::-1]
+        )
         assert events is not orig_events
 
     def testDropoutFlipUD(self):

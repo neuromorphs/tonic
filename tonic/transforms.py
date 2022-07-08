@@ -349,6 +349,7 @@ class RandomTimeReversal:
                 events["p"] = np.invert(events["p"].astype(bool)).astype(
                     events.dtype["p"]
                 )
+            events = events[::-1]
         return events
 
 
