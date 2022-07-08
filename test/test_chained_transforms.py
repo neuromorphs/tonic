@@ -9,17 +9,17 @@ class TestChainedTransforms:
         orig_events, sensor_size = create_random_input()
 
         flip_probability = 1
-        variance_x = 3
-        variance_y = 3
-        sigma_x_y = 0
+        var_x = 3
+        var_y = 3
+        sigma_xy = 0
         transform = transforms.Compose(
             [
                 transforms.RandomTimeReversal(p=flip_probability),
                 transforms.SpatialJitter(
                     sensor_size=sensor_size,
-                    variance_x=variance_x,
-                    variance_y=variance_y,
-                    sigma_x_y=sigma_x_y,
+                    var_x=var_x,
+                    var_y=var_y,
+                    sigma_xy=sigma_xy,
                     clip_outliers=False,
                 ),
             ]
@@ -31,14 +31,14 @@ class TestChainedTransforms:
 
         assert len(events) == len(orig_events), "Number of events should be the same."
         spatial_var_x = np.isclose(
-            events["x"].all(), orig_events["x"].all(), atol=variance_x
+            events["x"].all(), orig_events["x"].all(), atol=var_x
         )
         assert spatial_var_x, "Spatial jitter should be within chosen variance x."
         assert (
             events["x"] != orig_events["x"]
         ).any(), "X coordinates should be different."
         spatial_var_y = np.isclose(
-            events["y"].all(), orig_events["y"].all(), atol=variance_y
+            events["y"].all(), orig_events["y"].all(), atol=var_y
         )
         assert spatial_var_y, "Spatial jitter should be within chosen variance y."
         assert (

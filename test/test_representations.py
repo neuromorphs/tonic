@@ -9,9 +9,9 @@ class TestRepresentations:
         "time_window, event_count, n_time_bins, n_event_bins, overlap,"
         " include_incomplete, sensor_size",
         [
-            (2000, None, None, None, 0, False, (40, 20, 2)),
-            (2000, None, None, None, 200, True, (40, 20, 1)),
-            (1000, None, None, None, 100, True, (40, 20, 3)),
+            (20000, None, None, None, 0, False, (40, 20, 2)),
+            (20000, None, None, None, 200, True, (40, 20, 1)),
+            (10000, None, None, None, 100, True, (40, 20, 3)),
             (None, 2000, None, None, 0, False, (40, 20, 2)),
             (None, 2000, None, None, 200, True, (20, 20, 1)),
             (None, 2000, None, None, 100, True, (10, 20, 2)),
@@ -193,7 +193,7 @@ class TestRepresentations:
         "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]
     )
     def test_representation_time_surface(self, surface_dimensions, tau):
-        orig_events, sensor_size = create_random_input()
+        orig_events, sensor_size = create_random_input(n_events=1000)
 
         transform = transforms.ToTimesurface(
             sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau

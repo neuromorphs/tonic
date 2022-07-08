@@ -285,9 +285,9 @@ class TestTransforms:
 
         transform = transforms.SpatialJitter(
             sensor_size=sensor_size,
-            variance_x=variance,
-            variance_y=variance,
-            sigma_x_y=0,
+            var_x=variance,
+            var_y=variance,
+            sigma_xy=0,
             clip_outliers=clip_outliers,
         )
 

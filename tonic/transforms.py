@@ -406,9 +406,9 @@ class SpatialJitter:
         return functional.spatial_jitter_numpy(
             events=events,
             sensor_size=self.sensor_size,
-            variance_x=self.variance_x,
-            variance_y=self.variance_y,
-            sigma_x_y=self.sigma_x_y,
+            var_x=self.var_x,
+            var_y=self.var_y,
+            sigma_xy=self.sigma_xy,
             clip_outliers=self.clip_outliers,
         )
 
