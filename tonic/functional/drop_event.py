@@ -77,7 +77,7 @@ def drop_by_area_numpy(
     """Drops events located in a randomly chosen box area. The size of the box area is defined by a specified ratio of the sensor size.
 
     Args:
-        events (np.ndarray): _description_
+        events (np.ndarray): ndarray of shape [num_events, num_event_channels]
         sensor_size (Tuple): size of the sensor that was used [W,H,P]
         area_ratio (Union[float, Tuple[float]], optional): Ratio of the sensor resolution that determines the size of the box area where events are dropped.
             - if a float, the value is used to calculate the size of the box area
