@@ -170,6 +170,47 @@ class DropEventByArea:
         return functional.drop_by_area_numpy(events, self.sensor_size, self.area_ratio)
 
 
+@dataclass(frozen=True)
+class EventDrop:
+    """Applies EventDrop transformation from the paper "EventDrop: Data Augmentation for Event-based Learning".
+        Applies one of the 4 drops of event strategies between:
+            1. Identity (do nothing)
+            2. Drop events by time
+            3. Drop events by area
+            4. Drop events randomly
+
+        For each strategy, the ratio of dropped events are determined in the paper.
+
+    Args:
+        sensor_size (Tuple): size of the sensor that was used [W,H,P]
+        starts_at_zero (bool, optional): flag that indicates whether the input sequence starts at time-step 0.
+            If False, takes the earliest timestamp as start timestamp. Defaults to True.
+
+    Example:
+        >>> transform = tonic.transforms.EventDrop(sensor_size=(128,128,2), starts_at_zero=True)
+    """
+
+    sensor_size: Tuple[int, int, int]
+    starts_at_zero: bool = True
+
+    def __call__(self, events):
+        choice = np.random.randint(0, 4)
+
+        if choice == 0:
+            return events
+        if choice == 1:
+            duration_ratio = np.random.randint(1, 10) / 10.0
+            return functional.drop_by_time_numpy(
+                events, duration_ratio, self.starts_at_zero
+            )
+        if choice == 2:
+            area_ratio = np.random.randint(1, 6) / 20.0
+            return functional.drop_by_area_numpy(events, self.sensor_size, area_ratio)
+        if choice == 3:
+            ratio = np.random.randint(1, 10) / 10.0
+            functional.drop_event_numpy(events, ratio)
+
+
 @dataclass
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
