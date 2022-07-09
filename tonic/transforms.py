@@ -147,6 +147,29 @@ class DropEventByTime:
         )
 
 
+@dataclass(frozen=True)
+class DropEventByArea:
+    """Drops events located in a randomly chosen box area. The size of the box area is defined by a specified ratio of the sensor size.
+
+    Args:
+        sensor_size (Tuple): size of the sensor that was used [W,H,P]
+        area_ratio (Union[float, Tuple[float]], optional): Ratio of the sensor resolution that determines the size of the box area where events are dropped.
+            - if a float, the value is used to calculate the size of the box area
+            - if a tuple of 2 floats, the ratio is randomly chosen in [min, max)
+            Defaults to 0.2.
+
+    Example:
+        >>> transform = tonic.transforms.DropEventByArea(sensor_size=(128,128,2), area_ratio=(0.1, 0.8))
+    """
+
+    sensor_size: Tuple[int, int, int]
+    area_ratio: Union[float, Tuple[float]] = 0.2
+
+    def __call__(self, events):
+
+        return functional.drop_by_area_numpy(events, self.sensor_size, self.area_ratio)
+
+
 @dataclass
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
