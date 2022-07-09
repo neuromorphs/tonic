@@ -1,3 +1,4 @@
+from typing import Tuple, Union
 import numpy as np
 
 
@@ -23,7 +24,25 @@ def drop_event_numpy(events, drop_probability=0.5, random_drop_probability=False
     return np.delete(events, ind, axis=0)
 
 
-def drop_by_time_numpy(events, duration_ratio=0.2, starts_at_zero=True):
+def drop_by_time_numpy(
+    events: np.ndarray,
+    duration_ratio: Union[float, Tuple[float]] = 0.2,
+    starts_at_zero: bool = True,
+):
+    """Drops events in a certain time interval with a length proportional to a specified ratio of the original length.
+
+    Args:
+        events (np.ndarray): ndarray of shape [num_events, num_event_channels]
+        duration_ratio (Union[float, Tuple[float]], optional): the length of the dropped time interval, expressed in a ratio of the original sequence duration.
+            - If a float, the value is used to calculate the interval length
+            - If a tuple of 2 floats, the ratio is randomly chosen in [min, max)
+            Defaults to 0.2.
+        starts_at_zero (bool, optional): flag that indicates whether the input sequence starts at time-step 0.
+            If False, takes the earliest timestamp as start timestamp. Defaults to True.
+
+    Returns:
+        np.ndarray: augmented events that were not dropped (i.e., the events that are not in the time interval).
+    """
     assert "x" and "t" and "p" in events.dtype.names
     assert (
         type(duration_ratio) == float
@@ -52,8 +71,23 @@ def drop_by_time_numpy(events, duration_ratio=0.2, starts_at_zero=True):
     return np.delete(events, mask_events)  # remove events
 
 
-def drop_by_area_numpy(events, sensor_size, area_ratio=0.2):
-    assert "x" and "t" and "p" in events.dtype.names
+def drop_by_area_numpy(
+    events: np.ndarray, sensor_size: Tuple, area_ratio: Union[float, Tuple[float]] = 0.2
+):
+    """Drops events located in a randomly chosen box area. The size of the box area is defined by a specified ratio of the sensor size.
+
+    Args:
+        events (np.ndarray): _description_
+        sensor_size (Tuple): size of the sensor that was used [W,H,P]
+        area_ratio (Union[float, Tuple[float]], optional): Ratio of the sensor resolution that determines the size of the box area where events are dropped.
+            - if a float, the value is used to calculate the size of the box area
+            - if a tuple of 2 floats, the ratio is randomly chosen in [min, max)
+            Defaults to 0.2.
+
+    Returns:
+        np.ndarray: augmented events that were not dropped (i.e., the events that are not located in the box area).
+    """
+    assert "x" and "t" and "y" and "p" in events.dtype.names
     assert (type(area_ratio) == float and area_ratio >= 0.0 and area_ratio <= 1.0) or (
         type(area_ratio) is tuple
         and len(area_ratio) == 2
@@ -63,11 +97,8 @@ def drop_by_area_numpy(events, sensor_size, area_ratio=0.2):
     if not sensor_size:
         sensor_size_x = int(events["x"].max() + 1)
         sensor_size_p = len(np.unique(events["p"]))
-        if "y" in events.dtype.names:
-            sensor_size_y = int(events["y"].max() + 1)
-            sensor_size = (sensor_size_x, sensor_size_y, sensor_size_p)
-        else:
-            sensor_size = (sensor_size_x, 1, sensor_size_p)
+        sensor_size_y = int(events["y"].max() + 1)
+        sensor_size = (sensor_size_x, sensor_size_y, sensor_size_p)
 
     # select ratio
     if type(area_ratio) is tuple:
