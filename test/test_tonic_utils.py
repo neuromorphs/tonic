@@ -2,6 +2,7 @@ import tonic
 import tonic.transforms as transforms
 from utils import create_random_input
 from sys import platform
+import pytest
 
 
 class DummyDataset:
@@ -44,14 +45,14 @@ def test_pytorch_batch_collation_dense_tensor():
     assert batch.shape[2] == sensor_size[2]
 
 
+@pytest.mark.skipif(not platform == "linux", reason="Test doesn't finish on Windows.")
 def test_plotting():
     events, sensor_size = create_random_input()
-    # this test doesn't finish on Windows
-    if platform == "linux":
-        tonic.utils.plot_event_grid(events)
+    tonic.utils.plot_event_grid(events)
 
 
-def test_plotting():
+@pytest.mark.skipif(not platform == "linux", reason="Test doesn't finish on Windows.")
+def test_animation():
     events, sensor_size = create_random_input()
 
     transform = tonic.transforms.ToFrame(
@@ -59,7 +60,5 @@ def test_plotting():
         time_window=100000,
     )
 
-    # this test doesn't finish on Windows
-    if platform == "linux":
-        frames = transform(events)
-        animation = tonic.utils.plot_animation(frames)
+    frames = transform(events)
+    tonic.utils.plot_animation(frames)
