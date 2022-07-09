@@ -2,10 +2,12 @@
 =================
 
 .. toctree::
-    data_classes
-    datasets
-    collation
-    io
-    slicers
-    transformations
-    utils
+   :maxdepth: 2
+   
+   data_classes
+   datasets
+   collation
+   io
+   slicers
+   transformations
+   utils
