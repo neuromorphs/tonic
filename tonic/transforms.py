@@ -121,6 +121,32 @@ class DropEvent:
         return functional.drop_event_numpy(events, self.p, self.random_p)
 
 
+@dataclass(frozen=True)
+class DropEventByTime:
+    """Drops events in a certain time interval with a length proportional to a specified ratio of the original length.
+
+    Parameters:
+        duration_ratio (Union[float, Tuple[float]], optional): the length of the dropped time interval, expressed in a ratio of the original sequence duration.
+            - If a float, the value is used to calculate the interval length
+            - If a tuple of 2 floats, the ratio is randomly chosen in [min, max)
+            Defaults to 0.2.
+        starts_at_zero (bool, optional): flag that indicates whether the input sequence starts at time-step 0.
+            If False, takes the earliest timestamp as start timestamp. Defaults to True.
+
+    Example:
+        >>> transform = tonic.transforms.DropEventByTime(duration_ratio=(0.1, 0.8), starts_at_zero=True)
+    """
+
+    duration_ratio: Union[float, Tuple[float]] = 0.2
+    starts_at_zero: bool = True
+
+    def __call__(self, events):
+
+        return functional.drop_by_time_numpy(
+            events, self.duration_ratio, self.starts_at_zero
+        )
+
+
 @dataclass
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
