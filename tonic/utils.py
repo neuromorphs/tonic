@@ -87,7 +87,7 @@ def plot_animation(frames: np.ndarray):
         >>> animation = tonic.utils.plot_animation(frames)
 
     Returns:
-        None
+        The animation object. Store this in a variable to keep it from being garbage collected until displayed.
     """
     try:
         from matplotlib import animation
@@ -113,6 +113,6 @@ def plot_animation(frames: np.ndarray):
         ax.set_data(frame)
         return ax
 
-    ani = animation.FuncAnimation(fig, animate, frames=frames, interval=100)
+    anim = animation.FuncAnimation(fig, animate, frames=frames, interval=100)
     plt.show()
-    return ani
+    return anim

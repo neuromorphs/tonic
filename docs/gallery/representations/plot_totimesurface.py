@@ -8,7 +8,7 @@ This example showcases the ToTimesurface transform with different parameters.
 
 import tonic
 
-nmnist = tonic.datasets.NMNIST("../../2_tutorials/data", train=False)
+nmnist = tonic.datasets.NMNIST("../../tutorials/data", train=False)
 events, label = nmnist[0]
 
 
@@ -30,7 +30,7 @@ ani = tonic.utils.plot_animation(frames[::70])
 # ToTimesurface local
 # --------------------------------
 
-frame_transform = tonic.transforms.ToTimesurface(
+transform = tonic.transforms.ToTimesurface(
     sensor_size=nmnist.sensor_size, surface_dimensions=(9, 9), tau=100000, decay="exp"
 )
 
