@@ -195,7 +195,6 @@ class EventDrop:
 
     def __call__(self, events):
         choice = np.random.randint(0, 4)
-
         if choice == 0:
             return events
         if choice == 1:
@@ -208,7 +207,7 @@ class EventDrop:
             return functional.drop_by_area_numpy(events, self.sensor_size, area_ratio)
         if choice == 3:
             ratio = np.random.randint(1, 10) / 10.0
-            functional.drop_event_numpy(events, ratio)
+            return functional.drop_event_numpy(events, ratio)
 
 
 @dataclass
