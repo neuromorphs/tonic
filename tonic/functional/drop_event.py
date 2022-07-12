@@ -35,7 +35,7 @@ def drop_by_time_numpy(
         events (np.ndarray): ndarray of shape [num_events, num_event_channels]
         duration_ratio (Union[float, Tuple[float]], optional): the length of the dropped time interval, expressed in a ratio of the original sequence duration.
             - If a float, the value is used to calculate the interval length
-            - If a tuple of 2 floats, the ratio is randomly chosen in [min, max)
+            - If a tuple of 2 floats, the ratio is randomly chosen in [min, max).
             Defaults to 0.2.
         starts_at_zero (bool, optional): flag that indicates whether the input sequence starts at time-step 0.
             If False, takes the earliest timestamp as start timestamp. Defaults to True.
@@ -45,13 +45,11 @@ def drop_by_time_numpy(
     """
     assert "x" and "t" and "p" in events.dtype.names
     assert (
-        type(duration_ratio) == float
-        and duration_ratio >= 0.0
-        and duration_ratio <= 1.0
+        type(duration_ratio) == float and duration_ratio >= 0.0 and duration_ratio < 1.0
     ) or (
         type(duration_ratio) == tuple
         and len(duration_ratio) == 2
-        and all(val >= 0 and val <= 1.0 for val in duration_ratio)
+        and all(val >= 0 and val < 1.0 for val in duration_ratio)
     )
 
     # time interval
@@ -88,10 +86,10 @@ def drop_by_area_numpy(
         np.ndarray: augmented events that were not dropped (i.e., the events that are not located in the box area).
     """
     assert "x" and "t" and "y" and "p" in events.dtype.names
-    assert (type(area_ratio) == float and area_ratio >= 0.0 and area_ratio <= 1.0) or (
+    assert (type(area_ratio) == float and area_ratio >= 0.0 and area_ratio < 1.0) or (
         type(area_ratio) is tuple
         and len(area_ratio) == 2
-        and all(val >= 0 and val <= 1.0 for val in area_ratio)
+        and all(val >= 0 and val < 1.0 for val in area_ratio)
     )
 
     if not sensor_size:
