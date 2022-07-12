@@ -109,8 +109,8 @@ def drop_by_area_numpy(
     cut_h = int(sensor_size[1] * area_ratio)
     bbx1 = np.random.randint(0, (sensor_size[0] - cut_w))
     bby1 = np.random.randint(0, (sensor_size[1] - cut_h))
-    bbx2 = bbx1 + cut_w
-    bby2 = bby1 + cut_h
+    bbx2 = bbx1 + cut_w - 1
+    bby2 = bby1 + cut_h - 1
 
     # filter image
     mask_events = (
