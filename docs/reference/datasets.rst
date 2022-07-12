@@ -33,8 +33,8 @@ Audio event stream classification
     SHD
     SSC
 
-Optical flow
-------------
+Pose estimation, visual odometry, SLAM
+--------------------------------------
 .. autosummary::
     :toctree: generated/
     :template: class_dataset.rst
@@ -43,11 +43,5 @@ Optical flow
     DSEC
     MVSEC
     TUMVIE
-
-Visual Place Recognition
-------------------------
-.. autosummary::
-    :toctree: generated/
-    :template: class_dataset.rst
-
     VPR
+    

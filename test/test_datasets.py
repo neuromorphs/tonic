@@ -1,11 +1,8 @@
-import unittest
 import numpy as np
-import pytest
 import tonic.datasets as datasets
 import dataset_utils
 import os
 from utils import create_random_input
-import itertools
 from tonic.download_utils import download_url
 
 

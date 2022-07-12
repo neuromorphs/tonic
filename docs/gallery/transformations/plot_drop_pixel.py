@@ -10,7 +10,7 @@ Notice that in the rendering below all x/y pixels from 0 to 17 have been dropped
 
 import tonic
 
-nmnist = tonic.datasets.NMNIST("../../2_tutorials/data", train=False)
+nmnist = tonic.datasets.NMNIST("../../tutorials/data", train=False)
 events, label = nmnist[0]
 
 transform = tonic.transforms.Compose(

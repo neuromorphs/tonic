@@ -2,6 +2,8 @@
 =============
 
 .. toctree::
+   :maxdepth: 2
+   
    davis_data
    fast_dataloading
    batching

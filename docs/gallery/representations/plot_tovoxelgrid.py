@@ -6,11 +6,9 @@ ToVoxelGrid
 This example showcases the ToTimesurface transform with different parameters. 
 """
 
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import tonic
 
-nmnist = tonic.datasets.NMNIST("../../2_tutorials/data", train=False)
+nmnist = tonic.datasets.NMNIST("../../tutorials/data", train=False)
 events, label = nmnist[0]
 
 ####################################

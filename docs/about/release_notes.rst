@@ -1,6 +1,20 @@
 Release notes
 =============
 
+1.1.0 (09/07/2022)
+------------------
+A minor release with many additional features. Some transformation parameter names might have been changed without it being recorded here.
+
+* Addition of audio transforms that work on audio files.
+* Added MemoryCachedDataset
+* Added CropTime, Decimation, ToSparseTensor, ToBinaRep transforms.
+* Added plot_animation utility function.
+* Removed NavGesture and NCARS datasets since they relied on decoding .dat files with Loris, which is no longer maintained.
+* Added CIFAR10DVS, TUM-VIE and DVSLip datasets.
+* Changed CI pipeline from Travis to Github actions. Automatic deployment to PiPy for stable and pre-releases.
+* Overhaul of documentation: transform gallery, autosummaries for datasets and transforms.
+* Use of pbr to manage versions with git tags easily.
+
 1.0.0
 -----
 This is a major release where we focused on performance improvements. In the interest of future maintainability, there are a few breaking changes.

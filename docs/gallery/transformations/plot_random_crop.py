@@ -8,7 +8,7 @@ to a smaller target size.
 
 import tonic
 
-nmnist = tonic.datasets.NMNIST("../../2_tutorials/data", train=False)
+nmnist = tonic.datasets.NMNIST("../../tutorials/data", train=False)
 events, label = nmnist[0]
 
 transform = tonic.transforms.Compose(
