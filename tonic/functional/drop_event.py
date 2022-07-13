@@ -27,7 +27,6 @@ def drop_event_numpy(events, drop_probability=0.5, random_drop_probability=False
 def drop_by_time_numpy(
     events: np.ndarray,
     duration_ratio: Union[float, Tuple[float]] = 0.2,
-    starts_at_zero: bool = True,
 ):
     """Drops events in a certain time interval with a length proportional to a specified ratio of the original length.
 
@@ -37,8 +36,6 @@ def drop_by_time_numpy(
             - If a float, the value is used to calculate the interval length
             - If a tuple of 2 floats, the ratio is randomly chosen in [min, max).
             Defaults to 0.2.
-        starts_at_zero (bool, optional): flag that indicates whether the input sequence starts at time-step 0.
-            If False, takes the earliest timestamp as start timestamp. Defaults to True.
 
     Returns:
         np.ndarray: augmented events that were not dropped (i.e., the events that are not in the time interval).
@@ -53,7 +50,7 @@ def drop_by_time_numpy(
     )
 
     # time interval
-    t_start = 0.0 if starts_at_zero else events["t"].min()
+    t_start = 0.0
     t_end = events["t"].max()
 
     if type(duration_ratio) is tuple:

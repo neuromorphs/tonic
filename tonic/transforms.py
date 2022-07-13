@@ -130,21 +130,16 @@ class DropEventByTime:
             - If a float, the value is used to calculate the interval length
             - If a tuple of 2 floats, the ratio is randomly chosen in [min, max)
             Defaults to 0.2.
-        starts_at_zero (bool, optional): flag that indicates whether the input sequence starts at time-step 0.
-            If False, takes the earliest timestamp as start timestamp. Defaults to True.
 
     Example:
-        >>> transform = tonic.transforms.DropEventByTime(duration_ratio=(0.1, 0.8), starts_at_zero=True)
+        >>> transform = tonic.transforms.DropEventByTime(duration_ratio=(0.1, 0.8))
     """
 
     duration_ratio: Union[float, Tuple[float]] = 0.2
-    starts_at_zero: bool = True
 
     def __call__(self, events):
 
-        return functional.drop_by_time_numpy(
-            events, self.duration_ratio, self.starts_at_zero
-        )
+        return functional.drop_by_time_numpy(events, self.duration_ratio)
 
 
 @dataclass(frozen=True)
@@ -183,15 +178,12 @@ class EventDrop:
 
     Args:
         sensor_size (Tuple): size of the sensor that was used [W,H,P]
-        starts_at_zero (bool, optional): flag that indicates whether the input sequence starts at time-step 0.
-            If False, takes the earliest timestamp as start timestamp. Defaults to True.
 
     Example:
-        >>> transform = tonic.transforms.EventDrop(sensor_size=(128,128,2), starts_at_zero=True)
+        >>> transform = tonic.transforms.EventDrop(sensor_size=(128,128,2))
     """
 
     sensor_size: Tuple[int, int, int]
-    starts_at_zero: bool = True
 
     def __call__(self, events):
         choice = np.random.randint(0, 4)
@@ -199,9 +191,7 @@ class EventDrop:
             return events
         if choice == 1:
             duration_ratio = np.random.randint(1, 10) / 10.0
-            return functional.drop_by_time_numpy(
-                events, duration_ratio, self.starts_at_zero
-            )
+            return functional.drop_by_time_numpy(events, duration_ratio)
         if choice == 2:
             area_ratio = np.random.randint(1, 6) / 20.0
             return functional.drop_by_area_numpy(events, self.sensor_size, area_ratio)

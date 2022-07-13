@@ -17,7 +17,7 @@ transform = tonic.transforms.Compose(
         tonic.transforms.DropEventByTime(duration_ratio=0.4),
         tonic.transforms.ToFrame(
             sensor_size=nmnist.sensor_size,
-            n_time_bins=20,
+            time_window=10000,
         ),
     ]
 )
