@@ -7,7 +7,7 @@
 
 **Download and manipulate neuromorphic datasets fast and easily!**
 
-__Tonic__ provides publicly available event-based vision and audio datasets and event transformations. The package is fully compatible with PyTorch Vision / Audio to give you the flexibility that you need. 
+__Tonic__ provides publicly available event-based vision and audio {doc}`datasets<reference/datasets>` and {doc}`event transformations<reference/transformations>`. The package is fully compatible with PyTorch Vision / Audio to give you the flexibility that you need. 
 
 ### Getting started
 * **{doc}`Install Tonic<getting_started/install>`** via pypi or anaconda.
@@ -20,10 +20,9 @@ If you want you can [run them yourself](https://mybinder.org/v2/gh/neuromorphs/t
 * **{doc}`Batching when using events<tutorials/batching>`** is straightforward.
 * **{doc}`Slice your dataset into smaller chunks<tutorials/slicing>`** if you need to.
 * **{doc}`How to work with larger datasets that output multiple data<tutorials/large_datasets>`** for heavy-duty processing.
-* **{doc}`If you have your own data<tutorials/slicing>`** you can still use Tonic.
 
 ### How Tos
-* **{doc}`Troubleshoot<how-tos/how-tos>`** your stack traces.
+* **{doc}`Check out these scripts<how-tos/how-tos>`** if you run into a specific problem.
 
 ### API reference
 * **{doc}`List of neuromorphic datasets<reference/datasets>`**. Vision and audio datasets.
@@ -34,9 +33,11 @@ If you want you can [run them yourself](https://mybinder.org/v2/gh/neuromorphs/t
 * **{doc}`Introduction to neuromorphic cameras<reading_material/intro-event-cameras>`** if you've never worked with events/spikes.
 * **{doc}`Short intro to spiking neural networks<reading_material/intro-snns>`** and how they work with events.
 * **{doc}`Links to external spiking neural network simulators<reading_material/intro-snns>`** to train your network.
+* **{doc}`Read about design decisions we made<reading_material/intro-snns>`** in Tonic.
 
 ### Getting involved
 * **{doc}`Contribution guidelines<getting_involved/contribute>`**. Please read this before opening a pull request.
+* **{doc}`Communication channels<getting_involved/communication_channels>`** to get in touch.
 
 ### About
 * **{doc}`About Tonic<about/about>`**. How the project came to life.

@@ -15,7 +15,11 @@ events, label = nmnist[0]
 transform = tonic.transforms.Compose(
     [
         tonic.transforms.DropPixel(
-            coordinates=[[x, y] for x in np.random.randint(34, size=14) for y in np.random.randint(34, size=14)]
+            coordinates=[
+                [x, y]
+                for x in np.random.randint(34, size=29)
+                for y in np.random.randint(34, size=29)
+            ]
         ),
         tonic.transforms.ToFrame(
             sensor_size=nmnist.sensor_size,
