@@ -1,7 +1,7 @@
 from .crop import crop_numpy
 from .decimate import decimate_numpy
 from .denoise import denoise_numpy
-from .drop_event import drop_event_numpy
+from .drop_event import drop_event_numpy, drop_by_area_numpy, drop_by_time_numpy
 from .drop_pixel import (
     drop_pixel_numpy,
     drop_pixel_raster,
@@ -29,6 +29,8 @@ __all__ = [
     "decimate_numpy",
     "denoise_numpy",
     "drop_event_numpy",
+    "drop_by_area_numpy",
+    "drop_by_time_numpy",
     "drop_pixel_numpy",
     "refractory_period_numpy",
     "spatial_jitter_numpy",

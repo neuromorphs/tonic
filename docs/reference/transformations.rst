@@ -21,6 +21,9 @@ Transforms on events
     Denoise
     Decimation
     DropEvent
+    DropEventByTime
+    DropEventByArea
+    EventDrop
     DropPixel
     Downsample
     MergePolarities
@@ -74,6 +77,8 @@ Functional transforms in numpy
     decimate_numpy
     denoise_numpy
     drop_event_numpy
+    drop_by_time_numpy
+    drop_by_area_numpy
     drop_pixel_numpy
     drop_pixel_raster
     identify_hot_pixel

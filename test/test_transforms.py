@@ -62,6 +62,71 @@ def test_transform_drop_events(p, random_p):
     assert events is not orig_events
 
 
+@pytest.mark.parametrize(
+    "duration_ratio",
+    [(0.1), (0.2), (0.3), (0.4), (0.5), (0.6), (0.7), (0.8), (0.9)],
+)
+def test_transform_drop_events_by_time(duration_ratio):
+    orig_events, sensor_size = create_random_input()
+
+    transform = transforms.DropEventByTime(duration_ratio=duration_ratio)
+
+    events = transform(orig_events)
+
+    assert len(events) < len(orig_events)
+
+    t_start = orig_events["t"].min()
+    t_end = orig_events["t"].max()
+
+    # checks that there is no events during a period of the defined duration ratio
+    duration = (t_end - t_start) * duration_ratio
+
+    diffs = np.diff(events["t"])
+
+    assert np.any(
+        diffs >= duration
+    ), f"There should be no events during {duration} in the obtained sequence."
+
+
+@pytest.mark.parametrize(
+    "area_ratio",
+    [(0.1), (0.2), (0.3), (0.4), (0.5), (0.6), (0.7), (0.8), (0.9)],
+)
+def test_transform_drop_events_by_area(area_ratio):
+    orig_events, sensor_size = create_random_input()
+
+    transform = transforms.DropEventByArea(sensor_size, area_ratio)
+
+    events = transform(orig_events)
+
+    assert len(events) < len(orig_events)  # events were dropped by the transform
+
+    # checks that an area of the right dimension contains no events in the resulting sequence
+    cut_w = int(area_ratio * sensor_size[0])
+    cut_h = int(area_ratio * sensor_size[1])
+
+    to_im = transforms.ToImage(sensor_size)
+    frame = to_im(events)
+    orig_frame = to_im(orig_events)
+    cmp = frame - orig_frame
+    dropped_events = len(orig_events) - len(events)
+
+    # goal: find the area that contains the same number of dropped events
+    dropped_area_found = False
+    for bbx1 in range(0, (sensor_size[0] - cut_w)):
+        bbx2 = bbx1 + cut_w
+        for bby1 in range(0, (sensor_size[1] - cut_h)):
+            bby2 = bby1 + cut_h
+
+            if abs(np.sum(cmp[:, bby1:bby2, bbx1:bbx2])) == dropped_events:
+                dropped_area_found = True
+                break
+
+    assert (
+        dropped_area_found is True
+    ), f"There should be an area with {dropped_events} events dropped in the obtained sequence."
+
+
 def test_transform_decimation():
     n = 10
 
