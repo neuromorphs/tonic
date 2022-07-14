@@ -12,7 +12,9 @@ To add a new transform, please consider the following steps:
   parameters or data type.
 * Add a test and sufficient assertions to check its validity. Use `pytest.mark.parametrize` 
   to run the test with different parameters.
-* Add the transformation to the documentation so that users can find it. 
+* Add the transformation to the `api documentation <https://github.com/neuromorphs/tonic/blob/develop/docs/reference/transformations.rst>`_ 
+  so that users can find it. 
+* Potentially add a plotting script for the `gallery <https://github.com/neuromorphs/tonic/tree/develop/docs/gallery>`_.
 
 Tonic transforms work on events that are represented as structured numpy arrays, since that is
 what Tonic datasets output. This has the advantage that events can be indexed easily 
@@ -91,6 +93,8 @@ No matter what code you're planning to contribute, please consider the following
     pip install pre-commit
     pre-commit install
 
+  Then the next time you commit your code, the black formatting check will be run automatically.
+
 * Spell out variable names to `make it easier <https://devblogs.microsoft.com/oldnewthing/20070406-00/?p=27343>`_ 
   for people to understand your code. For example, `y_index` is preferable to `yi` 
   or `compressed_images` to `comp_imgs`. Add a docstring to your transform and explain the 
@@ -118,5 +122,6 @@ To build locally, run::
   make html
   firefox _build/html/index.html
 
-You might want to consider switching on `nb_execution_mode = "off"` in conf.py to
+You might want to consider switching tutorial notebook execution off with
+`nb_execution_mode = "off"` in conf.py to
 prevent notebooks from being run everytime you build the documentation.
