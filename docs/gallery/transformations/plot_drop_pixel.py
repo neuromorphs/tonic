@@ -4,11 +4,10 @@ DropPixel
 ==========
 The :class:`~tonic.transforms.DropPixel` removes all events
 that occur at given pixels.
-
-Notice that in the rendering below all x/y pixels from 0 to 17 have been dropped.
 """
 
 import tonic
+import numpy as np
 
 nmnist = tonic.datasets.NMNIST("../../tutorials/data", train=False)
 events, label = nmnist[0]
@@ -16,7 +15,7 @@ events, label = nmnist[0]
 transform = tonic.transforms.Compose(
     [
         tonic.transforms.DropPixel(
-            coordinates=[[x, y] for x in range(17) for y in range(17)]
+            coordinates=[[x, y] for x in np.random.randint(34, size=14) for y in np.random.randint(34, size=14)]
         ),
         tonic.transforms.ToFrame(
             sensor_size=nmnist.sensor_size,
