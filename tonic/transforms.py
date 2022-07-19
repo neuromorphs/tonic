@@ -570,11 +570,14 @@ class UniformNoise:
     sensor_size: Tuple[int, int, int]
     n: int
     randomize_n: bool = False
-    seed: int = 64
+    randgen: np.random.Generator = None
     
     def __call__(self, events):
-        randgen = np.random.default_rng(self.seed)
-        n = randgen.integers(low=0, high=self.n+1) if self.randomize_n else self.n
+        # If a random generator is provided, use it.
+        if self.randgen:
+            n = self.randgen.integers(low=0, high=self.n+1) if self.randomize_n else self.n
+        else:
+            n = np.random.randint(low=0, high=self.n+1) if self.randomize_n else self.n
             
         noise_events = np.zeros(n, dtype=events.dtype)
         
