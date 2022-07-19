@@ -570,10 +570,17 @@ class UniformNoise:
     sensor_size: Tuple[int, int, int]
     n: int
     randomize_n: bool = False
-
+    randgen: np.random.Generator = None
+    
     def __call__(self, events):
-        n = np.random.randint(low=0, high=self.n) if self.randomize_n else self.n
+        # If a random generator is provided, use it.
+        if isinstance(self.randgen, np.random.Generator):
+            n = self.randgen.integers(low=0, high=self.n+1) if self.randomize_n else self.n
+        else:
+            n = np.random.randint(low=0, high=self.n+1) if self.randomize_n else self.n
+            
         noise_events = np.zeros(n, dtype=events.dtype)
+        
         for channel in events.dtype.names:
             event_channel = events[channel]
             if channel == "x":

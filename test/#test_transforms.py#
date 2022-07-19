@@ -465,6 +465,7 @@ def test_transform_uniform_noise(n, randomize_n):
     # call.
     randgen = np.random.default_rng(32)
     rand_n = randgen.integers(n+1) if randomize_n else n
+    
     assert len(events) == len(orig_events) + rand_n
     assert np.isin(orig_events, events).all()
     assert np.isclose(
