@@ -572,7 +572,7 @@ class UniformNoise:
     randomize_n: bool = False
 
     def __call__(self, events):
-        n = self.n * np.random.rand() if self.randomize_n else self.n
+        n = np.random.randint(low=0, high=self.n) if self.randomize_n else self.n
         noise_events = np.zeros(n, dtype=events.dtype)
         for channel in events.dtype.names:
             event_channel = events[channel]
