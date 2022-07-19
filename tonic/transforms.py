@@ -574,7 +574,7 @@ class UniformNoise:
     
     def __call__(self, events):
         # If a random generator is provided, use it.
-        if isinstance(self.randgen, np.random.Generator):
+        if self.randgen:
             n = self.randgen.integers(low=0, high=self.n+1) if self.randomize_n else self.n
         else:
             n = np.random.randint(low=0, high=self.n+1) if self.randomize_n else self.n
