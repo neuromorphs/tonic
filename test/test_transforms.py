@@ -449,8 +449,8 @@ def test_transform_time_skew(coefficient, offset):
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("n", [100, 0])
-def test_transform_uniform_noise(n):
+@pytest.mark.parametrize("n, random_n", [(100, True), (100, False), (0, True), (0, False)])
+def test_transform_uniform_noise(n, random_n):
     orig_events, sensor_size = create_random_input()
 
     transform = transforms.UniformNoise(sensor_size=sensor_size, n=n)
