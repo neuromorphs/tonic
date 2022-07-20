@@ -324,13 +324,21 @@ def test_transform_numpy_array_unstructured():
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("delta", [10000, 5000])
+@pytest.mark.parametrize("delta", [10000, 5000, (2000, 5000)])
 def test_transform_refractory_period(delta):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.RefractoryPeriod(delta=delta)
+    if type(delta) == tuple:
+        sampled_delta = transforms.RefractoryPeriod.get_params(delta)
+        assert delta[0] <= sampled_delta <= delta[1]
+        assert float(sampled_delta).is_integer()
+        events = transforms.functional.refractory_period_numpy(
+            events=orig_events, refractory_period=sampled_delta
+        )
 
-    events = transform(orig_events)
+    else:
+        transform = transforms.RefractoryPeriod(delta=delta)
+        events = transform(orig_events)
 
     assert len(events) > 0, "Not all events should be filtered"
     assert len(events) < len(
