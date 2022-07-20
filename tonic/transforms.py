@@ -580,6 +580,12 @@ class UniformNoise:
     sensor_size: Tuple[int, int, int]
     n: int
 
+    @staticmethod
+    def get_params(n: Union[int, Tuple[int, int]]):
+        if type(n) == tuple:
+            n = int((n[1] - n[0]) * np.random.random_sample() + n[0])
+        return n
+
     def __call__(self, events):
         if type(self.n) == tuple:
             n = (self.n[1] - self.n[0]) * np.random.random_sample() + self.n[0]

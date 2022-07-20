@@ -457,15 +457,34 @@ def test_transform_time_skew(coefficient, offset):
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("n", [100, 0])
+@pytest.mark.parametrize(
+    "n",
+    [
+        100,
+        0,
+        (
+            10,
+            100,
+        ),
+    ],
+)
 def test_transform_uniform_noise(n):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.UniformNoise(sensor_size=sensor_size, n=n)
+    if type(n) == tuple:
+        sampled_n = transforms.UniformNoise.get_params(n=n)
+        assert n[0] <= sampled_n <= n[1]
+        assert float(sampled_n).is_integer()
+        events = transforms.functional.uniform_noise_numpy(
+            events=orig_events, sensor_size=sensor_size, n=sampled_n
+        )
+        assert len(events) == len(orig_events) + sampled_n
 
-    events = transform(orig_events)
+    else:
+        transform = transforms.UniformNoise(sensor_size=sensor_size, n=n)
+        events = transform(orig_events)
+        assert len(events) == len(orig_events) + n
 
-    assert len(events) == len(orig_events) + n
     assert np.isin(orig_events, events).all()
     assert np.isclose(
         np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
