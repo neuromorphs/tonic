@@ -324,11 +324,11 @@ def test_transform_numpy_array_unstructured():
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("refractory_period", [10000, 5000])
-def test_transform_refractory_period(refractory_period):
+@pytest.mark.parametrize("delta", [10000, 5000])
+def test_transform_refractory_period(delta):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.RefractoryPeriod(refractory_period=refractory_period)
+    transform = transforms.RefractoryPeriod(delta=delta)
 
     events = transform(orig_events)
 

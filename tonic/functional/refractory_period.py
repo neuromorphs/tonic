@@ -2,9 +2,8 @@ import numpy as np
 
 
 def refractory_period_numpy(
-    events,
-    refractory_period=10000,
-    random_period=False,
+    events: np.ndarray,
+    refractory_period: float,
 ):
     """Sets a refractory period for each pixel, during which events will be
     ignored/discarded. We keep events if:
@@ -14,7 +13,6 @@ def refractory_period_numpy(
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        sensor_size: size of the sensor that was used [W,H]
         refractory_period: refractory period for each pixel in microseconds
 
     Returns:
@@ -22,9 +20,6 @@ def refractory_period_numpy(
     """
 
     assert "t" and "x" and "y" in events.dtype.names
-
-    if random_period:
-        refractory_period *= np.random.rand()
 
     events_copy = np.zeros_like(events)
     copy_index = 0

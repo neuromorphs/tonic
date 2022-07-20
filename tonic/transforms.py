@@ -442,15 +442,25 @@ class RefractoryPeriod:
     for each pixel.
 
     Parameters:
-        refractory_period (float): refractory period for each pixel in time unit
+        delta (float): Refractory period for each pixel. Use same time
+                       unit as event timestamps. Can use a 2-tuple to
+                       sample from a range.
+
+    >>> transform1 = tonic.transforms.RefractoryPeriod(delta=1000)
+    >>> transform2 = tonic.transforms.RefractoryPeriod(delta=[0, 1000])
     """
 
-    refractory_period: float
-    random_period: bool = False
+    delta: Union[float, Tuple[float, float]]
 
     def __call__(self, events):
+        if type(self.delta) == tuple:
+            delta = (
+                self.delta[1] - self.delta[0]
+            ) * np.random.random_sample() + self.delta[0]
+        else:
+            delta = self.delta
         return functional.refractory_period_numpy(
-            events, self.refractory_period, self.random_period
+            events=events, refractory_period=delta
         )
 
 
