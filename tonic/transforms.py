@@ -103,22 +103,21 @@ class DropEvent:
     """Randomly drops events with probability p. If random_p is selected, the drop probability is randomized between 0 and p.
 
     Parameters:
-        p (float): probability of dropping events.
-        random_p (bool): randomize the dropout probability between 0 and p.
+        p (float): Probability of dropping events. Can be a tuple of floats (p_min, p_max), so that p is sampled from the range.
 
     Example:
-        >>> transform = tonic.transforms.DropEvent(p=0.2, random_p=True)
+        >>> transform1 = tonic.transforms.DropEvent(p=0.2)
+        >>> transform2 = tonic.transforms.DropEvent(p=(0, 0.5))
     """
 
-    p: float = 0.5
-    random_p: bool = False
-
-    def __post_init__(self):
-        assert 0 <= self.p <= 1
+    p: float
 
     def __call__(self, events):
-
-        return functional.drop_event_numpy(events, self.p, self.random_p)
+        if type(self.p) == tuple:
+            p = (self.p[1] - self.p[0]) * np.random.random_sample() + self.p[0]
+        else:
+            p = self.p
+        return functional.drop_event_numpy(events, p)
 
 
 @dataclass(frozen=True)

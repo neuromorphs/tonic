@@ -39,23 +39,23 @@ def test_transform_denoise(filter_time):
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("p, random_p", [(0.2, False), (0.5, True)])
-def test_transform_drop_events(p, random_p):
+@pytest.mark.parametrize(
+    "p",
+    [
+        0.2,
+        0.5,
+    ],
+)
+def test_transform_drop_events(p):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.DropEvent(p=p, random_p=random_p)
+    transform = transforms.DropEvent(p=p)
 
     events = transform(orig_events)
 
-    if random_p:
-        assert events.shape[0] >= (1 - p) * orig_events.shape[0], (
-            "Event dropout with random drop probability should result in less than "
-            " p*len(original) events dropped out."
-        )
-    else:
-        assert np.isclose(events.shape[0], (1 - p) * orig_events.shape[0]), (
-            "Event dropout should result in p*len(original) events" " dropped out."
-        )
+    assert np.isclose(events.shape[0], (1 - p) * orig_events.shape[0]), (
+        "Event dropout should result in p*len(original) events" " dropped out."
+    )
     assert np.isclose(
         np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
     ), "Event dropout should maintain temporal order."

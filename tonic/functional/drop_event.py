@@ -2,26 +2,21 @@ from typing import Tuple, Union
 import numpy as np
 
 
-def drop_event_numpy(events, drop_probability=0.5, random_drop_probability=False):
+def drop_event_numpy(events, drop_probability):
     """Randomly drops events with drop_probability.
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels].
         drop_probability: probability of dropping out event.
-        random_drop_probability: randomize the dropout probability
-                                 between 0 and drop_probability.
 
     Returns:
         augmented events that were not dropped.
     """
 
-    if random_drop_probability is True:
-        drop_probability *= np.random.rand()
-
-    length = events.shape[0]  # find the number of events
-    nDrop = int(drop_probability * length + 0.5)
-    ind = np.random.choice(length, nDrop, replace=False)
-    return np.delete(events, ind, axis=0)
+    n_events = events.shape[0]
+    n_dropped_events = int(drop_probability * n_events + 0.5)
+    dropped_event_indices = np.random.choice(n_events, n_dropped_events, replace=False)
+    return np.delete(events, dropped_event_indices, axis=0)
 
 
 def drop_by_time_numpy(
