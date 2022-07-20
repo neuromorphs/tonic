@@ -2,7 +2,7 @@ from typing import Tuple, Union
 import numpy as np
 
 
-def drop_event_numpy(events, drop_probability):
+def drop_event_numpy(events: np.ndarray, drop_probability: float):
     """Randomly drops events with drop_probability.
 
     Parameters:

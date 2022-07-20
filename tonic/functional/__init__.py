@@ -23,6 +23,7 @@ from .to_frame import to_frame_numpy
 from .to_timesurface import to_timesurface_numpy
 from .to_voxel_grid import to_voxel_grid_numpy
 from .to_bina_rep import to_bina_rep_numpy
+from .uniform_noise import uniform_noise_numpy
 
 __all__ = [
     "crop_numpy",
@@ -42,4 +43,5 @@ __all__ = [
     "to_timesurface_numpy",
     "to_voxel_grid_numpy",
     "to_bina_rep_numpy",
+    "uniform_noise_numpy",
 ]

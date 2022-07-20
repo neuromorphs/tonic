@@ -103,14 +103,14 @@ class DropEvent:
     """Randomly drops events with probability p. If random_p is selected, the drop probability is randomized between 0 and p.
 
     Parameters:
-        p (float): Probability of dropping events. Can be a tuple of floats (p_min, p_max), so that p is sampled from the range.
+        p (float or tuple of floats): Probability of dropping events. Can be a tuple of floats (p_min, p_max), so that p is sampled from the range.
 
     Example:
         >>> transform1 = tonic.transforms.DropEvent(p=0.2)
         >>> transform2 = tonic.transforms.DropEvent(p=(0, 0.5))
     """
 
-    p: float
+    p: Union[float, Tuple[float, float]]
 
     def __call__(self, events):
         if type(self.p) == tuple:
@@ -555,37 +555,28 @@ class TimeSkew:
 
 @dataclass(frozen=True)
 class UniformNoise:
-    """Introduces a fixed number of n noise events that are uniformly distributed across event dimensions such as x, y, t and p.
+    """
+    Adds a fixed number of n noise events that are uniformly distributed
+    across sensor size dimensions such as x, y, t and p.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
-        n: number of events that are added to the sample.
-        randomize_n: randomize the number of added events between 0 and n.
+        n: Number of events that are added. Can be a tuple of integers,
+           so that n is sampled from a range.
 
     Example:
-        >>> transform = tonic.transforms.UniformNoise(sensor_size=(340, 240, 2), n=3000, randomize_n=True)
+        >>> transform = tonic.transforms.UniformNoise(sensor_size=(340, 240, 2), n=3000)
     """
 
     sensor_size: Tuple[int, int, int]
     n: int
-    randomize_n: bool = False
 
     def __call__(self, events):
-        n = np.random.randint(low=0, high=self.n) if self.randomize_n else self.n
-        noise_events = np.zeros(n, dtype=events.dtype)
-        for channel in events.dtype.names:
-            event_channel = events[channel]
-            if channel == "x":
-                low, high = 0, self.sensor_size[0]
-            if channel == "y":
-                low, high = 0, self.sensor_size[1]
-            if channel == "p":
-                low, high = 0, self.sensor_size[2]
-            if channel == "t":
-                low, high = events["t"].min(), events["t"].max()
-            noise_events[channel] = np.random.uniform(low=low, high=high, size=n)
-        events = np.concatenate((events, noise_events))
-        return events[np.argsort(events["t"])]
+        if type(self.n) == tuple:
+            n = (self.n[1] - self.n[0]) * np.random.random_sample() + self.n[0]
+        else:
+            n = self.n
+        return functional.uniform_noise_numpy(events, self.sensor_size, n)
 
 
 @dataclass(frozen=True)
