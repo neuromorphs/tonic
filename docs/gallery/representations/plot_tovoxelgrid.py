@@ -3,7 +3,7 @@
 ToVoxelGrid
 =============
 
-This example showcases the ToTimesurface transform with different parameters. 
+:class:`~tonic.transforms.ToVoxelGrid`
 """
 
 import tonic

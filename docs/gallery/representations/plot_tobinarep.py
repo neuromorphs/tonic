@@ -3,6 +3,7 @@
 ToBinaRep
 =========
 
+The :class:`~tonic.transforms.ToBinaRep` creates binary representations of frames.
 """
 
 import tonic

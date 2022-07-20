@@ -3,7 +3,7 @@
 ToTimesurface
 =============
 
-This example showcases the ToTimesurface transform with different parameters. 
+:class:`~tonic.transforms.ToTimesurface` creates local or global time surfaces for each event.
 """
 
 import tonic

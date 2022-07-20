@@ -3,6 +3,10 @@
 ToImage
 =======
 
+:class:`~tonic.transforms.ToImage` bins all the events to a single image.
+Typically used in conjunction with SlicedDataset, to chunk recordings
+into smaller samples.
+
 """
 
 import tonic

@@ -3,7 +3,7 @@
 ToFrame
 =======
 
-This example showcases the ToFrame transform with different parameters. 
+:class:`~tonic.transforms.ToFrame` creates dense frames from events by binning them in different ways.
 """
 
 import tonic
