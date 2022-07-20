@@ -512,18 +512,16 @@ class TimeJitter:
         std (sequence or float): the standard deviation of the time jitter.
         clip_negative (bool): drops events that have negative timestamps.
         sort_timestamps (bool): sort the events by timestamps after jitter.
-        random_std (bool): if True, randomize std between 0 and std.
     """
 
     std: float
     clip_negative: bool = True
     sort_timestamps: bool = False
-    random_std: bool = False
 
     def __call__(self, events):
         events = events.copy()
         return functional.time_jitter_numpy(
-            events, self.std, self.clip_negative, self.sort_timestamps, self.random_std
+            events, self.std, self.clip_negative, self.sort_timestamps
         )
 
 
