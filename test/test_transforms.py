@@ -44,16 +44,25 @@ def test_transform_denoise(filter_time):
     [
         0.2,
         0.5,
+        (0.1, 0.6),
     ],
 )
 def test_transform_drop_events(p):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.DropEvent(p=p)
+    if type(p) == tuple:
+        sampled_p = transforms.DropEvent.get_params(p=p)
+        assert p[0] <= sampled_p <= p[1]
+        events = transforms.functional.drop_event_numpy(
+            events=orig_events, drop_probability=sampled_p
+        )
+        p = sampled_p
 
-    events = transform(orig_events)
+    else:
+        transform = transforms.DropEvent(p=p)
+        events = transform(orig_events)
 
-    assert np.isclose(events.shape[0], (1 - p) * orig_events.shape[0]), (
+    assert np.isclose(events.shape[0], round((1 - p) * orig_events.shape[0])), (
         "Event dropout should result in p*len(original) events" " dropped out."
     )
     assert np.isclose(

@@ -112,6 +112,12 @@ class DropEvent:
 
     p: Union[float, Tuple[float, float]]
 
+    @staticmethod
+    def get_params(p: Union[float, Tuple[float, float]]):
+        if type(p) == tuple:
+            p = (p[1] - p[0]) * np.random.random_sample() + p[0]
+        return p
+
     def __call__(self, events):
         if type(self.p) == tuple:
             p = (self.p[1] - self.p[0]) * np.random.random_sample() + self.p[0]
