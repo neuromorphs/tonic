@@ -119,11 +119,8 @@ class DropEvent:
         return p
 
     def __call__(self, events):
-        if type(self.p) == tuple:
-            p = (self.p[1] - self.p[0]) * np.random.random_sample() + self.p[0]
-        else:
-            p = self.p
-        return functional.drop_event_numpy(events, p)
+        p = self.get_params(p=self.p)
+        return functional.drop_event_numpy(events=events, drop_probability=p)
 
 
 @dataclass(frozen=True)
@@ -465,7 +462,7 @@ class RefractoryPeriod:
         return delta
 
     def __call__(self, events):
-        delta = self.get_params(self.delta)
+        delta = self.get_params(delta=self.delta)
         return functional.refractory_period_numpy(
             events=events, refractory_period=delta
         )
@@ -593,11 +590,10 @@ class UniformNoise:
         return n
 
     def __call__(self, events):
-        if type(self.n) == tuple:
-            n = (self.n[1] - self.n[0]) * np.random.random_sample() + self.n[0]
-        else:
-            n = self.n
-        return functional.uniform_noise_numpy(events, self.sensor_size, n)
+        n = self.get_params(n=self.n)
+        return functional.uniform_noise_numpy(
+            events=events, sensor_size=self.sensor_size, n=n
+        )
 
 
 @dataclass(frozen=True)
