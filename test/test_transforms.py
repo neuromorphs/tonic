@@ -39,23 +39,32 @@ def test_transform_denoise(filter_time):
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("p, random_p", [(0.2, False), (0.5, True)])
-def test_transform_drop_events(p, random_p):
+@pytest.mark.parametrize(
+    "p",
+    [
+        0.2,
+        0.5,
+        (0.1, 0.6),
+    ],
+)
+def test_transform_drop_events(p):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.DropEvent(p=p, random_p=random_p)
-
-    events = transform(orig_events)
-
-    if random_p:
-        assert events.shape[0] >= (1 - p) * orig_events.shape[0], (
-            "Event dropout with random drop probability should result in less than "
-            " p*len(original) events dropped out."
+    if type(p) == tuple:
+        sampled_p = transforms.DropEvent.get_params(p=p)
+        assert p[0] <= sampled_p <= p[1]
+        events = transforms.functional.drop_event_numpy(
+            events=orig_events, drop_probability=sampled_p
         )
+        p = sampled_p
+
     else:
-        assert np.isclose(events.shape[0], (1 - p) * orig_events.shape[0]), (
-            "Event dropout should result in p*len(original) events" " dropped out."
-        )
+        transform = transforms.DropEvent(p=p)
+        events = transform(orig_events)
+
+    assert np.isclose(events.shape[0], round((1 - p) * orig_events.shape[0])), (
+        "Event dropout should result in p*len(original) events" " dropped out."
+    )
     assert np.isclose(
         np.sum((events["t"] - np.sort(events["t"])) ** 2), 0
     ), "Event dropout should maintain temporal order."
@@ -324,13 +333,21 @@ def test_transform_numpy_array_unstructured():
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("refractory_period", [10000, 5000])
-def test_transform_refractory_period(refractory_period):
+@pytest.mark.parametrize("delta", [10000, 5000, (2000, 5000)])
+def test_transform_refractory_period(delta):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.RefractoryPeriod(refractory_period=refractory_period)
+    if type(delta) == tuple:
+        sampled_delta = transforms.RefractoryPeriod.get_params(delta)
+        assert delta[0] <= sampled_delta <= delta[1]
+        assert float(sampled_delta).is_integer()
+        events = transforms.functional.refractory_period_numpy(
+            events=orig_events, refractory_period=sampled_delta
+        )
 
-    events = transform(orig_events)
+    else:
+        transform = transforms.RefractoryPeriod(delta=delta)
+        events = transform(orig_events)
 
     assert len(events) > 0, "Not all events should be filtered"
     assert len(events) < len(
@@ -449,15 +466,34 @@ def test_transform_time_skew(coefficient, offset):
     assert events is not orig_events
 
 
-@pytest.mark.parametrize("n", [100, 0])
+@pytest.mark.parametrize(
+    "n",
+    [
+        100,
+        0,
+        (
+            10,
+            100,
+        ),
+    ],
+)
 def test_transform_uniform_noise(n):
     orig_events, sensor_size = create_random_input()
 
-    transform = transforms.UniformNoise(sensor_size=sensor_size, n=n)
+    if type(n) == tuple:
+        sampled_n = transforms.UniformNoise.get_params(n=n)
+        assert n[0] <= sampled_n <= n[1]
+        assert float(sampled_n).is_integer()
+        events = transforms.functional.uniform_noise_numpy(
+            events=orig_events, sensor_size=sensor_size, n=sampled_n
+        )
+        assert len(events) == len(orig_events) + sampled_n
 
-    events = transform(orig_events)
+    else:
+        transform = transforms.UniformNoise(sensor_size=sensor_size, n=n)
+        events = transform(orig_events)
+        assert len(events) == len(orig_events) + n
 
-    assert len(events) == len(orig_events) + n
     assert np.isin(orig_events, events).all()
     assert np.isclose(
         np.sum((events["t"] - np.sort(events["t"])) ** 2), 0

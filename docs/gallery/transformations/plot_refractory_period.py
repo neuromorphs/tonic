@@ -13,7 +13,7 @@ events, label = nmnist[0]
 
 transform = tonic.transforms.Compose(
     [
-        tonic.transforms.RefractoryPeriod(refractory_period=10000),
+        tonic.transforms.RefractoryPeriod(delta=10000),
         tonic.transforms.ToFrame(
             sensor_size=nmnist.sensor_size,
             time_window=10000,

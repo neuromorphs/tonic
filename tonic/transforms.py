@@ -103,22 +103,24 @@ class DropEvent:
     """Randomly drops events with probability p. If random_p is selected, the drop probability is randomized between 0 and p.
 
     Parameters:
-        p (float): probability of dropping events.
-        random_p (bool): randomize the dropout probability between 0 and p.
+        p (float or tuple of floats): Probability of dropping events. Can be a tuple of floats (p_min, p_max), so that p is sampled from the range.
 
     Example:
-        >>> transform = tonic.transforms.DropEvent(p=0.2, random_p=True)
+        >>> transform1 = tonic.transforms.DropEvent(p=0.2)
+        >>> transform2 = tonic.transforms.DropEvent(p=(0, 0.5))
     """
 
-    p: float = 0.5
-    random_p: bool = False
+    p: Union[float, Tuple[float, float]]
 
-    def __post_init__(self):
-        assert 0 <= self.p <= 1
+    @staticmethod
+    def get_params(p: Union[float, Tuple[float, float]]):
+        if type(p) == tuple:
+            p = (p[1] - p[0]) * np.random.random_sample() + p[0]
+        return p
 
     def __call__(self, events):
-
-        return functional.drop_event_numpy(events, self.p, self.random_p)
+        p = self.get_params(p=self.p)
+        return functional.drop_event_numpy(events=events, drop_probability=p)
 
 
 @dataclass(frozen=True)
@@ -443,15 +445,26 @@ class RefractoryPeriod:
     for each pixel.
 
     Parameters:
-        refractory_period (float): refractory period for each pixel in time unit
+        delta (int): Refractory period for each pixel. Use same time
+                     unit as event timestamps. Can use a 2-tuple to
+                     sample from a range.
+
+    >>> transform1 = tonic.transforms.RefractoryPeriod(delta=1000)
+    >>> transform2 = tonic.transforms.RefractoryPeriod(delta=[0, 1000])
     """
 
-    refractory_period: float
-    random_period: bool = False
+    delta: Union[int, Tuple[int, int]]
+
+    @staticmethod
+    def get_params(delta: Union[int, Tuple[int, int]]):
+        if type(delta) == tuple:
+            delta = int((delta[1] - delta[0]) * np.random.random_sample() + delta[0])
+        return delta
 
     def __call__(self, events):
+        delta = self.get_params(delta=self.delta)
         return functional.refractory_period_numpy(
-            events, self.refractory_period, self.random_period
+            events=events, refractory_period=delta
         )
 
 
@@ -513,18 +526,16 @@ class TimeJitter:
         std (sequence or float): the standard deviation of the time jitter.
         clip_negative (bool): drops events that have negative timestamps.
         sort_timestamps (bool): sort the events by timestamps after jitter.
-        random_std (bool): if True, randomize std between 0 and std.
     """
 
     std: float
     clip_negative: bool = True
     sort_timestamps: bool = False
-    random_std: bool = False
 
     def __call__(self, events):
         events = events.copy()
         return functional.time_jitter_numpy(
-            events, self.std, self.clip_negative, self.sort_timestamps, self.random_std
+            events, self.std, self.clip_negative, self.sort_timestamps
         )
 
 
@@ -556,37 +567,33 @@ class TimeSkew:
 
 @dataclass(frozen=True)
 class UniformNoise:
-    """Introduces a fixed number of n noise events that are uniformly distributed across event dimensions such as x, y, t and p.
+    """
+    Adds a fixed number of n noise events that are uniformly distributed
+    across sensor size dimensions such as x, y, t and p.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
-        n: number of events that are added to the sample.
-        randomize_n: randomize the number of added events between 0 and n.
+        n: Number of events that are added. Can be a tuple of integers,
+           so that n is sampled from a range.
 
     Example:
-        >>> transform = tonic.transforms.UniformNoise(sensor_size=(340, 240, 2), n=3000, randomize_n=True)
+        >>> transform = tonic.transforms.UniformNoise(sensor_size=(340, 240, 2), n=3000)
     """
 
     sensor_size: Tuple[int, int, int]
     n: int
-    randomize_n: bool = False
+
+    @staticmethod
+    def get_params(n: Union[int, Tuple[int, int]]):
+        if type(n) == tuple:
+            n = int((n[1] - n[0]) * np.random.random_sample() + n[0])
+        return n
 
     def __call__(self, events):
-        n = np.random.randint(low=0, high=self.n) if self.randomize_n else self.n
-        noise_events = np.zeros(n, dtype=events.dtype)
-        for channel in events.dtype.names:
-            event_channel = events[channel]
-            if channel == "x":
-                low, high = 0, self.sensor_size[0]
-            if channel == "y":
-                low, high = 0, self.sensor_size[1]
-            if channel == "p":
-                low, high = 0, self.sensor_size[2]
-            if channel == "t":
-                low, high = events["t"].min(), events["t"].max()
-            noise_events[channel] = np.random.uniform(low=low, high=high, size=n)
-        events = np.concatenate((events, noise_events))
-        return events[np.argsort(events["t"])]
+        n = self.get_params(n=self.n)
+        return functional.uniform_noise_numpy(
+            events=events, sensor_size=self.sensor_size, n=n
+        )
 
 
 @dataclass(frozen=True)
