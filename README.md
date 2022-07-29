@@ -9,24 +9,21 @@
 
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. It's like PyTorch Vision but for neuromorphic data!
 
-:rocket: **Stable version 1 out now!** [Check out the release notes here](https://tonic.readthedocs.io/en/latest/about/release_notes.html).
-
 ## Documentation
 You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
 
-* [Never worked with events?](https://tonic.readthedocs.io/en/latest/getting_started/intro-event-cameras.html) Start here.
-* [A first example](https://tonic.readthedocs.io/en/latest/tutorials/nmnist.html) to get a feeling for how Tonic works.
+* [A first example](https://tonic.readthedocs.io/en/latest/getting_started/nmnist.html) to get a feeling for how Tonic works.
 * [Run tutorials in your browser](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials) quick and easy.
 * [List of datasets](https://tonic.readthedocs.io/en/latest/reference/datasets.html).
 * [List of transformations](https://tonic.readthedocs.io/en/latest/reference/transformations.html).
-* [About](https://tonic.readthedocs.io/en/latest/about/about.html) this project.
+* [About](https://tonic.readthedocs.io/en/latest/about/info.html) this project.
 * [Release notes](https://tonic.readthedocs.io/en/latest/about/release_notes.html) on version changes.
 
 ## Install
 ```bash
 pip install tonic
 ```
-or (thanks to @Tobias-Fischer)
+or (thanks to [@Tobias-Fischer](https://github.com/Tobias-Fischer))
 ```
 conda install -c conda-forge tonic
 ```
@@ -48,17 +45,24 @@ import tonic
 import tonic.transforms as transforms
 
 sensor_size = tonic.datasets.NMNIST.sensor_size
-transform = transforms.Compose([transforms.Denoise(filter_time=10000),
-                                transforms.ToFrame(sensor_size=sensor_size, n_time_bins=3),])
+transform = transforms.Compose(
+    [
+        transforms.Denoise(filter_time=10000),
+        transforms.ToFrame(sensor_size=sensor_size, time_window=3000),
+    ]
+)
 
-testset = tonic.datasets.NMNIST(save_to='./data',
-                                train=False,
-                                transform=transform)
+testset = tonic.datasets.NMNIST(save_to="./data", train=False, transform=transform)
 
 from torch.utils.data import DataLoader
-testloader = DataLoader(testset, shuffle=True)
 
-events, target = next(iter(testloader))
+testloader = DataLoader(
+    testset,
+    batch_size=10,
+    collate_fn=tonic.collation.PadTensors(batch_first=True),
+)
+
+frames, targets = next(iter(testloader))
 ```
 
 ## Discussion and questions
