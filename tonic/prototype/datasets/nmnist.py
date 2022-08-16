@@ -17,8 +17,13 @@ from tonic.download_utils import check_integrity, download_and_extract_archive
 # Dataset properties.
 #####
 
+<<<<<<< HEAD
 sensor_size = (34, 34, 2)
 dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+=======
+SENSOR_SIZE = (34, 34, 2)
+DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+>>>>>>> 34c81c7578c4f0554ea1be91487e7e3381fb8bb2
 BASE_URL = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
 TRAIN_URL = BASE_URL + "39c25547-014b-4137-a934-9d29fa53c7a0/file_downloaded"
 TRAIN_FILENAME = "train.zip"
