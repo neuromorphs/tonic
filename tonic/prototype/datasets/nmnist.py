@@ -17,8 +17,8 @@ from tonic.download_utils import check_integrity, download_and_extract_archive
 # Dataset properties.
 #####
 
-SENSOR_SIZE = (32, 32, 2)
-DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+sensor_size = (34, 34, 2)
+dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
 BASE_URL = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
 TRAIN_URL = BASE_URL + "39c25547-014b-4137-a934-9d29fa53c7a0/file_downloaded"
 TRAIN_FILENAME = "train.zip"
@@ -78,7 +78,7 @@ def nmnist(
     dp = Filter(dp, is_bin_file)
     # Thinking about avoiding this fork in order to apply transform to both targe and events.
     event_dp, label_dp = Forker(dp, num_instances=2)
-    event_dp = Mapper(event_dp, partial(read_mnist_file, dtype=DTYPE))
+    event_dp = Mapper(event_dp, partial(read_mnist_file, dtype=dtype))
     if first_saccade_only:
         event_dp = Mapper(event_dp, first_saccade_filter)
     label_dp = Mapper(label_dp, read_label_from_filepath)
