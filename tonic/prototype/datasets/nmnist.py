@@ -14,8 +14,8 @@ from tonic.io import read_mnist_file
 from tonic.download_utils import check_integrity, download_and_extract_archive
 
 #####
-# Dataset properties. 
-##### 
+# Dataset properties.
+#####
 
 SENSOR_SIZE = (32, 32, 2)
 DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
@@ -33,32 +33,41 @@ TEST_FOLDER = "test"
 # Functions
 #####
 
+
 def is_bin_file(data):
-    return data.endswith('bin')
+    return data.endswith("bin")
+
 
 def read_label_from_filepath(filepath):
-    return int(filepath.split('/')[-2])
+    return int(filepath.split("/")[-2])
+
 
 def at_least_n_files(root, n_files, file_type):
     check = n_files <= len(list(Path(root).glob(f"**/*{file_type}")))
-    return check 
+    return check
+
 
 def check_exists(filepath):
     check = False
     check = check_integrity(filepath)
-    check = at_least_n_files(filepath, n_files=1000, file_type=".bin") 
-    return check 
+    check = at_least_n_files(filepath, n_files=1000, file_type=".bin")
+    return check
 
-def first_saccade_filter(events): 
+
+def first_saccade_filter(events):
     return events[events["t"] < 1e5]
+
 
 #####
 # Dataset
 ####
 
-def nmnist(root, transform=None, target_transform=None, train=True, first_saccade_only=False): 
-    # Setting file path depending on train value. 
-    filepath = root+"/"+(TRAIN_FOLDER if train else TEST_FOLDER)
+
+def nmnist(
+    root, transform=None, target_transform=None, train=True, first_saccade_only=False
+):
+    # Setting file path depending on train value.
+    filepath = root + "/" + (TRAIN_FOLDER if train else TEST_FOLDER)
     url = TRAIN_URL if train else TEST_URL
     md5 = TRAIN_MD5 if train else TEST_MD5
     # Downloading the MNIST file if it exists.
@@ -71,7 +80,7 @@ def nmnist(root, transform=None, target_transform=None, train=True, first_saccad
     event_dp, label_dp = Forker(dp, num_instances=2)
     event_dp = Mapper(event_dp, partial(read_mnist_file, dtype=DTYPE))
     if first_saccade_only:
-        event_dp = Mapper(event_dp, first_saccade_filter) 
+        event_dp = Mapper(event_dp, first_saccade_filter)
     label_dp = Mapper(label_dp, read_label_from_filepath)
     if transform is not None:
         event_dp = Mapper(event_dp, transform)
