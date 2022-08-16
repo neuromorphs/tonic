@@ -87,7 +87,8 @@ class NMNIST(Dataset):
             self.download()
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
- first_saccade_filter)        for path, dirs, files in os.walk(file_path):
+ first_saccade_filter)        
+        for path, dirs, files in os.walk(file_path):
             files.sort()
             for file in files:
                 if file.endswith("bin"):
