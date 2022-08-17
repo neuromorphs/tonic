@@ -67,15 +67,16 @@ def nmnist(
     root, transform=None, target_transform=None, train=True, first_saccade_only=False
 ):
     # Setting file path depending on train value.
-    filepath = root + "/" + (TRAIN_FOLDER else TEST_FOLDER)
+    filepath = root + "/" + (TRAIN_FOLDER if train else TEST_FOLDER)
     url = TRAIN_URL if train else TEST_URL
     md5 = TRAIN_MD5 if train else TEST_MD5
+    filename = TRAIN_FILENAME if train else TEST_FILENAME
     # Downloading the MNIST file if it exists.
     if not check_exists(filepath):
         download_and_extract_archive(
             url=url, 
             download_root=filepath, 
-            filename=TRAIN_FILENAME if train else TEST_FILENAME, 
+            filename=filename,
             md5=md5
         )
     # Creating the datapipe.
