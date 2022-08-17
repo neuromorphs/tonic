@@ -76,7 +76,7 @@ def nmnist(
             url=url, 
             download_root=filepath, 
             filename=TRAIN_FILENAME if train else TEST_FILENAME, 
-             md5=md5
+            md5=md5
         )
     # Creating the datapipe.
     dp = FileLister(root=filepath, recursive=True)
