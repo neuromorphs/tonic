@@ -70,9 +70,15 @@ def nmnist(
     filepath = root + "/" + (TRAIN_FOLDER if train else TEST_FOLDER)
     url = TRAIN_URL if train else TEST_URL
     md5 = TRAIN_MD5 if train else TEST_MD5
+    filename = TRAIN_FILENAME if train else TEST_FILENAME
     # Downloading the MNIST file if it exists.
     if not check_exists(filepath):
-        download_and_extract_archive(url=url, download_root=filepath, md5=md5)
+        download_and_extract_archive(
+            url=url, 
+            download_root=filepath, 
+            filename=filename,
+            md5=md5
+        )
     # Creating the datapipe.
     dp = FileLister(root=filepath, recursive=True)
     dp = Filter(dp, is_bin_file)
