@@ -26,16 +26,14 @@ class DSEC(Dataset):
 
     Parameters:
         save_to (str): Location to save files to on disk.
+        split (str): Can be 'train', 'test' or a selection of individual recordings such as 'interlaken_00_c'
+                     or ['thun_00_a', 'zurich_city_00_a']. Cannot mix across train/test.
         data_selection (str): Select which data to load per sample. Can be 'events_left', 'events_right',
                              'images_rectified_left', 'images_rectified_right', 'image_timestamps' or
                              any combination thereof in a list.
-        target_selection (str, optional): Select which targets to load. Omitted if training=True. Can be
-                                          'disparity_events', 'disparity_images', 'disparity_timestamps',
-                                          'optical_flow' or any combination thereof in a list.
-        train (bool): If True, uses training subset, otherwise testing subset. No ground truth available for test set.
-        recording (str, optional): Optional parameter to load a selection of recordings by providing a string or a list
-                                   thereof, such as 'interlaken_00_c' or ['thun_00_a', 'zurich_city_00_a']. Cannot mix
-                                   across train/test. Defaults to None which downloads all train or test recordings.
+        target_selection (str, optional): Select which targets to load. Omitted if split contains training
+                                          samples. Can be 'disparity_events', 'disparity_images', 'disparity_timestamps',
+                                          'optical_flow' or a combination thereof in a list.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
@@ -110,15 +108,18 @@ class DSEC(Dataset):
         "image_timestamps": [".txt", ".txt"],
         "image_exposure_timestamps_left": [".txt", ".txt"],
         "image_exposure_timestamps_right": [".txt", ".txt"],
-        "images_rectified_left": ".zip",
-        "images_rectified_right": ".zip",
+        "images_rectified_left": [".zip", ".png"],
+        "images_rectified_right": [".zip", ".png"],
     }
 
     target_names = {
         "disparity_event": [".zip", ".png"],
         "disparity_image": [".zip", ".png"],
         "disparity_timestamps": [".txt", ".txt"],
-        "optical_flow": [".zip", ".png"],
+        "optical_flow_forward_event": [".zip", ".png"],
+        "optical_flow_forward_timestamps": [".txt", ".txt"],
+        "optical_flow_backward_event": [".zip", ".png"],
+        "optical_flow_backward_timestamps": [".txt", ".txt"],
     }
 
     sensor_size = (640, 480, 2)
@@ -128,10 +129,9 @@ class DSEC(Dataset):
     def __init__(
         self,
         save_to: str,
+        split: Union[str, List[str]],
         data_selection: Union[str, List[str]],
         target_selection: Optional[Union[str, List[str]]] = None,
-        train: bool = True,
-        recording: Optional[Union[str, List[str]]] = None,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
     ):
@@ -139,21 +139,30 @@ class DSEC(Dataset):
             save_to, transform=transform, target_transform=target_transform
         )
 
-        self.train = train
-        self.train_or_test = "train" if self.train else "test"
+        if split in ["train", "test"]:
+            self.recording_selection = self.recordings[split]
+            self.train_or_test = split
 
-        if recording:
-            self.recording_selection = recording
-            if not isinstance(self.recording_selection, list):
-                self.recording_selection = [self.recording_selection]
-
-            for recording in self.recording_selection:
-                if recording not in self.recordings[self.train_or_test]:
-                    raise RuntimeError(
-                        f"Recording {recording} is not in {self.train_or_test} set."
-                    )
         else:
-            self.recording_selection = self.recordings[self.train_or_test]
+            if not isinstance(split, list):
+                split = [split]
+
+            for recording in split:
+                if (
+                    recording not in self.recordings["train"]
+                    and recording not in self.recordings["test"]
+                ):
+                    raise RuntimeError(
+                        f"Recording {recording} is neither in train nor in test set."
+                    )
+            self.recording_selection = split
+            if all([recording in self.recordings["train"] for recording in split]):
+                self.train_or_test = "train"
+            elif all([recording in self.recordings["test"] for recording in split]):
+                self.train_or_test = "test"
+            else:
+                raise RuntimeError("Cannot mix across train/test split.")
+        self.train = self.train_or_test == "train"
 
         if isinstance(data_selection, str):
             data_selection = [data_selection]
@@ -163,6 +172,8 @@ class DSEC(Dataset):
                 raise RuntimeError(
                     f"Selection {data_piece} not available. Please select from the following options: {self.data_names.keys()}."
                 )
+        self.data_selection = data_selection
+        self.selection = data_selection
 
         if self.train:
             if isinstance(target_selection, str) and target_selection is not None:
@@ -174,11 +185,11 @@ class DSEC(Dataset):
                     raise RuntimeError(
                         f"Selection {data_piece} not available. Please select from the following options: {self.target_names.keys()}."
                     )
-
-        self.selection = data_selection
-        if self.train:
-            # add ground truth files when train=True
+            self.target_selection = target_selection
             self.selection += target_selection
+        else:
+            if target_selection is not None or len(target_selection) > 0:
+                raise Exception("No targets for test set available.")
 
         self._check_exists()
 
