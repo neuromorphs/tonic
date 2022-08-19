@@ -24,20 +24,20 @@ dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
 #####
 
 
-def is_mat_file(filename):
+def _is_mat_file(filename):
     return filename.endswith("mat") and "LUT" not in filename
 
 
-def read_label_from_filepath(filepath):
+def _read_label_from_filepath(filepath):
     return int(filepath.split("/")[-2])
 
 
-def at_least_n_files(root, n_files, file_type):
+def _at_least_n_files(root, n_files, file_type):
     check = n_files <= len(list(Path(root).glob(f"**/*{file_type}")))
     return check
 
 
-def spiketrain_to_array(matfile):
+def _spiketrain_to_array(matfile):
     # Transposing since the order is (address, event),
     # but we like (event, address).
     mat = loadmat(matfile)
@@ -60,10 +60,9 @@ def spiketrain_to_array(matfile):
     return events
 
 
-def check_exists(filepath):
-    check = False
-    check = check_integrity(filepath)
-    check = at_least_n_files(filepath, n_files=100, file_type=".mat")
+def _check_exists(filepath):
+    check = check_integrity(filepath) 
+    check &= _at_least_n_files(filepath, n_files=100, file_type=".mat")
     return check
 
 
@@ -79,16 +78,16 @@ def stmnist(root, transform=None, target_transform=None):
     # we append 'data_submission' to it.
     filepath = root[::-1].split("/", 1)[-1][::-1] + "/data_submission"
     # Extracting the ZIP archive.
-    if not check_exists(filepath):
+    if not _check_exists(filepath):
         extract_archive(root)
     # Creating the datapipe.
     dp = FileLister(root=filepath, recursive=True)
-    dp = Filter(dp, is_mat_file)
+    dp = Filter(dp, _is_mat_file)
     # Thinking about avoiding this fork in order to apply transform to both target and events.
     # However, we need it for NMNIST to select the first saccade.
     event_dp, label_dp = Forker(dp, num_instances=2)
-    event_dp = event_dp.map(spiketrain_to_array)
-    label_dp = label_dp.map(read_label_from_filepath)
+    event_dp = event_dp.map(_spiketrain_to_array)
+    label_dp = label_dp.map(_read_label_from_filepath)
     if transform:
         event_dp = event_dp.map(transform)
     if target_transform:
