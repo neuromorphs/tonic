@@ -25,7 +25,13 @@ class DSEC(Dataset):
               manually and Tonic will re-download it the next time.
 
     Parameters:
-        save_to (string): Location to save files to on disk.
+        save_to (str): Location to save files to on disk.
+        data_selection (str): Select which data to load per sample. Can be 'events_left', 'events_right',
+                             'images_rectified_left', 'images_rectified_right', 'image_timestamps' or
+                             any combination thereof in a list.
+        target_selection (str, optional): Select which targets to load. Omitted if training=True. Can be
+                                          'disparity_events', 'disparity_images', 'disparity_timestamps',
+                                          'optical_flow' or any combination thereof in a list.
         train (bool): If True, uses training subset, otherwise testing subset. No ground truth available for test set.
         recording (str, optional): Optional parameter to load a selection of recordings by providing a string or a list
                                    thereof, such as 'interlaken_00_c' or ['thun_00_a', 'zurich_city_00_a']. Cannot mix
@@ -96,21 +102,24 @@ class DSEC(Dataset):
         ],
     }
 
-    data_filenames = [
-        ["events_left", ".zip"],
-        ["events_right", ".zip"],
-        ["image_timestamps", ".txt"],
-        ["image_exposure_timestamps_left", ".txt"],
-        ["image_exposure_timestamps_right", ".txt"],
-        ["images_rectified_left", ".zip"],
-        ["images_rectified_right", ".zip"],
-    ]
+    # that's a combination of the different data available, their
+    # extension when downloaded and their extension when extracted
+    data_names = {
+        "events_left": [".zip", ".h5"],
+        "events_right": [".zip", ".h5"],
+        "image_timestamps": [".txt", ".txt"],
+        "image_exposure_timestamps_left": [".txt", ".txt"],
+        "image_exposure_timestamps_right": [".txt", ".txt"],
+        "images_rectified_left": ".zip",
+        "images_rectified_right": ".zip",
+    }
 
-    target_filenames = [
-        ["disparity_event", ".zip"],
-        ["disparity_image", ".zip"],
-        ["disparity_timestamps", ".txt"],
-    ]
+    target_names = {
+        "disparity_event": [".zip", ".png"],
+        "disparity_image": [".zip", ".png"],
+        "disparity_timestamps": [".txt", ".txt"],
+        "optical_flow": [".zip", ".png"],
+    }
 
     sensor_size = (640, 480, 2)
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
@@ -119,6 +128,8 @@ class DSEC(Dataset):
     def __init__(
         self,
         save_to: str,
+        data_selection: Union[str, List[str]],
+        target_selection: Optional[Union[str, List[str]]] = None,
         train: bool = True,
         recording: Optional[Union[str, List[str]]] = None,
         transform: Optional[Callable] = None,
@@ -132,22 +143,42 @@ class DSEC(Dataset):
         self.train_or_test = "train" if self.train else "test"
 
         if recording:
-            self.selection = recording
-            if not isinstance(self.selection, list):
-                self.selection = [self.selection]
+            self.recording_selection = recording
+            if not isinstance(self.recording_selection, list):
+                self.recording_selection = [self.recording_selection]
 
-            for recording in self.selection:
+            for recording in self.recording_selection:
                 if recording not in self.recordings[self.train_or_test]:
                     raise RuntimeError(
                         f"Recording {recording} is not in {self.train_or_test} set."
                     )
         else:
-            self.selection = self.recordings[self.train_or_test]
+            self.recording_selection = self.recordings[self.train_or_test]
 
-        self.filenames = self.data_filenames
+        if isinstance(data_selection, str):
+            data_selection = [data_selection]
+
+        for data_piece in data_selection:
+            if data_piece not in self.data_names.keys():
+                raise RuntimeError(
+                    f"Selection {data_piece} not available. Please select from the following options: {self.data_names.keys()}."
+                )
+
+        if self.train:
+            if isinstance(target_selection, str) and target_selection is not None:
+                target_selection = [target_selection]
+            else:
+                target_selection = []
+            for data_piece in target_selection:
+                if data_piece not in self.target_names.keys():
+                    raise RuntimeError(
+                        f"Selection {data_piece} not available. Please select from the following options: {self.target_names.keys()}."
+                    )
+
+        self.selection = data_selection
         if self.train:
             # add ground truth files when train=True
-            self.filenames += self.target_filenames
+            self.selection += target_selection
 
         self._check_exists()
 
@@ -161,7 +192,7 @@ class DSEC(Dataset):
         import hdf5plugin  # necessary to read event files
         from PIL import Image  # necessary to read images
 
-        recording = self.selection[index]
+        recording = self.recording_selection[index]
         base_folder = os.path.join(self.location_on_system, recording)
 
         # events
@@ -232,7 +263,7 @@ class DSEC(Dataset):
                 os.path.join(base_folder, "disparity_image"), ".png", prefix=True
             )
             disparity_images = np.stack(
-                [np.array(Image.open(file)) for file in disparity_event_filenames]
+                [np.array(Image.open(file)) for file in disparity_image_filenames]
             )
 
             with open(
@@ -253,25 +284,29 @@ class DSEC(Dataset):
         return data, targets
 
     def __len__(self):
-        return len(self.selection)
+        return len(self.recording_selection)
 
     def _check_exists(self):
-        for recording in self.selection:
-            scene_url = f"{self.base_url}{self.train_or_test}/{recording}/{recording}_"
-            for filename, extension in self.filenames:
-                if check_integrity(
-                    os.path.join(
-                        self.location_on_system,
-                        recording,
-                        filename,
-                        f"{recording}_{filename + extension}",
-                    )
+        all_names = {**self.data_names, **self.target_names}
+        for recording in self.recording_selection:
+            for data_name in self.selection:
+                file_folder = os.path.join(
+                    self.location_on_system, recording, data_name
+                )
+                os.makedirs(file_folder, exist_ok=True)
+                extension, extracted_file_extension = all_names[data_name]
+                file_name = f"{recording}_{data_name + extension}"
+
+                if any(
+                    file.endswith(extracted_file_extension)
+                    for file in os.listdir(file_folder)
                 ):
                     continue
-                file_folder = os.path.join(self.location_on_system, recording, filename)
-                os.makedirs(file_folder, exist_ok=True)
-                url = scene_url + filename + extension
+
+                url = f"{self.base_url}{self.train_or_test}/{recording}/{file_name}"
                 if extension == ".zip":
                     download_and_extract_archive(url, file_folder)
+                    if "images" in data_name or "events" in data_name:
+                        os.remove(os.path.join(file_folder, file_name))
                 else:
                     download_url(url, file_folder)
