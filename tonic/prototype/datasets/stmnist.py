@@ -15,9 +15,7 @@ from tonic.download_utils import extract_archive, check_integrity
 
 sensor_size = (10, 10, 2)
 dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
-# The authors want you to compile a form for the dataset download. Hence, 
-# the user has to manually download the archive and provide the path to it. 
-# Our code will manage the archive extraction.
+MD5 = "2eef16be7356bc1a8f540bb3698c4e0ei" 
 
 #####
 # Functions
@@ -60,8 +58,8 @@ def _spiketrain_to_array(matfile):
     return events
 
 
-def _check_exists(filepath):
-    check = check_integrity(filepath) 
+def _check_exists(filepath, md5):
+    check = check_integrity(filepath, md5) 
     check &= _at_least_n_files(filepath, n_files=100, file_type=".mat")
     return check
 
@@ -72,19 +70,16 @@ def _check_exists(filepath):
 
 
 def stmnist(root, transform=None, target_transform=None):
-    # Setting file path depending on train value.
-    # The root is specified like "directory/archive.zip". 
-    # We strip 'archive.zip' and get only 'directory', and 
-    # we append 'data_submission' to it.
+    # The root is specified as "directory/archive.zip". 
+    # We strip 'archive.zip' and get only 'directory', where it is
+    # extracted in 'data_submission'. 
     filepath = root[::-1].split("/", 1)[-1][::-1] + "/data_submission"
     # Extracting the ZIP archive.
-    if not _check_exists(filepath):
+    if not _check_exists(filepath, MD5):
         extract_archive(root)
     # Creating the datapipe.
     dp = FileLister(root=filepath, recursive=True)
     dp = Filter(dp, _is_mat_file)
-    # Thinking about avoiding this fork in order to apply transform to both target and events.
-    # However, we need it for NMNIST to select the first saccade.
     event_dp, label_dp = Forker(dp, num_instances=2)
     event_dp = event_dp.map(_spiketrain_to_array)
     label_dp = label_dp.map(_read_label_from_filepath)
