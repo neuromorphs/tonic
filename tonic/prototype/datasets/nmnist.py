@@ -1,12 +1,10 @@
 from torchdata.datapipes.iter import (
     FileLister,
     Filter,
-    Mapper,
     Forker,
     Zipper,
 )
 from functools import partial
-import tonic
 import os
 import numpy as np
 from pathlib import Path
@@ -34,27 +32,24 @@ TEST_FOLDER = "test"
 #####
 
 
-def is_bin_file(data):
+def _is_bin_file(data):
     return data.endswith("bin")
 
 
-def read_label_from_filepath(filepath):
+def _read_label_from_filepath(filepath):
     return int(filepath.split("/")[-2])
 
 
-def at_least_n_files(root, n_files, file_type):
+def _at_least_n_files(root, n_files, file_type):
     check = n_files <= len(list(Path(root).glob(f"**/*{file_type}")))
     return check
 
 
-def check_exists(filepath):
-    check = False
-    check = check_integrity(filepath)
-    check = at_least_n_files(filepath, n_files=1000, file_type=".bin")
-    return check
+def _check_exists(filepath):
+    return _at_least_n_files(filepath, n_files=100, file_type=".bin")
 
 
-def first_saccade_filter(events):
+def _first_saccade_filter(events):
     return events[events["t"] < 1e5]
 
 
@@ -72,7 +67,7 @@ def nmnist(
     md5 = TRAIN_MD5 if train else TEST_MD5
     filename = TRAIN_FILENAME if train else TEST_FILENAME
     # Downloading the MNIST file if it exists.
-    if not check_exists(filepath):
+    if not _check_exists(filepath):
         download_and_extract_archive(
             url=url, 
             download_root=filepath, 
@@ -81,16 +76,16 @@ def nmnist(
         )
     # Creating the datapipe.
     dp = FileLister(root=filepath, recursive=True)
-    dp = Filter(dp, is_bin_file)
+    dp = Filter(dp, _is_bin_file)
     # Thinking about avoiding this fork in order to apply transform to both targe and events.
     event_dp, label_dp = Forker(dp, num_instances=2)
-    event_dp = Mapper(event_dp, partial(read_mnist_file, dtype=dtype))
+    event_dp = event_dp.map(partial(read_mnist_file, dtype=dtype))
     if first_saccade_only:
-        event_dp = Mapper(event_dp, first_saccade_filter)
-    label_dp = Mapper(label_dp, read_label_from_filepath)
+        event_dp = event_dp.map(_first_saccade_filter)
+    label_dp = label_dp.map(_read_label_from_filepath)
     if transform is not None:
-        event_dp = Mapper(event_dp, transform)
+        event_dp = event_dp.map(transform)
     if target_transform is not None:
-        label_dp = Mapper(label_dp, target_transform)
+        label_dp = label_dp.map(target_transform)
     dp = Zipper(event_dp, label_dp)
     return dp
