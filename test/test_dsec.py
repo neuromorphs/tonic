@@ -61,7 +61,7 @@ def test_target_selection():
         target_selection="disparity_timestamps",
     )
     data, targets = dataset[0]
-    assert len(data) == 1
+    assert len(data) == 0
     assert len(targets) == 1
 
 

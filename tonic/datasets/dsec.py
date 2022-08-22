@@ -43,8 +43,7 @@ class DSEC(Dataset):
 
     base_url = "https://download.ifi.uzh.ch/rpg/DSEC/"
 
-    # boolean flag indicates variable targets
-    # that are not available for every recording
+    # boolean flag indicates optical flow availability
     recordings = {
         "train": {
             "interlaken_00_c": False,
