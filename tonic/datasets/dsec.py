@@ -15,11 +15,12 @@ from tonic.io import make_structured_array
 class DSEC(Dataset):
     """`DSEC <https://dsec.ifi.uzh.ch/>`_
 
+    This is a fairly large dataset, so in order to save some disk space, event and image zips
+    are deleted after extraction.
+
     .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
 
-    .. note:: This is a fairly large dataset, so in order to speed up training scripts, Tonic will only
-              do some lightweight file verification based on the filenames whenever you instantiate this
-              class. If your download gets interrupted and you are left with a corrupted file on disk,
+    .. note:: If your download gets interrupted and you are left with a corrupted file on disk,
               Tonic will not be able to detect that and just proceed to download files that are not yet
               on disk. If you experience issues loading a particular recording, delete that folder
               manually and Tonic will re-download it the next time.
@@ -33,57 +34,61 @@ class DSEC(Dataset):
                              any combination thereof in a list.
         target_selection (str, optional): Select which targets to load. Omitted if split contains training
                                           samples. Can be 'disparity_events', 'disparity_images', 'disparity_timestamps',
-                                          'optical_flow' or a combination thereof in a list.
+                                          'optical_flow_forward_event', 'optical_flow_forward_timestamps',
+                                          'optical_flow_backward_event', 'optical_flow_backward_timestamps'
+                                          or a combination thereof in a list.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """
 
     base_url = "https://download.ifi.uzh.ch/rpg/DSEC/"
 
+    # boolean flag indicates variable targets
+    # that are not available for every recording
     recordings = {
-        "train": [
-            "interlaken_00_c",
-            "interlaken_00_d",
-            "interlaken_00_e",
-            "interlaken_00_f",
-            "interlaken_00_g",
-            "thun_00_a",
-            "zurich_city_00_a",
-            "zurich_city_00_b",
-            "zurich_city_01_a",
-            "zurich_city_01_b",
-            "zurich_city_01_c",
-            "zurich_city_01_d",
-            "zurich_city_01_e",
-            "zurich_city_01_f",
-            "zurich_city_02_a",
-            "zurich_city_02_b",
-            "zurich_city_02_c",
-            "zurich_city_02_d",
-            "zurich_city_02_e",
-            "zurich_city_03_a",
-            "zurich_city_04_a",
-            "zurich_city_04_b",
-            "zurich_city_04_c",
-            "zurich_city_04_d",
-            "zurich_city_04_e",
-            "zurich_city_04_f",
-            "zurich_city_05_a",
-            "zurich_city_05_b",
-            "zurich_city_06_a",
-            "zurich_city_07_a",
-            "zurich_city_08_a",
-            "zurich_city_09_a",
-            "zurich_city_09_b",
-            "zurich_city_09_c",
-            "zurich_city_09_d",
-            "zurich_city_09_e",
-            "zurich_city_10_a",
-            "zurich_city_10_b",
-            "zurich_city_11_a",
-            "zurich_city_11_b",
-            "zurich_city_11_c",
-        ],
+        "train": {
+            "interlaken_00_c": False,
+            "interlaken_00_d": False,
+            "interlaken_00_e": False,
+            "interlaken_00_f": False,
+            "interlaken_00_g": False,
+            "thun_00_a": True,
+            "zurich_city_00_a": False,
+            "zurich_city_00_b": False,
+            "zurich_city_01_a": True,
+            "zurich_city_01_b": False,
+            "zurich_city_01_c": False,
+            "zurich_city_01_d": False,
+            "zurich_city_01_e": False,
+            "zurich_city_01_f": False,
+            "zurich_city_02_a": True,
+            "zurich_city_02_b": False,
+            "zurich_city_02_c": True,
+            "zurich_city_02_d": True,
+            "zurich_city_02_e": True,
+            "zurich_city_03_a": True,
+            "zurich_city_04_a": False,
+            "zurich_city_04_b": False,
+            "zurich_city_04_c": False,
+            "zurich_city_04_d": False,
+            "zurich_city_04_e": False,
+            "zurich_city_04_f": False,
+            "zurich_city_05_a": True,
+            "zurich_city_05_b": True,
+            "zurich_city_06_a": True,
+            "zurich_city_07_a": True,
+            "zurich_city_08_a": True,
+            "zurich_city_09_a": True,
+            "zurich_city_09_b": False,
+            "zurich_city_09_c": False,
+            "zurich_city_09_d": False,
+            "zurich_city_09_e": False,
+            "zurich_city_10_a": True,
+            "zurich_city_10_b": True,
+            "zurich_city_11_a": True,
+            "zurich_city_11_b": True,
+            "zurich_city_11_c": True,
+        },
         "test": [
             "thun_01_a",
             "thun_01_b",
@@ -139,7 +144,11 @@ class DSEC(Dataset):
             save_to, transform=transform, target_transform=target_transform
         )
 
-        if split in ["train", "test"]:
+        if split == "train":
+            self.recording_selection = self.recordings[split].keys()
+            self.train_or_test = split
+
+        elif split == "test":
             self.recording_selection = self.recordings[split]
             self.train_or_test = split
 
@@ -166,38 +175,47 @@ class DSEC(Dataset):
 
         if isinstance(data_selection, str):
             data_selection = [data_selection]
+        elif data_selection is None:
+            data_selection = []
+        self.data_selection = data_selection
 
         for data_piece in data_selection:
             if data_piece not in self.data_names.keys():
                 raise RuntimeError(
                     f"Selection {data_piece} not available. Please select from the following options: {self.data_names.keys()}."
                 )
-        self.data_selection = data_selection
 
-        if self.train:
-            if isinstance(target_selection, str) and target_selection is not None:
-                target_selection = [target_selection]
-            else:
-                target_selection = []
-            for data_piece in target_selection:
-                if data_piece not in self.target_names.keys():
-                    raise RuntimeError(
-                        f"Selection {data_piece} not available. Please select from the following options: {self.target_names.keys()}."
-                    )
-            self.target_selection = target_selection
-        else:
-            if target_selection is not None or len(target_selection) > 0:
-                raise Exception("No targets for test set available.")
+        if isinstance(target_selection, str):
+            target_selection = [target_selection]
+        elif target_selection is None:
+            target_selection = []
+        self.target_selection = target_selection
 
-        selection = data_selection + target_selection if self.train else data_selection
-        self._check_exists(selection)
+        if not self.train and len(target_selection) > 0:
+            raise Exception(
+                "You wanted targets for the test set but they are not available."
+            )
+
+        for data_piece in target_selection:
+            if data_piece not in self.target_names.keys():
+                raise RuntimeError(
+                    f"Selection {data_piece} not available. Please select from the following options: {self.target_names.keys()}."
+                )
+
+        if any(["optical_flow" in selection for selection in target_selection]):
+            self.recording_selection = [
+                name
+                for name in self.recording_selection
+                if self.recordings["train"][name]
+            ]
+
+        self._check_exists(data_selection + target_selection)
 
     def __getitem__(self, index):
         """
         Returns:
-            a tuple of (data, target) where data is another tuple of ((events_left, events_right),
-            (image_timestamps, images_left, images_right)) and target is either a tuple of
-            (disparity_timestamps, disparity_events, disparity_images) if train=True or None if train=False
+            a tuple of (data, target) where data is another tuple of data_selction and target
+            a tuple of target_selection if train=True.
         """
         import hdf5plugin  # necessary to read event files
         from PIL import Image  # necessary to read images
@@ -207,10 +225,9 @@ class DSEC(Dataset):
 
         data_tuple = []
         for data_name in self.data_selection:
+            full_base_folder = os.path.join(base_folder, data_name)
             if "events" in data_name:
-                events_file = h5py.File(
-                    os.path.join(base_folder, data_name, "events.h5")
-                )["events"]
+                events_file = h5py.File(full_base_folder + "/events.h5")["events"]
                 data = make_structured_array(
                     events_file["x"][()],
                     events_file["y"][()],
@@ -221,20 +238,14 @@ class DSEC(Dataset):
 
             elif "images" in data_name:
                 images_rectified_filenames = list_files(
-                    os.path.join(base_folder, data_name), ".png", prefix=True
+                    full_base_folder, ".png", prefix=True
                 )
                 data = np.stack(
                     [np.array(Image.open(file)) for file in images_rectified_filenames]
                 )
 
             elif "image_timestamps" == data_name:
-                with open(
-                    os.path.join(
-                        base_folder,
-                        "image_timestamps",
-                        f"{recording}_image_timestamps.txt",
-                    )
-                ) as f:
+                with open(full_base_folder + f"/{recording}_image_timestamps.txt") as f:
                     data = np.array([int(line) for line in f.readlines()])
                 data -= data[0]
             data_tuple.append(data)
@@ -244,29 +255,35 @@ class DSEC(Dataset):
 
         target_tuple = []
         for target_name in self.target_selection:
-            if target_name in ["disparity_event", "disparity_image"]:
-                disparity_filenames = list_files(
-                    os.path.join(base_folder, target_name), ".png", prefix=True
-                )
+            full_base_folder = os.path.join(base_folder, target_name)
+            if target_name in [
+                "disparity_event",
+                "disparity_image",
+                "optical_flow_forward_event",
+                "optical_flow_backward_event",
+            ]:
+                disparity_filenames = list_files(full_base_folder, ".png", prefix=True)
                 target = np.stack(
                     [np.array(Image.open(file)) for file in disparity_filenames]
                 )
 
-            elif "timestamps" in target_name:
-                with open(
-                    os.path.join(
-                        base_folder,
-                        target_name,
-                        f"{recording}_disparity_timestamps.txt",
-                    )
-                ) as f:
+            elif "disparity_timestamps" == target_name:
+                with open(full_base_folder + f"/{recording}_{target_name}.txt") as f:
                     target = np.array([int(line) for line in f.readlines()])
+                target -= target[0]
+
+            elif "optical_flow" in target_name and target_name.endswith("timestamps"):
+                with open(full_base_folder + f"/{recording}_{target_name}.txt") as f:
+                    lines = f.readlines()
+                    lines = lines[1:]  # first line is a comment
+                    # first number is start timestamp, second number is stop timestamp
+                    target = np.array([int(line.split(", ")[0]) for line in lines])
                 target -= target[0]
 
             target_tuple.append(target)
 
-            if self.target_transform is not None:
-                target_tuple = self.target_transform(target_tuple)
+        if self.target_transform is not None:
+            target_tuple = self.target_transform(target_tuple)
 
         return data_tuple, target_tuple
 

@@ -2,6 +2,37 @@ import tonic
 import pytest
 
 
+def test_train_split():
+    dataset = tonic.datasets.DSEC(
+        "data",
+        split="train",
+        data_selection=[],
+    )
+    assert len(dataset) == 41
+
+
+def test_test_split():
+    dataset = tonic.datasets.DSEC(
+        "data",
+        split="test",
+        data_selection=[],
+    )
+    assert len(dataset) == 12
+
+
+def test_optical_flow_subset():
+    dataset = tonic.datasets.DSEC(
+        "data",
+        split="train",
+        data_selection=[],
+        target_selection="optical_flow_forward_timestamps",
+    )
+    assert len(dataset) == 18
+    data, targets = dataset[0]
+    assert len(data) == 0
+    assert len(targets) == 1
+
+
 def test_data_selection():
     dataset = tonic.datasets.DSEC(
         "data", split="thun_00_a", data_selection="image_timestamps"
@@ -26,12 +57,41 @@ def test_target_selection():
     dataset = tonic.datasets.DSEC(
         "data",
         split="thun_00_a",
-        data_selection="image_timestamps",
+        data_selection=[],
         target_selection="disparity_timestamps",
     )
     data, targets = dataset[0]
     assert len(data) == 1
     assert len(targets) == 1
+
+
+def test_target_multiselection():
+    dataset = tonic.datasets.DSEC(
+        "data",
+        split="thun_00_a",
+        data_selection="image_timestamps",
+        target_selection=["disparity_timestamps", "optical_flow_forward_timestamps"],
+    )
+    data, targets = dataset[0]
+    assert len(data) == 1
+    assert len(targets) == 2
+
+
+def test_optical_flow():
+    dataset = tonic.datasets.DSEC(
+        "data",
+        split="thun_00_a",
+        data_selection="image_timestamps",
+        target_selection=[
+            "optical_flow_forward_event",
+            "optical_flow_backward_event",
+            "optical_flow_forward_timestamps",
+            "optical_flow_backward_timestamps",
+        ],
+    )
+    data, targets = dataset[0]
+    assert len(data) == 1
+    assert len(targets) == 4
 
 
 def test_raises_exception_wrong_recording_name():
