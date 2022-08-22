@@ -173,7 +173,6 @@ class DSEC(Dataset):
                     f"Selection {data_piece} not available. Please select from the following options: {self.data_names.keys()}."
                 )
         self.data_selection = data_selection
-        self.selection = data_selection
 
         if self.train:
             if isinstance(target_selection, str) and target_selection is not None:
@@ -186,12 +185,12 @@ class DSEC(Dataset):
                         f"Selection {data_piece} not available. Please select from the following options: {self.target_names.keys()}."
                     )
             self.target_selection = target_selection
-            self.selection += target_selection
         else:
             if target_selection is not None or len(target_selection) > 0:
                 raise Exception("No targets for test set available.")
 
-        self._check_exists()
+        selection = data_selection + target_selection if self.train else data_selection
+        self._check_exists(selection)
 
     def __getitem__(self, index):
         """
@@ -206,101 +205,78 @@ class DSEC(Dataset):
         recording = self.recording_selection[index]
         base_folder = os.path.join(self.location_on_system, recording)
 
-        # events
-        events_left_file = h5py.File(
-            os.path.join(base_folder, "events_left", "events.h5")
-        )["events"]
-        events_left = make_structured_array(
-            events_left_file["x"][()],
-            events_left_file["y"][()],
-            events_left_file["t"][()],
-            events_left_file["p"][()],
-            dtype=self.dtype,
-        )
+        data_tuple = []
+        for data_name in self.data_selection:
+            if "events" in data_name:
+                events_file = h5py.File(
+                    os.path.join(base_folder, data_name, "events.h5")
+                )["events"]
+                data = make_structured_array(
+                    events_file["x"][()],
+                    events_file["y"][()],
+                    events_file["t"][()],
+                    events_file["p"][()],
+                    dtype=self.dtype,
+                )
 
-        events_right_file = h5py.File(
-            os.path.join(base_folder, "events_right", "events.h5")
-        )["events"]
-        events_right = make_structured_array(
-            events_right_file["x"][()],
-            events_right_file["y"][()],
-            events_right_file["t"][()],
-            events_right_file["p"][()],
-            dtype=self.dtype,
-        )
+            elif "images" in data_name:
+                images_rectified_filenames = list_files(
+                    os.path.join(base_folder, data_name), ".png", prefix=True
+                )
+                data = np.stack(
+                    [np.array(Image.open(file)) for file in images_rectified_filenames]
+                )
 
-        # images
-        images_rectified_left_filenames = list_files(
-            os.path.join(base_folder, "images_rectified_left"), ".png", prefix=True
-        )
-        images_left = np.stack(
-            [np.array(Image.open(file)) for file in images_rectified_left_filenames]
-        )
-
-        images_rectified_right_filenames = list_files(
-            os.path.join(base_folder, "images_rectified_right"), ".png", prefix=True
-        )
-        images_right = np.stack(
-            [np.array(Image.open(file)) for file in images_rectified_right_filenames]
-        )
-
-        with open(
-            os.path.join(
-                base_folder, "image_timestamps", f"{recording}_image_timestamps.txt"
-            )
-        ) as f:
-            image_timestamps = np.array([int(line) for line in f.readlines()])
-        image_timestamps -= image_timestamps[0]
-
-        data = (
-            (events_left, events_right),
-            (image_timestamps, images_left, images_right),
-        )
+            elif "image_timestamps" == data_name:
+                with open(
+                    os.path.join(
+                        base_folder,
+                        "image_timestamps",
+                        f"{recording}_image_timestamps.txt",
+                    )
+                ) as f:
+                    data = np.array([int(line) for line in f.readlines()])
+                data -= data[0]
+            data_tuple.append(data)
 
         if self.transform is not None:
-            data = self.transform(data)
+            data_tuple = self.transform(data_tuple)
 
-        targets = None
-        if self.train:
-            # ground truth
-            disparity_event_filenames = list_files(
-                os.path.join(base_folder, "disparity_event"), ".png", prefix=True
-            )
-            disparity_events = np.stack(
-                [np.array(Image.open(file)) for file in disparity_event_filenames]
-            )
-
-            disparity_image_filenames = list_files(
-                os.path.join(base_folder, "disparity_image"), ".png", prefix=True
-            )
-            disparity_images = np.stack(
-                [np.array(Image.open(file)) for file in disparity_image_filenames]
-            )
-
-            with open(
-                os.path.join(
-                    base_folder,
-                    "disparity_timestamps",
-                    f"{recording}_disparity_timestamps.txt",
+        target_tuple = []
+        for target_name in self.target_selection:
+            if target_name in ["disparity_event", "disparity_image"]:
+                disparity_filenames = list_files(
+                    os.path.join(base_folder, target_name), ".png", prefix=True
                 )
-            ) as f:
-                disparity_timestamps = np.array([int(line) for line in f.readlines()])
-            disparity_timestamps -= disparity_timestamps[0]
+                target = np.stack(
+                    [np.array(Image.open(file)) for file in disparity_filenames]
+                )
 
-            targets = (disparity_timestamps, disparity_events, disparity_images)
+            elif "timestamps" in target_name:
+                with open(
+                    os.path.join(
+                        base_folder,
+                        target_name,
+                        f"{recording}_disparity_timestamps.txt",
+                    )
+                ) as f:
+                    target = np.array([int(line) for line in f.readlines()])
+                target -= target[0]
+
+            target_tuple.append(target)
 
             if self.target_transform is not None:
-                targets = self.target_transform(targets)
+                target_tuple = self.target_transform(target_tuple)
 
-        return data, targets
+        return data_tuple, target_tuple
 
     def __len__(self):
         return len(self.recording_selection)
 
-    def _check_exists(self):
+    def _check_exists(self, data_selection: List):
         all_names = {**self.data_names, **self.target_names}
         for recording in self.recording_selection:
-            for data_name in self.selection:
+            for data_name in data_selection:
                 file_folder = os.path.join(
                     self.location_on_system, recording, data_name
                 )

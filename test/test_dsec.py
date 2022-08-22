@@ -3,16 +3,35 @@ import pytest
 
 
 def test_data_selection():
-    tonic.datasets.DSEC("data", split="thun_00_a", data_selection="image_timestamps")
+    dataset = tonic.datasets.DSEC(
+        "data", split="thun_00_a", data_selection="image_timestamps"
+    )
+    data, targets = dataset[0]
+    assert len(data) == 1
+    assert len(targets) == 0
+
+
+def test_multi_data_selection():
+    dataset = tonic.datasets.DSEC(
+        "data",
+        split="thun_00_a",
+        data_selection=["image_timestamps", "image_exposure_timestamps_left"],
+    )
+    data, targets = dataset[0]
+    assert len(data) == 2
+    assert len(targets) == 0
 
 
 def test_target_selection():
-    tonic.datasets.DSEC(
+    dataset = tonic.datasets.DSEC(
         "data",
         split="thun_00_a",
         data_selection="image_timestamps",
         target_selection="disparity_timestamps",
     )
+    data, targets = dataset[0]
+    assert len(data) == 1
+    assert len(targets) == 1
 
 
 def test_raises_exception_wrong_recording_name():
