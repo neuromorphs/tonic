@@ -2,3 +2,4 @@ pytest
 coverage
 torch
 matplotlib
+hdf5plugin
