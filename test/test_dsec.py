@@ -101,6 +101,21 @@ def test_raises_exception_wrong_recording_name():
         )
 
 
+def test_raises_exception_data_name():
+    with pytest.raises(Exception):
+        tonic.datasets.DSEC("data", split="thun_00_a", data_selection="wrong_data")
+
+
+def test_raises_exception_wrong_recording_name():
+    with pytest.raises(Exception):
+        tonic.datasets.DSEC(
+            "data",
+            split="thun_00_a",
+            data_selection=[],
+            target_selection="wrong_target",
+        )
+
+
 def test_raises_exception_combination_test_train():
     with pytest.raises(Exception):
         tonic.datasets.DSEC(
