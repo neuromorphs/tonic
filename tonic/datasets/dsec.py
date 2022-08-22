@@ -16,14 +16,14 @@ class DSEC(Dataset):
     """`DSEC <https://dsec.ifi.uzh.ch/>`_
 
     This is a fairly large dataset, so in order to save some disk space, event and image zips
-    are deleted after extraction.
+    are deleted after extraction. If your download gets interrupted and you are left with a
+    corrupted file on disk, Tonic will not be able to detect that and just proceed to download
+    files that are not yet on disk. If you experience issues loading a particular recording,
+    delete that folder manually and Tonic will re-download it the next time.
+    Optical flow targets are not available for every recording, so if you select optical flow targets,
+    only a subset of 18 training recordings will be selected.
 
     .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
-
-    .. note:: If your download gets interrupted and you are left with a corrupted file on disk,
-              Tonic will not be able to detect that and just proceed to download files that are not yet
-              on disk. If you experience issues loading a particular recording, delete that folder
-              manually and Tonic will re-download it the next time.
 
     Parameters:
         save_to (str): Location to save files to on disk.
@@ -32,11 +32,12 @@ class DSEC(Dataset):
         data_selection (str): Select which data to load per sample. Can be 'events_left', 'events_right',
                              'images_rectified_left', 'images_rectified_right', 'image_timestamps' or
                              any combination thereof in a list.
-        target_selection (str, optional): Select which targets to load. Omitted if split contains training
-                                          samples. Can be 'disparity_events', 'disparity_images', 'disparity_timestamps',
+        target_selection (str, optional): Select which targets to load per sample. Can be 'disparity_events',
+                                          'disparity_images', 'disparity_timestamps',
                                           'optical_flow_forward_event', 'optical_flow_forward_timestamps',
                                           'optical_flow_backward_event', 'optical_flow_backward_timestamps'
-                                          or a combination thereof in a list.
+                                          or a combination thereof in a list. Note that optical flow targets
+                                          are not available for every recording.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
     """

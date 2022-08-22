@@ -8,7 +8,9 @@ from tonic.download_utils import extract_archive
 
 
 class NMNIST(Dataset):
-    """N-MNIST dataset <https://www.garrickorchard.com/datasets/n-mnist>. Events have (xytp) ordering.
+    """`N-MNIST <https://www.garrickorchard.com/datasets/n-mnist>`_
+
+    Events have (xytp) ordering.
     ::
 
         @article{orchard2015converting,
