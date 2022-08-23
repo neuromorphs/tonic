@@ -236,7 +236,7 @@ class DSEC(Dataset):
         data_tuple = []
         for data_name in self.data_selection:
             full_base_folder = os.path.join(base_folder, data_name)
-            if "events" in data_name:
+            if data_name in ["events_left", "events_right"]:
                 file = h5py.File(full_base_folder + "/events.h5")
                 events_file = file["events"]
                 data = make_structured_array(
@@ -256,7 +256,7 @@ class DSEC(Dataset):
                     [np.array(Image.open(file)) for file in images_rectified_filenames]
                 )
 
-            elif "image_timestamps" == data_name:
+            elif data_name == "image_timestamps":
                 with open(full_base_folder + f"/{recording}_image_timestamps.txt") as f:
                     data = np.array([int(line) for line in f.readlines()])
                 data -= data[0]
@@ -274,16 +274,19 @@ class DSEC(Dataset):
                 "optical_flow_forward_event",
                 "optical_flow_backward_event",
             ]:
-                disparity_filenames = list_files(full_base_folder, ".png", prefix=True)
+                png_filenames = list_files(full_base_folder, ".png", prefix=True)
                 target = np.stack(
-                    [np.array(Image.open(file)) for file in disparity_filenames]
+                    [np.array(Image.open(file)) for file in png_filenames]
                 )
 
-            elif "disparity_timestamps" == target_name:
+            elif target_name == "disparity_timestamps":
                 with open(full_base_folder + f"/{recording}_{target_name}.txt") as f:
                     target = np.array([int(line) for line in f.readlines()])
 
-            elif "optical_flow" in target_name and target_name.endswith("timestamps"):
+            elif target_name in [
+                "optical_flow_forward_timestamps",
+                "optical_flow_backward_timestamps",
+            ]:
                 with open(full_base_folder + f"/{recording}_{target_name}.txt") as f:
                     lines = f.readlines()
                     lines = lines[1:]  # first line is a comment
