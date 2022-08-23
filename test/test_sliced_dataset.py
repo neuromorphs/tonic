@@ -15,5 +15,6 @@ def test_sliced_dataset():
 
     for data, label in sliced_dataset:
         assert len(data) == 200
+        assert type(label) == int
 
     assert len(sliced_dataset) == target_number

@@ -72,22 +72,24 @@ class SlicedDataset:
         Slices every sample in the wrapped dataset and returns start and stop metadata
         for each slice.
         """
-        return [self.slicer.get_slice_metadata(data) for data, targets in self.dataset]
+        return [
+            self.slicer.get_slice_metadata(data, targets)
+            for data, targets in self.dataset
+        ]
 
     def __getitem__(self, item) -> Any:
         dataset_index, slice_index = self.slice_dataset_map[item]
         data, targets = self.dataset[dataset_index]
-        data_slice = self.slicer.slice_with_metadata(
-            data, [self.metadata[dataset_index][slice_index]]
+        data_slice, target_slice = self.slicer.slice_with_metadata(
+            data, targets, [self.metadata[dataset_index][slice_index]]
         )
         if len(data_slice) == 1:
             data_slice = data_slice[0]
-        # TODO: target slicing
         if self.transform:
             data_slice = self.transform(data_slice)
         if self.target_transform:
-            targets = self.target_transform(targets)
-        return data_slice, targets
+            target_slice = self.target_transform(target_slice)
+        return data_slice, target_slice
 
     def __len__(self):
         return len(self.slice_dataset_map)

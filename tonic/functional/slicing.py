@@ -1,4 +1,3 @@
-import warnings
 import numpy as np
 from tonic.slicers import (
     SliceByTime,
@@ -32,21 +31,9 @@ def slice_by_time(
     Returns:
         list of event slices (np.ndarray)
     """
-    assert "t" in events.dtype.names
-
-    times = events["t"]
-    stride = time_window - overlap
-
-    if include_incomplete:
-        n_slices = int(np.ceil(((times[-1] - times[0]) - time_window) / stride) + 1)
-    else:
-        n_slices = int(np.floor(((times[-1] - times[0]) - time_window) / stride) + 1)
-
-    window_start_times = np.arange(n_slices) * stride + times[0]
-    window_end_times = window_start_times + time_window
-    indices_start = np.searchsorted(times, window_start_times)
-    indices_end = np.searchsorted(times, window_end_times)
-    return [events[indices_start[i] : indices_end[i]] for i in range(n_slices)]
+    return SliceByTime(
+        time_window=time_window, overlap=overlap, include_incomplete=include_incomplete
+    ).slice(events, None)[0]
 
 
 def slice_by_time_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0):
@@ -101,7 +88,7 @@ def slice_by_event_count(
     """
     return SliceByEventCount(
         event_count=event_count, overlap=overlap, include_incomplete=include_incomplete
-    ).slice(events)
+    ).slice(events, None)[0]
 
 
 def slice_by_event_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0):
@@ -131,11 +118,11 @@ def slice_by_event_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0
 
 def slice_at_indices(xytp: np.ndarray, start_indices, end_indices):
     slicer = SliceAtIndices(start_indices=start_indices, end_indices=end_indices)
-    return slicer.slice(xytp)
+    return slicer.slice(xytp, None)[0]
 
 
 def slice_at_timepoints(
     xytp: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray
 ) -> List[np.ndarray]:
     slicer = SliceAtTimePoints(start_tw=start_tw, end_tw=end_tw)
-    return slicer.slice(xytp)
+    return slicer.slice(xytp, None)[0]

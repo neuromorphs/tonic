@@ -1,5 +1,4 @@
 import numpy as np
-import math
 from .slicing import (
     slice_by_time,
     slice_by_event_count,
