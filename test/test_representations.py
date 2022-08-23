@@ -164,7 +164,7 @@ def test_representation_sparse_tensor(
     assert sparse_tensor is not orig_events
 
 
-def test_representation_frame_inferred():
+def test_representation_inferred_frame():
     sensor_size = (20, 10, 2)
     orig_events, _ = create_random_input(n_events=30000, sensor_size=sensor_size)
     transform = transforms.ToFrame(sensor_size=None, time_window=25000)
@@ -172,7 +172,7 @@ def test_representation_frame_inferred():
     assert frames.shape[1:] == sensor_size[::-1]
 
 
-def test_representation_frame_audio():
+def test_representation_audio_frame():
     sensor_size = (200, 1, 2)
     orig_events, _ = create_random_input(
         sensor_size=sensor_size,

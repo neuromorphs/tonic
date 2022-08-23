@@ -9,12 +9,6 @@ from .drop_pixel import (
     identify_hot_pixel_raster,
 )
 from .refractory_period import refractory_period_numpy
-from .slicing import (
-    slice_by_time,
-    slice_by_time_bins,
-    slice_by_event_count,
-    slice_by_event_bins,
-)
 from .spatial_jitter import spatial_jitter_numpy
 from .time_jitter import time_jitter_numpy
 from .time_skew import time_skew_numpy

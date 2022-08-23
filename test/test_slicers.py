@@ -4,8 +4,8 @@ from tonic.slicers import (
     SliceAtTimePoints,
     SliceByEventCount,
     SliceByTime,
+    slice_events_at_indices,
 )
-from tonic.functional.slicing import slice_at_indices
 
 
 def test_slice_at_indices_class():
@@ -20,7 +20,9 @@ def test_slice_at_indices_class():
 def test_slice_at_indices_method():
 
     data = np.arange(7)
-    slices = slice_at_indices(data, start_indices=[0, 3, 5], end_indices=[3, 5, 7])
+    slices = slice_events_at_indices(
+        data, start_indices=[0, 3, 5], end_indices=[3, 5, 7]
+    )
 
     assert len(slices) == 3
 

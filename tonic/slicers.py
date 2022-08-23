@@ -1,11 +1,9 @@
 from dataclasses import dataclass
 from typing_extensions import Protocol
 from typing import Any, List, Tuple
-from . import functional
 import numpy as np
 
-# some slicing methods have been copied and/or adapted from
-# https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/preprocess.py
+
 class Slicer(Protocol):
     def get_slice_metadata(self, data: Any, targets: Any) -> List[Any]:
         """
@@ -52,18 +50,16 @@ class Slicer(Protocol):
 @dataclass(frozen=True)
 class SliceByTime:
     """
-    Return xytp split according to fixed timewindow and overlap size
+    Slices an event array along fixed time window and overlap size.
+    The number of bins depends on the length of the recording.
     >        <overlap>
     >|    window1     |
     >        |   window2     |
 
     Parameters:
-        time_window: int
-            Length of time for each xytp (ms)
-        overlap: int
-            Length of time of overlapping (ms)
-        include_incomplete: bool
-            include incomplete slices ie potentially the last xytp
+        time_window (int): time for window length (same unit as event timestamps)
+        overlap (int): overlap (same unit as event timestamps)
+        include_incomplete (bool): include the last incomplete slice that has shorter time
     """
 
     time_window: float
@@ -100,17 +96,66 @@ class SliceByTime:
         return [data[start:end] for start, end in metadata], targets
 
 
+@dataclass
+class SliceByTimeBins:
+    """
+    Slices data and targets along fixed number of bins of time length max_time / bin_count * (1+overlap).
+    This method is good if your recordings all have roughly the same time length and you want an equal
+    number of bins for each recording.
+
+    Parameters:
+        bin_count (int): number of bins
+        overlap (float): overlap specified as a proportion of a bin, needs to be smaller than 1. An overlap of 0.1
+                    signifies that the bin will be enlarged by 10%. Amount of bins stays the same.
+
+    Returns:
+        list of event slices (np.ndarray)
+    """
+
+    bin_count: int
+    overlap: float = 0
+
+    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+        metadata = self.get_slice_metadata(data, targets)
+        return self.slice_with_metadata(data, targets, metadata)
+
+    def get_slice_metadata(
+        self, data: np.ndarray, targets: int
+    ) -> List[Tuple[int, int]]:
+        events = data
+        assert "t" in events.dtype.names
+        assert self.overlap < 1
+
+        times = events["t"]
+        time_window = (times[-1] - times[0]) // self.bin_count * (1 + self.overlap)
+        stride = time_window * (1 - self.overlap)
+
+        window_start_times = np.arange(self.bin_count) * stride + times[0]
+        window_end_times = window_start_times + time_window
+        indices_start = np.searchsorted(times, window_start_times)
+        indices_end = np.searchsorted(times, window_end_times)
+        return list(zip(indices_start, indices_end))
+
+    @staticmethod
+    def slice_with_metadata(
+        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+    ):
+        return [data[start:end] for start, end in metadata], targets
+
+
 @dataclass(frozen=True)
 class SliceByEventCount:
     """
-    Return xytp sliced to equal number of events specified by event_count
+    Slices data and targets along a fixed number of events and overlap size.
+    The number of bins depends on the amount of events in the recording.
 
     Parameters:
-        event_count (int):  Number of events per xytp
-        overlap: int
-            No. of spikes overlapping in the following xytp(ms)
-        include_incomplete: bool
-            include incomplete slices ie potentially the last xytp
+        event_count (int): number of events for each bin
+        overlap (int): overlap in number of events
+        include_incomplete (bool): include the last incomplete slice that has fewer events
+
+    Returns:
+        list of event slices (np.ndarray)
     """
 
     event_count: int
@@ -147,10 +192,51 @@ class SliceByEventCount:
         return [data[start:end] for start, end in metadata], targets
 
 
+@dataclass(frozen=True)
+class SliceByEventBins:
+    """
+    Slices an event array along fixed number of bins that each have n_events // bin_count * (1 + overlap) events.
+    This slicing method is good if you recordings have all roughly the same amount of overall activity in the scene
+    and you want an equal number of bins for each recording.
+
+    Parameters:
+        bin_count (int): number of bins
+        overlap (float): overlap in proportion of a bin, needs to be smaller than 1. An overlap of 0.1
+                    signifies that the bin will be enlarged by 10%. Amount of bins stays the same.
+
+    Returns:
+        list of event slices (np.ndarray)
+    """
+
+    bin_count: int
+    overlap: float = 0
+
+    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+        metadata = self.get_slice_metadata(data, targets)
+        return self.slice_with_metadata(data, targets, metadata)
+
+    def get_slice_metadata(
+        self, data: np.ndarray, targets: int
+    ) -> List[Tuple[int, int]]:
+        n_events = len(data)
+        spike_count = int(n_events // self.bin_count * (1 + self.overlap))
+        stride = int(spike_count * (1 - self.overlap))
+
+        indices_start = np.arange(self.bin_count) * stride
+        indices_end = indices_start + spike_count
+        return list(zip(indices_start, indices_end))
+
+    @staticmethod
+    def slice_with_metadata(
+        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+    ):
+        return [data[start:end] for start, end in metadata], targets
+
+
 @dataclass
 class SliceAtIndices:
     """
-    Slices data at the specified indices
+    Slices data at the specified indices.
 
     Parameters:
         start_indices: (List[Int]): List of start indices
@@ -179,7 +265,7 @@ class SliceAtIndices:
 @dataclass
 class SliceAtTimePoints:
     """
-    Slice the data at the specified time points
+    Slice the data at the specified time points.
 
     Parameters:
         tw_start: (List[Int]): List of start times
@@ -206,3 +292,47 @@ class SliceAtTimePoints:
         data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
     ):
         return [data[start:end] for start, end in metadata], targets
+
+
+def slice_events_by_time(
+    events: np.ndarray,
+    time_window: int,
+    overlap: int = 0,
+    include_incomplete: bool = False,
+):
+    return SliceByTime(
+        time_window=time_window, overlap=overlap, include_incomplete=include_incomplete
+    ).slice(events, None)[0]
+
+
+def slice_events_by_time_bins(events: np.ndarray, bin_count: int, overlap: float = 0.0):
+    return SliceByTimeBins(bin_count=bin_count, overlap=overlap).slice(events, None)[0]
+
+
+def slice_events_by_count(
+    events: np.ndarray,
+    event_count: int,
+    overlap: int = 0,
+    include_incomplete: bool = False,
+):
+    return SliceByEventCount(
+        event_count=event_count, overlap=overlap, include_incomplete=include_incomplete
+    ).slice(events, None)[0]
+
+
+def slice_events_by_event_bins(
+    events: np.ndarray, bin_count: int, overlap: float = 0.0
+):
+    return SliceByEventBins(bin_count=bin_count, overlap=overlap).slice(events, None)[0]
+
+
+def slice_events_at_indices(events: np.ndarray, start_indices, end_indices):
+    return SliceAtIndices(start_indices=start_indices, end_indices=end_indices).slice(
+        events, None
+    )[0]
+
+
+def slice_events_at_timepoints(
+    events: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray
+) -> List[np.ndarray]:
+    return SliceAtTimePoints(start_tw=start_tw, end_tw=end_tw).slice(events, None)[0]

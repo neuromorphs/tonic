@@ -1,9 +1,9 @@
 import numpy as np
-from .slicing import (
-    slice_by_time,
-    slice_by_event_count,
-    slice_by_time_bins,
-    slice_by_event_bins,
+from tonic.slicers import (
+    slice_events_by_time,
+    slice_events_by_count,
+    slice_events_by_time_bins,
+    slice_events_by_event_bins,
 )
 
 
@@ -61,17 +61,17 @@ def to_frame_numpy(
         events["p"] = 0
 
     if time_window:
-        event_slices = slice_by_time(
+        event_slices = slice_events_by_time(
             events, time_window, overlap=overlap, include_incomplete=include_incomplete
         )
     elif event_count:
-        event_slices = slice_by_event_count(
+        event_slices = slice_events_by_count(
             events, event_count, overlap=overlap, include_incomplete=include_incomplete
         )
     elif n_time_bins:
-        event_slices = slice_by_time_bins(events, n_time_bins, overlap=overlap)
+        event_slices = slice_events_by_time_bins(events, n_time_bins, overlap=overlap)
     elif n_event_bins:
-        event_slices = slice_by_event_bins(events, n_event_bins, overlap=overlap)
+        event_slices = slice_events_by_event_bins(events, n_event_bins, overlap=overlap)
 
     if "y" in events.dtype.names:
         frames = np.zeros((len(event_slices), *sensor_size[::-1]), dtype=np.int16)
