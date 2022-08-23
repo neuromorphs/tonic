@@ -4,12 +4,12 @@ import h5py
 from typing import Optional, List, Union, Callable
 from tonic.dataset import Dataset
 from tonic.download_utils import (
-    check_integrity,
     download_and_extract_archive,
     download_url,
     list_files,
 )
 from tonic.io import make_structured_array
+import warnings
 
 
 class DSEC(Dataset):
@@ -202,12 +202,22 @@ class DSEC(Dataset):
                     f"Selection {data_piece} not available. Please select from the following options: {self.target_names.keys()}."
                 )
 
+        # only take those recordings that have optical flow ground truth
         if any(["optical_flow" in selection for selection in target_selection]):
-            self.recording_selection = [
+            deselect = [
                 name
                 for name in self.recording_selection
-                if self.recordings["train"][name]
+                if not self.recordings["train"][name]
             ]
+            if len(deselect) > 0:
+                warnings.warn(
+                    f"Since you asked for optical flow targets, the following recordings without optical flow ground truth are dropped: {deselect}."
+                )
+                self.recording_selection = [
+                    name
+                    for name in self.recording_selection
+                    if self.recordings["train"][name]
+                ]
 
         self._check_exists(data_selection + target_selection)
 
@@ -277,8 +287,11 @@ class DSEC(Dataset):
                     lines = f.readlines()
                     lines = lines[1:]  # first line is a comment
                     # first number is start timestamp, second number is stop timestamp
-                    target = np.array([int(line.split(", ")[0]) for line in lines])
-                target -= target[0]
+                    number_strs = [line.split(", ") for line in lines]
+                    target = np.array(
+                        [(int(start), int(stop)) for start, stop in number_strs]
+                    )
+                target -= target[0][0]
 
             target_tuple.append(target)
 
