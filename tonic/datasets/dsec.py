@@ -237,7 +237,8 @@ class DSEC(Dataset):
         for data_name in self.data_selection:
             full_base_folder = os.path.join(base_folder, data_name)
             if "events" in data_name:
-                events_file = h5py.File(full_base_folder + "/events.h5")["events"]
+                file = h5py.File(full_base_folder + "/events.h5")
+                events_file = file["events"]
                 data = make_structured_array(
                     events_file["x"][()],
                     events_file["y"][()],
@@ -245,6 +246,7 @@ class DSEC(Dataset):
                     events_file["p"][()],
                     dtype=self.dtype,
                 )
+                data["t"] += file["t_offset"][()]
 
             elif "images" in data_name:
                 images_rectified_filenames = list_files(
@@ -280,7 +282,6 @@ class DSEC(Dataset):
             elif "disparity_timestamps" == target_name:
                 with open(full_base_folder + f"/{recording}_{target_name}.txt") as f:
                     target = np.array([int(line) for line in f.readlines()])
-                target -= target[0]
 
             elif "optical_flow" in target_name and target_name.endswith("timestamps"):
                 with open(full_base_folder + f"/{recording}_{target_name}.txt") as f:
@@ -291,7 +292,6 @@ class DSEC(Dataset):
                     target = np.array(
                         [(int(start), int(stop)) for start, stop in number_strs]
                     )
-                target -= target[0][0]
 
             target_tuple.append(target)
 
