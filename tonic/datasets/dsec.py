@@ -282,7 +282,7 @@ class DSEC(Dataset):
 
                 png_filenames = list_files(full_base_folder, ".png", prefix=True)
                 target = np.array(
-                    [imageio.imread(file, format="PNG-FI") for file in png_filenames]
+                    [imageio.v2.imread(file, format="PNG-FI") for file in png_filenames]
                 )
                 target[:, :, :, :2] -= 2 ^ 15
                 target[:, :, :, :2] /= 128
