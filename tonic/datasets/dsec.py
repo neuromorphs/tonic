@@ -38,6 +38,8 @@ class DSEC(Dataset):
                                           are not available for every recording.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     base_url = "https://download.ifi.uzh.ch/rpg/DSEC/"
@@ -137,9 +139,13 @@ class DSEC(Dataset):
         target_selection: Optional[Union[str, List[str]]] = None,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
     ):
         super(DSEC, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
 
         if split == "train":
@@ -308,6 +314,8 @@ class DSEC(Dataset):
         if self.target_transform is not None:
             target_tuple = self.target_transform(target_tuple)
 
+        if self.transforms is not None:
+            data_tuple, target_tuple = self.transforms(data_tuple, target_tuple)
         return data_tuple, target_tuple
 
     def __len__(self):

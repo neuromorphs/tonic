@@ -1,10 +1,9 @@
 import os
-import numpy as np
-from pathlib import Path
+from typing import Callable, Optional
 
-from tonic.io import read_mnist_file
+import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import extract_archive
+from tonic.io import read_mnist_file
 
 
 class NMNIST(Dataset):
@@ -26,9 +25,12 @@ class NMNIST(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         train (bool): If True, uses training subset, otherwise testing subset.
+        first_saccade_only (bool): If True, only work with events of the first of three saccades.
+                                   Results in about a third of the events overall.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        first_saccade_only (bool): If True, only work with events of the first of three saccades. Results in about a third of the events overall.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     base_url = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
@@ -60,14 +62,18 @@ class NMNIST(Dataset):
 
     def __init__(
         self,
-        save_to,
-        train=True,
-        transform=None,
-        target_transform=None,
-        first_saccade_only=False,
+        save_to: str,
+        train: bool = True,
+        first_saccade_only: bool = False,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
     ):
-        super(NMNIST, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
         self.train = train
         self.first_saccade_only = first_saccade_only
@@ -108,6 +114,8 @@ class NMNIST(Dataset):
             events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        if self.transforms is not None:
+            events, target = self.transforms(events, target)
         return events, target
 
     def __len__(self) -> int:

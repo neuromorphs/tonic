@@ -1,6 +1,7 @@
 import os
+from typing import Callable, List, Optional, Union
+
 import numpy as np
-from numpy.lib import recfunctions
 from importRosbag.importRosbag import importRosbag
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url
@@ -29,6 +30,8 @@ class DAVISDATA(Dataset):
                             Can use 'all' to download all available recordings.
         transform (callable, optional): A callable of transforms to apply to events and/or images.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     base_url = "http://rpg.ifi.uzh.ch/datasets/davis/"
@@ -65,9 +68,19 @@ class DAVISDATA(Dataset):
     ordering = dtype.names
     folder_name = ""
 
-    def __init__(self, save_to, recording, transform=None, target_transform=None):
-        super(DAVISDATA, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to: str,
+        recording: Union[str, List[str]],
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
 
         self.selection = (
@@ -117,6 +130,8 @@ class DAVISDATA(Dataset):
             data = self.transform(data)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        if self.transforms is not None:
+            data, target = self.transforms(data, target)
         return data, target
 
     def __len__(self):

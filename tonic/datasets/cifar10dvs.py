@@ -1,9 +1,10 @@
 import os
-import numpy as np
+from typing import Callable, Optional
 
-from tonic.io import read_aedat4
+import numpy as np
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
+from tonic.io import read_aedat4
 
 
 class CIFAR10DVS(Dataset):
@@ -24,6 +25,8 @@ class CIFAR10DVS(Dataset):
         save_to (string): Location to save files to on disk.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     url = "http://cifar10dvs.ridger.top/CIFAR10DVS.zip"
@@ -50,9 +53,18 @@ class CIFAR10DVS(Dataset):
     ordering = dtype.names
     sensor_size = (128, 128, 2)
 
-    def __init__(self, save_to, transform=None, target_transform=None):
-        super(CIFAR10DVS, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to: str,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
 
         # classes for CIFAR10DVS dataset
@@ -98,6 +110,8 @@ class CIFAR10DVS(Dataset):
             events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        if self.transforms is not None:
+            events, target = self.transforms(events, target)
         return events, target
 
     def __len__(self):

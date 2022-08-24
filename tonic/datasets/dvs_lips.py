@@ -1,4 +1,6 @@
 import os
+from typing import Callable, Optional
+
 import numpy as np
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
@@ -23,6 +25,8 @@ class DVSLip(Dataset):
         train (bool): If True, uses training subset, otherwise testing subset.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     base_url = "https://drive.google.com/file/d/1dBEgtmctTTWJlWnuWxFtk8gfOdVVpkQ0/view"
@@ -190,9 +194,19 @@ class DVSLip(Dataset):
         "worst",
     ]  # the 25 word pairs that are ambiguous (see paper)
 
-    def __init__(self, save_to, train=True, transform=None, target_transform=None):
-        super(DVSLip, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to: str,
+        train: bool = True,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
         self.train = train
         self.url = self.base_url
@@ -244,6 +258,8 @@ class DVSLip(Dataset):
             events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        if self.transforms is not None:
+            events, target = self.transforms(events, target)
         return events, target
 
     def __len__(self):

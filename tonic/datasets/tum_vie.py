@@ -1,16 +1,15 @@
 import os
-import numpy as np
+from typing import Callable, List, Optional, Union
+
 import h5py
-from numpy.lib import recfunctions
-from importRosbag.importRosbag import importRosbag
+import numpy as np
 from tonic.dataset import Dataset
 from tonic.download_utils import (
     check_integrity,
-    download_url,
     download_and_extract_archive,
+    download_url,
     list_files,
 )
-from typing import Union, List, Callable, Optional
 from tonic.io import make_structured_array
 
 
@@ -56,6 +55,8 @@ class TUMVIE(Dataset):
                             Can use 'all' to download all available recordings.
         transform (callable, optional): A callable of transforms to apply to events and/or images.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     base_url = "https://tumevent-vi.vision.in.tum.de/"
@@ -95,9 +96,13 @@ class TUMVIE(Dataset):
         recording: Union[str, List[str]],
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
     ):
-        super(TUMVIE, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
 
         if recording == "all" or ["all"]:
@@ -202,6 +207,8 @@ class TUMVIE(Dataset):
             data = self.transform(data)
         if self.target_transform is not None:
             targets = self.target_transform(targets)
+        if self.transforms is not None:
+            data, targets = self.transforms(data, targets)
         return data, targets
 
     def __len__(self):

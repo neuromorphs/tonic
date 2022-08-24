@@ -1,9 +1,11 @@
 import os
+from typing import Callable, Optional
+
 import numpy as np
 from importRosbag.importRosbag import importRosbag
-from tonic.io import make_structured_array
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url
+from tonic.io import make_structured_array
 
 
 class VPR(Dataset):
@@ -30,6 +32,9 @@ class VPR(Dataset):
     Parameters:
         save_to (string): Location to save files to on disk.
         transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     base_url = "https://zenodo.org/record/4302805/files/"
@@ -64,9 +69,18 @@ class VPR(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to, transform=None, target_transform=None):
-        super(VPR, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
 
         if not self._check_exists():
@@ -116,6 +130,8 @@ class VPR(Dataset):
             data = self.transform(data)
         if self.target_transform is not None:
             targets = self.target_transform(targets)
+        if self.transforms is not None:
+            data, targets = self.transforms(data, targets)
         return data, targets
 
     def __len__(self):

@@ -1,8 +1,9 @@
 import os
-import numpy as np
 from struct import unpack
+
+import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import download_and_extract_archive, extract_archive
+from tonic.download_utils import download_and_extract_archive
 from tonic.io import make_structured_array
 
 
@@ -18,25 +19,18 @@ class SMNIST(Dataset):
     the previous to the current pixel.
 
     Parameters:
-        save_to (string):                       Location to save files to on disk.
-        train (bool):                           If True, uses training subset,
-                                                otherwise testing subset.
-        duplicate (bool):                       If True, emits two spikes
-                                                per threshold crossing
-        num_neurons (integer):                  How many neurons to use to encode
-                                                thresholds(must be odd)
-        dt (float):                             Duration(in microseconds)
-                                                of each timestep
-        download (bool):                        Choose to download data or
-                                                verify existing files. If True
-                                                and a file with the same name
-                                                and correct hash is already
-                                                in the directory, download is
-                                                automatically skipped.
-        transform (callable, optional):         A callable of transforms
-                                                to apply to the data.
-        target_transform (callable, optional):  A callable of transforms to
-                                                apply to the targets/labels.
+        save_to (string): Location to save files to on disk.
+        train (bool): If True, uses training subset, otherwise testing subset.
+        duplicate (bool): If True, emits two spikes per threshold crossing
+        num_neurons (integer): How many neurons to use to encode thresholds(must be odd)
+        dt (float): Duration(in microseconds) of each timestep
+        download (bool): Choose to download data or verify existing files. If True
+                        and a file with the same name and correct hash is already
+                        in the directory, download is automatically skipped.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
 
      Returns:
          A dataset object that can be indexed or iterated over.

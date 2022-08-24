@@ -1,9 +1,9 @@
 import os
-import numpy as np
+from typing import Callable, Optional
 
-from tonic.io import read_mnist_file
+import numpy as np
 from tonic.dataset import Dataset
-from tonic.download_utils import extract_archive
+from tonic.io import read_mnist_file
 
 
 class NCALTECH101(Dataset):
@@ -26,6 +26,8 @@ class NCALTECH101(Dataset):
         save_to (string): Location to save files to on disk.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     url = "https://data.mendeley.com/public-files/datasets/cy6cvx3ryv/files/36b5c52a-b49d-4853-addb-a836a8883e49/file_downloaded"
@@ -38,9 +40,18 @@ class NCALTECH101(Dataset):
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to, transform=None, target_transform=None):
-        super(NCALTECH101, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to: str,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
 
         if not self._check_exists():
@@ -68,6 +79,8 @@ class NCALTECH101(Dataset):
             events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        if self.transforms is not None:
+            events, target = self.transforms(events, target)
         return events, target
 
     def __len__(self):

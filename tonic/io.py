@@ -1,7 +1,8 @@
 import os
 import struct
-import numpy as np
 
+import numpy as np
+from numpy.lib import recfunctions
 
 events_struct = np.dtype(
     [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]

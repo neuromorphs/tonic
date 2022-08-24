@@ -1,4 +1,6 @@
 import os
+from typing import Callable, Optional
+
 import numpy as np
 from tonic.dataset import Dataset
 
@@ -25,6 +27,8 @@ class DVSGesture(Dataset):
         train (bool): If True, uses training subset, otherwise testing subset.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
@@ -54,9 +58,19 @@ class DVSGesture(Dataset):
     dtype = np.dtype([("x", np.int16), ("y", np.int16), ("p", bool), ("t", np.int64)])
     ordering = dtype.names
 
-    def __init__(self, save_to, train=True, transform=None, target_transform=None):
-        super(DVSGesture, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to: str,
+        train: bool = True,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
         self.train = train
 
@@ -95,6 +109,8 @@ class DVSGesture(Dataset):
             events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        if self.transforms is not None:
+            events, target = self.transforms(events, target)
         return events, target
 
     def __len__(self):

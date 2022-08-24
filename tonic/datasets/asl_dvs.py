@@ -1,8 +1,8 @@
 import os
+from typing import Any, Callable, Optional, Tuple
+
 import numpy as np
-from numpy.lib import recfunctions
 import scipy.io as scio
-from typing import Tuple, Any, Optional
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
 from tonic.io import make_structured_array
@@ -24,6 +24,8 @@ class ASLDVS(Dataset):
         save_to (string): Location to save files to on disk.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     url = "https://www.dropbox.com/sh/ibq0jsicatn7l6r/AACNrNELV56rs1YInMWUs9CAa?dl=1"
@@ -37,9 +39,18 @@ class ASLDVS(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to, transform=None, target_transform=None):
-        super(ASLDVS, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to: str,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
 
         if not self._check_exists():
@@ -76,6 +87,8 @@ class ASLDVS(Dataset):
             events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        if self.transforms is not None:
+            events, target = self.transforms(events, target)
         return events, target
 
     def __len__(self):

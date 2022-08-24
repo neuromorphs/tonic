@@ -1,4 +1,6 @@
 import os
+from typing import Callable, Optional
+
 import numpy as np
 from importRosbag.importRosbag import importRosbag
 from tonic.dataset import Dataset
@@ -25,6 +27,8 @@ class MVSEC(Dataset):
                         'MVSEC/{scene}/bag_files.bag'.
         transform (callable, optional): A callable of transforms to apply to events and / or images for both left and right cameras.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and
+                                         labels at the same time.
     """
 
     resources = {
@@ -63,9 +67,19 @@ class MVSEC(Dataset):
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to, scene, transform=None, target_transform=None):
-        super(MVSEC, self).__init__(
-            save_to, transform=transform, target_transform=target_transform
+    def __init__(
+        self,
+        save_to: str,
+        scene: str,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
+        super().__init__(
+            save_to,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
         )
         self.scene = scene
         if not scene in self.resources.keys():
@@ -141,6 +155,8 @@ class MVSEC(Dataset):
             data = self.transform(data)
         if self.target_transform is not None:
             targets = self.transform(targets)
+        if self.transforms is not None:
+            data, targets = self.transforms(data, targets)
         return data, targets
 
     def __len__(self):

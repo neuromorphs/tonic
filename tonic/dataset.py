@@ -1,6 +1,8 @@
 import os.path
-from .download_utils import check_integrity, download_and_extract_archive
 from pathlib import Path
+from typing import Callable, Optional
+
+from .download_utils import check_integrity, download_and_extract_archive
 
 
 class Dataset:
@@ -8,10 +10,17 @@ class Dataset:
     Base class for Tonic datasets which download public data. Contains a few helper function to reduce duplicated code.
     """
 
-    def __init__(self, save_to="./", transform=None, target_transform=None):
+    def __init__(
+        self,
+        save_to: str,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
+    ):
         self.location_on_system = os.path.join(save_to, self.__class__.__name__)
         self.transform = transform
         self.target_transform = target_transform
+        self.transforms = transforms
         self.data = []
         self.targets = []
         self.folder_name = ""
