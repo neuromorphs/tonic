@@ -1,15 +1,12 @@
 import os
-import numpy as np
-import h5py
-from typing import Optional, List, Union, Callable
-from tonic.dataset import Dataset
-from tonic.download_utils import (
-    download_and_extract_archive,
-    download_url,
-    list_files,
-)
-from tonic.io import make_structured_array
 import warnings
+from typing import Callable, List, Optional, Union
+
+import h5py
+import numpy as np
+from tonic.dataset import Dataset
+from tonic.download_utils import download_and_extract_archive, download_url, list_files
+from tonic.io import make_structured_array
 
 
 class DSEC(Dataset):
@@ -24,6 +21,7 @@ class DSEC(Dataset):
     only a subset of 18 training recordings will be selected.
 
     .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
+              If you're using optical flow targets, you'll also need the `imageio` package.
 
     Parameters:
         save_to (str): Location to save files to on disk.
@@ -259,7 +257,6 @@ class DSEC(Dataset):
             elif data_name == "image_timestamps":
                 with open(full_base_folder + f"/{recording}_image_timestamps.txt") as f:
                     data = np.array([int(line) for line in f.readlines()])
-                data -= data[0]
             data_tuple.append(data)
 
         if self.transform is not None:
@@ -271,13 +268,24 @@ class DSEC(Dataset):
             if target_name in [
                 "disparity_event",
                 "disparity_image",
-                "optical_flow_forward_event",
-                "optical_flow_backward_event",
             ]:
                 png_filenames = list_files(full_base_folder, ".png", prefix=True)
                 target = np.stack(
                     [np.array(Image.open(file)) for file in png_filenames]
                 )
+
+            elif target_name in [
+                "optical_flow_forward_event",
+                "optical_flow_backward_event",
+            ]:
+                import imageio
+
+                png_filenames = list_files(full_base_folder, ".png", prefix=True)
+                target = np.array(
+                    [imageio.imread(file, format="PNG-FI") for file in png_filenames]
+                )
+                target[:, :, :, :2] -= 2 ^ 15
+                target[:, :, :, :2] /= 128
 
             elif target_name == "disparity_timestamps":
                 with open(full_base_folder + f"/{recording}_{target_name}.txt") as f:
@@ -326,7 +334,6 @@ class DSEC(Dataset):
                 url = f"{self.base_url}{self.train_or_test}/{recording}/{file_name}"
                 if extension == ".zip":
                     download_and_extract_archive(url, file_folder)
-                    if "images" in data_name or "events" in data_name:
-                        os.remove(os.path.join(file_folder, file_name))
+                    os.remove(os.path.join(file_folder, file_name))
                 else:
                     download_url(url, file_folder)
