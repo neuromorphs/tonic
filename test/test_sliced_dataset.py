@@ -1,15 +1,17 @@
-from curses import meta
-from tonic.datasets import POKERDVS
-from tonic import SlicedDataset
-from tonic.slicers import SliceByEventCount
+import os
 import shutil
+
+from tonic import SlicedDataset
+from tonic.datasets import POKERDVS
+from tonic.slicers import SliceByEventCount
 
 
 def test_sliced_dataset():
     dataset = POKERDVS(save_to="./data/", train=False)
 
     metadata_path = "./cache/metadata"
-    shutil.rmtree(metadata_path)
+    if os.path.exists(metadata_path):
+        shutil.rmtree(metadata_path)
 
     target_number = 0
     for data, label in dataset:
