@@ -83,15 +83,15 @@ def test_optical_flow():
         split="thun_00_a",
         data_selection="image_timestamps",
         target_selection=[
-            "optical_flow_forward_event",
-            "optical_flow_backward_event",
+            # "optical_flow_forward_event",
+            # "optical_flow_backward_event",
             "optical_flow_forward_timestamps",
             "optical_flow_backward_timestamps",
         ],
     )
     data, targets = dataset[0]
     assert len(data) == 1
-    assert len(targets) == 4
+    assert len(targets) == 2
 
 
 def test_raises_exception_wrong_recording_name():

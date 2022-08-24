@@ -126,7 +126,7 @@ class DSEC(Dataset):
     }
 
     sensor_size = (640, 480, 2)
-    dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+    dtype = np.dtype([("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)])
     ordering = dtype.names
 
     def __init__(
@@ -235,16 +235,15 @@ class DSEC(Dataset):
         for data_name in self.data_selection:
             full_base_folder = os.path.join(base_folder, data_name)
             if data_name in ["events_left", "events_right"]:
-                file = h5py.File(full_base_folder + "/events.h5")
-                events_file = file["events"]
-                data = make_structured_array(
-                    events_file["x"][()],
-                    events_file["y"][()],
-                    events_file["t"][()],
-                    events_file["p"][()],
-                    dtype=self.dtype,
-                )
-                data["t"] += file["t_offset"][()]
+                with h5py.File(full_base_folder + "/events.h5", "r") as file:
+                    data = make_structured_array(
+                        file["events"]["x"][()],
+                        file["events"]["y"][()],
+                        file["events"]["t"][()],
+                        file["events"]["p"][()],
+                        dtype=self.dtype,
+                    )
+                    data["t"] += file["t_offset"][()]
 
             elif "images" in data_name:
                 images_rectified_filenames = list_files(
@@ -282,7 +281,7 @@ class DSEC(Dataset):
 
                 png_filenames = list_files(full_base_folder, ".png", prefix=True)
                 target = np.array(
-                    [imageio.imread(file, format="PNG-FI") for file in png_filenames]
+                    [imageio.v2.imread(file, format="PNG-FI") for file in png_filenames]
                 )
                 target[:, :, :, :2] -= 2 ^ 15
                 target[:, :, :, :2] /= 128
