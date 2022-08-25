@@ -7,11 +7,12 @@ author = "Gregor Lenz"
 master_doc = "index"
 
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
-    "pbr.sphinxext",
     "myst_nb",
+    "pbr.sphinxext",
+    "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
     "sphinx_gallery.gen_gallery",
 ]
 
