@@ -1,7 +1,7 @@
 import os
 import h5py
 from dataclasses import dataclass
-from typing import Iterable, List, Any, Optional, Callable
+from typing import Iterable, Any, Optional, Callable
 
 from .slicers import Slicer
 
@@ -39,6 +39,7 @@ class SlicedDataset:
                        every time.
         transform: Transforms to be applied on the data
         target_transform: Transforms to be applied on the label/targets
+        transforms: A callable of transforms that is applied to both data and labels at the same time.
     """
 
     dataset: Iterable
@@ -46,6 +47,7 @@ class SlicedDataset:
     metadata_path: Optional[str] = None
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
+    transforms: Optional[Callable] = None
 
     def __post_init__(self):
         """
@@ -83,12 +85,16 @@ class SlicedDataset:
         data_slice, target_slice = self.slicer.slice_with_metadata(
             data, targets, [self.metadata[dataset_index][slice_index]]
         )
-        if len(data_slice) == 1:
+        if isinstance(data_slice, list) and len(data_slice) == 1:
             data_slice = data_slice[0]
+        if isinstance(target_slice, list) and len(target_slice) == 1:
+            target_slice = target_slice[0]
         if self.transform:
             data_slice = self.transform(data_slice)
         if self.target_transform:
             target_slice = self.target_transform(target_slice)
+        if self.transforms is not None:
+            data_slice, target_slice = self.transforms(data_slice, target_slice)
         return data_slice, target_slice
 
     def __len__(self):

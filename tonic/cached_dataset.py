@@ -1,12 +1,13 @@
+import logging
 import os
 import shutil
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable, Iterable, Optional, Tuple, Union
+from warnings import warn
+
 import h5py
 import numpy as np
-import logging
-from warnings import warn
-from pathlib import Path
-from typing import Callable, Optional, Tuple, Iterable, Union
-from dataclasses import dataclass
 
 
 @dataclass
@@ -27,12 +28,15 @@ class MemoryCachedDataset:
             Transforms to be applied on the data
         target_transform:
             Transforms to be applied on the label/targets
+        transforms:
+            A callable of transforms that is applied to both data and labels at the same time.
     """
 
     dataset: Iterable
     device: Optional[str] = None
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
+    transforms: Optional[Callable] = None
 
     def __post_init__(self):
         super().__init__()
@@ -48,10 +52,12 @@ class MemoryCachedDataset:
                 targets = targets.to(self.device)
             self.data_dict[index] = (data, targets)
 
-        if self.transform:
+        if self.transform is not None:
             data = self.transform(data)
-        if self.target_transform:
+        if self.target_transform is not None:
             targets = self.target_transform(targets)
+        if self.transforms is not None:
+            data, targets = self.transforms(data, targets)
         return data, targets
 
     def __len__(self):
@@ -81,6 +87,8 @@ class DiskCachedDataset:
             Transforms to be applied on the data
         target_transform:
             Transforms to be applied on the label/targets
+        transforms:
+            A callable of transforms that is applied to both data and labels at the same time.
         num_copies:
             Number of copies of each sample to be cached.
             This is a useful parameter if the dataset is being augmented with slow, random transforms.
@@ -93,6 +101,7 @@ class DiskCachedDataset:
     reset_cache: bool = False
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
+    transforms: Optional[Callable] = None
     num_copies: int = 1
     compression: bool = True
 
@@ -137,10 +146,12 @@ class DiskCachedDataset:
             # i.e. tensors -> np arrays
             data, targets = load_from_disk_cache(file_path)
 
-        if self.transform:
+        if self.transform is not None:
             data = self.transform(data)
-        if self.target_transform:
+        if self.target_transform is not None:
             targets = self.target_transform(targets)
+        if self.transforms is not None:
+            data, targets = self.transforms(data, targets)
         return data, targets
 
     def __len__(self):
