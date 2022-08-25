@@ -13,8 +13,10 @@ def make_structured_array(*args, dtype=events_struct):
     """
     Make a structured array given a variable number of argument values
 
-    Args:
-        *args: Values in the form of nested lists or tuples or numpy arrays. Every except the first argument can be of a primitive data type like int or float
+    Parameters:
+        *args: Values in the form of nested lists or tuples or numpy arrays.
+               Every except the first argument can be of a primitive data type like int or float.
+
     Returns:
         struct_arr: numpy structured array with the shape of the first argument
     """
@@ -30,16 +32,17 @@ def make_structured_array(*args, dtype=events_struct):
 
 
 def read_aedat4(in_file):
-    import loris
-
     """
     Get the aer events from version 4 of .aedat file
 
-    Args:
+    Parameters:
         in_file: str The name of the .aedat file
+
     Returns:
         xytp:   numpy structured array of events
     """
+    import loris
+
     event_data = loris.read_file(in_file)
     events = event_data["events"]
     return events
@@ -49,8 +52,9 @@ def read_dvs_128(filename):
     """
     Get the aer events from DVS with resolution of rows and cols are (128, 128)
 
-    Args:
+    Parameters:
         filename: filename
+
     Returns:
         shape (tuple):
             (height, width) of the sensor array
@@ -74,8 +78,9 @@ def read_dvs_ibm(filename):
     """
     Get the aer events from DVS with ibm gesture dataset
 
-    Args:
+    Parameters:
         filename:   filename
+
     Returns:
         shape (tuple):
             (height, width) of the sensor array
@@ -98,13 +103,15 @@ def read_dvs_ibm(filename):
 def read_dvs_red(filename):
     """
     Get the aer events from DVS with resolution of (260, 346)
-    Args:
+
+    Parameters:
         filename:   filename
+
     Returns:
         shape (tuple):
             (height, width) of the sensor array
 
-        xytp: numpy structured array of events
+        events: numpy structured array of events
     """
     data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
@@ -124,8 +131,9 @@ def read_dvs_346mini(filename):
     """
     Get the aer events from DVS with resolution of (132,104)
 
-    Args:
+    Parameters:
         filename: filename
+
     Returns:
         shape (tuple):
             (height, width) of the sensor array
@@ -146,10 +154,10 @@ def read_dvs_346mini(filename):
     return shape, xytp
 
 
-def read_mnist_file(bin_file, dtype):
+def read_mnist_file(bin_file: str, dtype: np.dtype):
     """
-    Reads in the TD events contained in the N-MNIST/N-CALTECH101 dataset file specified by 'filename'
-    (Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py)
+    Reads the events contained in N-MNIST/N-CALTECH101 datasets.
+    Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py
     """
     f = open(bin_file, "rb")
     raw_data = np.fromfile(f, dtype=np.uint8)
@@ -184,8 +192,7 @@ def read_aedat_header_from_file(filename):
     """
     Get the aedat file version and start index of the binary data.
 
-    Args:
-
+    Parameters:
         filename (str):     The name of the .aedat file
 
     Returns:
@@ -214,7 +221,7 @@ def get_aer_events_from_file(filename, data_version, data_start):
     """
     Get aer events from an aer file.
 
-    Args:
+    Parameters:
         filename (str):         The name of the .aedat file
         data_version (float):   The version of the .aedat file
         data_start (int):       The start index of the data

@@ -5,44 +5,52 @@ import numpy as np
 
 
 class Slicer(Protocol):
-    def get_slice_metadata(self, data: Any, targets: Any) -> List[Any]:
+    """
+    Base protocol class for slicers in Tonic. That means that you don't have to
+    directly inherit from it, but just implement its methods.
+    """
+
+    def get_slice_metadata(self, data: Any, targets: Any) -> List[Tuple[Any]]:
         """
-        This method returns the meta data that helps with slicing of the given data.
-        Eg. it could return the indices at which the data would be sliced.
-        The return value of this method should be usable by the method slice_with_meta.
+        This method returns the metadata for each recording that helps with slicing,
+        for example the indices or timestamps at which the data would be sliced.
+        The return value is typically a list of tuples that contain start and stop
+        information for each slice.
 
         Parameters:
             data: Normally a tuple of data pieces.
             target: Normally a tuple of target pieces.
 
         Returns:
-            metadata
+            metadata as a list of tuples of start and end indices, timestamps, etc.
         """
         ...
 
     def slice_with_metadata(self, data: Any, targets: Any, metadata: Any) -> List[Any]:
         """
-        Slice the data using the metadata.
+        Given a piece of data and/or targets, cut out a certain part of it
+        based on the start/end information given in metadata.
+
         Parameters:
             data: Normally a tuple of data pieces.
             target: Normally a tuple of target pieces.
-            metadata: An array that links a sample index in the sliced dataset
-                      to the original recording in the non-sliced dataset.
+            metadata: An array that contains start and stop information about one slice.
 
         Returns:
-            sliced_data
+            A subset of the original data/targets which is a slice.
         """
         ...
 
     def slice(self, data: Any, targets: Any) -> List[Any]:
         """
-        Slice the given data and return the sliced data
+        Generate metadata and return all slices at once.
+
         Parameters:
             data: Normally a tuple of data pieces.
             target: Normally a tuple of target pieces.
 
         Returns:
-            sliced_data
+            The whole data and targets sliced into smaller slices.
         """
         ...
 
@@ -52,6 +60,7 @@ class SliceByTime:
     """
     Slices an event array along fixed time window and overlap size.
     The number of bins depends on the length of the recording.
+    Targets are copied.
     >        <overlap>
     >|    window1     |
     >        |   window2     |
@@ -99,17 +108,14 @@ class SliceByTime:
 @dataclass
 class SliceByTimeBins:
     """
-    Slices data and targets along fixed number of bins of time length max_time / bin_count * (1+overlap).
+    Slices data and targets along fixed number of bins of time length time_duration / bin_count * (1 + overlap).
     This method is good if your recordings all have roughly the same time length and you want an equal
-    number of bins for each recording.
+    number of bins for each recording. Targets are copied.
 
     Parameters:
         bin_count (int): number of bins
         overlap (float): overlap specified as a proportion of a bin, needs to be smaller than 1. An overlap of 0.1
                     signifies that the bin will be enlarged by 10%. Amount of bins stays the same.
-
-    Returns:
-        list of event slices (np.ndarray)
     """
 
     bin_count: int
@@ -148,14 +154,12 @@ class SliceByEventCount:
     """
     Slices data and targets along a fixed number of events and overlap size.
     The number of bins depends on the amount of events in the recording.
+    Targets are copied.
 
     Parameters:
         event_count (int): number of events for each bin
         overlap (int): overlap in number of events
         include_incomplete (bool): include the last incomplete slice that has fewer events
-
-    Returns:
-        list of event slices (np.ndarray)
     """
 
     event_count: int
@@ -197,15 +201,12 @@ class SliceByEventBins:
     """
     Slices an event array along fixed number of bins that each have n_events // bin_count * (1 + overlap) events.
     This slicing method is good if you recordings have all roughly the same amount of overall activity in the scene
-    and you want an equal number of bins for each recording.
+    and you want an equal number of bins for each recording. Targets are copied.
 
     Parameters:
         bin_count (int): number of bins
         overlap (float): overlap in proportion of a bin, needs to be smaller than 1. An overlap of 0.1
                     signifies that the bin will be enlarged by 10%. Amount of bins stays the same.
-
-    Returns:
-        list of event slices (np.ndarray)
     """
 
     bin_count: int
@@ -236,11 +237,11 @@ class SliceByEventBins:
 @dataclass
 class SliceAtIndices:
     """
-    Slices data at the specified indices.
+    Slices data at the specified event indices. Targets are copied.
 
     Parameters:
-        start_indices: (List[Int]): List of start indices
-        end_indices: (List[Int]): List of end indices (exclusive)
+        start_indices (list): List of start indices
+        end_indices (list): List of end indices (exclusive)
     """
 
     start_indices: np.ndarray
@@ -268,8 +269,8 @@ class SliceAtTimePoints:
     Slice the data at the specified time points.
 
     Parameters:
-        tw_start: (List[Int]): List of start times
-        tw_end: (List[Int]): List of end times
+        tw_start (list): List of start times
+        tw_end (list): List of end times
     """
 
     start_tw: np.ndarray

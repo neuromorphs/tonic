@@ -1,6 +1,15 @@
 Slicers
 =======
 
-.. automodule:: tonic.slicers
-    :members:
-    
+.. currentmodule:: tonic.slicers
+
+.. autosummary::
+    :toctree: generated/
+
+    SliceByTime
+    SliceAtTimePoints
+    SliceByTimeBins
+    SliceByEventCount
+    SliceByEventBins
+    SliceAtIndices
+    Slicer

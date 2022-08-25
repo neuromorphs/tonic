@@ -19,7 +19,7 @@ transform = tonic.transforms.ToImage(
     sensor_size=nmnist.sensor_size,
 )
 
-image = transform(events)
+image = transform(events[:1000])
 
 plt.imshow(image[1] - image[0])
 plt.axis(False)
