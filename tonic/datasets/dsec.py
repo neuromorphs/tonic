@@ -20,8 +20,7 @@ class DSEC(Dataset):
     Optical flow targets are not available for every recording, so if you select optical flow targets,
     only a subset of 18 training recordings will be selected.
 
-    .. note:: To be able to read this dataset, you will need `hdf5plugin` and `PIL` packages installed.
-              If you're using optical flow targets, you'll also need the `imageio` package.
+    .. note:: To be able to read this dataset, you will need `hdf5plugin`, `PIL` and `imageio` packages installed.
 
     Parameters:
         save_to (str): Location to save files to on disk.
@@ -233,6 +232,9 @@ class DSEC(Dataset):
         """
         import hdf5plugin  # necessary to read event files
         from PIL import Image  # necessary to read images
+        import imageio  # necessary to read optical flow pngs
+
+        imageio.plugins.freeimage.download()
 
         recording = self.recording_selection[index]
         base_folder = os.path.join(self.location_on_system, recording)
@@ -283,8 +285,6 @@ class DSEC(Dataset):
                 "optical_flow_forward_event",
                 "optical_flow_backward_event",
             ]:
-                import imageio
-
                 png_filenames = list_files(full_base_folder, ".png", prefix=True)
                 target = np.array(
                     [imageio.imread(file, format="PNG-FI") for file in png_filenames]

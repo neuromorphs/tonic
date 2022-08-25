@@ -4,7 +4,7 @@ import pytest
 
 def test_train_split():
     dataset = tonic.datasets.DSEC(
-        "data",
+        save_to="data",
         split="train",
         data_selection=[],
     )
@@ -13,7 +13,7 @@ def test_train_split():
 
 def test_test_split():
     dataset = tonic.datasets.DSEC(
-        "data",
+        save_to="data",
         split="test",
         data_selection=[],
     )
@@ -22,7 +22,7 @@ def test_test_split():
 
 def test_optical_flow_subset():
     dataset = tonic.datasets.DSEC(
-        "data",
+        save_to="data",
         split="train",
         data_selection=[],
         target_selection="optical_flow_forward_timestamps",
@@ -35,7 +35,7 @@ def test_optical_flow_subset():
 
 def test_data_selection():
     dataset = tonic.datasets.DSEC(
-        "data", split="thun_00_a", data_selection="image_timestamps"
+        save_to="data", split="thun_00_a", data_selection="image_timestamps"
     )
     data, targets = dataset[0]
     assert len(data) == 1
@@ -44,7 +44,7 @@ def test_data_selection():
 
 def test_multi_data_selection():
     dataset = tonic.datasets.DSEC(
-        "data",
+        save_to="data",
         split="thun_00_a",
         data_selection=["image_timestamps", "image_exposure_timestamps_left"],
     )
@@ -55,7 +55,7 @@ def test_multi_data_selection():
 
 def test_target_selection():
     dataset = tonic.datasets.DSEC(
-        "data",
+        save_to="data",
         split="thun_00_a",
         data_selection=[],
         target_selection="disparity_timestamps",
@@ -67,7 +67,7 @@ def test_target_selection():
 
 def test_target_multiselection():
     dataset = tonic.datasets.DSEC(
-        "data",
+        save_to="data",
         split="thun_00_a",
         data_selection="image_timestamps",
         target_selection=["disparity_timestamps", "optical_flow_forward_timestamps"],
@@ -79,14 +79,12 @@ def test_target_multiselection():
 
 def test_optical_flow():
     dataset = tonic.datasets.DSEC(
-        "data",
+        save_to="data",
         split="thun_00_a",
         data_selection="image_timestamps",
         target_selection=[
-            # "optical_flow_forward_event",
-            # "optical_flow_backward_event",
+            "optical_flow_forward_event",
             "optical_flow_forward_timestamps",
-            "optical_flow_backward_timestamps",
         ],
     )
     data, targets = dataset[0]
@@ -97,19 +95,21 @@ def test_optical_flow():
 def test_raises_exception_wrong_recording_name():
     with pytest.raises(Exception):
         tonic.datasets.DSEC(
-            "data", split="wrong_name", data_selection=["image_timestamps"]
+            save_to="data", split="wrong_name", data_selection=["image_timestamps"]
         )
 
 
 def test_raises_exception_data_name():
     with pytest.raises(Exception):
-        tonic.datasets.DSEC("data", split="thun_00_a", data_selection="wrong_data")
+        tonic.datasets.DSEC(
+            save_to="data", split="thun_00_a", data_selection="wrong_data"
+        )
 
 
 def test_raises_exception_wrong_recording_name():
     with pytest.raises(Exception):
         tonic.datasets.DSEC(
-            "data",
+            save_to="data",
             split="thun_00_a",
             data_selection=[],
             target_selection="wrong_target",
@@ -119,7 +119,7 @@ def test_raises_exception_wrong_recording_name():
 def test_raises_exception_combination_test_train():
     with pytest.raises(Exception):
         tonic.datasets.DSEC(
-            "data",
+            save_to="data",
             split=["zurich_city_11_c", "thun_01_a"],
             data_selection=["image_timestamps"],
         )
@@ -128,7 +128,7 @@ def test_raises_exception_combination_test_train():
 def test_raises_exception_targets_for_test():
     with pytest.raises(Exception):
         tonic.datasets.DSEC(
-            "data",
+            save_to="data",
             split="test",
             data_selection=["image_timestamps"],
             target_selection="disparity_timestamps",
