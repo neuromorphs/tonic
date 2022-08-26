@@ -17,6 +17,7 @@ Transforms on events
     :toctree: generated/
     :template: class_transform.rst
 
+    CenterCrop
     CropTime
     Denoise
     Decimation

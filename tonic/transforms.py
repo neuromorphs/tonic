@@ -36,6 +36,35 @@ class Compose:
 
 
 @dataclass
+class CenterCrop:
+    """Crops events at the center to a specific output size. If output size
+    is smaller than input sensor size along any dimension, padding will be used,
+    which doesn't influence the number of events but just their spatial location
+    after cropping.
+    """
+
+    sensor_size: Tuple[int, int, int]
+    size: Union[int, Tuple[int, int]]
+
+    def __call__(self, events: np.ndarray) -> np.ndarray:
+        if type(self.size) == int:
+            self.size = [self.size, self.size]
+        offsets = (self.sensor_size[0] - self.size[0]) // 2, (
+            self.sensor_size[1] - self.size[1]
+        ) // 2
+        offset_idx = [max(offset, 0) for offset in offsets]
+        cropped_events = events[
+            (offset_idx[0] <= events["x"])
+            & (events["x"] < (offset_idx[0] + self.size[0]))
+            & (offset_idx[1] <= events["y"])
+            & (events["y"] < (offset_idx[1] + self.size[1]))
+        ]
+        cropped_events["x"] -= offsets[0]
+        cropped_events["y"] -= offsets[1]
+        return cropped_events
+
+
+@dataclass
 class CropTime:
     """Drops events with timestamps below min and above max.
 
@@ -94,7 +123,6 @@ class Decimation:
     n: int
 
     def __call__(self, events):
-
         return functional.decimate_numpy(events=events, n=self.n)
 
 

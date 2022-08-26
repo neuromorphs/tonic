@@ -5,6 +5,23 @@ import itertools
 from utils import create_random_input
 
 
+@pytest.mark.parametrize(
+    "sensor_size, size",
+    itertools.product(((120, 120, 2), (120, 30, 2)), (50, (50, 50))),
+)
+def test_center_crop(sensor_size, size):
+    orig_events, _ = create_random_input(sensor_size=sensor_size)
+
+    transform = transforms.CenterCrop(sensor_size=sensor_size, size=size)
+
+    events = transform(orig_events)
+
+    if type(size) == int:
+        size = [size, size]
+    assert all(0 <= events["x"]) and all(events["x"] < size[0])
+    assert all(0 <= events["y"]) and all(events["y"] < size[1])
+
+
 @pytest.mark.parametrize("min, max", itertools.product((0, 1000), (None, 5000)))
 def test_crop_time(min, max):
     orig_events, sensor_size = create_random_input()
