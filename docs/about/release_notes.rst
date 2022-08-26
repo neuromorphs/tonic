@@ -1,6 +1,16 @@
 Release notes
 =============
 
+1.2.1 (26/08/2022)
+------------------
+* Major rewrite of DSEC dataset. It's now possible to choose from any combination of recordings, train/test split, data and targets.
+* Support for target slicing in SlicedDataset. Previously we could only slice data, now we can do slicing based on data and targets.
+* `transforms` parameter for most datasets. This allows a user to pass a transform that will be called on data and targets at the same time.
+* `CenterCrop` transform for events, similar to what the frame-based equivalent does.
+* Improvements under the hood: slicers consolidation in one file, bug fixes, documentation updates
+* Exploration for the new Torch Data API under tonic/prototype. Thanks to @fabhertz95
+* Make it easier to sample from parameter ranges for transforms such as DropEvent, RefractoryPeriod and the like.
+
 1.1.0 (09/07/2022)
 ------------------
 A minor release with many additional features. Some transformation parameter names might have been changed without it being recorded here.
