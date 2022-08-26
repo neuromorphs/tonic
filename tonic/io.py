@@ -39,7 +39,7 @@ def read_aedat4(in_file):
         in_file: str The name of the .aedat file
 
     Returns:
-        xytp:   numpy structured array of events
+        events:   numpy structured array of events
     """
     import loris
 

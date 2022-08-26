@@ -151,8 +151,7 @@ class SHDTestCaseTrain(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "SHD/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "shd_train.h5"
-        create_hsd_data(testfolder + filename, n_samples=2)
+        create_hsd_data(testfolder + "shd_train.h5", n_samples=2)
         return {"n_samples": 2}
 
 
@@ -165,8 +164,7 @@ class SHDTestCaseTest(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "SHD/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "shd_test.h5"
-        create_hsd_data(testfolder + filename, n_samples=1)
+        create_hsd_data(testfolder + "shd_test.h5", n_samples=1)
         return {"n_samples": 1}
 
 
@@ -179,8 +177,7 @@ class SSCTestCaseTrain(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "SSC/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "ssc_train.h5"
-        create_hsd_data(testfolder + filename, n_samples=3)
+        create_hsd_data(testfolder + "ssc_train.h5", n_samples=3)
         return {"n_samples": 3}
 
 
@@ -193,8 +190,7 @@ class SSCTestCaseValid(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "SSC/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "ssc_valid.h5"
-        create_hsd_data(testfolder + filename, n_samples=4)
+        create_hsd_data(testfolder + "ssc_valid.h5", n_samples=4)
         return {"n_samples": 4}
 
 
@@ -207,6 +203,5 @@ class SSCTestCaseTest(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "SSC/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "ssc_test.h5"
-        create_hsd_data(testfolder + filename, n_samples=5)
+        create_hsd_data(testfolder + "ssc_test.h5", n_samples=5)
         return {"n_samples": 5}
