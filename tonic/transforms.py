@@ -39,8 +39,14 @@ class Compose:
 class CenterCrop:
     """Crops events at the center to a specific output size. If output size
     is smaller than input sensor size along any dimension, padding will be used,
-    which doesn't influence the number of events but just their spatial location
-    after cropping.
+    which doesn't influence the number of events on that axis but just their spatial location
+    after cropping. Make sure to use the cropped sensor size for any transform
+    after CenterCrop.
+
+    Parameters:
+        sensor_size (tuple): Size of the sensor that was used [W,H,P]
+        size (sequence or int): Desired output size of the crop. If size is an
+            int instead of sequence like (h, w), a square crop (size, size) is made.
     """
 
     sensor_size: Tuple[int, int, int]
