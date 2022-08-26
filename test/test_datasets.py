@@ -1,10 +1,12 @@
+import os
+
+import h5py
 import numpy as np
 import tonic.datasets as datasets
-import dataset_utils
-import os
-from utils import create_random_input
 from tonic.download_utils import download_url
 
+import dataset_utils
+from utils import create_random_input
 
 base_url = "https://www.neuromorphic-vision.com/public/downloads/dataset_samples/"
 
@@ -54,6 +56,39 @@ class DVSGestureTestCaseTest(dataset_utils.DatasetTestCase):
         return {"n_samples": 1}
 
 
+class DVSLipTestCaseTrain(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.DVSLip
+    FEATURE_TYPES = (datasets.DVSLip.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": True}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "DVSLip/DVS-Lip/train/accused")
+        os.makedirs(testfolder, exist_ok=True)
+        events, sensor_size = create_random_input(
+            dtype=np.dtype([("t", "<i4"), ("x", "i1"), ("y", "i1"), ("p", "i1")])
+        )
+        np.save(testfolder + "/0.npy", events)
+        np.save(testfolder + "/1.npy", events)
+        return {"n_samples": 2}
+
+
+class DVSLipTestCaseTest(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.DVSLip
+    FEATURE_TYPES = (datasets.DVSLip.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": False}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "DVSLip/DVS-Lip/test/accused")
+        os.makedirs(testfolder, exist_ok=True)
+        events, sensor_size = create_random_input(
+            dtype=np.dtype([("t", "<i4"), ("x", "i1"), ("y", "i1"), ("p", "i1")])
+        )
+        np.save(testfolder + "/0.npy", events)
+        return {"n_samples": 1}
+
+
 class NCaltech101TestCase(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NCALTECH101
     FEATURE_TYPES = (datasets.NCALTECH101.dtype,)
@@ -96,34 +131,82 @@ class NMNISTTestCaseTest(dataset_utils.DatasetTestCase):
         return {"n_samples": 1}
 
 
-class DVSLipTestCaseTrain(dataset_utils.DatasetTestCase):
-    DATASET_CLASS = datasets.DVSLip
-    FEATURE_TYPES = (datasets.DVSLip.dtype,)
+def create_hsd_data(filename, n_samples):
+    with h5py.File(filename, mode="w") as write_file:
+        times = np.random.random(size=(n_samples, 100)).astype(np.float16)
+        units = (np.random.random(size=(n_samples, 100)) * 700).astype(np.uint16)
+        keys = ["zero", "one"]
+        write_file.create_dataset("spikes/units", data=units)
+        write_file.create_dataset("spikes/times", data=times)
+        write_file.create_dataset("labels", data=[1] * n_samples)
+        write_file.create_dataset("extra/keys", data=keys)
+
+
+class SHDTestCaseTrain(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.SHD
+    FEATURE_TYPES = (datasets.SHD.dtype,)
     TARGET_TYPES = (int,)
     KWARGS = {"train": True}
 
     def inject_fake_data(self, tmpdir):
-        testfolder = os.path.join(tmpdir, "DVSLip/DVS-Lip/train/accused")
+        testfolder = os.path.join(tmpdir, "SHD/")
         os.makedirs(testfolder, exist_ok=True)
-        events, sensor_size = create_random_input(
-            dtype=np.dtype([("t", "<i4"), ("x", "i1"), ("y", "i1"), ("p", "i1")])
-        )
-        np.save(testfolder + "/0.npy", events)
-        np.save(testfolder + "/1.npy", events)
+        filename = "shd_train.h5"
+        create_hsd_data(testfolder + filename, n_samples=2)
         return {"n_samples": 2}
 
 
-class DVSLipTestCaseTest(dataset_utils.DatasetTestCase):
-    DATASET_CLASS = datasets.DVSLip
-    FEATURE_TYPES = (datasets.DVSLip.dtype,)
+class SHDTestCaseTest(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.SHD
+    FEATURE_TYPES = (datasets.SHD.dtype,)
     TARGET_TYPES = (int,)
     KWARGS = {"train": False}
 
     def inject_fake_data(self, tmpdir):
-        testfolder = os.path.join(tmpdir, "DVSLip/DVS-Lip/test/accused")
+        testfolder = os.path.join(tmpdir, "SHD/")
         os.makedirs(testfolder, exist_ok=True)
-        events, sensor_size = create_random_input(
-            dtype=np.dtype([("t", "<i4"), ("x", "i1"), ("y", "i1"), ("p", "i1")])
-        )
-        np.save(testfolder + "/0.npy", events)
+        filename = "shd_test.h5"
+        create_hsd_data(testfolder + filename, n_samples=1)
         return {"n_samples": 1}
+
+
+class SSCTestCaseTrain(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.SSC
+    FEATURE_TYPES = (datasets.SSC.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"split": "train"}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "SSC/")
+        os.makedirs(testfolder, exist_ok=True)
+        filename = "ssc_train.h5"
+        create_hsd_data(testfolder + filename, n_samples=3)
+        return {"n_samples": 3}
+
+
+class SSCTestCaseValid(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.SSC
+    FEATURE_TYPES = (datasets.SSC.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"split": "valid"}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "SSC/")
+        os.makedirs(testfolder, exist_ok=True)
+        filename = "ssc_valid.h5"
+        create_hsd_data(testfolder + filename, n_samples=4)
+        return {"n_samples": 4}
+
+
+class SSCTestCaseTest(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.SSC
+    FEATURE_TYPES = (datasets.SSC.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"split": "test"}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "SSC/")
+        os.makedirs(testfolder, exist_ok=True)
+        filename = "ssc_test.h5"
+        create_hsd_data(testfolder + filename, n_samples=5)
+        return {"n_samples": 5}
