@@ -1,3 +1,11 @@
+"""
+Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten digits obtained by human participants writing on a neuromorphic tactile sensor array.
+The original paper can be found at https://arxiv.org/abs/2005.04319.
+Data is provided with the MAT format. 
+Download of the compressed dataset has to be done by the user by accessing https://scholarbank.nus.edu.sg/bitstream/10635/168106/2/STMNIST%20dataset%20NUS%20Tee%20Research%20Group.zip, where a form has to be compiled. Then, the path to the ZIP archive has to be provided to the stmnist() function root argument.
+"""
+
+import torchdata
 from torchdata.datapipes.iter import (
     FileLister,
     Filter,
@@ -8,6 +16,7 @@ from scipy.io import loadmat
 import numpy as np
 from pathlib import Path
 from tonic.download_utils import extract_archive, check_integrity
+from typing import Optional, Callable
 
 #####
 # Dataset properties.
@@ -15,7 +24,7 @@ from tonic.download_utils import extract_archive, check_integrity
 
 sensor_size = (10, 10, 2)
 dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
-MD5 = "2eef16be7356bc1a8f540bb3698c4e0ei" 
+MD5 = "2eef16be7356bc1a8f540bb3698c4e0ei"
 
 #####
 # Functions
@@ -59,7 +68,7 @@ def _spiketrain_to_array(matfile):
 
 
 def _check_exists(filepath, md5):
-    check = check_integrity(filepath, md5) 
+    check = check_integrity(filepath, md5)
     check &= _at_least_n_files(filepath, n_files=100, file_type=".mat")
     return check
 
@@ -69,10 +78,23 @@ def _check_exists(filepath, md5):
 #####
 
 
-def stmnist(root, transform=None, target_transform=None):
-    # The root is specified as "directory/archive.zip". 
+def stmnist(
+    root: str,
+    transform: Optional[Callable] = None,
+    target_transform: Optional[Callable] = None,
+) -> torchdata.datapipes.iter.IterDataPipe:
+    """
+    Events have (xytp) ordering.
+    Parameters:
+        root (string): path to the ZIP archive downloaded by the user (e.g. "./STMNIST.zip").
+        transform (callable, optional): a callable of transforms to be applied to events data.
+        target_transform (callable, optional): a callable of transform to be applied to target data.
+    Returns:
+        dp (IterDataPipe): Torchdata data pipe that yields a tuple of events (or transformed events) and target.
+    """
+    # The root is specified as "directory/archive.zip".
     # We strip 'archive.zip' and get only 'directory', where it is
-    # extracted in 'data_submission'. 
+    # extracted in 'data_submission'.
     filepath = root[::-1].split("/", 1)[-1][::-1] + "/data_submission"
     # Extracting the ZIP archive.
     if not _check_exists(filepath, MD5):
