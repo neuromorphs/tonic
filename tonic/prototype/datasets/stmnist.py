@@ -11,7 +11,7 @@ from torchdata.datapipes.iter import (
     Filter,
     Zipper,
     UnZipper, 
-    ZipArchiveLoader,
+    Decompressor,
     IterDataPipe
 )
 from scipy.io import loadmat
@@ -89,7 +89,7 @@ def stmnist(
     dp = FileLister(root=root)
     dp = FileOpener(dp, mode="b")
     # Unzipping the archive.
-    dp = ZipArchiveLoader(dp)
+    dp = Decompressor(dp, file_type="zip")
     # Filtering only MAT files (discarding the LUT).
     dp = Filter(dp, _is_mat_file)
     # Separating file path and file data.
