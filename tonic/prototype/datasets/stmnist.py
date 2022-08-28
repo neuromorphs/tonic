@@ -5,17 +5,19 @@ Data is provided with the MAT format.
 Download of the compressed dataset has to be done by the user by accessing https://scholarbank.nus.edu.sg/bitstream/10635/168106/2/STMNIST%20dataset%20NUS%20Tee%20Research%20Group.zip, where a form has to be compiled. Then, the path to the ZIP archive has to be provided to the stmnist() function root argument.
 """
 
-import torchdata
 from torchdata.datapipes.iter import (
     FileLister,
+    FileOpener,
     Filter,
-    Forker,
     Zipper,
+    UnZipper, 
+    ZipArchiveLoader,
+    IterDataPipe
 )
 from scipy.io import loadmat
 import numpy as np
 from pathlib import Path
-from tonic.download_utils import extract_archive, check_integrity
+from tonic.download_utils import check_integrity
 from typing import Optional, Callable
 
 #####
@@ -24,24 +26,19 @@ from typing import Optional, Callable
 
 sensor_size = (10, 10, 2)
 dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
-MD5 = "2eef16be7356bc1a8f540bb3698c4e0ei"
+MD5 = "2eef16be7356bc1a8f540bb3698c4e0e"
 
 #####
 # Functions
 #####
 
 
-def _is_mat_file(filename):
-    return filename.endswith("mat") and "LUT" not in filename
+def _is_mat_file(dp):
+    return dp[0].endswith("mat") and "LUT" not in dp[0]
 
 
 def _read_label_from_filepath(filepath):
     return int(filepath.split("/")[-2])
-
-
-def _at_least_n_files(root, n_files, file_type):
-    check = n_files <= len(list(Path(root).glob(f"**/*{file_type}")))
-    return check
 
 
 def _spiketrain_to_array(matfile):
@@ -67,12 +64,6 @@ def _spiketrain_to_array(matfile):
     return events
 
 
-def _check_exists(filepath, md5):
-    check = check_integrity(filepath, md5)
-    check &= _at_least_n_files(filepath, n_files=100, file_type=".mat")
-    return check
-
-
 #####
 # Dataset
 #####
@@ -82,7 +73,7 @@ def stmnist(
     root: str,
     transform: Optional[Callable] = None,
     target_transform: Optional[Callable] = None,
-) -> torchdata.datapipes.iter.IterDataPipe:
+) -> IterDataPipe:
     """
     Events have (xytp) ordering.
     Parameters:
@@ -93,21 +84,24 @@ def stmnist(
         dp (IterDataPipe): Torchdata data pipe that yields a tuple of events (or transformed events) and target.
     """
     # The root is specified as "directory/archive.zip".
-    # We strip 'archive.zip' and get only 'directory', where it is
-    # extracted in 'data_submission'.
-    filepath = root[::-1].split("/", 1)[-1][::-1] + "/data_submission"
-    # Extracting the ZIP archive.
-    if not _check_exists(filepath, MD5):
-        extract_archive(root)
+    assert check_integrity(root, MD5), "The ZIP archive is not present or it is corrupted."
     # Creating the datapipe.
-    dp = FileLister(root=filepath, recursive=True)
+    dp = FileLister(root=root)
+    dp = FileOpener(dp, mode="b")
+    # Unzipping the archive.
+    dp = ZipArchiveLoader(dp)
+    # Filtering only MAT files (discarding the LUT).
     dp = Filter(dp, _is_mat_file)
-    event_dp, label_dp = Forker(dp, num_instances=2)
-    event_dp = event_dp.map(_spiketrain_to_array)
-    label_dp = label_dp.map(_read_label_from_filepath)
+    # Separating file path and file data.
+    fpath_dp, fdata_dp = UnZipper(dp, sequence_length=2)
+    # Reading data to structured NumPy array.
+    event_dp = fdata_dp.map(_spiketrain_to_array)
+    # Extracting label from file path.
+    label_dp = fpath_dp.map(_read_label_from_filepath)
     if transform:
         event_dp = event_dp.map(transform)
     if target_transform:
         label_dp = label_dp.map(target_transform)
+    # Zipping events and target in tuple.
     dp = Zipper(event_dp, label_dp)
     return dp
