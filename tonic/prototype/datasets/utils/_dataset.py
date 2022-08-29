@@ -8,6 +8,7 @@ from typing import (
     Union,
     TypedDict,
     Callable,
+    Tuple, 
 )
 import importlib
 import pathlib
@@ -15,12 +16,9 @@ import numpy as np
 from torchdata.datapipes.iter import IterDataPipe
 
 
-class EventSample(TypedDict):
-    events: np.ndarray
-    target: str
+Sample = Tuple[np.ndarray, Any]
 
-
-class Dataset(IterDataPipe[EventSample], abc.ABC):
+class Dataset(IterDataPipe[Sample], abc.ABC):
     def __init__(
         self,
         root: Union[str, pathlib.Path],
@@ -50,7 +48,7 @@ class Dataset(IterDataPipe[EventSample], abc.ABC):
         # The datapipe.
         self._dp = self._datapipe()
 
-    def __iter__(self) -> Iterator[EventSample]:
+    def __iter__(self) -> Iterator[Sample]:
         """
         Iteration method for the data pipe.
         """
