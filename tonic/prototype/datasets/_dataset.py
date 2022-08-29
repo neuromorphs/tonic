@@ -5,34 +5,34 @@ import pathlib
 
 from torchdata.datapipes.iter import IterDataPipe
 
+
 class Dataset(IterDataPipe[Dict[str, Any]], abc.ABC):
     def __init__(
-            self, 
-            root: Union[str, pathlib.Path], 
-            *, 
-            dependencies: Optional[Collection[str]] = ()
-            ) -> None: 
-        # Code for importing dependencies. Useful if one wants to 
+        self,
+        root: Union[str, pathlib.Path],
+        *,
+        dependencies: Optional[Collection[str]] = (),
+    ) -> None:
+        # Code for importing dependencies. Useful if one wants to
         # use proprietary data format!
         for dependency in dependencies:
-            try: 
+            try:
                 importlib.import_module(dependency)
-            except ModuleNotFoundError: 
+            except ModuleNotFoundError:
                 raise ModuleNotFoundError(
-                        f"{type(self).__name__}() depends on third-party package '{dependency}'", 
-                        f"Please, install it."
-                        ) from None
-        # Getting in root path. 
+                    f"{type(self).__name__}() depends on third-party package '{dependency}'",
+                    f"Please, install it.",
+                ) from None
+        # Getting in root path.
         self._root = pathlib.Path(root).expanduser().resolve()
         # Resource line, like...?
         resources = None
-        # The datapipe. 
+        # The datapipe.
         self._dp = self._datapipe()
 
-
-    def __iter__(self) -> Iterator[Dict[str, Any]]: 
+    def __iter__(self) -> Iterator[Dict[str, Any]]:
         """
-        Iteration method for the data pipe. 
+        Iteration method for the data pipe.
         """
         yield from self._dp
 

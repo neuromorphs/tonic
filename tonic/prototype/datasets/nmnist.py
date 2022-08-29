@@ -69,10 +69,7 @@ def nmnist(
     # Downloading the MNIST file if it exists.
     if not _check_exists(filepath):
         download_and_extract_archive(
-            url=url, 
-            download_root=filepath, 
-            filename=filename,
-            md5=md5
+            url=url, download_root=filepath, filename=filename, md5=md5
         )
     # Creating the datapipe.
     dp = FileLister(root=filepath, recursive=True)
