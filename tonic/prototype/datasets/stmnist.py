@@ -1,5 +1,5 @@
-from tonic.prototype.datasets._dataset import Dataset
-from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, TypedDict, Callable
+from .utils._dataset import Dataset, EventSample
+from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, Callable
 import numpy as np
 import pathlib
 from torchdata.datapipes.iter import (
@@ -14,15 +14,10 @@ from torchdata.datapipes.iter import (
 from scipy.io import loadmat
 
 
-class EventSample(TypedDict):
-    events: np.ndarray
-    target: str
-
-
 class STMNISTFileReader(IterDataPipe[EventSample]):
     def __init__(
         self,
-        dp: IterDataPipe[Tuple[Any, BinaryIO]],
+        dp: IterDataPipe[Tuple[str, BinaryIO]],
         sensor_size: Optional[Tuple[int, int, int]] = (10, 10, 2),
         dtype: Optional[np.dtype] = np.dtype(
             [("x", int), ("y", int), ("t", int), ("p", int)]
@@ -77,10 +72,7 @@ class STMNIST(Dataset):
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
     ) -> None:
-        self.transforms = transforms
-        self.target_transform = target_transform
-        self.transform = transform
-        super().__init__(root)
+        super().__init__(root, transform, target_transform, transforms)
 
     def __len__(self) -> int:
         return 6_953

@@ -1,16 +1,32 @@
 import abc
-from typing import Any, Collection, Iterator, Optional, Sequence, Union, Dict
+from typing import (
+    Any,
+    Collection,
+    Iterator,
+    Optional,
+    Sequence,
+    Union,
+    TypedDict,
+    Callable,
+)
 import importlib
 import pathlib
-
+import numpy as np
 from torchdata.datapipes.iter import IterDataPipe
 
 
-class Dataset(IterDataPipe[Dict[str, Any]], abc.ABC):
+class EventSample(TypedDict):
+    events: np.ndarray
+    target: str
+
+
+class Dataset(IterDataPipe[EventSample], abc.ABC):
     def __init__(
         self,
         root: Union[str, pathlib.Path],
-        *,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+        transforms: Optional[Callable] = None,
         dependencies: Optional[Collection[str]] = (),
     ) -> None:
         # Code for importing dependencies. Useful if one wants to
@@ -25,12 +41,16 @@ class Dataset(IterDataPipe[Dict[str, Any]], abc.ABC):
                 ) from None
         # Getting in root path.
         self._root = pathlib.Path(root).expanduser().resolve()
+        # Getting trasforms.
+        self.transform = transform
+        self.target_transform = target_transform
+        self.transforms = transforms
         # Resource line, like...?
         resources = None
         # The datapipe.
         self._dp = self._datapipe()
 
-    def __iter__(self) -> Iterator[Dict[str, Any]]:
+    def __iter__(self) -> Iterator[EventSample]:
         """
         Iteration method for the data pipe.
         """
