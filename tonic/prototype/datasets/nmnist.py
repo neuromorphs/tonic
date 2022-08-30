@@ -149,14 +149,13 @@ class NMNIST(Dataset):
         dp = FileOpener(dp, mode="b")
         # Unzipping.
         dp = ZipArchiveLoader(dp)
-        # Filtering the LUT and non-MAT files.
+        # Filtering the non-bin files.
         dp = Filter(dp, self._filter, input_col=0)
         # Reading data to structured NumPy array and integer target.
         dp = NMNISTFileReader(dp)
+        # Filtering the first saccade.
         if self.first_saccade_only:
             dp = Mapper(dp, self._saccade_filter, input_col=0)
-            if self.first_saccade_only:
-                dp = Mapper(dp, self._saccade_filter, input_col=0)
         # Applying transforms.
         if self.transforms:
             dp = Mapper(dp, self.transforms)
