@@ -64,7 +64,7 @@ class STMNIST(Dataset):
     """
     Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten digits obtained by human participants writing on a neuromorphic tactile sensor array.
     The original paper can be found at https://arxiv.org/abs/2005.04319.
-    Data is provided with the MAT format. 
+    Data is provided with the MAT format.
     Download of the compressed dataset has to be done by the user by accessing https://scholarbank.nus.edu.sg/bitstream/10635/168106/2/STMNIST%20dataset%20NUS%20Tee%20Research%20Group.zip, where a form has to be compiled. Then, the path to the ZIP archive has to be provided to the stmnist() function root argument.
 
     Events have (xytp) ordering.
@@ -77,7 +77,6 @@ class STMNIST(Dataset):
     Returns:
         dp (IterDataPipe[Sample]): Torchdata data pipe that yields a tuple of events (or transformed events) and target.
     """
-
 
     _DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     sensor_size = (10, 10, 2)
@@ -113,7 +112,5 @@ class STMNIST(Dataset):
             if self.transform:
                 dp = Mapper(dp, self.transform, input_col=0, output_col=0)
             if self.target_transform:
-                dp = Mapper(
-                    dp, self.target_transform, input_col=1, output_col=1
-                )
+                dp = Mapper(dp, self.target_transform, input_col=1, output_col=1)
         return dp

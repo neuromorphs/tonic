@@ -8,7 +8,7 @@ from typing import (
     Union,
     TypedDict,
     Callable,
-    Tuple, 
+    Tuple,
 )
 import importlib
 import pathlib
@@ -17,6 +17,7 @@ from torchdata.datapipes.iter import IterDataPipe
 
 
 Sample = Tuple[np.ndarray, Any]
+
 
 class Dataset(IterDataPipe[Sample], abc.ABC):
     def __init__(
