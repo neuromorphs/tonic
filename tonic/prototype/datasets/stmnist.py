@@ -1,4 +1,5 @@
 from .utils._dataset import Dataset, Sample
+from tonic.download_utils import check_integrity
 from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, Callable
 import numpy as np
 import pathlib
@@ -79,6 +80,7 @@ class STMNIST(Dataset):
     """
 
     _DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
+    _MD5 = "2eef16be7356bc1a8f540bb3698c4e0e" 
     sensor_size = (10, 10, 2)
 
     def __init__(
@@ -89,6 +91,7 @@ class STMNIST(Dataset):
         transforms: Optional[Callable] = None,
     ) -> None:
         super().__init__(root, transform, target_transform, transforms)
+        assert check_integrity(fpath=str(self._root), md5=self._MD5), "The dataset archive is not present or it is corrupted (failed MD5 check)."
 
     def __len__(self) -> int:
         return 6_953
