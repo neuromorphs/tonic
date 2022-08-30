@@ -42,8 +42,7 @@ class NMNISTFileReader(IterDataPipe[Sample]):
         Reads the events contained in N-MNIST/N-CALTECH101 datasets.
         Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py
         """
-        raw_data = np.frombuffer(bin_stream.read(), dtype=np.uint8, offset=0)
-        raw_data = np.uint32(raw_data)
+        raw_data = np.frombuffer(bin_stream.read(), dtype=np.uint8, offset=0).astype(np.uint32)
 
         all_y = raw_data[1::5]
         all_x = raw_data[0::5]
@@ -139,7 +138,6 @@ class NMNIST(Dataset):
         md5 = self._TRAIN_MD5 if self.train else self._TEST_MD5
         filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
         # Downloading the MNIST file if it exists.
-        # if not os.path.isfile(os.path.join(self._root, filename)):
         download_url(url=url, root=self._root, filename=filename, md5=md5)
 
     def _datapipe(self) -> IterDataPipe[Sample]:

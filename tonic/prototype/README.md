@@ -111,8 +111,19 @@ batch
 Check [Torchdata documentation](https://pytorch.org/data/beta/index.html) to know more about data pipes and what one can do with them. Torchvision seems to be heavily investing on this new format to allow for much more flexibility in datasets, and we plan on following them in order to make Tonic as compatible as possible with standard deep learning frameworks. 
 
 Please, report any bug if you experiment with data pipes. This is _really experimental_ code. 
-## Currently supported datasets
-* ### NMNIST
-  + Conventional MNIST digits recorded on a screen with an event-based camera.
-* ### STMNIST
-  +  Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten digits obtained by human participants writing on a neuromorphic tactile sensor array.
+## Currently supported datasetsSLDVS
+- [ ] CIFAR10DVS
+- [ ] DAVISDATA
+- [ ] DSEC
+- [ ] DVSGesture
+- [ ] DVSLip
+- [ ] MVSEC
+- [ ] NCALTECH101
+- [x] NMNIST
+- [ ] POKERDVS
+- [ ] SMNIST
+- [x] STMNIST
+- [ ] SHD
+- [ ] SSC
+- [ ] TUMVIE
+- [ ] VPR
