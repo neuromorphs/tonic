@@ -10,9 +10,9 @@ Here's an usage example with NMNIST implemented using datapipes.
 
 
 ```python
-from tonic.prototype.datasets import nmnist
+from tonic.prototype.datasets.nmnist import NMNIST
 
-datapipe = nmnist.nmnist(root="./data")
+datapipe = NMNIST(root="./data")
 events, target = next(iter(datapipe))
 events, target
 ```
@@ -32,8 +32,8 @@ The dataset is fully compatible with Tonic transforms when the `transform` argum
 
 ```python
 from tonic.transforms import ToFrame 
-t = ToFrame(sensor_size=nmnist.sensor_size, time_window=10000)
-datapipe = nmnist.nmnist(root="./data", transform=t)
+t = ToFrame(sensor_size=NMNIST.sensor_size, time_window=10000)
+datapipe = NMNIST(root="./data", transform=t)
 frames, target = next(iter(datapipe))
 frames[0]
 ```
@@ -57,13 +57,38 @@ frames[0]
             [0, 0, 0, ..., 0, 0, 0],
             [0, 0, 0, ..., 0, 0, 0]]], dtype=int16)
 
+One can also apply transforms externally, by using the `Mapper` datapipe from torchdata. Using the `input_col` optional parameter, one can apply the transform to the events (`input_col=0`) or the target (`input_col=1`) or both, by using a transform that acts on the tuple and not specifying `input_col`. This is useful if you want to implement your transform with a simple function and apply it to the dataset. 
+
+```python 
+from torchdata.datapipes.iter import Mapper
+datapipe = NMNIST(root="./data")
+datapipe = Mapper(datapipe, t, input_col=0) # input_col=0 tells Mapper to apply the function t to the entry number 0 of the tuple. 
+frames, target = next(iter(datapipe))
+frames[0]
+```
+
+    array([[[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]],
+    
+           [[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]]], dtype=int16)
 
 
 Torchdata provides also built-in batchers, which allow to load batches of structured NumPy arrays without transforming them to normal arrays. The iterator returns a list of tuples `(events, target)`.
 
 
 ```python
-datapipe = nmnist.nmnist(root="./data")
+datapipe = NMNIST(root="./data")
 datapipe = datapipe.batch(batch_size=2)
 batch = next(iter(datapipe))
 batch
