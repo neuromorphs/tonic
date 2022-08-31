@@ -289,7 +289,7 @@ class DSEC(Dataset):
                 target = np.array(
                     [imageio.imread(file, format="PNG-FI") for file in png_filenames]
                 ).astype(float)
-                target[:, :, :, :2] -= 2 ^ 15
+                target[:, :, :, :2] -= 2 ** 15
                 target[:, :, :, :2] /= 128
 
             elif target_name == "disparity_timestamps":
