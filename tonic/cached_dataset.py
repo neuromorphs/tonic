@@ -129,6 +129,9 @@ class DiskCachedDataset:
             self.n_samples = len(self.dataset)
 
     def __getitem__(self, item) -> Tuple[object, object]:
+        if self.dataset is None and item >= self.n_samples:
+            raise IndexError(f"This dataset only has {self.n_samples} items.")
+
         copy = np.random.randint(self.num_copies)
         file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
         try:
@@ -138,6 +141,8 @@ class DiskCachedDataset:
                 f"Data {item}: {file_path} not in cache, generating it now",
                 stacklevel=2,
             )
+
+
             data, targets = self.dataset[item]
             save_to_disk_cache(
                 data, targets, file_path=file_path, compression=self.compression
