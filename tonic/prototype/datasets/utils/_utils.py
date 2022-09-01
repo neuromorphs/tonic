@@ -10,6 +10,11 @@ def check_sha256(
     Function that checks the SHA256 of the archive/dataset.
     In torchvision they strongly recommend to switch to SHA256 from MD5.
     This function is inspired by torchvision.prototype.datasets.utils._resource.
+
+    Parameters:
+        fpath: path to the archive/dataset.
+        sha256_provided: the SHA256 sum to be checked. 
+        chunk_size: the file is binary read in chunks to not load it fully to memory. This is the size of each chunk.
     """
     sha256_computed = hashlib.sha256()
     with open(fpath, "rb") as fp:
