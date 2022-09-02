@@ -139,8 +139,4 @@ class STMNIST(Dataset):
             dp = self._uncompress(dp)               
         dp = Filter(dp, self._filter, input_col=0)
         dp = STMNISTFileReader(dp)
-        if self.transform:
-            dp = Mapper(dp, self.transform, input_col=0, output_col=0)
-        if self.target_transform:
-            dp = Mapper(dp, self.target_transform, input_col=1, output_col=1)
         return dp

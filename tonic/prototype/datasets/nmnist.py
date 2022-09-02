@@ -187,12 +187,4 @@ class NMNIST(Dataset):
         # Filtering the first saccade.
         if self.first_saccade_only:
             dp = Mapper(dp, self._saccade_filter, input_col=0)
-        # Applying transforms.
-        if self.transforms:
-            dp = Mapper(dp, self.transforms)
-        else:
-            if self.transform:
-                dp = Mapper(dp, self.transform, input_col=0, output_col=0)
-            if self.target_transform:
-                dp = Mapper(dp, self.target_transform, input_col=1, output_col=1)
         return dp

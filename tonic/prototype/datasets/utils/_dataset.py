@@ -13,7 +13,7 @@ from typing import (
 import importlib
 import pathlib
 import numpy as np
-from torchdata.datapipes.iter import IterDataPipe
+from torchdata.datapipes.iter import IterDataPipe, Mapper
 
 
 Sample = Tuple[np.ndarray, Any]
@@ -47,13 +47,23 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         # Resource line, like...?
         resources = None
         # The datapipe.
-        self._dp = self._datapipe()
+        self._dp = self._datapipe_wrapper()
 
     def __iter__(self) -> Iterator[Sample]:
         """
         Iteration method for the data pipe.
         """
         yield from self._dp
+
+    def _datapipe_wrapper(self):
+        dp = self._datapipe()
+        if self.transforms:
+            dp = Mapper(dp, self.transforms)
+        if self.transform:
+            dp = Mapper(dp, self.tranform, input_col=0)
+        if self.target_transform: 
+            dp = Mapper(dp, self.target_transform, input_col=1)
+        return dp
 
     @abc.abstractmethod
     def _datapipe(self):
