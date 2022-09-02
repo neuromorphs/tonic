@@ -143,8 +143,9 @@ class NMNIST(Dataset):
         url = self._TRAIN_URL if self.train else self._TEST_URL
         sha256 = self._TRAIN_SHA256 if self.train else self._TEST_SHA256
         filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
-        # Downloading the MNIST file if it exists.
-        download_url(url=url, root=self._root, filename=filename)
+        # Downloading and SHA256 check.
+        if not os.path.isfile(os.path.join(self._root, filename)):
+            download_url(url=url, root=self._root, filename=filename)
         check_sha256(os.path.join(self._root, filename), sha256)
 
     def _uncompress(
