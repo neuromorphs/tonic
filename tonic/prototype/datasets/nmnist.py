@@ -44,7 +44,9 @@ class NMNISTFileReader(IterDataPipe[Sample]):
         Reads the events contained in N-MNIST/N-CALTECH101 datasets.
         Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py
         """
-        raw_data = np.frombuffer(bin_stream.read(), dtype=np.uint8, offset=0).astype(np.uint32)
+        raw_data = np.frombuffer(bin_stream.read(), dtype=np.uint8, offset=0).astype(
+            np.uint32
+        )
 
         all_y = raw_data[1::5]
         all_x = raw_data[0::5]
@@ -103,7 +105,7 @@ class NMNIST(Dataset):
     _BASE_URL = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
     _TRAIN_URL = _BASE_URL + "39c25547-014b-4137-a934-9d29fa53c7a0/file_downloaded"
     _TRAIN_FILENAME = "train.zip"
-    _TRAIN_SHA256 = "1a54ee392a5e5082a0bef52911cd9211f63b950a4905ccd8890553804d3335f9" # "20959b8e626244a1b502305a9e6e2031"
+    _TRAIN_SHA256 = "1a54ee392a5e5082a0bef52911cd9211f63b950a4905ccd8890553804d3335f9"  # "20959b8e626244a1b502305a9e6e2031"
     _TRAIN_FOLDER = "Train"
     _TEST_URL = _BASE_URL + "05a4d654-7e03-4c15-bdfa-9bb2bcbea494/file_downloaded"
     _TEST_FILENAME = "test.zip"
@@ -144,34 +146,34 @@ class NMNIST(Dataset):
         # Downloading the MNIST file if it exists.
         download_url(url=url, root=self._root, filename=filename)
         check_sha256(os.path.join(self._root, filename), sha256)
-        
-    def _uncompress(self, dp: IterDataPipe[Tuple[Any, BinaryIO]]) -> IterDataPipe[Tuple[str, BinaryIO]]:
+
+    def _uncompress(
+        self, dp: IterDataPipe[Tuple[Any, BinaryIO]]
+    ) -> IterDataPipe[Tuple[str, BinaryIO]]:
         # Stripping the archive from self._root.
         root = "/".join(str(self._root).split("/")[:-1])
         folder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
-        # Joining root with a folder to contain the data. 
-        root = os.path.join(root, "data_uncompressed/" + ("train" if self.train else "test"))
+        # Joining root with a folder to contain the data.
+        root = os.path.join(
+            root, "data_uncompressed/" + ("train" if self.train else "test")
+        )
         if not os.path.isdir(root):
             os.makedirs(root)
-            # Decompressing in root. 
+            # Decompressing in root.
             def read_bin(fdata):
                 return fdata.read()
-            def filepath_fn(fpath): 
-                return os.path.join(
-                    root, 
-                    fpath[
-                        fpath.find(folder)+len(folder)+1:
-                        ]
-                    )
+
+            def filepath_fn(fpath):
+                return os.path.join(root, fpath[fpath.find(folder) + len(folder) + 1 :])
+
             dp = Mapper(dp, read_bin, input_col=1)
-            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)    
+            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)
             # Saving data to file.
             for x in dp:
                 pass
         dp = FileLister(root, recursive=True)
         dp = FileOpener(dp, mode="rb")
-        return dp 
-
+        return dp
 
     def _datapipe(self) -> IterDataPipe[Sample]:
         filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
@@ -180,8 +182,8 @@ class NMNIST(Dataset):
         dp = FileOpener(dp, mode="b")
         # Unzipping.
         dp = ZipArchiveLoader(dp)
-        if not self.keep_cmp: 
-           dp = self._uncompress(dp) 
+        if not self.keep_cmp:
+            dp = self._uncompress(dp)
         # Filtering the non-bin files.
         dp = Filter(dp, self._filter, input_col=0)
         # Reading data to structured NumPy array and integer target.

@@ -61,7 +61,7 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
             dp = Mapper(dp, self.transforms)
         if self.transform:
             dp = Mapper(dp, self.tranform, input_col=0)
-        if self.target_transform: 
+        if self.target_transform:
             dp = Mapper(dp, self.target_transform, input_col=1)
         return dp
 

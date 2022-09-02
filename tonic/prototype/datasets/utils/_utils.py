@@ -4,7 +4,9 @@ from pathlib import Path
 
 
 def check_sha256(
-    fpath: Union[str, Path], sha256_provided: str, chunk_size: Optional[int] = 1024 * 1024
+    fpath: Union[str, Path],
+    sha256_provided: str,
+    chunk_size: Optional[int] = 1024 * 1024,
 ) -> None:
     """
     Function that checks the SHA256 of the archive/dataset.
@@ -13,7 +15,7 @@ def check_sha256(
 
     Parameters:
         fpath: path to the archive/dataset.
-        sha256_provided: the SHA256 sum to be checked. 
+        sha256_provided: the SHA256 sum to be checked.
         chunk_size: the file is binary read in chunks to not load it fully to memory. This is the size of each chunk.
     """
     sha256_computed = hashlib.sha256()

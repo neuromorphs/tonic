@@ -12,7 +12,7 @@ from torchdata.datapipes.iter import (
     Filter,
     FileLister,
     Mapper,
-    Saver, 
+    Saver,
 )
 import os
 from scipy.io import loadmat
@@ -104,39 +104,41 @@ class STMNIST(Dataset):
     def _filter(self, fname: str) -> bool:
         return fname.endswith(".mat") and ("LUT" not in fname)
 
-    def _uncompress(self, dp: IterDataPipe[Tuple[Any, BinaryIO]]) -> IterDataPipe[Tuple[str, BinaryIO]]:
+    def _uncompress(
+        self, dp: IterDataPipe[Tuple[Any, BinaryIO]]
+    ) -> IterDataPipe[Tuple[str, BinaryIO]]:
         # Stripping the archive from self._root.
         root = "/".join(str(self._root).split("/")[:-1])
-        # Joining root with a folder to contain the data. 
+        # Joining root with a folder to contain the data.
         root = os.path.join(root, "data_uncompressed")
         if not os.path.isdir(root):
             os.mkdir(root)
-            # Decompressing in root. 
+            # Decompressing in root.
             def read_bin(fdata):
                 return fdata.read()
-            def filepath_fn(fpath): 
+
+            def filepath_fn(fpath):
                 return os.path.join(
-                    root, 
-                    fpath[
-                        fpath.find("/data_submission/")+len("/data_submission/"):
-                        ]
-                    )
+                    root,
+                    fpath[fpath.find("/data_submission/") + len("/data_submission/") :],
+                )
+
             dp = Mapper(dp, read_bin, input_col=1)
-            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)    
+            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)
             # Saving data to file.
             for x in dp:
                 pass
         dp = FileLister(root, recursive=True)
         dp = FileOpener(dp, mode="rb")
-        return dp 
+        return dp
 
     def _datapipe(self) -> IterDataPipe[Sample]:
         dp = FileLister(str(self._root))
         dp = FileOpener(dp, mode="b")
         # Unzipping.
         dp = ZipArchiveLoader(dp)
-        if not self.keep_cmp: 
-            dp = self._uncompress(dp)               
+        if not self.keep_cmp:
+            dp = self._uncompress(dp)
         dp = Filter(dp, self._filter, input_col=0)
         dp = STMNISTFileReader(dp)
         return dp
