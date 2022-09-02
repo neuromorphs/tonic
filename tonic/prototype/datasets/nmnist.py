@@ -105,11 +105,11 @@ class NMNIST(Dataset):
     _BASE_URL = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
     _TRAIN_URL = _BASE_URL + "39c25547-014b-4137-a934-9d29fa53c7a0/file_downloaded"
     _TRAIN_FILENAME = "train.zip"
-    _TRAIN_SHA256 = "1a54ee392a5e5082a0bef52911cd9211f63b950a4905ccd8890553804d3335f9"  # "20959b8e626244a1b502305a9e6e2031"
+    _TRAIN_SHA256 = "1a54ee392a5e5082a0bef52911cd9211f63b950a4905ccd8890553804d3335f9"
     _TRAIN_FOLDER = "Train"
     _TEST_URL = _BASE_URL + "05a4d654-7e03-4c15-bdfa-9bb2bcbea494/file_downloaded"
     _TEST_FILENAME = "test.zip"
-    _TEST_MD5 = "69ca8762b2fe404d9b9bad1103e97832"
+    _TEST_SHA256 = "6ecfd5d85dbb49a631961d8dc3101871c5be53e645004ee34064f6557d169f09"
     _TEST_FOLDER = "Test"
     sensor_size = (34, 34, 2)
 
