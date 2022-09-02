@@ -12,7 +12,9 @@ from torchdata.datapipes.iter import (
     Filter,
     FileLister,
     Mapper,
+    Saver, 
 )
+import os
 from scipy.io import loadmat
 
 
@@ -90,7 +92,9 @@ class STMNIST(Dataset):
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
+        keep_compressed: Optional[bool] = False,
     ) -> None:
+        self.keep_cmp = keep_compressed
         super().__init__(root, transform, target_transform, transforms)
         check_sha256(fpath=self._root, sha256_provided=self._SHA256)
 
@@ -100,21 +104,43 @@ class STMNIST(Dataset):
     def _filter(self, fname: str) -> bool:
         return fname.endswith(".mat") and ("LUT" not in fname)
 
+    def _uncompress(self, dp: IterDataPipe[Tuple[Any, BinaryIO]]) -> IterDataPipe[Tuple[str, BinaryIO]]:
+        # Stripping the archive from self._root.
+        root = "/".join(str(self._root).split("/")[:-1])
+        # Joining root with a folder to contain the data. 
+        root = os.path.join(root, "data_uncompressed")
+        if not os.path.isdir(root):
+            os.mkdir(root)
+            # Decompressing in root. 
+            def read_bin(fdata):
+                return fdata.read()
+            def filepath_fn(fpath): 
+                return os.path.join(
+                    root, 
+                    fpath[
+                        fpath.find("/data_submission/")+len("/data_submission/"):
+                        ]
+                    )
+            dp = Mapper(dp, read_bin, input_col=1)
+            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)    
+            # Saving data to file.
+            for x in dp:
+                pass
+        dp = FileLister(root, recursive=True)
+        dp = FileOpener(dp, mode="rb")
+        return dp 
+
     def _datapipe(self) -> IterDataPipe[Sample]:
         dp = FileLister(str(self._root))
         dp = FileOpener(dp, mode="b")
         # Unzipping.
         dp = ZipArchiveLoader(dp)
-        # Filtering the LUT and non-MAT files.
+        if not self.keep_cmp: 
+            dp = self._uncompress(dp)               
         dp = Filter(dp, self._filter, input_col=0)
-        # Reading data to structured NumPy array and integer target.
         dp = STMNISTFileReader(dp)
-        # Applying transforms.
-        if self.transforms:
-            dp = Mapper(dp, self.transforms)
-        else:
-            if self.transform:
-                dp = Mapper(dp, self.transform, input_col=0, output_col=0)
-            if self.target_transform:
-                dp = Mapper(dp, self.target_transform, input_col=1, output_col=1)
+        if self.transform:
+            dp = Mapper(dp, self.transform, input_col=0, output_col=0)
+        if self.target_transform:
+            dp = Mapper(dp, self.target_transform, input_col=1, output_col=1)
         return dp

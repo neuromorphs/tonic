@@ -1,5 +1,5 @@
 from .utils._dataset import Dataset, Sample
-import os.path
+import os
 from tonic.io import make_structured_array
 from tonic.download_utils import download_url
 from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, Callable
@@ -13,6 +13,7 @@ from torchdata.datapipes.iter import (
     Filter,
     FileLister,
     Mapper,
+    Saver,
 )
 
 
@@ -102,11 +103,11 @@ class NMNIST(Dataset):
     _TRAIN_URL = _BASE_URL + "39c25547-014b-4137-a934-9d29fa53c7a0/file_downloaded"
     _TRAIN_FILENAME = "train.zip"
     _TRAIN_MD5 = "20959b8e626244a1b502305a9e6e2031"
-    _TRAIN_FOLDER = "train"
+    _TRAIN_FOLDER = "Train"
     _TEST_URL = _BASE_URL + "05a4d654-7e03-4c15-bdfa-9bb2bcbea494/file_downloaded"
     _TEST_FILENAME = "test.zip"
     _TEST_MD5 = "69ca8762b2fe404d9b9bad1103e97832"
-    _TEST_FOLDER = "test"
+    _TEST_FOLDER = "Test"
     sensor_size = (34, 34, 2)
 
     def __init__(
@@ -117,9 +118,11 @@ class NMNIST(Dataset):
         transforms: Optional[Callable] = None,
         train: Optional[bool] = True,
         first_saccade_only: Optional[bool] = False,
+        keep_compressed: Optional[bool] = False,
     ) -> None:
         self.train = train
         self.first_saccade_only = first_saccade_only
+        self.keep_cmp = keep_compressed
         super().__init__(root, transform, target_transform, transforms)
         self._download()
 
@@ -140,6 +143,34 @@ class NMNIST(Dataset):
         # Downloading the MNIST file if it exists.
         download_url(url=url, root=self._root, filename=filename, md5=md5)
 
+    def _uncompress(self, dp: IterDataPipe[Tuple[Any, BinaryIO]]) -> IterDataPipe[Tuple[str, BinaryIO]]:
+        # Stripping the archive from self._root.
+        root = "/".join(str(self._root).split("/")[:-1])
+        folder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
+        # Joining root with a folder to contain the data. 
+        root = os.path.join(root, "data_uncompressed/" + ("train" if self.train else "test"))
+        if not os.path.isdir(root):
+            os.makedirs(root)
+            # Decompressing in root. 
+            def read_bin(fdata):
+                return fdata.read()
+            def filepath_fn(fpath): 
+                return os.path.join(
+                    root, 
+                    fpath[
+                        fpath.find(folder)+len(folder)+1:
+                        ]
+                    )
+            dp = Mapper(dp, read_bin, input_col=1)
+            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)    
+            # Saving data to file.
+            for x in dp:
+                pass
+        dp = FileLister(root, recursive=True)
+        dp = FileOpener(dp, mode="rb")
+        return dp 
+
+
     def _datapipe(self) -> IterDataPipe[Sample]:
         filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
         filepath = os.path.join(self._root, filename)
@@ -147,6 +178,8 @@ class NMNIST(Dataset):
         dp = FileOpener(dp, mode="b")
         # Unzipping.
         dp = ZipArchiveLoader(dp)
+        if not self.keep_cmp: 
+           dp = self._uncompress(dp) 
         # Filtering the non-bin files.
         dp = Filter(dp, self._filter, input_col=0)
         # Reading data to structured NumPy array and integer target.
