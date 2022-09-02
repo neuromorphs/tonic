@@ -1,4 +1,5 @@
 from .utils._dataset import Dataset, Sample
+from .utils._utils import check_sha256
 import os
 from tonic.io import make_structured_array
 from tonic.download_utils import download_url
@@ -102,7 +103,7 @@ class NMNIST(Dataset):
     _BASE_URL = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
     _TRAIN_URL = _BASE_URL + "39c25547-014b-4137-a934-9d29fa53c7a0/file_downloaded"
     _TRAIN_FILENAME = "train.zip"
-    _TRAIN_MD5 = "20959b8e626244a1b502305a9e6e2031"
+    _TRAIN_SHA256 = "1a54ee392a5e5082a0bef52911cd9211f63b950a4905ccd8890553804d3335f9" # "20959b8e626244a1b502305a9e6e2031"
     _TRAIN_FOLDER = "Train"
     _TEST_URL = _BASE_URL + "05a4d654-7e03-4c15-bdfa-9bb2bcbea494/file_downloaded"
     _TEST_FILENAME = "test.zip"
@@ -138,11 +139,12 @@ class NMNIST(Dataset):
     def _download(self) -> None:
         # Setting file path depending on train value.
         url = self._TRAIN_URL if self.train else self._TEST_URL
-        md5 = self._TRAIN_MD5 if self.train else self._TEST_MD5
+        sha256 = self._TRAIN_SHA256 if self.train else self._TEST_SHA256
         filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
         # Downloading the MNIST file if it exists.
-        download_url(url=url, root=self._root, filename=filename, md5=md5)
-
+        download_url(url=url, root=self._root, filename=filename)
+        check_sha256(os.path.join(self._root, filename), sha256)
+        
     def _uncompress(self, dp: IterDataPipe[Tuple[Any, BinaryIO]]) -> IterDataPipe[Tuple[str, BinaryIO]]:
         # Stripping the archive from self._root.
         root = "/".join(str(self._root).split("/")[:-1])
