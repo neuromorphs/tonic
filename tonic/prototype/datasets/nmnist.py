@@ -155,7 +155,7 @@ class NMNIST(Dataset):
         folder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
         # Joining root with a folder to contain the data.
         root = os.path.join(
-            root, "data_uncompressed/" + ("train" if self.train else "test")
+            root, f"data_uncompressed/{folder}"
         )
         if not os.path.isdir(root):
             os.makedirs(root)
