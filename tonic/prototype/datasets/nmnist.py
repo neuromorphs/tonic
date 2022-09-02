@@ -151,7 +151,7 @@ class NMNIST(Dataset):
         self, dp: IterDataPipe[Tuple[Any, BinaryIO]]
     ) -> IterDataPipe[Tuple[str, BinaryIO]]:
         # Stripping the archive from self._root.
-        root = "/".join(str(self._root).split("/")[:-1])
+        root = self._root
         folder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
         # Joining root with a folder to contain the data.
         root = os.path.join(
