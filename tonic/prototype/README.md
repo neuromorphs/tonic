@@ -111,7 +111,7 @@ batch
 Check [Torchdata documentation](https://pytorch.org/data/beta/index.html) to know more about data pipes and what one can do with them. Torchvision seems to be heavily investing on this new format to allow for much more flexibility in datasets, and we plan on following them in order to make Tonic as compatible as possible with standard deep learning frameworks. 
 
 Please, report any bug if you experiment with data pipes. This is _really experimental_ code. 
-## Currently supported datasetsSLDVS
+## Currently supported datasets
 - [ ] CIFAR10DVS
 - [ ] DAVISDATA
 - [ ] DSEC
