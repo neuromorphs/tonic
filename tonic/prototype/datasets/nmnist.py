@@ -1,7 +1,7 @@
 from .utils._dataset import Dataset, Sample
 from .utils._utils import check_sha256
 import os
-from tonic.io import make_structured_array
+from tonic.io import make_structured_array, read_mnist_file
 from tonic.download_utils import download_url
 from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, Callable
 import numpy as np
@@ -21,20 +21,29 @@ from torchdata.datapipes.iter import (
 class NMNISTFileReader(IterDataPipe[Sample]):
     def __init__(
         self,
-        dp: IterDataPipe[Tuple[str, BinaryIO]],
+        dp: Union[IterDataPipe[str], IterDataPipe[Tuple[str, BinaryIO]]],
         dtype: Optional[np.dtype] = np.dtype(
             [("x", int), ("y", int), ("t", int), ("p", int)]
         ),
+        keep_compressed: Optional[bool] = False,
     ) -> None:
         self.dp = dp
         self.dtype = dtype
+        self.keep_cmp = keep_compressed
 
     def __iter__(self) -> Iterator[Sample]:
-        for fname, fdata in self.dp:
-            yield (
-                self._bin_to_array(fdata),
-                self._get_target(fname),
-            )
+        if self.keep_cmp:
+            for fname, fdata in self.dp:
+                yield (
+                    self._bin_to_array(fdata),
+                    self._get_target(fname),
+                )
+        else:
+            for fname in self.dp:
+                yield (
+                    read_mnist_file(fname, self.dtype),
+                    self._get_target(fname),
+                )
 
     def _get_target(self, fname: str) -> int:
         return int(fname.split("/")[-2])
@@ -155,9 +164,7 @@ class NMNIST(Dataset):
         root = self._root
         folder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
         # Joining root with a folder to contain the data.
-        root = os.path.join(
-            root, f"data_uncompressed/{folder}"
-        )
+        root = os.path.join(root, f"data_uncompressed/{folder}")
         if not os.path.isdir(root):
             os.makedirs(root)
             # Decompressing in root.
@@ -173,7 +180,6 @@ class NMNIST(Dataset):
             for x in dp:
                 pass
         dp = FileLister(root, recursive=True)
-        dp = FileOpener(dp, mode="rb")
         return dp
 
     def _datapipe(self) -> IterDataPipe[Sample]:
@@ -184,11 +190,12 @@ class NMNIST(Dataset):
         # Unzipping.
         dp = ZipArchiveLoader(dp)
         if not self.keep_cmp:
-            dp = self._uncompress(dp)
-        # Filtering the non-bin files.
-        dp = Filter(dp, self._filter, input_col=0)
+            dp = self._uncompress(dp).filter(self._filter)
+        else:
+            # Filtering the non-bin files.
+            dp = Filter(dp, self._filter, input_col=0)
         # Reading data to structured NumPy array and integer target.
-        dp = NMNISTFileReader(dp)
+        dp = NMNISTFileReader(dp, keep_compressed=self.keep_cmp)
         # Filtering the first saccade.
         if self.first_saccade_only:
             dp = Mapper(dp, self._saccade_filter, input_col=0)
