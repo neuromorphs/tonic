@@ -92,8 +92,7 @@ def test_caching_from_files():
     dataset = DiskCachedDataset(dataset=None, cache_path=cache_path)
     assert len(dataset) == n_cached_samples
     assert len(os.listdir(cache_path)) == len(dataset)
-    
+
     # Make sure iteration stops properly when available number of items is reached.
     for item in dataset:
         events, target = item
-

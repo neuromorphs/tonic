@@ -173,26 +173,28 @@ class NMNIST(Dataset):
     def _uncompress(
         self, dp: IterDataPipe[Tuple[Any, BinaryIO]]
     ) -> IterDataPipe[Tuple[str, BinaryIO]]:
-        # Stripping the archive from self._root.
-        root = self._root
         folder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
         # Joining root with a folder to contain the data.
-        root = os.path.join(root, f"data_uncompressed/{folder}")
-        if not os.path.isdir(root):
-            os.makedirs(root)
+        filepath = os.path.join(self._root, folder)
+        if (not os.path.isdir(filepath)) or (not os.listdir(filepath)):
+            os.makedirs(filepath, exist_ok=True)
             # Decompressing in root.
             def read_bin(fdata):
                 return fdata.read()
 
-            def filepath_fn(fpath):
-                return os.path.join(root, fpath[fpath.find(folder) + len(folder) + 1 :])
-
             dp = Mapper(dp, read_bin, input_col=1)
+
+            def filepath_fn(fpath):
+                fpath_i = fpath.split("/")
+                start = fpath_i.index(folder)+1
+                fpath_i = "/".join(fpath_i[start:])
+                return os.path.join(filepath, fpath_i)
+
             dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)
             # Saving data to file.
             for x in dp:
                 pass
-        dp = FileLister(root, recursive=True)
+        dp = FileLister(filepath, recursive=True)
         return dp
 
     def _datapipe(self) -> IterDataPipe[Sample]:
