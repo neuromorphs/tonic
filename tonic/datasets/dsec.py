@@ -276,7 +276,9 @@ class DSEC(Dataset):
                 "disparity_event",
                 "disparity_image",
             ]:
-                png_filenames = sorted(list_files(full_base_folder, ".png", prefix=True))
+                png_filenames = sorted(
+                    list_files(full_base_folder, ".png", prefix=True)
+                )
                 target = np.stack(
                     [np.array(Image.open(file)) for file in png_filenames]
                 )
@@ -285,11 +287,13 @@ class DSEC(Dataset):
                 "optical_flow_forward_event",
                 "optical_flow_backward_event",
             ]:
-                png_filenames = sorted(list_files(full_base_folder, ".png", prefix=True))
+                png_filenames = sorted(
+                    list_files(full_base_folder, ".png", prefix=True)
+                )
                 target = np.array(
                     [imageio.imread(file, format="PNG-FI") for file in png_filenames]
                 ).astype(float)
-                target[:, :, :, :2] -= 2 ** 15
+                target[:, :, :, :2] -= 2**15
                 target[:, :, :, :2] /= 128
 
             elif target_name == "disparity_timestamps":

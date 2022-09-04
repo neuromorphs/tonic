@@ -131,11 +131,18 @@ class NMNIST(Dataset):
         train: Optional[bool] = True,
         first_saccade_only: Optional[bool] = False,
         keep_compressed: Optional[bool] = False,
-        skip_sha256_check: Optional[bool] = True, 
+        skip_sha256_check: Optional[bool] = True,
     ) -> None:
         self.train = train
         self.first_saccade_only = first_saccade_only
-        super().__init__(root, transform, target_transform, transforms, keep_compressed, skip_sha256_check)
+        super().__init__(
+            root,
+            transform,
+            target_transform,
+            transforms,
+            keep_compressed,
+            skip_sha256_check,
+        )
         self._download()
 
     def __len__(self) -> int:
@@ -161,7 +168,7 @@ class NMNIST(Dataset):
 
     def _check_exists(self) -> bool:
         filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
-        return os.path.isfile(os.path.join(self._root, filename)) 
+        return os.path.isfile(os.path.join(self._root, filename))
 
     def _uncompress(
         self, dp: IterDataPipe[Tuple[Any, BinaryIO]]

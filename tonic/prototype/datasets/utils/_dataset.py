@@ -45,7 +45,7 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         self.transform = transform
         self.target_transform = target_transform
         self.transforms = transforms
-        # SHA256 skipping if the file has been already downloaded. 
+        # SHA256 skipping if the file has been already downloaded.
         self.skip_sha256 = skip_sha256_check
         # Flag to keep the archive compressed.
         self.keep_cmp = keep_compressed

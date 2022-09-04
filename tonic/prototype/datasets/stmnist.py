@@ -95,7 +95,14 @@ class STMNIST(Dataset):
         keep_compressed: Optional[bool] = False,
         skip_sha256_check: Optional[bool] = True,
     ) -> None:
-        super().__init__(root, transform, target_transform, transforms, keep_compressed, skip_sha256_check)
+        super().__init__(
+            root,
+            transform,
+            target_transform,
+            transforms,
+            keep_compressed,
+            skip_sha256_check,
+        )
         assert self._check_exists, "Error: the archive is not present."
         if not self.skip_sha256:
             check_sha256(fpath=self._root, sha256_provided=self._SHA256)
