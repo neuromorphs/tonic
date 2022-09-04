@@ -117,9 +117,11 @@ class NMNISTTestCase_Test_Uncompressed_FirstSaccade(dataset_utils.DatasetTestCas
         )
         return {"n_samples": 10}
 
+
 ##########
 # STMNIST
 ##########
+
 
 def create_stmnist_zip_archive(tmpdir: str, filename: str):
     """
@@ -149,6 +151,7 @@ def create_stmnist_zip_archive(tmpdir: str, filename: str):
     # We remove the folder previously created.
     shutil.rmtree(folder_path)
 
+
 class STMNISTTestCase_Uncompressed(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.STMNIST
     FEATURE_TYPES = (datasets.STMNIST._DTYPE,)
@@ -156,10 +159,9 @@ class STMNISTTestCase_Uncompressed(dataset_utils.DatasetTestCase):
     KWARGS = {"keep_compressed": False}
 
     def inject_fake_data(self, tmpdir):
-        create_stmnist_zip_archive(
-            tmpdir, datasets.STMNIST.__name__
-        )
+        create_stmnist_zip_archive(tmpdir, datasets.STMNIST.__name__)
         return {"n_samples": 10}
+
 
 class STMNISTTestCase_Compressed(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.STMNIST
@@ -168,9 +170,5 @@ class STMNISTTestCase_Compressed(dataset_utils.DatasetTestCase):
     KWARGS = {"keep_compressed": True}
 
     def inject_fake_data(self, tmpdir):
-        create_stmnist_zip_archive(
-            tmpdir, datasets.STMNIST.__name__
-        )
+        create_stmnist_zip_archive(tmpdir, datasets.STMNIST.__name__)
         return {"n_samples": 10}
-
-
