@@ -130,7 +130,7 @@ class STMNIST(Dataset):
                 return fdata.read()
 
             def filepath_fn(fpath):
-                fpath_i = fpath.split("/")
+                fpath_i = fpath.split(os.sep)
                 start = fpath_i.index("data_submission")+1
                 fpath_i = "/".join(fpath_i[start:])
                 return os.path.join(

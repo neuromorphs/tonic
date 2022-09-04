@@ -185,7 +185,7 @@ class NMNIST(Dataset):
             dp = Mapper(dp, read_bin, input_col=1)
 
             def filepath_fn(fpath):
-                fpath_i = fpath.split("/")
+                fpath_i = fpath.split(os.sep)
                 start = fpath_i.index(folder) + 1
                 fpath_i = "/".join(fpath_i[start:])
                 return os.path.join(filepath, fpath_i)
