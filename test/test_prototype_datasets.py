@@ -3,6 +3,7 @@ import prototype_dataset_utils as dataset_utils
 import os
 import shutil
 
+PATH_TO_TEST_DATA = f".{os.sep}test{os.sep}test_data"
 
 ########
 # NMNIST
@@ -25,7 +26,7 @@ def create_nmnist_zip_archive(tmpdir: str, folder: str, filename: str):
         destination_path = os.path.join(folder_path, str(i))
         os.makedirs(destination_path, exist_ok=True)
         shutil.copyfile(
-            "./test/test_data/sample_nmnist.bin",
+            os.path.join(PATH_TO_TEST_DATA, "sample_nmnist.bin"),
             os.path.join(destination_path, "sample_nmnist.bin"),
         )
     # We compress the archive.
@@ -135,7 +136,7 @@ def create_stmnist_zip_archive(tmpdir: str, filename: str):
         destination_path = os.path.join(folder_path, str(i))
         os.makedirs(destination_path, exist_ok=True)
         shutil.copyfile(
-            "./test/test_data/sample_stmnist.mat",
+            os.path.join(PATH_TO_TEST_DATA, "sample_stmnist.mat"),
             os.path.join(destination_path, "sample_stmnist.mat"),
         )
     # We compress the archive.
