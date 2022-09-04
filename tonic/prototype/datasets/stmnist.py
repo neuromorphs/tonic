@@ -103,7 +103,7 @@ class STMNIST(Dataset):
             keep_compressed,
             skip_sha256_check,
         )
-        assert self._check_exists, "Error: the archive is not present."
+        assert self._check_exists(), "Error: the archive is not present."
         if not self.skip_sha256:
             check_sha256(fpath=self._root, sha256_provided=self._SHA256)
 
@@ -130,9 +130,12 @@ class STMNIST(Dataset):
                 return fdata.read()
 
             def filepath_fn(fpath):
+                fpath_i = fpath.split("/")
+                start = fpath_i.index("data_submission")+1
+                fpath_i = "/".join(fpath_i[start:])
                 return os.path.join(
                     root,
-                    fpath[fpath.find("/data_submission/") + len("/data_submission/") :],
+                    fpath_i,
                 )
 
             dp = Mapper(dp, read_bin, input_col=1)
