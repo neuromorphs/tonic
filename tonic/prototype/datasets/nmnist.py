@@ -1,7 +1,7 @@
 from .utils._dataset import Dataset, Sample
 from .utils._utils import check_sha256
 import os
-from tonic.io import make_structured_array, read_mnist_file
+from tonic.io import read_mnist_file
 from tonic.download_utils import download_url
 from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, Callable
 import numpy as np
@@ -35,7 +35,7 @@ class NMNISTFileReader(IterDataPipe[Sample]):
         if self.keep_cmp:
             for fname, fdata in self.dp:
                 yield (
-                    self._bin_to_array(fdata),
+                    read_mnist_file(fdata, self.dtype, is_stream=True),
                     self._get_target(fname),
                 )
         else:
@@ -47,40 +47,6 @@ class NMNISTFileReader(IterDataPipe[Sample]):
 
     def _get_target(self, fname: str) -> int:
         return int(fname.split(os.sep)[-2])
-
-    def _bin_to_array(self, bin_stream: BinaryIO):
-        """
-        Reads the events contained in N-MNIST/N-CALTECH101 datasets.
-        Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py
-        """
-        raw_data = np.frombuffer(bin_stream.read(), dtype=np.uint8, offset=0).astype(
-            np.uint32
-        )
-
-        all_y = raw_data[1::5]
-        all_x = raw_data[0::5]
-        all_p = (raw_data[2::5] & 128) >> 7  # bit 7
-        all_ts = (
-            ((raw_data[2::5] & 127) << 16) | (raw_data[3::5] << 8) | (raw_data[4::5])
-        )
-
-        # Process time stamp overflow events
-        time_increment = 2**13
-        overflow_indices = np.where(all_y == 240)[0]
-        for overflow_index in overflow_indices:
-            all_ts[overflow_index:] += time_increment
-
-        # Everything else is a proper td spike
-        td_indices = np.where(all_y != 240)[0]
-
-        xytp = make_structured_array(
-            all_x[td_indices],
-            all_y[td_indices],
-            all_ts[td_indices],
-            all_p[td_indices],
-            dtype=self.dtype,
-        )
-        return xytp
 
 
 class NMNIST(Dataset):

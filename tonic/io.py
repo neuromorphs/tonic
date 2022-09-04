@@ -3,6 +3,7 @@ import struct
 
 import numpy as np
 from numpy.lib import recfunctions
+from typing import Union, BinaryIO, Optional
 
 events_struct = np.dtype(
     [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
@@ -154,15 +155,16 @@ def read_dvs_346mini(filename):
     return shape, xytp
 
 
-def read_mnist_file(bin_file: str, dtype: np.dtype):
+def read_mnist_file(bin_file: Union[str, BinaryIO], dtype: np.dtype, is_stream: Optional[bool] = False):
     """
     Reads the events contained in N-MNIST/N-CALTECH101 datasets.
     Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py
     """
-    f = open(bin_file, "rb")
-    raw_data = np.fromfile(f, dtype=np.uint8)
-    f.close()
-    raw_data = np.uint32(raw_data)
+    if is_stream:
+        raw_data = np.frombuffer(bin_file.read(), dtype=np.uint8).astype(np.uint32)
+    else:
+        with open(bin_file, "rb") as fp:
+            raw_data = np.fromfile(fp, dtype=np.uint8).astype(np.uint32)
 
     all_y = raw_data[1::5]
     all_x = raw_data[0::5]
