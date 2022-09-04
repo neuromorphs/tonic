@@ -21,7 +21,12 @@ def create_nmnist_zip_archive(tmpdir: str, folder: str, filename: str):
             os.path.join(destination_path, "sample_nmnist.bin"),
         )
     # We compress the archive.
-    shutil.make_archive(base_name=os.path.join(tmpdir, filename), format="zip", base_dir=folder_path, root_dir=folder_path)
+    shutil.make_archive(
+        base_name=os.path.join(tmpdir, filename),
+        format="zip",
+        base_dir=folder_path,
+        root_dir=folder_path,
+    )
     # We remove the folder previously created.
     shutil.rmtree(folder_path)
 

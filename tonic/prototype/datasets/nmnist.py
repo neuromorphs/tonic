@@ -186,7 +186,7 @@ class NMNIST(Dataset):
 
             def filepath_fn(fpath):
                 fpath_i = fpath.split("/")
-                start = fpath_i.index(folder)+1
+                start = fpath_i.index(folder) + 1
                 fpath_i = "/".join(fpath_i[start:])
                 return os.path.join(filepath, fpath_i)
 
