@@ -46,7 +46,7 @@ class NMNISTFileReader(IterDataPipe[Sample]):
                 )
 
     def _get_target(self, fname: str) -> int:
-        return int(fname.split("/")[-2])
+        return int(fname.split(os.sep)[-2])
 
     def _bin_to_array(self, bin_stream: BinaryIO):
         """
@@ -187,7 +187,7 @@ class NMNIST(Dataset):
             def filepath_fn(fpath):
                 fpath_i = fpath.split(os.sep)
                 start = fpath_i.index(folder) + 1
-                fpath_i = "/".join(fpath_i[start:])
+                fpath_i = os.sep.join(fpath_i[start:])
                 return os.path.join(filepath, fpath_i)
 
             dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)

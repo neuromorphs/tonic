@@ -5,7 +5,7 @@ from unittest.mock import patch
 import shutil
 import os
 
-TMP_DIR = "/tmp"
+TMP_DIR = os.sep +"tmp"
 
 
 class DatasetTestCase(unittest.TestCase):
