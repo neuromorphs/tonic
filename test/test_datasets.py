@@ -3,6 +3,7 @@ import os
 import h5py
 import numpy as np
 import tonic.datasets as datasets
+import tonic.prototype.datasets as prototype_datasets
 from tonic.download_utils import download_url
 
 import dataset_utils

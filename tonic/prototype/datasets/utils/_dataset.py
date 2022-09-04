@@ -15,7 +15,6 @@ import pathlib
 import numpy as np
 from torchdata.datapipes.iter import IterDataPipe, Mapper
 
-
 Sample = Tuple[np.ndarray, Any]
 
 
@@ -26,6 +25,8 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
+        keep_compressed: Optional[bool] = False,
+        skip_sha256_check: Optional[bool] = True,
         dependencies: Optional[Collection[str]] = (),
     ) -> None:
         # Code for importing dependencies. Useful if one wants to
@@ -44,6 +45,10 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         self.transform = transform
         self.target_transform = target_transform
         self.transforms = transforms
+        # SHA256 skipping if the file has been already downloaded. 
+        self.skip_sha256 = skip_sha256_check
+        # Flag to keep the archive compressed.
+        self.keep_cmp = keep_compressed
         # Resource line, like...?
         resources = None
         # The datapipe.
@@ -64,6 +69,10 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         if self.target_transform:
             dp = Mapper(dp, self.target_transform, input_col=1)
         return dp
+
+    @abc.abstractmethod
+    def _check_exists(self):
+        pass
 
     @abc.abstractmethod
     def _datapipe(self):
