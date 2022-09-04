@@ -3,4 +3,5 @@ coverage
 torch
 matplotlib
 hdf5plugin
-imageiotorchdata
+imageio
+torchdata
