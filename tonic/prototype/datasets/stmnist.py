@@ -39,7 +39,7 @@ class STMNISTFileReader(IterDataPipe[Sample]):
             )
 
     def _get_target(self, fname: str) -> int:
-        return int(fname.split("/")[-2])
+        return int(fname.split(os.sep)[-2])
 
     def _mat_to_array(self, f):
         # Transposing since the order is (address, event),
@@ -103,7 +103,7 @@ class STMNIST(Dataset):
             keep_compressed,
             skip_sha256_check,
         )
-        assert self._check_exists, "Error: the archive is not present."
+        assert self._check_exists(), "Error: the archive is not present."
         if not self.skip_sha256:
             check_sha256(fpath=self._root, sha256_provided=self._SHA256)
 
@@ -120,7 +120,7 @@ class STMNIST(Dataset):
         self, dp: IterDataPipe[Tuple[Any, BinaryIO]]
     ) -> IterDataPipe[Tuple[str, BinaryIO]]:
         # Stripping the archive from self._root.
-        root = "/".join(str(self._root).split("/")[:-1])
+        root = os.sep.join(str(self._root).split(os.sep)[:-1])
         # Joining root with a folder to contain the data.
         root = os.path.join(root, "data_uncompressed")
         if not os.path.isdir(root):
@@ -130,9 +130,12 @@ class STMNIST(Dataset):
                 return fdata.read()
 
             def filepath_fn(fpath):
+                fpath_i = fpath.split(os.sep)
+                start = fpath_i.index("data_submission") + len(os.sep)
+                fpath_i = os.sep.join(fpath_i[start:])
                 return os.path.join(
                     root,
-                    fpath[fpath.find("/data_submission/") + len("/data_submission/") :],
+                    fpath_i,
                 )
 
             dp = Mapper(dp, read_bin, input_col=1)

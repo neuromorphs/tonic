@@ -3,19 +3,19 @@ from typing import Dict, Any, Union, Optional
 import numpy as np
 from unittest.mock import patch
 import shutil
+import os
+
+# On Unix it yields "/tmp", on Findus "C:\\tmp".
+# Actually, on Windows the temporary folder is in C:\\Users\<username>\AppData\Local\Temp (or C:\\System32\Temp, I do not remember). I do not know how to solve this.
+TMP_DIR = os.path.join(os.path.abspath(os.sep), "tmp")
 
 
 class DatasetTestCase(unittest.TestCase):
     DATASET_CLASS = None
     FEATURE_TYPES = None
 
-    _CHECK_FUNCTIONS = {"check_md5", "check_integrity", "check_exists"}
-    _DOWNLOAD_EXTRACT_FUNCTIONS = {
-        "download_url",
-        "download_file_from_google_drive",
-        "extract_archive",
-        "download_and_extract_archive",
-    }
+    _CHECK_FUNCTIONS = {"check_exists"}
+    _DOWNLOAD_EXTRACT_FUNCTIONS = {}
 
     def inject_fake_data(
         self, tmpdir: str, config: Dict[str, Any]
@@ -39,24 +39,14 @@ class DatasetTestCase(unittest.TestCase):
         )
 
     def create_dataset(self, inject_fake_data: bool = True, **kwargs: Any):
-        tmpdir = "/tmp/"
-        info = self._inject_fake_data(tmpdir)
+        self.inject_fake_data(os.path.join(TMP_DIR, self.DATASET_CLASS.__name__))
 
         if inject_fake_data:
             with patch.object(self.DATASET_CLASS, "_check_exists", return_value=True):
                 dataset = self.DATASET_CLASS(**self.KWARGS)
         else:
             dataset = self.DATASET_CLASS(**self.KWARGS)
-        return dataset, info
-
-    def _inject_fake_data(self, tmpdir):
-        info = self.inject_fake_data(tmpdir)
-        if info is None:
-            raise UsageError(
-                "The method 'inject_fake_data' needs to return at least an integer indicating the number of "
-                "examples for the current configuration."
-            )
-        return info
+        return dataset
 
     def _patch_checks(self):
         return {
@@ -69,8 +59,8 @@ class DatasetTestCase(unittest.TestCase):
     #             dataset, info = self.create_dataset(inject_fake_data=False)
 
     def test_feature_types(self):
-        dataset, info = self.create_dataset()
-        data, target = dataset[0]
+        dataset = self.create_dataset()
+        data, target = next(iter(dataset))
 
         if type(data) != tuple:
             data = (data,)
@@ -85,12 +75,10 @@ class DatasetTestCase(unittest.TestCase):
             else:
                 assert type(data_piece) == feature_type
 
-    def test_num_examples(self):
-        dataset, info = self.create_dataset()
-        assert len(dataset) == info["n_samples"]
-
     @classmethod
     def setUpClass(cls):
-        cls.KWARGS.update({"save_to": "/tmp"})
-        shutil.rmtree("/tmp/" + cls.DATASET_CLASS.__name__, ignore_errors=True)
+        cls.KWARGS.update({"root": os.path.join(TMP_DIR, cls.DATASET_CLASS.__name__)})
+        shutil.rmtree(
+            os.path.join(TMP_DIR, cls.DATASET_CLASS.__name__), ignore_errors=True
+        )
         super().setUpClass()
