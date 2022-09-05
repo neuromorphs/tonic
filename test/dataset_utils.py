@@ -72,9 +72,9 @@ class DatasetTestCase(unittest.TestCase):
         dataset, info = self.create_dataset()
         data, target = dataset[0]
 
-        if len(self.FEATURE_TYPES) == 1:
+        if type(data) != tuple:
             data = (data,)
-        if len(self.TARGET_TYPES) == 1:
+        if type(target) != tuple:
             target = (target,)
         assert len(data) == len(self.FEATURE_TYPES)
         assert len(target) == len(self.TARGET_TYPES)

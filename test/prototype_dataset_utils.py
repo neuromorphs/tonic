@@ -5,7 +5,9 @@ from unittest.mock import patch
 import shutil
 import os
 
-TMP_DIR = os.sep + "tmp"
+# On Unix it yields "/tmp", on Findus "C:\\tmp".
+# Actually, on Windows the temporary folder is in C:\\Users\<username>\AppData\Local\Temp (or C:\\System32\Temp, I do not remember). I do not know how to solve this.
+TMP_DIR = os.path.join(os.path.abspath(os.sep), "tmp")
 
 
 class DatasetTestCase(unittest.TestCase):
@@ -37,25 +39,14 @@ class DatasetTestCase(unittest.TestCase):
         )
 
     def create_dataset(self, inject_fake_data: bool = True, **kwargs: Any):
-        info = self._inject_fake_data(
-            os.path.join(TMP_DIR, self.DATASET_CLASS.__name__)
-        )
+        self.inject_fake_data(os.path.join(TMP_DIR, self.DATASET_CLASS.__name__))
 
         if inject_fake_data:
             with patch.object(self.DATASET_CLASS, "_check_exists", return_value=True):
                 dataset = self.DATASET_CLASS(**self.KWARGS)
         else:
             dataset = self.DATASET_CLASS(**self.KWARGS)
-        return dataset, info
-
-    def _inject_fake_data(self, tmpdir):
-        info = self.inject_fake_data(tmpdir)
-        if info is None:
-            raise UsageError(
-                "The method 'inject_fake_data' needs to return at least an integer indicating the number of "
-                "examples for the current configuration."
-            )
-        return info
+        return dataset
 
     def _patch_checks(self):
         return {
@@ -68,12 +59,12 @@ class DatasetTestCase(unittest.TestCase):
     #             dataset, info = self.create_dataset(inject_fake_data=False)
 
     def test_feature_types(self):
-        dataset, info = self.create_dataset()
+        dataset = self.create_dataset()
         data, target = next(iter(dataset))
 
-        if len(self.FEATURE_TYPES) == 1:
+        if type(data) != tuple:
             data = (data,)
-        if len(self.TARGET_TYPES) == 1:
+        if type(target) != tuple:
             target = (target,)
         assert len(data) == len(self.FEATURE_TYPES)
         assert len(target) == len(self.TARGET_TYPES)
@@ -83,11 +74,6 @@ class DatasetTestCase(unittest.TestCase):
                 assert data_piece.dtype == feature_type
             else:
                 assert type(data_piece) == feature_type
-
-    # Commenting because in new torchvision datasets the datasets size is hardcoded in the datapipe.
-    #    def test_num_examples(self):
-    #        dataset, info = self.create_dataset()
-    #        assert len(dataset) == info["n_samples"]
 
     @classmethod
     def setUpClass(cls):

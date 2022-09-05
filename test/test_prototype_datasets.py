@@ -3,7 +3,7 @@ import prototype_dataset_utils as dataset_utils
 import os
 import shutil
 
-PATH_TO_TEST_DATA = f".{os.sep}test{os.sep}test_data"
+PATH_TO_TEST_DATA = os.path.join(".", "test", "test_data")
 
 ########
 # NMNIST
@@ -50,7 +50,6 @@ class NMNISTTestCase_Train_Uncompressed_AllSaccades(dataset_utils.DatasetTestCas
         create_nmnist_zip_archive(
             tmpdir, datasets.NMNIST._TRAIN_FOLDER, datasets.NMNIST._TRAIN_FILENAME
         )
-        return {"n_samples": 10}
 
 
 class NMNISTTestCase_Train_Compressed_AllSaccades(dataset_utils.DatasetTestCase):
@@ -63,7 +62,6 @@ class NMNISTTestCase_Train_Compressed_AllSaccades(dataset_utils.DatasetTestCase)
         create_nmnist_zip_archive(
             tmpdir, datasets.NMNIST._TRAIN_FOLDER, datasets.NMNIST._TRAIN_FILENAME
         )
-        return {"n_samples": 10}
 
 
 class NMNISTTestCase_Train_Uncompressed_FirstSaccade(dataset_utils.DatasetTestCase):
@@ -76,7 +74,6 @@ class NMNISTTestCase_Train_Uncompressed_FirstSaccade(dataset_utils.DatasetTestCa
         create_nmnist_zip_archive(
             tmpdir, datasets.NMNIST._TRAIN_FOLDER, datasets.NMNIST._TRAIN_FILENAME
         )
-        return {"n_samples": 10}
 
 
 class NMNISTTestCase_Test_Uncompressed_AllSaccades(dataset_utils.DatasetTestCase):
@@ -89,7 +86,6 @@ class NMNISTTestCase_Test_Uncompressed_AllSaccades(dataset_utils.DatasetTestCase
         create_nmnist_zip_archive(
             tmpdir, datasets.NMNIST._TEST_FOLDER, datasets.NMNIST._TEST_FILENAME
         )
-        return {"n_samples": 10}
 
 
 class NMNISTTestCase_Test_Compressed_AllSaccades(dataset_utils.DatasetTestCase):
@@ -102,7 +98,6 @@ class NMNISTTestCase_Test_Compressed_AllSaccades(dataset_utils.DatasetTestCase):
         create_nmnist_zip_archive(
             tmpdir, datasets.NMNIST._TEST_FOLDER, datasets.NMNIST._TEST_FILENAME
         )
-        return {"n_samples": 10}
 
 
 class NMNISTTestCase_Test_Uncompressed_FirstSaccade(dataset_utils.DatasetTestCase):
@@ -115,7 +110,6 @@ class NMNISTTestCase_Test_Uncompressed_FirstSaccade(dataset_utils.DatasetTestCas
         create_nmnist_zip_archive(
             tmpdir, datasets.NMNIST._TEST_FOLDER, datasets.NMNIST._TEST_FILENAME
         )
-        return {"n_samples": 10}
 
 
 ##########
@@ -160,7 +154,6 @@ class STMNISTTestCase_Uncompressed(dataset_utils.DatasetTestCase):
 
     def inject_fake_data(self, tmpdir):
         create_stmnist_zip_archive(tmpdir, datasets.STMNIST.__name__)
-        return {"n_samples": 10}
 
 
 class STMNISTTestCase_Compressed(dataset_utils.DatasetTestCase):
@@ -171,4 +164,3 @@ class STMNISTTestCase_Compressed(dataset_utils.DatasetTestCase):
 
     def inject_fake_data(self, tmpdir):
         create_stmnist_zip_archive(tmpdir, datasets.STMNIST.__name__)
-        return {"n_samples": 10}
