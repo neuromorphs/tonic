@@ -7,7 +7,7 @@ def check_sha256(
     fpath: Union[str, Path],
     sha256_provided: str,
     chunk_size: Optional[int] = 1024 * 1024,
-) -> None:
+) -> str:
     """
     Function that checks the SHA256 of the archive/dataset.
     In torchvision they strongly recommend to switch to SHA256 from MD5.
@@ -29,3 +29,4 @@ def check_sha256(
         raise RuntimeError(
             f"The SHA256 provided does not match the actual one. \nComputed: {sha256_computed}.\nProvided: {sha256_provided}."
         )
+    return sha256_computed

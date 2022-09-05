@@ -142,7 +142,6 @@ class DiskCachedDataset:
                 stacklevel=2,
             )
 
-
             data, targets = self.dataset[item]
             save_to_disk_cache(
                 data, targets, file_path=file_path, compression=self.compression
