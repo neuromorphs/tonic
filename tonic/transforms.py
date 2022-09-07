@@ -686,19 +686,18 @@ class ToAveragedTimesurface:
         sensor_size: a 3-tuple of x,y,p for sensor_size
         cell_size (int): size of each square in the grid
         surface_size (int): has to be odd
-        temporal_window (float): how far back to look for past events for the time averaging
+        time_window (float): how far back to look for past events for the time averaging
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
         num_workers (int): number of workers to be deployed on the histograms computation. When >1, joblib is required.
     """
 
     sensor_size: Tuple[int, int, int]
+    surface_size: int = 5
     cell_size: int = 10
-    surface_size: int = 7
-    temporal_window: int = 5e5
-    tau: int = 5e3
-    decay: str = "lin"
-    num_workers: int = 1
+    time_window: float = 1e3
+    tau: float = 100
+    decay: str = "exp"
 
     def __call__(self, events):
         return functional.to_averaged_timesurface(
@@ -706,10 +705,9 @@ class ToAveragedTimesurface:
             sensor_size=self.sensor_size,
             cell_size=self.cell_size,
             surface_size=self.surface_size,
-            temporal_window=self.temporal_window,
+            time_window=self.time_window,
             tau=self.tau,
             decay=self.decay,
-            num_workers=self.num_workers,
         )
 
 

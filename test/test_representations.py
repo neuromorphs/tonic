@@ -214,12 +214,10 @@ def test_representation_time_surface(surface_dimensions, tau):
 
 
 @pytest.mark.parametrize(
-    "surface_size, cell_size, tau, num_workers, decay",
-    [(7, 9, 100, 1, "lin"), (3, 4, 1000, 1, "exp")],
+    "surface_size, cell_size, tau, decay",
+    [(7, 9, 100, "lin"), (3, 4, 1000, "exp")],
 )
-def test_representation_avg_time_surface(
-    surface_size, cell_size, tau, num_workers, decay
-):
+def test_representation_avg_time_surface(surface_size, cell_size, tau, decay):
     orig_events, sensor_size = create_random_input(n_events=1000)
 
     transform = transforms.ToAveragedTimesurface(
@@ -227,7 +225,6 @@ def test_representation_avg_time_surface(
         surface_size=surface_size,
         cell_size=cell_size,
         tau=tau,
-        num_workers=num_workers,
         decay=decay,
     )
 
