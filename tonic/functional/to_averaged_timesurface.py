@@ -51,7 +51,7 @@ def _map_to_locmems(events, sensor_size, cell_size):
     return locmems
 
 
-def to_averaged_timesurface(
+def to_averaged_timesurface_numpy(
     events,
     sensor_size,
     cell_size,

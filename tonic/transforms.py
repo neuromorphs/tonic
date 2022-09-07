@@ -700,7 +700,7 @@ class ToAveragedTimesurface:
     decay: str = "exp"
 
     def __call__(self, events):
-        return functional.to_averaged_timesurface(
+        return functional.to_averaged_timesurface_numpy(
             events,
             sensor_size=self.sensor_size,
             cell_size=self.cell_size,

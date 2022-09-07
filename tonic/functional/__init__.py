@@ -12,7 +12,7 @@ from .refractory_period import refractory_period_numpy
 from .spatial_jitter import spatial_jitter_numpy
 from .time_jitter import time_jitter_numpy
 from .time_skew import time_skew_numpy
-from .to_averaged_timesurface import to_averaged_timesurface
+from .to_averaged_timesurface import to_averaged_timesurface_numpy
 from .to_frame import to_frame_numpy
 from .to_timesurface import to_timesurface_numpy
 from .to_voxel_grid import to_voxel_grid_numpy
@@ -32,7 +32,7 @@ __all__ = [
     "spatial_resize_numpy",
     "time_jitter_numpy",
     "time_skew_numpy",
-    "to_averaged_timesurface",
+    "to_averaged_timesurface_numpy",
     "to_frame_numpy",
     "to_timesurface_numpy",
     "to_voxel_grid_numpy",
