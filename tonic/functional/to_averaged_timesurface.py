@@ -4,7 +4,7 @@ from math import ceil
 import numpy as np
 
 
-def _get_ts(event, locmem, time_window, tau, surface_size):
+def _get_ts(event, locmem, time_window, tau, surface_size, decay):
     rho = surface_size // 2
     t_i, t_j = event["t"].astype(np.float32), locmem["t"].astype(np.float32)
     # Starting time stamp, calculated subtracting the time window from the event timestamp.
@@ -18,8 +18,10 @@ def _get_ts(event, locmem, time_window, tau, surface_size):
     # For each event in the local memory that belongs to the spatial and temporal windows and for the current event, a time surface is generated.
     locmem_ts = np.zeros((1 + len(mask), surface_size, surface_size), dtype=np.float32)
     if len(mask) > 0:
-        locmem_ts[np.arange(len(mask)), ts_y[mask] + rho, ts_x[mask] + rho] = np.exp(
-            -(t_i - t_j[mask]) / tau
+        locmem_ts[np.arange(len(mask)), ts_y[mask] + rho, ts_x[mask] + rho] = (
+            np.exp(-(t_i - t_j[mask]) / tau)
+            if decay == "exp"
+            else -(t_i - t_j[mask]) / (3 * tau) + 1
         )
     # Adding the current event time surface.
     locmem_ts[-1, rho, rho] += 1
@@ -93,6 +95,7 @@ def to_averaged_timesurface(
                             time_window,
                             tau,
                             surface_size,
+                            decay,
                         )
                         for i in range(len(locmems[c][p]))
                     ]
