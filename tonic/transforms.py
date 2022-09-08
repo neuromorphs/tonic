@@ -689,7 +689,6 @@ class ToAveragedTimesurface:
         time_window (float): how far back to look for past events for the time averaging
         tau (float): time constant to decay events around occuring event with.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
-        num_workers (int): number of workers to be deployed on the histograms computation. When >1, joblib is required.
     """
 
     sensor_size: Tuple[int, int, int]

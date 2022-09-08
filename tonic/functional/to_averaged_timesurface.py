@@ -66,7 +66,7 @@ def to_averaged_timesurface_numpy(
     Parameters:
         cell_size (int): size of each square in the grid
         surface_size (int): has to be odd
-        temporal_window (int): how far back to look for past events for the time averaging. Expressed in microseconds.
+        time_window (int): how far back to look for past events for the time averaging. Expressed in microseconds.
         tau (int): time constant to decay events around occuring event with. Expressed in microseconds.
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
     Returns:
