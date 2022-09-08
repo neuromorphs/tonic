@@ -60,7 +60,7 @@ class STMNISTFileReader(IterDataPipe[Sample]):
         # Converting floating point seconds to integer microseconds.
         events["t"] = (timestamps[events_nums] * 1e6).astype(int)
         # Converting -1 polarities to 0.
-        events["p"] = np.max(spikes[(events_nums, events_addrs)], 0).astype(int)
+        events["p"] = np.maximum(spikes[(events_nums, events_addrs)], 0).astype(int)
         return events
 
 
