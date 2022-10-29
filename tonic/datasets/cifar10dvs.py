@@ -29,7 +29,7 @@ class CIFAR10DVS(Dataset):
                                          labels at the same time.
     """
 
-    url = "http://cifar10dvs.ridger.top/CIFAR10DVS.zip"
+    url = "https://figshare.com/ndownloader/files/38023437"
 
     filename = "CIFAR10DVS.zip"
     file_md5 = "ce3a4a0682dc0943703bd8f749a7701c"
@@ -46,7 +46,7 @@ class CIFAR10DVS(Dataset):
         "truck.zip",
     ]
 
-    folder_name = "CIFAR10DVS"
+    folder_name = ""
     dtype = np.dtype(
         [("t", np.uint64), ("x", np.uint16), ("y", np.uint16), ("p", bool)]
     )
@@ -92,7 +92,7 @@ class CIFAR10DVS(Dataset):
             dirs.sort()
             for file in files:
                 if file.endswith("aedat4"):
-                    self.data.append(path + "/" + file)
+                    self.data.append(os.path.join(path, file))
                     label_number = classes[os.path.basename(path)]
                     self.targets.append(label_number)
 

@@ -31,11 +31,8 @@ class DVSGesture(Dataset):
                                          labels at the same time.
     """
 
-    # Train: https://www.neuromorphic-vision.com/public/downloads/ibmGestureTrain.tar.gz
-    # Test : https://www.neuromorphic-vision.com/public/downloads/ibmGestureTest.tar.gz
-    base_url = "https://www.neuromorphic-vision.com/public/downloads/"
-    test_url = base_url + "ibmGestureTest.tar.gz"
-    train_url = base_url + "ibmGestureTrain.tar.gz"
+    test_url = "https://figshare.com/ndownloader/files/38020584"
+    train_url = "https://figshare.com/ndownloader/files/38022171"
     test_md5 = "56070e45dadaa85fff82e0fbfbc06de5"
     train_md5 = "3a8f0d4120a166bac7591f77409cb105"
     test_filename = "ibmGestureTest.tar.gz"
