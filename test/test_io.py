@@ -17,5 +17,8 @@ def test_read_aedat_events():
     events = tonic.io.get_aer_events_from_file(
         "test/test_data/sample.aedat4", data_version, data_start
     )
-
     assert len(events) == 118651
+
+
+def test_read_aedat4():
+    events = tonic.io.read_aedat4("test/test_data/sample.aedat4")

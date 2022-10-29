@@ -42,11 +42,30 @@ def read_aedat4(in_file):
     Returns:
         events:   numpy structured array of events
     """
-    import loris
+    import aedat
 
-    event_data = loris.read_file(in_file)
-    events = event_data["events"]
-    return events
+    decoder = aedat.Decoder(in_file)
+    target_id = None
+    width = None
+    height = None
+    for stream_id, stream in decoder.id_to_stream().items():
+        if stream["type"] == "events" and (target_id is None or stream_id < target_id):
+            target_id = stream_id
+    if target_id is None:
+        raise Exception("there are no events in the AEDAT file")
+    parsed_file = {
+        "type": "dvs",
+        "width": width,
+        "height": height,
+        "events": np.concatenate(
+            tuple(
+                packet["events"]
+                for packet in decoder
+                if packet["stream_id"] == target_id
+            )
+        ),
+    }
+    return parsed_file["events"]
 
 
 def read_dvs_128(filename):
@@ -155,7 +174,9 @@ def read_dvs_346mini(filename):
     return shape, xytp
 
 
-def read_mnist_file(bin_file: Union[str, BinaryIO], dtype: np.dtype, is_stream: Optional[bool] = False):
+def read_mnist_file(
+    bin_file: Union[str, BinaryIO], dtype: np.dtype, is_stream: Optional[bool] = False
+):
     """
     Reads the events contained in N-MNIST/N-CALTECH101 datasets.
     Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py
