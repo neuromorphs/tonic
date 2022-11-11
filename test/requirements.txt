@@ -5,4 +5,5 @@ matplotlib
 hdf5plugin
 imageio
 torchdata
-aedatexpelliarmus
+aedat
+expelliarmus
