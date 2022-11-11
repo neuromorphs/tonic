@@ -164,3 +164,41 @@ class STMNISTTestCase_Compressed(dataset_utils.DatasetTestCase):
 
     def inject_fake_data(self, tmpdir):
         create_stmnist_zip_archive(tmpdir, datasets.STMNIST.__name__)
+
+#######
+# NCARS
+#######
+
+def create_ncars_folder(tmpdir, folder_name):
+    test_dir = os.path.join(tmpdir, folder_name)
+    os.makedirs(test_dir, exist_ok=True)
+    for folder_name in ("background", "cars"):
+        os.makedirs(os.path.join(test_dir, folder_name), exist_ok=True)
+        shutil.copyfile(
+            os.path.join(PATH_TO_TEST_DATA, "sample_ncars.dat"), 
+            os.path.join(os.path.join(test_dir, folder_name), "sample_ncars.dat")
+            )
+    return 
+
+class NCARSTestCase_Train(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.NCARS
+    FEATURE_TYPES = (datasets.NCARS._DTYPE,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": True}
+
+    def inject_fake_data(self, tmpdir):
+        create_ncars_folder(
+            tmpdir, datasets.NCARS._TRAIN_PATH
+        )
+
+
+class NCARSTestCase_Test(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.NCARS
+    FEATURE_TYPES = (datasets.NCARS._DTYPE,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": False}
+
+    def inject_fake_data(self, tmpdir):
+        create_ncars_folder(
+            tmpdir, datasets.NCARS._TEST_PATH
+        )
