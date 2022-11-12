@@ -79,7 +79,6 @@ class NCARS(Dataset):
             transforms,
             False,
             skip_sha256_check,
-            dependencies=("expelliarmus",)
         )
 
     def __len__(self) -> int:
@@ -89,8 +88,16 @@ class NCARS(Dataset):
         return fname.endswith(".dat")
 
     def _check_exists(self) -> bool:
-        #TODO
-        pass
+        # Checking that train and test folders exist.
+        ret = pathlib.Path(self._root, _TRAIN_PATH).is_dir()
+        ret = ret and pathlib.Path(self._root, _TEST_PATH).is_dir()
+        # Checking that some binary files are present.
+        cnt = 0
+        if ret:
+            dp = FileLister(self._root, recursive=True).filter(self._filter)
+            for f in dp: 
+                cnt += 1
+        return ret and cnt>0
 
     def _datapipe(self) -> IterDataPipe[Sample]:
         fpath = self._TRAIN_PATH if self.train else self._TEST_PATH
