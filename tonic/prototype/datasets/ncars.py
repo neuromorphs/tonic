@@ -32,7 +32,7 @@ class NCARSFileReader(IterDataPipe[Sample]):
 
     def _get_target(self, fname: str) -> int:
         folder_name = fname.split(os.sep)[-2]
-        assert folder_name=="background" or folder_name=="cars", f"Error, the folder name \"\{folder_name}\" is wrong and cannot be associated to a label." 
+        assert folder_name=="background" or folder_name=="cars", f"Error, the folder name \"{folder_name}\" is wrong and cannot be associated to a label." 
         return 0 if folder_name=="background" else 1
 
 
