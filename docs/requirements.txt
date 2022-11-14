@@ -7,4 +7,3 @@ torchvision
 ipywidgets
 matplotlib
 torchdata
-expelliarmus

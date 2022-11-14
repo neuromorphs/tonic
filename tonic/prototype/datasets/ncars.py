@@ -1,10 +1,10 @@
 from .utils._dataset import Dataset, Sample
 from .utils._utils import check_sha256
 import os
-from expelliarmus import Wizard
 from typing import Optional, Union, Tuple, Iterator, Any, Callable
 import numpy as np
 import pathlib
+from expelliarmus import Wizard
 from torchdata.datapipes.iter import (
     IterDataPipe,
     FileLister,

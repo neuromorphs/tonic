@@ -6,3 +6,4 @@ tqdm
 typing_extensions
 librosa
 pbr
+expelliarmus

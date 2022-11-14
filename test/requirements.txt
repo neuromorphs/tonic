@@ -6,4 +6,3 @@ hdf5plugin
 imageio
 torchdata
 aedat
-expelliarmus
