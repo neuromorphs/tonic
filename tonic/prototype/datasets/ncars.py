@@ -1,7 +1,7 @@
 from .utils._dataset import Dataset, Sample
 from .utils._utils import check_sha256
 import os
-from expelliarmus import read_dat
+from expelliarmus import Wizard
 from typing import Optional, Union, Tuple, Iterator, Any, Callable
 import numpy as np
 import pathlib
@@ -21,11 +21,12 @@ class NCARSFileReader(IterDataPipe[Sample]):
     ) -> None:
         self.dp = dp
         self.dtype = dtype
+        self._wizard = Wizard(encoding="dat", dtype=dtype)
 
     def __iter__(self) -> Iterator[Sample]:
         for fname in self.dp:
             yield (
-                read_dat(fname, dtype=self.dtype),
+                self._wizard.read(fname),
                 self._get_target(fname),
             )
 
