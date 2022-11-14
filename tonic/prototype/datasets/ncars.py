@@ -39,7 +39,7 @@ class NCARSFileReader(IterDataPipe[Sample]):
 class NCARS(Dataset):
     """N-CARS <https://www.prophesee.ai/2018/03/13/dataset-n-cars/>
 
-    Events have (txyp) ordering.
+    This datasets needs 'expelliarmus' installed on the system.
     ::
 
         @article{Sironi_2018_CVPR,
@@ -81,6 +81,7 @@ class NCARS(Dataset):
             False,
             skip_sha256_check,
         )
+        assert self._check_exists(), "Error: the dataset files could not be found. You should download the dataset and manually extract it and, then, provide the path to the extracted archive as root."
 
     def __len__(self) -> int:
         return 7482+7940 if self.train else 4396+4211
