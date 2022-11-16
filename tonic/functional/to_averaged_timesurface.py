@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from math import ceil
+
 import numpy as np
 
 

@@ -1,7 +1,8 @@
 import os
-import h5py
 from dataclasses import dataclass
-from typing import Iterable, Any, Optional, Callable
+from typing import Any, Callable, Iterable, Optional
+
+import h5py
 
 from .slicers import Slicer
 

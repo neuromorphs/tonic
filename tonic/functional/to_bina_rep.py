@@ -1,5 +1,4 @@
 import numpy as np
-import math
 
 
 def to_bina_rep_numpy(

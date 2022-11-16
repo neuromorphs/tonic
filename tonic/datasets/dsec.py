@@ -4,6 +4,7 @@ from typing import Callable, List, Optional, Union
 
 import h5py
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.download_utils import download_and_extract_archive, download_url, list_files
 from tonic.io import make_structured_array
@@ -231,8 +232,8 @@ class DSEC(Dataset):
             a tuple of target_selection if train=True.
         """
         import hdf5plugin  # necessary to read event files
-        from PIL import Image  # necessary to read images
         import imageio  # necessary to read optical flow pngs
+        from PIL import Image  # necessary to read images
 
         imageio.plugins.freeimage.download()
 

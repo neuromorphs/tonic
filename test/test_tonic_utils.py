@@ -1,8 +1,10 @@
+from sys import platform
+
+import pytest
+from utils import create_random_input
+
 import tonic
 import tonic.transforms as transforms
-from utils import create_random_input
-from sys import platform
-import pytest
 
 
 class DummyDataset:

@@ -1,8 +1,10 @@
-import pytest
-import numpy as np
-import tonic.transforms as transforms
 import itertools
+
+import numpy as np
+import pytest
 from utils import create_random_input
+
+import tonic.transforms as transforms
 
 
 @pytest.mark.parametrize(

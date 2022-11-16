@@ -1,4 +1,5 @@
 import numpy as np
+
 import tonic.transforms as transforms
 
 
@@ -90,8 +91,8 @@ def plot_animation(frames: np.ndarray):
         The animation object. Store this in a variable to keep it from being garbage collected until displayed.
     """
     try:
-        from matplotlib import animation
         import matplotlib.pyplot as plt
+        from matplotlib import animation
     except ImportError:
         raise ImportError(
             "Please install the matplotlib package to plot events. This is an optional"

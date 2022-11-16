@@ -2,6 +2,7 @@ import os
 from typing import Callable, Optional
 
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
 

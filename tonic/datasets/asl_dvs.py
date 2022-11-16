@@ -3,6 +3,7 @@ from typing import Any, Callable, Optional, Tuple
 
 import numpy as np
 import scipy.io as scio
+
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
 from tonic.io import make_structured_array

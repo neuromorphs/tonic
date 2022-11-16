@@ -1,14 +1,13 @@
+import os
+import pathlib
+from typing import Any, Callable, Iterator, Optional, Tuple, Union
+
+import numpy as np
+from expelliarmus import Wizard
+from torchdata.datapipes.iter import FileLister, IterDataPipe
+
 from .utils._dataset import Dataset, Sample
 from .utils._utils import check_sha256
-import os
-from typing import Optional, Union, Tuple, Iterator, Any, Callable
-import numpy as np
-import pathlib
-from expelliarmus import Wizard
-from torchdata.datapipes.iter import (
-    IterDataPipe,
-    FileLister,
-)
 
 
 class NCARSFileReader(IterDataPipe[Sample]):
@@ -17,7 +16,7 @@ class NCARSFileReader(IterDataPipe[Sample]):
         dp: IterDataPipe[str],
         dtype: Optional[np.dtype] = np.dtype(
             [("t", np.int64), ("x", np.int16), ("y", np.int16), ("p", bool)]
-        )
+        ),
     ) -> None:
         self.dp = dp
         self.dtype = dtype
@@ -32,8 +31,10 @@ class NCARSFileReader(IterDataPipe[Sample]):
 
     def _get_target(self, fname: str) -> int:
         folder_name = fname.split(os.sep)[-2]
-        assert folder_name=="background" or folder_name=="cars", f"Error, the folder name \"{folder_name}\" is wrong and cannot be associated to a label." 
-        return 0 if folder_name=="background" else 1
+        assert (
+            folder_name == "background" or folder_name == "cars"
+        ), f'Error, the folder name "{folder_name}" is wrong and cannot be associated to a label.'
+        return 0 if folder_name == "background" else 1
 
 
 class NCARS(Dataset):
@@ -81,10 +82,12 @@ class NCARS(Dataset):
             False,
             skip_sha256_check,
         )
-        assert self._check_exists(), "Error: the dataset files could not be found. You should download the dataset and manually extract it and, then, provide the path to the extracted archive as root."
+        assert (
+            self._check_exists()
+        ), "Error: the dataset files could not be found. You should download the dataset and manually extract it and, then, provide the path to the extracted archive as root."
 
     def __len__(self) -> int:
-        return 7482+7940 if self.train else 4396+4211
+        return 7482 + 7940 if self.train else 4396 + 4211
 
     def _filter(self, fname: str) -> bool:
         return fname.endswith(".dat")
@@ -97,9 +100,9 @@ class NCARS(Dataset):
         cnt = 0
         if ret:
             dp = FileLister(self._root, recursive=True).filter(self._filter)
-            for f in dp: 
+            for f in dp:
                 cnt += 1
-        return ret and cnt>0
+        return ret and cnt > 0
 
     def _datapipe(self) -> IterDataPipe[Sample]:
         fpath = self._TRAIN_PATH if self.train else self._TEST_PATH

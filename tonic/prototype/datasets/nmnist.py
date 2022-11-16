@@ -1,21 +1,24 @@
-from .utils._dataset import Dataset, Sample
-from .utils._utils import check_sha256
 import os
-from tonic.io import read_mnist_file
-from tonic.download_utils import download_url
-from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, Callable
-import numpy as np
 import pathlib
+from typing import Any, BinaryIO, Callable, Iterator, Optional, Tuple, Union
+
+import numpy as np
 from torchdata.datapipes.iter import (
-    IterDataPipe,
-    Zipper,
-    ZipArchiveLoader,
+    FileLister,
     FileOpener,
     Filter,
-    FileLister,
+    IterDataPipe,
     Mapper,
     Saver,
+    ZipArchiveLoader,
+    Zipper,
 )
+
+from tonic.download_utils import download_url
+from tonic.io import read_mnist_file
+
+from .utils._dataset import Dataset, Sample
+from .utils._utils import check_sha256
 
 
 class NMNISTFileReader(IterDataPipe[Sample]):

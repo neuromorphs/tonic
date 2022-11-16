@@ -6,8 +6,9 @@ The :class:`~tonic.transforms.DropPixel` removes all events
 that occur at given pixels.
 """
 
-import tonic
 import numpy as np
+
+import tonic
 
 nmnist = tonic.datasets.NMNIST("../../tutorials/data", train=False)
 events, label = nmnist[0]

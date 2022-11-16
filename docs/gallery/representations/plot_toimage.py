@@ -9,8 +9,9 @@ into smaller samples.
 
 """
 
-import tonic
 import matplotlib.pyplot as plt
+
+import tonic
 
 nmnist = tonic.datasets.NMNIST("../../tutorials/data", train=False)
 events, label = nmnist[0]

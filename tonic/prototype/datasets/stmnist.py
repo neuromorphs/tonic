@@ -1,21 +1,24 @@
-from .utils._dataset import Dataset, Sample
-from .utils._utils import check_sha256
-from tonic.download_utils import check_integrity
-from typing import Optional, Union, Tuple, Iterator, Any, BinaryIO, Callable
-import numpy as np
+import os
 import pathlib
+from typing import Any, BinaryIO, Callable, Iterator, Optional, Tuple, Union
+
+import numpy as np
+from scipy.io import loadmat
 from torchdata.datapipes.iter import (
-    IterDataPipe,
-    Zipper,
-    ZipArchiveLoader,
+    FileLister,
     FileOpener,
     Filter,
-    FileLister,
+    IterDataPipe,
     Mapper,
     Saver,
+    ZipArchiveLoader,
+    Zipper,
 )
-import os
-from scipy.io import loadmat
+
+from tonic.download_utils import check_integrity
+
+from .utils._dataset import Dataset, Sample
+from .utils._utils import check_sha256
 
 
 class STMNISTFileReader(IterDataPipe[Sample]):

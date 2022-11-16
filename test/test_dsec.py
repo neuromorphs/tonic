@@ -1,5 +1,6 @@
-import tonic
 import pytest
+
+import tonic
 
 
 def test_train_split():

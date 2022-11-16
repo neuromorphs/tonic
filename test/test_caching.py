@@ -1,10 +1,11 @@
 import os
 import shutil
+from pathlib import Path
+
 import h5py
 import numpy as np
-from pathlib import Path
-from tonic import datasets, transforms
-from tonic import MemoryCachedDataset, DiskCachedDataset
+
+from tonic import DiskCachedDataset, MemoryCachedDataset, datasets, transforms
 
 
 def test_memory_caching_pokerdvs():

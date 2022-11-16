@@ -1,7 +1,7 @@
 from .crop import crop_numpy
 from .decimate import decimate_numpy
 from .denoise import denoise_numpy
-from .drop_event import drop_event_numpy, drop_by_area_numpy, drop_by_time_numpy
+from .drop_event import drop_by_area_numpy, drop_by_time_numpy, drop_event_numpy
 from .drop_pixel import (
     drop_pixel_numpy,
     drop_pixel_raster,
@@ -13,10 +13,10 @@ from .spatial_jitter import spatial_jitter_numpy
 from .time_jitter import time_jitter_numpy
 from .time_skew import time_skew_numpy
 from .to_averaged_timesurface import to_averaged_timesurface_numpy
+from .to_bina_rep import to_bina_rep_numpy
 from .to_frame import to_frame_numpy
 from .to_timesurface import to_timesurface_numpy
 from .to_voxel_grid import to_voxel_grid_numpy
-from .to_bina_rep import to_bina_rep_numpy
 from .uniform_noise import uniform_noise_numpy
 
 __all__ = [

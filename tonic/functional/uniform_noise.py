@@ -1,5 +1,6 @@
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 
 
 def uniform_noise_numpy(events: np.ndarray, sensor_size: Tuple[int, int, int], n: int):

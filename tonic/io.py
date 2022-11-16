@@ -1,9 +1,9 @@
 import os
 import struct
+from typing import BinaryIO, Optional, Union
 
 import numpy as np
 from numpy.lib import recfunctions
-from typing import Union, BinaryIO, Optional
 
 events_struct = np.dtype(
     [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]

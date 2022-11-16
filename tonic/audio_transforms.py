@@ -1,8 +1,9 @@
+from dataclasses import dataclass
+from typing import Iterator, List, Tuple, Union
+
 import librosa
 import numpy as np
-from dataclasses import dataclass
 from scipy.signal import butter, sosfilt
-from typing import Tuple, List, Union, Iterator
 
 
 @dataclass

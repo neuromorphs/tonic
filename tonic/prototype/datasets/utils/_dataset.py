@@ -1,16 +1,8 @@
 import abc
-from typing import (
-    Any,
-    Collection,
-    Iterator,
-    Optional,
-    Sequence,
-    Union,
-    Callable,
-    Tuple,
-)
 import importlib
 import pathlib
+from typing import Any, Callable, Collection, Iterator, Optional, Tuple, Union
+
 import numpy as np
 from torchdata.datapipes.iter import IterDataPipe, Mapper
 

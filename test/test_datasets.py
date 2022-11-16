@@ -1,12 +1,12 @@
 import os
 
+import dataset_utils
 import h5py
 import numpy as np
+from utils import create_random_input
+
 import tonic.datasets as datasets
 from tonic.download_utils import download_url
-
-import dataset_utils
-from utils import create_random_input
 
 base_url = "https://www.neuromorphic-vision.com/public/downloads/dataset_samples/"
 

@@ -1,4 +1,5 @@
 import numpy as np
+
 from tonic.slicers import (
     SliceAtIndices,
     SliceAtTimePoints,

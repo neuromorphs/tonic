@@ -2,6 +2,7 @@ import os
 from struct import unpack
 
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.download_utils import download_and_extract_archive
 from tonic.io import make_structured_array

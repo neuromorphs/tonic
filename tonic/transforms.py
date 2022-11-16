@@ -1,7 +1,9 @@
 from dataclasses import dataclass
-from . import functional
 from typing import Callable, Optional, Tuple, Union
+
 import numpy as np
+
+from . import functional
 
 
 class Compose:

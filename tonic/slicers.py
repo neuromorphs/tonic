@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from typing_extensions import Protocol
 from typing import Any, List, Tuple
+
 import numpy as np
+from typing_extensions import Protocol
 
 
 class Slicer(Protocol):

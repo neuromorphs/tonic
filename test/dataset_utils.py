@@ -1,8 +1,9 @@
-import unittest
-from typing import Dict, Any, Union, Optional
-import numpy as np
-from unittest.mock import patch
 import shutil
+import unittest
+from typing import Any, Dict, Union
+from unittest.mock import patch
+
+import numpy as np
 
 
 class DatasetTestCase(unittest.TestCase):

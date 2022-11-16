@@ -2,6 +2,7 @@ import os
 from typing import Callable, Optional
 
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.io import read_mnist_file
 

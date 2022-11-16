@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 
 
 def time_skew_numpy(events: np.ndarray, coefficient: float, offset: int = 0):

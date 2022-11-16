@@ -1,9 +1,10 @@
 import numpy as np
+
 from tonic.slicers import (
-    slice_events_by_time,
     slice_events_by_count,
-    slice_events_by_time_bins,
     slice_events_by_event_bins,
+    slice_events_by_time,
+    slice_events_by_time_bins,
 )
 
 

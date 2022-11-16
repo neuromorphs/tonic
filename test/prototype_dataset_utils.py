@@ -1,9 +1,10 @@
-import unittest
-from typing import Dict, Any, Union, Optional
-import numpy as np
-from unittest.mock import patch
-import shutil
 import os
+import shutil
+import unittest
+from typing import Any, Dict, Union
+from unittest.mock import patch
+
+import numpy as np
 
 # On Unix it yields "/tmp", on Findus "C:\\tmp".
 # Actually, on Windows the temporary folder is in C:\\Users\<username>\AppData\Local\Temp (or C:\\System32\Temp, I do not remember). I do not know how to solve this.

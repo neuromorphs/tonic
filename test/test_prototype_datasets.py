@@ -1,7 +1,9 @@
-import tonic.prototype.datasets as datasets
-import prototype_dataset_utils as dataset_utils
 import os
 import shutil
+
+import prototype_dataset_utils as dataset_utils
+
+import tonic.prototype.datasets as datasets
 
 PATH_TO_TEST_DATA = os.path.join(".", "test", "test_data")
 
@@ -165,9 +167,11 @@ class STMNISTTestCase_Compressed(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         create_stmnist_zip_archive(tmpdir, datasets.STMNIST.__name__)
 
+
 #######
 # NCARS
 #######
+
 
 def create_ncars_folder(tmpdir, folder_name):
     test_dir = os.path.join(tmpdir, folder_name)
@@ -175,10 +179,11 @@ def create_ncars_folder(tmpdir, folder_name):
     for folder_name in ("background", "cars"):
         os.makedirs(os.path.join(test_dir, folder_name), exist_ok=True)
         shutil.copyfile(
-            os.path.join(PATH_TO_TEST_DATA, "sample_ncars.dat"), 
-            os.path.join(os.path.join(test_dir, folder_name), "sample_ncars.dat")
-            )
-    return 
+            os.path.join(PATH_TO_TEST_DATA, "sample_ncars.dat"),
+            os.path.join(os.path.join(test_dir, folder_name), "sample_ncars.dat"),
+        )
+    return
+
 
 class NCARSTestCase_Train(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NCARS
@@ -187,9 +192,7 @@ class NCARSTestCase_Train(dataset_utils.DatasetTestCase):
     KWARGS = {"train": True}
 
     def inject_fake_data(self, tmpdir):
-        create_ncars_folder(
-            tmpdir, datasets.NCARS._TRAIN_PATH
-        )
+        create_ncars_folder(tmpdir, datasets.NCARS._TRAIN_PATH)
 
 
 class NCARSTestCase_Test(dataset_utils.DatasetTestCase):
@@ -199,6 +202,4 @@ class NCARSTestCase_Test(dataset_utils.DatasetTestCase):
     KWARGS = {"train": False}
 
     def inject_fake_data(self, tmpdir):
-        create_ncars_folder(
-            tmpdir, datasets.NCARS._TEST_PATH
-        )
+        create_ncars_folder(tmpdir, datasets.NCARS._TEST_PATH)

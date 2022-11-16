@@ -1,6 +1,6 @@
 import hashlib
-from typing import Union, Optional
 from pathlib import Path
+from typing import Optional, Union
 
 
 def check_sha256(
