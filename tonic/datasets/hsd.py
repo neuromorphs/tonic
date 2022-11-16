@@ -9,7 +9,7 @@ from tonic.io import make_structured_array
 
 
 class HSD(Dataset):
-    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Dataset (SHD)
+    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Digits (SHD)
     and the Spiking Speech Commands dataset (SSC)."""
 
     base_url = "https://zenkelab.org/datasets/"
@@ -45,7 +45,7 @@ class HSD(Dataset):
 
 
 class SHD(HSD):
-    """`Spiking Heidelberg Digits <https://arxiv.org/abs/1910.07407>`_
+    """`Spiking Heidelberg Digits <https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/>`_
     ::
 
         @article{cramer2020heidelberg,
@@ -103,7 +103,7 @@ class SHD(HSD):
 
 
 class SSC(HSD):
-    """`Spiking Speech Commands <https://arxiv.org/abs/1910.07407>`_
+    """`Spiking Speech Commands <https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/>`_
     ::
 
         @article{cramer2020heidelberg,
