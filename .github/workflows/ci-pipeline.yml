@@ -89,3 +89,6 @@ jobs:
         with:
           password: ${{ secrets.PYPI_DEPLOYMENT }}
           skip_existing: true
+      - name: Github release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
