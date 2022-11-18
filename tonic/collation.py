@@ -5,16 +5,15 @@ except:
 
 
 class PadTensors:
-    """This is a custom collate function for a pytorch dataloader to load multiple
-    event recordings at once. It's intended to be used in combination with sparse tensors.
-    All tensor sizes are extended to the largest one in the batch, i.e. the longest recording.
+    """This is a custom collate function for a pytorch dataloader to load multiple event recordings
+    at once. It's intended to be used in combination with sparse tensors. All tensor sizes are
+    extended to the largest one in the batch, i.e. the longest recording.
 
     Example:
         >>> dataloader = torch.utils.data.DataLoader(dataset,
         >>>                                          batch_size=10,
         >>>                                          collate_fn=tonic.collation.PadTensors(),
         >>>                                          shuffle=True)
-
     """
 
     def __init__(self, batch_first: bool = True):

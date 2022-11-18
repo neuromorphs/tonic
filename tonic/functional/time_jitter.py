@@ -7,8 +7,8 @@ def time_jitter_numpy(
     clip_negative: bool = False,
     sort_timestamps: bool = False,
 ):
-    """Changes timestamp for each event by drawing samples from a Gaussian
-    distribution and adding them to each timestamp.
+    """Changes timestamp for each event by drawing samples from a Gaussian distribution and adding
+    them to each timestamp.
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]

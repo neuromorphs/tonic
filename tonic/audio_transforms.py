@@ -8,8 +8,7 @@ from scipy.signal import butter, sosfilt
 
 @dataclass
 class FixLength:
-    """
-    Fix the length of a sample along a specified axis to a given length.
+    """Fix the length of a sample along a specified axis to a given length.
 
     Parameters:
         length:
@@ -31,8 +30,7 @@ class FixLength:
 
 @dataclass
 class Bin:
-    """
-    Bin the given data along a specified axis at the specified new frequency
+    """Bin the given data along a specified axis at the specified new frequency.
 
     Parameters:
         orig_freq: float
@@ -48,7 +46,6 @@ class Bin:
 
     Returns:
         torch.Tensor binned data
-
     """
 
     orig_freq: float
@@ -65,8 +62,7 @@ class Bin:
 
 @dataclass
 class SOSFilter:
-    """
-    SOS filter
+    """SOS filter.
 
     Parameters
     ----------
@@ -88,8 +84,7 @@ class SOSFilter:
 
 @dataclass
 class ButterFilter:
-    """
-    Butter filter
+    """Butter filter.
 
     Parameters
     ----------
@@ -133,8 +128,7 @@ class ButterFilter:
 
 @dataclass
 class ButterFilterBank:
-    """
-    Butter filter bank
+    """Butter filter bank.
 
     Parameters
     ----------
@@ -178,8 +172,7 @@ class ButterFilterBank:
 
 @dataclass
 class LinearButterFilterBank:
-    """
-    Butter filter bank
+    """Butter filter bank.
 
     Parameters
     ----------
@@ -229,8 +222,7 @@ class LinearButterFilterBank:
 
 @dataclass
 class MelButterFilterBank(LinearButterFilterBank):
-    """
-    Butter filter bank with frequencies along the mel scale
+    """Butter filter bank with frequencies along the mel scale.
 
     Parameters
     ----------
@@ -277,8 +269,7 @@ class MelButterFilterBank(LinearButterFilterBank):
 
 @dataclass
 class AddNoise:
-    """
-    Add nose to data
+    """Add nose to data.
 
     Params:
         dataset:
@@ -294,7 +285,7 @@ class AddNoise:
     normed: bool = True
 
     def get_noise_sample(self, sample_len: int) -> np.ndarray:
-        """Get a random noise sample from the dataset"""
+        """Get a random noise sample from the dataset."""
         # Find noise sample of minimum length
         while True:
             noise_idx = np.random.randint(0, len(self.dataset), (1,)).item()
@@ -326,7 +317,7 @@ class AddNoise:
 
 
 def normalize(signal):
-    """Normalize the signal"""
+    """Normalize the signal."""
     signal -= signal.mean()
     max_val = np.max(np.abs(signal))
     if max_val > 0:

@@ -6,17 +6,15 @@ from typing_extensions import Protocol
 
 
 class Slicer(Protocol):
-    """
-    Base protocol class for slicers in Tonic. That means that you don't have to
-    directly inherit from it, but just implement its methods.
+    """Base protocol class for slicers in Tonic.
+
+    That means that you don't have to directly inherit from it, but just implement its methods.
     """
 
     def get_slice_metadata(self, data: Any, targets: Any) -> List[Tuple[Any]]:
-        """
-        This method returns the metadata for each recording that helps with slicing,
-        for example the indices or timestamps at which the data would be sliced.
-        The return value is typically a list of tuples that contain start and stop
-        information for each slice.
+        """This method returns the metadata for each recording that helps with slicing, for example
+        the indices or timestamps at which the data would be sliced. The return value is typically
+        a list of tuples that contain start and stop information for each slice.
 
         Parameters:
             data: Normally a tuple of data pieces.
@@ -28,9 +26,8 @@ class Slicer(Protocol):
         ...
 
     def slice_with_metadata(self, data: Any, targets: Any, metadata: Any) -> List[Any]:
-        """
-        Given a piece of data and/or targets, cut out a certain part of it
-        based on the start/end information given in metadata.
+        """Given a piece of data and/or targets, cut out a certain part of it based on the
+        start/end information given in metadata.
 
         Parameters:
             data: Normally a tuple of data pieces.
@@ -43,8 +40,7 @@ class Slicer(Protocol):
         ...
 
     def slice(self, data: Any, targets: Any) -> List[Any]:
-        """
-        Generate metadata and return all slices at once.
+        """Generate metadata and return all slices at once.
 
         Parameters:
             data: Normally a tuple of data pieces.
@@ -58,10 +54,9 @@ class Slicer(Protocol):
 
 @dataclass(frozen=True)
 class SliceByTime:
-    """
-    Slices an event array along fixed time window and overlap size.
-    The number of bins depends on the length of the recording.
-    Targets are copied.
+    """Slices an event array along fixed time window and overlap size. The number of bins depends
+    on the length of the recording. Targets are copied.
+
     >        <overlap>
     >|    window1     |
     >        |   window2     |
@@ -152,10 +147,8 @@ class SliceByTimeBins:
 
 @dataclass(frozen=True)
 class SliceByEventCount:
-    """
-    Slices data and targets along a fixed number of events and overlap size.
-    The number of bins depends on the amount of events in the recording.
-    Targets are copied.
+    """Slices data and targets along a fixed number of events and overlap size. The number of bins
+    depends on the amount of events in the recording. Targets are copied.
 
     Parameters:
         event_count (int): number of events for each bin
@@ -237,8 +230,7 @@ class SliceByEventBins:
 
 @dataclass
 class SliceAtIndices:
-    """
-    Slices data at the specified event indices. Targets are copied.
+    """Slices data at the specified event indices. Targets are copied.
 
     Parameters:
         start_indices (list): List of start indices
@@ -266,8 +258,7 @@ class SliceAtIndices:
 
 @dataclass
 class SliceAtTimePoints:
-    """
-    Slice the data at the specified time points.
+    """Slice the data at the specified time points.
 
     Parameters:
         tw_start (list): List of start times

@@ -8,10 +8,9 @@ def check_sha256(
     sha256_provided: str,
     chunk_size: Optional[int] = 1024 * 1024,
 ) -> str:
-    """
-    Function that checks the SHA256 of the archive/dataset.
-    In torchvision they strongly recommend to switch to SHA256 from MD5.
-    This function is inspired by torchvision.prototype.datasets.utils._resource.
+    """Function that checks the SHA256 of the archive/dataset. In torchvision they strongly
+    recommend to switch to SHA256 from MD5. This function is inspired by
+    torchvision.prototype.datasets.utils._resource.
 
     Parameters:
         fpath: path to the archive/dataset.

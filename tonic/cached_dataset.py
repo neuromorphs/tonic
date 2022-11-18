@@ -12,12 +12,11 @@ import numpy as np
 
 @dataclass
 class MemoryCachedDataset:
-    """
-    MemoryCachedDataset caches the samples to memory to substantially improve data loading speeds.
-    However you have to keep a close eye on memory consumption while loading your samples, which
-    can increase rapidly when converting events to rasters/frames. If your transformed dataset
-    doesn't fit into memory, yet you still want to cache samples to speed up training, consider
-    using `DiskCachedDataset` instead.
+    """MemoryCachedDataset caches the samples to memory to substantially improve data loading
+    speeds. However you have to keep a close eye on memory consumption while loading your samples,
+    which can increase rapidly when converting events to rasters/frames. If your transformed
+    dataset doesn't fit into memory, yet you still want to cache samples to speed up training,
+    consider using `DiskCachedDataset` instead.
 
     Parameters:
         dataset:
@@ -66,11 +65,12 @@ class MemoryCachedDataset:
 
 @dataclass
 class DiskCachedDataset:
-    """
-    DiskCachedDataset caches the data samples to the hard drive for subsequent reads, thereby potentially improving data loading speeds.
-    If dataset is None, then the length of this dataset will be inferred from the number of files in the caching folder. Pay
-    attention to the cache path you're providing, as DiskCachedDataset will simply check if there is a file present with the index that
-    it is looking for. When using train/test splits, it is wise to also take that into account in the cache path.
+    """DiskCachedDataset caches the data samples to the hard drive for subsequent reads, thereby
+    potentially improving data loading speeds. If dataset is None, then the length of this dataset
+    will be inferred from the number of files in the caching folder. Pay attention to the cache
+    path you're providing, as DiskCachedDataset will simply check if there is a file present with
+    the index that it is looking for. When using train/test splits, it is wise to also take that
+    into account in the cache path.
 
     .. note:: When you change the transform that is applied before caching, DiskCachedDataset cannot know about this and will present you
               with an old file. To avoid this you either have to clear your cache folder manually when needed, incorporate all
@@ -200,8 +200,9 @@ def save_to_disk_cache(
 
 
 def load_from_disk_cache(file_path: Union[str, Path]) -> Tuple:
-    """
-    Load data from file cache, separately for (data) and (targets). Can assemble dictionaries back together.
+    """Load data from file cache, separately for (data) and (targets).
+
+    Can assemble dictionaries back together.
     Args:
         file_path: caching file path.
     Returns:
@@ -228,10 +229,10 @@ def load_from_disk_cache(file_path: Union[str, Path]) -> Tuple:
 
 
 class CachedDataset(DiskCachedDataset):
-    """
-    Deprecated class that points to DiskCachedDataset for now but will be
-    removed in a future release. Please use MemoryCachedDataset or
-    DiskCachedDataset in the future.
+    """Deprecated class that points to DiskCachedDataset for now but will be removed in a future
+    release.
+
+    Please use MemoryCachedDataset or DiskCachedDataset in the future.
     """
 
     def __init__(self, *args, **kwargs):

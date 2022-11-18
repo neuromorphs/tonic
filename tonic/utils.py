@@ -4,8 +4,7 @@ import tonic.transforms as transforms
 
 
 def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
-    """Plot events accumulated as frames equal to the product
-    of axes for visual inspection.
+    """Plot events accumulated as frames equal to the product of axes for visual inspection.
 
     Parameters:
         events: Structured numpy array of shape [num_events, num_event_channels].

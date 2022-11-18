@@ -11,8 +11,8 @@ def spatial_jitter_numpy(
     sigma_xy: float = 0,
     clip_outliers: bool = False,
 ):
-    """Changes x/y coordinate for each event by adding samples from a multivariate
-    Gaussian distribution. It with the following properties:
+    """Changes x/y coordinate for each event by adding samples from a multivariate Gaussian
+    distribution. It with the following properties:
 
         .. math::
             mean = [x,y]

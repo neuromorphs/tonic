@@ -6,10 +6,10 @@ def to_bina_rep_numpy(
     n_frames: int = 1,
     n_bits: int = 8,
 ):
-    """Representation that takes T*B binary event frames to produce a sequence of T frames of N-bit numbers.
-    To do so, N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
-    Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective Representation for Event-based cameras
-    https://arxiv.org/pdf/2202.13662.pdf
+    """Representation that takes T*B binary event frames to produce a sequence of T frames of N-bit
+    numbers. To do so, N binary frames are interpreted as a single frame of N-bit representation.
+    Taken from the paper Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective
+    Representation for Event-based cameras https://arxiv.org/pdf/2202.13662.pdf.
 
     Parameters:
         event_frames: numpy.ndarray of shape (T*BxPxHxW). The sequence of event frames.

@@ -7,7 +7,8 @@ from . import functional
 
 
 class Compose:
-    """Composes several transforms together. This a literal copy of torchvision.transforms.Compose function for convenience.
+    """Composes several transforms together. This a literal copy of torchvision.transforms.Compose
+    function for convenience.
 
     Parameters:
         transforms (list of ``Transform`` objects): list of transform(s) to compose.
@@ -39,11 +40,10 @@ class Compose:
 
 @dataclass
 class CenterCrop:
-    """Crops events at the center to a specific output size. If output size
-    is smaller than input sensor size along any dimension, padding will be used,
-    which doesn't influence the number of events on that axis but just their spatial location
-    after cropping. Make sure to use the cropped sensor size for any transform
-    after CenterCrop.
+    """Crops events at the center to a specific output size. If output size is smaller than input
+    sensor size along any dimension, padding will be used, which doesn't influence the number of
+    events on that axis but just their spatial location after cropping. Make sure to use the
+    cropped sensor size for any transform after CenterCrop.
 
     Parameters:
         sensor_size (tuple): Size of the sensor that was used [W,H,P]
@@ -96,11 +96,10 @@ class CropTime:
 
 @dataclass(frozen=True)
 class Denoise:
-    """Drops events that are spatio-temporally not sufficiently close enough
-    to other events in the sample. In practise that means that an event is
-    dropped if no other event occured within a spatial neighbourhood
-    of 1 pixel and a temporal neighbourhood of filter_time time units.
-    Useful to filter noisy recordings where events occur isolated in time.
+    """Drops events that are spatio-temporally not sufficiently close enough to other events in the
+    sample. In practise that means that an event is dropped if no other event occured within a
+    spatial neighbourhood of 1 pixel and a temporal neighbourhood of filter_time time units. Useful
+    to filter noisy recordings where events occur isolated in time.
 
     Parameters:
         filter_time (float): minimum temporal distance to next event, otherwise dropped.
@@ -136,7 +135,8 @@ class Decimation:
 
 @dataclass(frozen=True)
 class DropEvent:
-    """Randomly drops events with probability p. If random_p is selected, the drop probability is randomized between 0 and p.
+    """Randomly drops events with probability p. If random_p is selected, the drop probability is
+    randomized between 0 and p.
 
     Parameters:
         p (float or tuple of floats): Probability of dropping events. Can be a tuple of floats (p_min, p_max), so that p is sampled from the range.
@@ -161,7 +161,8 @@ class DropEvent:
 
 @dataclass(frozen=True)
 class DropEventByTime:
-    """Drops events in a certain time interval with a length proportional to a specified ratio of the original length.
+    """Drops events in a certain time interval with a length proportional to a specified ratio of
+    the original length.
 
     Parameters:
         duration_ratio (Union[float, Tuple[float]], optional): the length of the dropped time interval, expressed in a ratio of the original sequence duration.
@@ -182,7 +183,8 @@ class DropEventByTime:
 
 @dataclass(frozen=True)
 class DropEventByArea:
-    """Drops events located in a randomly chosen box area. The size of the box area is defined by a specified ratio of the sensor size.
+    """Drops events located in a randomly chosen box area. The size of the box area is defined by a
+    specified ratio of the sensor size.
 
     Args:
         sensor_size (Tuple): size of the sensor that was used [W,H,P]
@@ -241,9 +243,11 @@ class EventDrop:
 @dataclass
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
-    list of x/y coordinates can be passed directly. Alternatively, a cutoff frequency for each pixel can be defined
-    above which pixels will be deactivated completely. This prevents so-called *hot pixels* which fire constantly
-    (e.g. due to faulty hardware).
+    list of x/y coordinates can be passed directly. Alternatively, a cutoff frequency for each
+    pixel can be defined above which pixels will be deactivated completely. This prevents so-
+    called.
+
+    *hot pixels* which fire constantly (e.g. due to faulty hardware).
 
     Parameters:
         coordinates: list of (x,y) coordinates for which all events will be deleted.
@@ -282,10 +286,10 @@ class DropPixel:
 
 @dataclass(frozen=True)
 class Downsample:
-    """Multiplies timestamps and spatial pixel coordinates with separate factors.
-    Useful when the native temporal and/or spatial resolution of the original sensor is too
-    high for downstream processing, notably when converting to dense representations of some sort.
-    This transform does not drop any events.
+    """Multiplies timestamps and spatial pixel coordinates with separate factors. Useful when the
+    native temporal and/or spatial resolution of the original sensor is too high for downstream
+    processing, notably when converting to dense representations of some sort. This transform does
+    not drop any events.
 
     Parameters:
         time_factor (float): value to multiply timestamps with. Default is 1.
@@ -315,8 +319,7 @@ class Downsample:
 
 @dataclass(frozen=True)
 class MergePolarities:
-    """
-    Sets all polarities to zero. This transform does not have any parameters.
+    """Sets all polarities to zero. This transform does not have any parameters.
 
     Example:
         >>> transform = tonic.transforms.MergePolarities()
@@ -356,8 +359,8 @@ class RandomCrop:
 
 @dataclass(frozen=True)
 class RandomFlipPolarity:
-    """Flips polarity of individual events with p.
-    Changes polarities 1 to 0 and polarities [-1, 0] to 1
+    """Flips polarity of individual events with p. Changes polarities 1 to 0 and polarities [-1, 0]
+    to 1.
 
     Parameters:
         p (float): probability of flipping individual event polarities
@@ -409,8 +412,7 @@ class RandomFlipLR:
 
 @dataclass(frozen=True)
 class RandomFlipUD:
-    """
-    Flips events in y with probability p. Pixels map as:
+    """Flips events in y with probability p. Pixels map as:
 
         y' = height - y
 
@@ -472,8 +474,8 @@ class RandomTimeReversal:
 
 @dataclass(frozen=True)
 class RefractoryPeriod:
-    """Sets a refractory period for each pixel, during which events will be
-    ignored/discarded. We keep events if:
+    """Sets a refractory period for each pixel, during which events will be ignored/discarded. We
+    keep events if:
 
         .. math::
             t_n - t_{n-1} > t_{refrac}
@@ -506,8 +508,8 @@ class RefractoryPeriod:
 
 @dataclass(frozen=True)
 class SpatialJitter:
-    """Changes x/y coordinate for each event by adding samples from a multivariate
-    Gaussian distribution. It with the following properties:
+    """Changes x/y coordinate for each event by adding samples from a multivariate Gaussian
+    distribution. It with the following properties:
 
         .. math::
             mean = [x,y]
@@ -555,8 +557,7 @@ class TimeAlignment:
 
 @dataclass(frozen=True)
 class TimeJitter:
-    """Changes timestamp for each event by adding samples from a Gaussian
-    distribution.
+    """Changes timestamp for each event by adding samples from a Gaussian distribution.
 
     Parameters:
         std (sequence or float): the standard deviation of the time jitter.
@@ -603,9 +604,8 @@ class TimeSkew:
 
 @dataclass(frozen=True)
 class UniformNoise:
-    """
-    Adds a fixed number of n noise events that are uniformly distributed
-    across sensor size dimensions such as x, y, t and p.
+    """Adds a fixed number of n noise events that are uniformly distributed across sensor size
+    dimensions such as x, y, t and p.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
@@ -634,13 +634,12 @@ class UniformNoise:
 
 @dataclass(frozen=True)
 class NumpyAsType:
-    """
-    Change dtype of numpy ndarray to custom dtype. This transform is necessary for example if you want
-    to load raw events using a PyTorch dataloader. The original events coming from any dataset in Tonic
-    are structured numpy arrays, so that they can be indexed as events["t"] or events["p"] etc. Pytorch's
-    dataloader however does not support the conversion from structured numpy arrays to Tensors, that's
-    why we need to employ at least NumpyAsType(int) to convert the structured array into an unstructured
-    one before handing it to the dataloader.
+    """Change dtype of numpy ndarray to custom dtype. This transform is necessary for example if
+    you want to load raw events using a PyTorch dataloader. The original events coming from any
+    dataset in Tonic are structured numpy arrays, so that they can be indexed as events["t"] or
+    events["p"] etc. Pytorch's dataloader however does not support the conversion from structured
+    numpy arrays to Tensors, that's why we need to employ at least NumpyAsType(int) to convert the
+    structured array into an unstructured one before handing it to the dataloader.
 
     Parameters:
         dtype: data type that the array should be cast to.
@@ -680,9 +679,9 @@ class NumpyAsType:
 
 @dataclass(frozen=True)
 class ToAveragedTimesurface:
-    """Create averaged timesurfaces for each event. Taken from the paper
-    Sironi et al. 2018, HATS: Histograms of averaged time surfaces for robust event-based object classification
-    https://openaccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf
+    """Create averaged timesurfaces for each event. Taken from the paper Sironi et al. 2018, HATS:
+    Histograms of averaged time surfaces for robust event-based object classification https://opena
+    ccess.thecvf.com/content_cvpr_2018/papers/Sironi_HATS_Histograms_of_CVPR_2018_paper.pdf.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
@@ -714,13 +713,13 @@ class ToAveragedTimesurface:
 
 @dataclass(frozen=True)
 class ToFrame:
-    """Accumulate events to frames by slicing along constant time (time_window),
-    constant number of events (spike_count) or constant number of frames (n_time_bins / n_event_bins).
-    All the events in one slice are added up in a frame for each polarity.
-    You can set one of the first 4 parameters to choose the slicing method. Depending on which method you choose,
-    overlap will assume different functionality, whether that might be temporal overlap, number of events
-    or fraction of a bin. As a rule of thumb, here are some considerations if you are unsure which slicing
-    method to choose:
+    """Accumulate events to frames by slicing along constant time (time_window), constant number of
+    events (spike_count) or constant number of frames (n_time_bins / n_event_bins). All the events
+    in one slice are added up in a frame for each polarity. You can set one of the first 4
+    parameters to choose the slicing method. Depending on which method you choose, overlap will
+    assume different functionality, whether that might be temporal overlap, number of events or
+    fraction of a bin. As a rule of thumb, here are some considerations if you are unsure which
+    slicing method to choose:
 
     * If your recordings are of roughly the same length, a safe option is to set time_window. Bare in mind
       that the number of events can vary greatly from slice to slice, but will give you some consistency when
@@ -783,11 +782,11 @@ class ToFrame:
 
 @dataclass(frozen=True)
 class ToSparseTensor:
-    """
-    PyTorch sparse tensor drop-in replacement for ToFrame. See https://pytorch.org/docs/stable/sparse.html for details
-    about sparse tensors. The dense shape of the tensor will be (TCWH) and can be inflated by calling to_dense().
-    You need to have PyTorch installed for this transformation. Under the hood this transform calls ToFrame() with the
-    same parameters, converts to a pytorch tensor and calls to_sparse().
+    """PyTorch sparse tensor drop-in replacement for ToFrame. See
+    https://pytorch.org/docs/stable/sparse.html for details about sparse tensors. The dense shape
+    of the tensor will be (TCWH) and can be inflated by calling to_dense(). You need to have
+    PyTorch installed for this transformation. Under the hood this transform calls ToFrame() with
+    the same parameters, converts to a pytorch tensor and calls to_sparse().
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size. If omitted, the sensor size is calculated for that sample. However,
@@ -841,9 +840,10 @@ class ToSparseTensor:
 
 @dataclass(frozen=True)
 class ToImage:
-    """Counts up all events to a *single* image of size sensor_size. ToImage will typically
-    be used in combination with SlicedDataset to cut a recording into smaller chunks that
-    are then individually binned to frames.
+    """Counts up all events to a *single* image of size sensor_size.
+
+    ToImage will typically be used in combination with SlicedDataset to cut a recording into
+    smaller chunks that are then individually binned to frames.
     """
 
     sensor_size: Tuple[int, int, int]
@@ -859,9 +859,9 @@ class ToImage:
 
 @dataclass(frozen=True)
 class ToTimesurface:
-    """Create global or local time surfaces for each event. Modeled after the paper
-    Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
-    https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476
+    """Create global or local time surfaces for each event. Modeled after the paper Lagorce et al.
+    2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
+    https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
@@ -890,12 +890,13 @@ class ToTimesurface:
 @dataclass(frozen=True)
 class ToVoxelGrid:
     """Build a voxel grid with bilinear interpolation in the time domain from a set of events.
-    Implements the event volume from Zhu et al. 2019, Unsupervised event-based learning
-    of optical flow, depth, and egomotion.
+    Implements the event volume from Zhu et al. 2019, Unsupervised event-based learning of optical
+    flow, depth, and egomotion.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
-        n_time_bins (int): fixed number of time bins to slice the event sample into."""
+        n_time_bins (int): fixed number of time bins to slice the event sample into.
+    """
 
     sensor_size: Tuple[int, int, int]
     n_time_bins: int
@@ -909,10 +910,10 @@ class ToVoxelGrid:
 
 @dataclass(frozen=True)
 class ToBinaRep:
-    """Takes T*B binary event frames to produce a sequence of T frames of N-bit numbers.
-    To do so, N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
-    Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective Representation for Event-based cameras
-    https://arxiv.org/pdf/2202.13662.pdf
+    """Takes T*B binary event frames to produce a sequence of T frames of N-bit numbers. To do so,
+    N binary frames are interpreted as a single frame of N-bit representation. Taken from the paper
+    Barchid et al. 2022, Bina-Rep Event Frames: a Simple and Effective Representation for Event-
+    based cameras https://arxiv.org/pdf/2202.13662.pdf.
 
     Parameters:
         n_frames (int): the number T of bina-rep frames.
@@ -944,7 +945,10 @@ class ToBinaRep:
 
 @dataclass(frozen=True)
 class Repeat:
-    """Copies target n times. Useful to transform sample labels into sequences."""
+    """Copies target n times.
+
+    Useful to transform sample labels into sequences.
+    """
 
     n_repeat: int
 

@@ -26,10 +26,10 @@ def load_metadata(path):
 
 @dataclass
 class SlicedDataset:
-    """The primary use case for a SlicedDataset is to cut existing examples in a dataset
-    into smaller chunks. For that it takes an iterable dataset and a slicing method as input.
-    It then generates metadata about the slices and where to find them in each original sample.
-    The new dataset length will be the sum of all slices across samples.
+    """The primary use case for a SlicedDataset is to cut existing examples in a dataset into
+    smaller chunks. For that it takes an iterable dataset and a slicing method as input. It then
+    generates metadata about the slices and where to find them in each original sample. The new
+    dataset length will be the sum of all slices across samples.
 
     Parameters:
         dataset: a dataset object which implements __getitem__ and __len__ methods.
@@ -51,8 +51,8 @@ class SlicedDataset:
     transforms: Optional[Callable] = None
 
     def __post_init__(self):
-        """
-        Will try to read metadata from disk to know where slices start and stop for each sample.
+        """Will try to read metadata from disk to know where slices start and stop for each sample.
+
         If no metadata_path is provided or no file slice_metadata.h5 is found in that path,
         metadata will be generated from scratch.
         """
@@ -71,10 +71,8 @@ class SlicedDataset:
         ]
 
     def generate_metadata(self):
-        """
-        Slices every sample in the wrapped dataset and returns start and stop metadata
-        for each slice.
-        """
+        """Slices every sample in the wrapped dataset and returns start and stop metadata for each
+        slice."""
         return [
             self.slicer.get_slice_metadata(data, targets)
             for data, targets in self.dataset

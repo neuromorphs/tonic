@@ -4,9 +4,9 @@ import numpy as np
 def to_timesurface_numpy(
     events, sensor_size, surface_dimensions=None, tau=5e3, decay="lin"
 ):
-    """Representation that creates timesurfaces for each event in the recording. Modeled after the paper
-    Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
-    https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476
+    """Representation that creates timesurfaces for each event in the recording. Modeled after the
+    paper Lagorce et al. 2016, Hots: a hierarchy of event-based time-surfaces for pattern
+    recognition https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476.
 
     Parameters:
         surface_dimensions (int, int): width does not have to be equal to height, however both numbers have to be odd.

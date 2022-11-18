@@ -13,13 +13,10 @@ PATH_TO_TEST_DATA = os.path.join(".", "test", "test_data")
 
 
 def create_nmnist_zip_archive(tmpdir: str, folder: str, filename: str):
-    """
-    This function recreates the same structure that we expect in the dataset:
-    [Train,Test]----!
-                    !---0/sample.bin
-                    !---1/sample.bin
-                    !---
-                    !---9/sample.bin
+    """This function recreates the same structure that we expect in the dataset:
+
+    [Train,Test]----!                 !---0/sample.bin                 !---1/sample.bin
+    !---                 !---9/sample.bin
     """
     filename = filename.split(".")[0]  # Stripping the .zip extension.
     folder_path = os.path.join(tmpdir, folder)
@@ -120,13 +117,10 @@ class NMNISTTestCase_Test_Uncompressed_FirstSaccade(dataset_utils.DatasetTestCas
 
 
 def create_stmnist_zip_archive(tmpdir: str, filename: str):
-    """
-    This function recreates the same structure that we expect in the dataset:
+    """This function recreates the same structure that we expect in the dataset:
     data_submission/----!
-                        !---0/sample.mat
-                        !---1/sample.mat
-                        !---
-                        !---9/sample.mat
+
+    !---0/sample.mat !---1/sample.mat !--- !---9/sample.mat
     """
     folder_path = os.path.join(tmpdir, "data_submission")
     # We create a folder for each label.

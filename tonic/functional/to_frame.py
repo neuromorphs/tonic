@@ -18,8 +18,8 @@ def to_frame_numpy(
     overlap=0.0,
     include_incomplete=False,
 ):
-    """Accumulate events to frames by slicing along constant time (time_window),
-    constant number of events (event_count) or constant number of frames (n_time_bins / n_event_bins).
+    """Accumulate events to frames by slicing along constant time (time_window), constant number of
+    events (event_count) or constant number of frames (n_time_bins / n_event_bins).
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]

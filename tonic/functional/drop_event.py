@@ -24,7 +24,8 @@ def drop_by_time_numpy(
     events: np.ndarray,
     duration_ratio: Union[float, Tuple[float]] = 0.2,
 ):
-    """Drops events in a certain time interval with a length proportional to a specified ratio of the original length.
+    """Drops events in a certain time interval with a length proportional to a specified ratio of
+    the original length.
 
     Args:
         events (np.ndarray): ndarray of shape [num_events, num_event_channels]
@@ -65,7 +66,8 @@ def drop_by_time_numpy(
 def drop_by_area_numpy(
     events: np.ndarray, sensor_size: Tuple, area_ratio: Union[float, Tuple[float]] = 0.2
 ):
-    """Drops events located in a randomly chosen box area. The size of the box area is defined by a specified ratio of the sensor size.
+    """Drops events located in a randomly chosen box area. The size of the box area is defined by a
+    specified ratio of the sensor size.
 
     Args:
         events (np.ndarray): ndarray of shape [num_events, num_event_channels]

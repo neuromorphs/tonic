@@ -46,9 +46,7 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         self._dp = self._datapipe_wrapper()
 
     def __iter__(self) -> Iterator[Sample]:
-        """
-        Iteration method for the data pipe.
-        """
+        """Iteration method for the data pipe."""
         yield from self._dp
 
     def _datapipe_wrapper(self):
@@ -67,15 +65,13 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
 
     @abc.abstractmethod
     def _datapipe(self):
-        """
-        The datapipe line.
-        """
+        """The datapipe line."""
         pass
 
     @abc.abstractmethod
     def __len__(self):
-        """
-        This should return the number of samples in the dataset.
+        """This should return the number of samples in the dataset.
+
         If available, also the division among train and test.
         """
         pass

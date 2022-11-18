@@ -11,8 +11,7 @@ events_struct = np.dtype(
 
 # many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
 def make_structured_array(*args, dtype=events_struct):
-    """
-    Make a structured array given a variable number of argument values
+    """Make a structured array given a variable number of argument values.
 
     Parameters:
         *args: Values in the form of nested lists or tuples or numpy arrays.
@@ -33,8 +32,7 @@ def make_structured_array(*args, dtype=events_struct):
 
 
 def read_aedat4(in_file):
-    """
-    Get the aer events from version 4 of .aedat file
+    """Get the aer events from version 4 of .aedat file.
 
     Parameters:
         in_file: str The name of the .aedat file
@@ -69,8 +67,7 @@ def read_aedat4(in_file):
 
 
 def read_dvs_128(filename):
-    """
-    Get the aer events from DVS with resolution of rows and cols are (128, 128)
+    """Get the aer events from DVS with resolution of rows and cols are (128, 128)
 
     Parameters:
         filename: filename
@@ -95,8 +92,7 @@ def read_dvs_128(filename):
 
 
 def read_dvs_ibm(filename):
-    """
-    Get the aer events from DVS with ibm gesture dataset
+    """Get the aer events from DVS with ibm gesture dataset.
 
     Parameters:
         filename:   filename
@@ -121,8 +117,7 @@ def read_dvs_ibm(filename):
 
 
 def read_dvs_red(filename):
-    """
-    Get the aer events from DVS with resolution of (260, 346)
+    """Get the aer events from DVS with resolution of (260, 346)
 
     Parameters:
         filename:   filename
@@ -148,8 +143,7 @@ def read_dvs_red(filename):
 
 
 def read_dvs_346mini(filename):
-    """
-    Get the aer events from DVS with resolution of (132,104)
+    """Get the aer events from DVS with resolution of (132,104)
 
     Parameters:
         filename: filename
@@ -158,7 +152,6 @@ def read_dvs_346mini(filename):
         shape (tuple):
             (height, width) of the sensor array
         xytp: numpy structure of xytp
-
     """
     data_version, data_start = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
@@ -177,8 +170,8 @@ def read_dvs_346mini(filename):
 def read_mnist_file(
     bin_file: Union[str, BinaryIO], dtype: np.dtype, is_stream: Optional[bool] = False
 ):
-    """
-    Reads the events contained in N-MNIST/N-CALTECH101 datasets.
+    """Reads the events contained in N-MNIST/N-CALTECH101 datasets.
+
     Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py
     """
     if is_stream:
@@ -212,8 +205,7 @@ def read_mnist_file(
 
 
 def read_aedat_header_from_file(filename):
-    """
-    Get the aedat file version and start index of the binary data.
+    """Get the aedat file version and start index of the binary data.
 
     Parameters:
         filename (str):     The name of the .aedat file
@@ -241,8 +233,7 @@ def read_aedat_header_from_file(filename):
 
 
 def get_aer_events_from_file(filename, data_version, data_start):
-    """
-    Get aer events from an aer file.
+    """Get aer events from an aer file.
 
     Parameters:
         filename (str):         The name of the .aedat file

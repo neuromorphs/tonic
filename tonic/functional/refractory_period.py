@@ -5,8 +5,8 @@ def refractory_period_numpy(
     events: np.ndarray,
     refractory_period: float,
 ):
-    """Sets a refractory period for each pixel, during which events will be
-    ignored/discarded. We keep events if:
+    """Sets a refractory period for each pixel, during which events will be ignored/discarded. We
+    keep events if:
 
         .. math::
             t_n - t_{n-1} > t_{refrac}

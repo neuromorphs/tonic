@@ -68,11 +68,13 @@ class STMNISTFileReader(IterDataPipe[Sample]):
 
 
 class STMNIST(Dataset):
-    """
-    Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten digits obtained by human participants writing on a neuromorphic tactile sensor array.
-    The original paper can be found at https://arxiv.org/abs/2005.04319.
-    Data is provided with the MAT format.
-    Download of the compressed dataset has to be done by the user by accessing https://scholarbank.nus.edu.sg/bitstream/10635/168106/2/STMNIST%20dataset%20NUS%20Tee%20Research%20Group.zip, where a form has to be compiled. Then, the path to the ZIP archive has to be provided to the stmnist() function root argument.
+    """Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten
+    digits obtained by human participants writing on a neuromorphic tactile sensor array. The
+    original paper can be found at https://arxiv.org/abs/2005.04319. Data is provided with the MAT
+    format. Download of the compressed dataset has to be done by the user by accessing https://scho
+    larbank.nus.edu.sg/bitstream/10635/168106/2/STMNIST%20dataset%20NUS%20Tee%20Research%20Group.zi
+    p, where a form has to be compiled. Then, the path to the ZIP archive has to be provided to the
+    stmnist() function root argument.
 
     Events have (xytp) ordering.
     Parameters:
