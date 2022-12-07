@@ -14,13 +14,9 @@ class NCARSFileReader(IterDataPipe[Sample]):
     def __init__(
         self,
         dp: IterDataPipe[str],
-        dtype: Optional[np.dtype] = np.dtype(
-            [("t", np.int64), ("x", np.int16), ("y", np.int16), ("p", bool)]
-        ),
     ) -> None:
         self.dp = dp
-        self.dtype = dtype
-        self._wizard = Wizard(encoding="dat", dtype=dtype)
+        self._wizard = Wizard(encoding="dat")
 
     def __iter__(self) -> Iterator[Sample]:
         for fname in self.dp:
@@ -40,7 +36,7 @@ class NCARSFileReader(IterDataPipe[Sample]):
 class NCARS(Dataset):
     """N-CARS <https://www.prophesee.ai/2018/03/13/dataset-n-cars/>
 
-    This datasets needs 'expelliarmus' installed on the system.
+    This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.
     ::
 
         @article{Sironi_2018_CVPR,
@@ -109,5 +105,5 @@ class NCARS(Dataset):
         fpath = os.path.join(self._root, fpath)
         dp = FileLister(str(fpath), recursive=True).filter(self._filter)
         # Reading data to structured NumPy array and integer target.
-        dp = NCARSFileReader(dp, dtype=self._DTYPE)
+        dp = NCARSFileReader(dp)
         return dp
