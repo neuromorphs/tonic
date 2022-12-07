@@ -22,12 +22,13 @@ def test_test_split():
 
 
 def test_optical_flow_subset():
-    dataset = tonic.datasets.DSEC(
-        save_to="data",
-        split="train",
-        data_selection=[],
-        target_selection="optical_flow_forward_timestamps",
-    )
+    with pytest.warns():
+        dataset = tonic.datasets.DSEC(
+            save_to="data",
+            split="train",
+            data_selection=[],
+            target_selection="optical_flow_forward_timestamps",
+        )
     assert len(dataset) == 18
     data, targets = dataset[0]
     assert len(data) == 0

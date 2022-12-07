@@ -141,12 +141,16 @@ class DSEC(Dataset):
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
     ):
-        super(DSEC, self).__init__(
+        super().__init__(
             save_to,
             transform=transform,
             target_transform=target_transform,
             transforms=transforms,
         )
+
+        import imageio
+
+        imageio.plugins.freeimage.download()
 
         if split == "train":
             self.recording_selection = self.recordings[split].keys()
@@ -235,8 +239,6 @@ class DSEC(Dataset):
         import imageio  # necessary to read optical flow pngs
         from PIL import Image  # necessary to read images
 
-        imageio.plugins.freeimage.download()
-
         recording = self.recording_selection[index]
         base_folder = os.path.join(self.location_on_system, recording)
 
@@ -292,7 +294,7 @@ class DSEC(Dataset):
                     list_files(full_base_folder, ".png", prefix=True)
                 )
                 target = np.array(
-                    [imageio.imread(file, format="PNG-FI") for file in png_filenames]
+                    [imageio.v2.imread(file, format="PNG-FI") for file in png_filenames]
                 ).astype(float)
                 target[:, :, :, :2] -= 2**15
                 target[:, :, :, :2] /= 128
