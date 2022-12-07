@@ -1,7 +1,7 @@
 import logging
 import os
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Optional, Tuple, Union
 from warnings import warn
@@ -36,20 +36,17 @@ class MemoryCachedDataset:
     transform: Optional[Callable] = None
     target_transform: Optional[Callable] = None
     transforms: Optional[Callable] = None
-
-    def __post_init__(self):
-        super().__init__()
-        self.data_dict = {}
+    samples_dict: dict = field(init=False, default_factory=dict)
 
     def __getitem__(self, index):
         try:
-            data, targets = self.data_dict[index]
+            data, targets = self.samples_dict[index]
         except KeyError as _:
             data, targets = self.dataset[index]
             if self.device is not None:
                 data = data.to(self.device)
                 targets = targets.to(self.device)
-            self.data_dict[index] = (data, targets)
+            self.samples_dict[index] = (data, targets)
 
         if self.transform is not None:
             data = self.transform(data)

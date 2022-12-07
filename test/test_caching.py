@@ -17,7 +17,7 @@ def test_memory_caching_pokerdvs():
     for data, label in cached_dataset:
         pass
 
-    assert len(cached_dataset.data_dict) == len(dataset)
+    assert len(cached_dataset.samples_dict) == len(dataset)
 
 
 def test_caching_pokerdvs():
