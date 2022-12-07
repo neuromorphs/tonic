@@ -1,5 +1,5 @@
-Datasets
-========
+**Datasets**
+============
 
 All datasets are subclasses of :class:`tonic.datasets.Dataset` and need certain methods implemented: ``__init__``,  ``__getitem__`` and ``__len__``. This design is inspired by torchvision's way to provide datasets.
 
