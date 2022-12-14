@@ -1,3 +1,4 @@
+import itertools
 from dataclasses import dataclass
 from typing import Callable, Optional, Tuple, Union
 
@@ -205,53 +206,17 @@ class DropEventByArea:
         return functional.drop_by_area_numpy(events, self.sensor_size, self.area_ratio)
 
 
-@dataclass(frozen=True)
-class EventDrop:
-    """Applies EventDrop transformation from the paper "EventDrop: Data Augmentation for Event-based Learning".
-        Applies one of the 4 drops of event strategies between:
-            1. Identity (do nothing)
-            2. Drop events by time
-            3. Drop events by area
-            4. Drop events randomly
-
-        For each strategy, the ratio of dropped events are determined in the paper.
-
-    Args:
-        sensor_size (Tuple): size of the sensor that was used [W,H,P]
-
-    Example:
-        >>> transform = tonic.transforms.EventDrop(sensor_size=(128,128,2))
-    """
-
-    sensor_size: Tuple[int, int, int]
-
-    def __call__(self, events):
-        choice = np.random.randint(0, 4)
-        if choice == 0:
-            return events
-        if choice == 1:
-            duration_ratio = np.random.randint(1, 10) / 10.0
-            return functional.drop_by_time_numpy(events, duration_ratio)
-        if choice == 2:
-            area_ratio = np.random.randint(1, 6) / 20.0
-            return functional.drop_by_area_numpy(events, self.sensor_size, area_ratio)
-        if choice == 3:
-            ratio = np.random.randint(1, 10) / 10.0
-            return functional.drop_event_numpy(events, ratio)
-
-
 @dataclass
 class DropPixel:
     """Drops events for individual pixels. If the locations of pixels to be dropped is known, a
     list of x/y coordinates can be passed directly. Alternatively, a cutoff frequency for each
     pixel can be defined above which pixels will be deactivated completely. This prevents so-
-    called.
-
-    *hot pixels* which fire constantly (e.g. due to faulty hardware).
+    called *hot pixels* which fire at a high frequency even in the absence of any input signal
+    (e.g. due to faulty hardware).
 
     Parameters:
-        coordinates: list of (x,y) coordinates for which all events will be deleted.
-        hot_pixel_frequency: drop pixels completely that fire higher than the given frequency.
+        coordinates: List of (x,y) coordinates for which all events will be deleted.
+        hot_pixel_frequency: Drop pixels completely that fire higher than the given frequency.
 
     Example:
         >>> from tonic.transforms import DropPixel
@@ -263,7 +228,6 @@ class DropPixel:
     hot_pixel_frequency: Optional[int] = None
 
     def __call__(self, events):
-
         if events.dtype.names is not None:
             # assert "x", "y", "p" in events.dtype.names
             if self.hot_pixel_frequency:
@@ -318,6 +282,41 @@ class Downsample:
 
 
 @dataclass(frozen=True)
+class EventDrop:
+    """Applies EventDrop transformation from the paper "EventDrop: Data Augmentation for Event-based Learning".
+        Applies one of the 4 drops of event strategies between:
+            1. Identity (do nothing)
+            2. Drop events by time
+            3. Drop events by area
+            4. Drop events randomly
+
+        For each strategy, the ratio of dropped events are determined in the paper.
+
+    Args:
+        sensor_size (Tuple): size of the sensor that was used [W,H,P]
+
+    Example:
+        >>> transform = tonic.transforms.EventDrop(sensor_size=(128,128,2))
+    """
+
+    sensor_size: Tuple[int, int, int]
+
+    def __call__(self, events):
+        choice = np.random.randint(0, 4)
+        if choice == 0:
+            return events
+        if choice == 1:
+            duration_ratio = np.random.randint(1, 10) / 10.0
+            return functional.drop_by_time_numpy(events, duration_ratio)
+        if choice == 2:
+            area_ratio = np.random.randint(1, 6) / 20.0
+            return functional.drop_by_area_numpy(events, self.sensor_size, area_ratio)
+        if choice == 3:
+            ratio = np.random.randint(1, 10) / 10.0
+            return functional.drop_event_numpy(events, ratio)
+
+
+@dataclass(frozen=True)
 class MergePolarities:
     """Sets all polarities to zero. This transform does not have any parameters.
 
@@ -355,6 +354,46 @@ class RandomCrop:
         return functional.crop_numpy(
             events=events, sensor_size=self.sensor_size, target_size=self.target_size
         )
+
+
+@dataclass
+class RandomDropPixel:
+    """Drops all events for individual pixels with a given probability.
+
+    Parameters:
+        p: Probability of pixel being dropped. Stochastic transform.
+        sensor_size: a 3-tuple of x,y,p for sensor_size. Not necessary when RandomDropPixel is applied to rasters.
+
+    Example:
+        >>> from tonic.transforms import RandomDropPixel
+        >>> transform = DropPixel(p=0.2)
+    """
+
+    p: float
+    sensor_size: Optional[Tuple[int, int, int]] = None
+
+    def __call__(self, events):
+        if events.dtype.names is not None:
+            if self.sensor_size is None:
+                sensor_size_x, sensor_size_y, _ = int(events["x"].max() + 1), int(
+                    events["y"].max() + 1
+                )
+            else:
+                sensor_size_x, sensor_size_y, _ = self.sensor_size
+
+            coordinates_x, coordinates_y = np.where(
+                np.random.rand(sensor_size_x, sensor_size_y) < self.p
+            )
+            coordinates = list(zip(coordinates_x, coordinates_y))
+            return functional.drop_pixel_numpy(events=events, coordinates=coordinates)
+
+        elif len(events.shape) == 4 or len(events.shape) == 3:
+            sensor_size_y, sensor_size_x = events.shape[-2:]
+            coordinates_x, coordinates_y = np.where(
+                np.random.rand(sensor_size_x, sensor_size_y) < self.p
+            )
+            coordinates = list(zip(coordinates_x, coordinates_y))
+            return functional.drop_pixel_raster(events, coordinates)
 
 
 @dataclass(frozen=True)

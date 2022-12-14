@@ -49,8 +49,7 @@ def identify_hot_pixel_raster(events: np.ndarray, hot_pixel_frequency: float):
         merged_polarity = events.copy().sum(0).sum(0)
 
     ind = np.argwhere(merged_polarity > hot_pixel_frequency)
-    a = 1
-    return tuple(zip(ind[:, 0], ind[:, 1]))
+    return tuple(zip(ind[:, 1], ind[:, 0]))
 
 
 def drop_pixel_numpy(events: np.ndarray, coordinates):
@@ -91,6 +90,6 @@ def drop_pixel_raster(raster: np.ndarray, coordinates):
     assert len(raster.shape) == 4 or len(raster.shape) == 3
 
     for x, y in coordinates:
-        raster[..., x, y] = 0
+        raster[..., y, x] = 0
 
     return raster
