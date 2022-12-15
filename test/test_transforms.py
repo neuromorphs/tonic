@@ -160,10 +160,35 @@ def test_transform_decimation():
 
     orig_events, sensor_size = create_random_input(sensor_size=(1, 1, 2), n_events=1000)
     transform = transforms.Decimation(n=n)
-
     events = transform(orig_events)
 
     assert len(events) == 100
+
+
+def test_random_drop_pixel():
+    orig_events, sensor_size = create_random_input(
+        n_events=20000, sensor_size=(20, 10, 2)
+    )
+
+    p = 0.2
+    transform = transforms.RandomDropPixel(p=p, sensor_size=sensor_size)
+    events = transform(orig_events)
+
+    assert len(events) < len(orig_events)
+    assert np.isclose(len(np.unique(events[["x", "y"]])), 20 * 10 * (1 - p), atol=10)
+
+
+def test_random_drop_pixel_raster():
+    orig_raster = np.random.randint(0, 10, (50, 2, 100, 200))
+    orig_frame = np.random.randint(0, 10, (2, 100, 200))
+
+    p = 0.2
+    transform = transforms.RandomDropPixel(p=p)
+    raster = transform(orig_raster.copy())
+    frame = transform(orig_frame.copy())
+
+    assert np.isclose(raster.sum() / orig_raster.sum(), 1 - p, atol=0.05)
+    assert np.isclose(frame.sum() / orig_frame.sum(), 1 - p, atol=0.05)
 
 
 @pytest.mark.parametrize(
@@ -194,7 +219,7 @@ def test_transform_drop_pixel(coordinates, hot_pixel_frequency):
 
 @pytest.mark.parametrize(
     "coordinates, hot_pixel_frequency",
-    [(((9, 11), (10, 12), (11, 13)), None), (None, 5000)],
+    [(((199, 11), (199, 12), (11, 13)), None), (None, 5000)],
 )
 def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):
     raster_test = np.random.randint(0, 100, (50, 2, 100, 200))
@@ -207,8 +232,8 @@ def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):
 
     if coordinates:
         for x, y in coordinates:
-            assert raster[:, :, x, y].sum() == 0
-            assert frame[:, x, y].sum() == 0
+            assert raster[:, :, y, x].sum() == 0
+            assert frame[:, y, x].sum() == 0
     if hot_pixel_frequency:
         merged_polarity_raster = raster.sum(0).sum(0)
         merged_polarity_frame = frame.sum(0)
