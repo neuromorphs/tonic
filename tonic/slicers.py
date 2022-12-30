@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, List, Tuple, runtime_checkable
+from typing import Any, List, Tuple
 
 import numpy as np
-from typing_extensions import Protocol
+from typing_extensions import Protocol, runtime_checkable
 
 
 @runtime_checkable
