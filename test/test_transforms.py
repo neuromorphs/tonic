@@ -167,15 +167,15 @@ def test_transform_decimation():
 
 def test_random_drop_pixel():
     orig_events, sensor_size = create_random_input(
-        n_events=20000, sensor_size=(20, 10, 2)
+        n_events=20000, sensor_size=(10, 10, 2)
     )
 
-    p = 0.2
+    p = 0.5
     transform = transforms.RandomDropPixel(p=p, sensor_size=sensor_size)
     events = transform(orig_events)
 
     assert len(events) < len(orig_events)
-    assert np.isclose(len(np.unique(events[["x", "y"]])), 20 * 10 * (1 - p), atol=10)
+    assert np.isclose(len(np.unique(events[["x", "y"]])), 10 * 10 * (1 - p), atol=10)
 
 
 def test_random_drop_pixel_raster():
