@@ -39,17 +39,17 @@ class DVSGesture(Dataset):
     test_filename = "ibmGestureTest.tar.gz"
     train_filename = "ibmGestureTrain.tar.gz"
     classes = [
-        "hand_clapping",
-        "right_hand_wave",
-        "left_hand_wave",
-        "right_arm_clockwise",
-        "right_arm_counter_clockwise",
-        "left_arm_clockwise",
-        "left_arm_counter_clockwise",
-        "arm_roll",
-        "air_drums",
-        "air_guitar",
-        "other_gestures",
+        "Hand clapping",
+        "Right hand wave",
+        "Left hand wave",
+        "Right arm cw",  # clockwise
+        "Right arm ccw",  # counter-clockwise
+        "Left arm cw",
+        "Left arm ccw",
+        "Arm roll",
+        "Air drums",
+        "Air guitar",
+        "Other gestures",
     ]
 
     sensor_size = (128, 128, 2)
