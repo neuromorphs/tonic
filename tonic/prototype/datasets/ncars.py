@@ -91,8 +91,8 @@ class NCARS(Dataset):
 
     def _check_exists(self) -> bool:
         # Checking that train and test folders exist.
-        ret = pathlib.Path(self._root, _TRAIN_PATH).is_dir()
-        ret = ret and pathlib.Path(self._root, _TEST_PATH).is_dir()
+        ret = pathlib.Path(self._root, self._TRAIN_PATH).is_dir()
+        ret = ret and pathlib.Path(self._root, self._TEST_PATH).is_dir()
         # Checking that some binary files are present.
         cnt = 0
         if ret:
