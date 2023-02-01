@@ -3,11 +3,15 @@ import pathlib
 from pathlib import Path
 from typing import Callable, Iterator, Optional, Union
 
+import numpy as np
 from expelliarmus import Wizard
 from expelliarmus.wizard.clib import event_t
 from torchdata.datapipes.iter import FileLister, IterDataPipe
 
+from tonic.download_utils import download_url
+
 from .utils._dataset import Dataset, Sample
+from .utils._utils import check_sha256
 
 
 class MiniDatasetFileReader(IterDataPipe[Sample]):
@@ -19,32 +23,24 @@ class MiniDatasetFileReader(IterDataPipe[Sample]):
         self._wizard = Wizard(encoding="dat")
 
     def __iter__(self) -> Iterator[Sample]:
-        for fname in self.dp:
+        for data_file_path, label_file_path in self.dp:
             yield (
-                self._wizard.read(fname),
-                self._get_target(fname),
+                self._wizard.read(data_file_path),
+                np.load(label_file_path),
             )
-
-    def _get_target(self, fname: str) -> int:
-        return 0
-        folder_name = fname.split(os.sep)[-2]
-        assert (
-            folder_name == "background" or folder_name == "cars"
-        ), f'Error, the folder name "{folder_name}" is wrong and cannot be associated to a label.'
-        return 0 if folder_name == "background" else 1
 
 
 class MiniDataset(Dataset):
     """"""
 
     _DTYPE = event_t
-    _URL = "https://data.mendeley.com/public-files/datasets/468j46mzdv/files/"
+    _URL = "https://dataset.prophesee.ai/index.php/s/ScqMu02G5pdYKPh/download"
     _FILENAME = "mini_dataset.zip"
     _FOLDERNAME = "mini_dataset"
     _SHA256 = "a13fb1240c19f2e1dbf453cecbb9e0c3ac9a7a5ea3cfc5a4f88760fff4977449"
-    _TRAIN_PATH = "train"
-    _VALID_PATH = "val"
-    _TEST_PATH = "test"
+    _TRAIN_FOLDER = "train"
+    _VALID_FOLDER = "val"
+    _TEST_FOLDER = "test"
 
     sensor_size = (1280, 720, 2)
 
@@ -59,16 +55,15 @@ class MiniDataset(Dataset):
     ) -> None:
         self.split = split
         super().__init__(
-            Path(root, self.__class__.__name__),
+            root,  # Path(root, self.__class__.__name__),
             transform,
             target_transform,
             transforms,
             False,
             skip_sha256_check,
         )
-        assert (
-            self._check_exists()
-        ), "Error: the dataset files could not be found. You should download the dataset and manually extract it and, then, provide the path to the extracted archive as root."
+        if not self._check_exists():
+            self._download()
 
     def __len__(self) -> int:
         return {
@@ -77,36 +72,36 @@ class MiniDataset(Dataset):
             "test": 1,
         }[self.split]
 
-    def _filter(self, fname: str) -> bool:
+    def _dat_filter(self, fname: str) -> bool:
         return fname.endswith(".dat")
 
+    def _label_filter(self, fname: str) -> bool:
+        return fname.endswith(".npy")
+
     def _check_exists(self) -> bool:
-        # Checking that train and test folders exist.
-        train_folder_exists = Path(
-            self._root, self._FOLDERNAME, self._TRAIN_PATH
-        ).is_dir()
-        valid_folder_exists = Path(
-            self._root, self._FOLDERNAME, self._VALID_PATH
-        ).is_dir()
-        test_folder_exists = Path(
-            self._root, self._FOLDERNAME, self._TEST_PATH
-        ).is_dir()
+        base_path = Path(self._root, self._FOLDERNAME)
+        train_folder_exists = (base_path / self._TRAIN_FOLDER).is_dir()
+        valid_folder_exists = (base_path / self._VALID_FOLDER).is_dir()
+        test_folder_exists = (base_path / self._TEST_FOLDER).is_dir()
 
         # Checking that some binary files are present.
         if train_folder_exists and valid_folder_exists and test_folder_exists:
-            dp = FileLister(self._root._str, recursive=True).filter(self._filter)
+            dp = FileLister(self._root._str, recursive=True).filter(self._dat_filter)
             if len(list(dp)) > 0:
                 return True
         return False
 
+    def _download(self):
+        download_url(url=self._URL, root=self._root, filename=self._FILENAME)
+        check_sha256(Path(self._root, self._FILENAME), self._SHA256)
+
     def _datapipe(self) -> IterDataPipe[Sample]:
-        fpath = {
-            "train": self._TRAIN_PATH,
-            "valid": self._VALID_PATH,
-            "test": self._TEST_PATH,
+        split_folder = {
+            "train": self._TRAIN_FOLDER,
+            "valid": self._VALID_FOLDER,
+            "test": self._TEST_FOLDER,
         }[self.split]
-        fpath = os.path.join(self._root, self._FOLDERNAME, fpath)
-        dp = FileLister(str(fpath), recursive=True).filter(self._filter)
-        # Reading data to structured NumPy array and integer target.
-        dp = MiniDatasetFileReader(dp)
-        return dp
+        fpath = os.path.join(self._root, self._FOLDERNAME, split_folder)
+        data_dp = FileLister(str(fpath), recursive=True).filter(self._dat_filter)
+        label_dp = FileLister(str(fpath), recursive=True).filter(self._label_filter)
+        return MiniDatasetFileReader(zip(data_dp, label_dp))
