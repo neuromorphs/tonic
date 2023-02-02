@@ -1,7 +1,6 @@
 import os
-import pathlib
 from pathlib import Path
-from typing import Callable, Iterator, Optional, Union
+from typing import Callable, Iterator, Optional
 
 import numpy as np
 from expelliarmus import Wizard
@@ -31,7 +30,29 @@ class Gen4AutomotiveDetectionMiniFileReader(IterDataPipe[Sample]):
 
 
 class Gen4AutomotiveDetectionMini(Dataset):
-    """"""
+    """Automotice Detection Dataset using Prophesee's Gen4 event cameras.
+
+    <https://www.prophesee.ai/2020/11/24/automotive-megapixel-event-based-dataset/>
+
+    This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.
+    ::
+
+        @article{de2020large,
+          title={A large scale event-based detection dataset for automotive},
+          author={De Tournemire, Pierre and Nitti, Davide and Perot, Etienne and Migliore, Davide and Sironi, Amos},
+          journal={arXiv preprint arXiv:2001.08499},
+          year={2020}
+        }
+
+    .. note:: The hosting server is very flaky and often interrupts the download before it is completed. If you end up with anything smaller than 23GB on disk, delete and try again.
+
+    Parameters:
+        root (string): Location to decompressed archive.
+        split (str): Can be 'train' (default), 'valid' or 'test'.
+        transform (callable, optional): A callable of transforms to apply to the data.
+        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
+        transforms (callable, optional): A callable of transforms that is applied to both data and labels at the same time.
+    """
 
     _DTYPE = event_t
     _URL = "https://dataset.prophesee.ai/index.php/s/ScqMu02G5pdYKPh/download"
@@ -46,7 +67,7 @@ class Gen4AutomotiveDetectionMini(Dataset):
 
     def __init__(
         self,
-        root: Union[str, pathlib.Path],
+        root: os.PathLike,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
@@ -86,7 +107,7 @@ class Gen4AutomotiveDetectionMini(Dataset):
 
         # Checking that some binary files are present.
         if train_folder_exists and valid_folder_exists and test_folder_exists:
-            dp = FileLister(self._root._str, recursive=True).filter(self._dat_filter)
+            dp = FileLister(str(self._root), recursive=True).filter(self._dat_filter)
             if len(list(dp)) > 0:
                 return True
         return False
@@ -101,7 +122,7 @@ class Gen4AutomotiveDetectionMini(Dataset):
             "valid": self._VALID_FOLDER,
             "test": self._TEST_FOLDER,
         }[self.split]
-        fpath = os.path.join(self._root, self._FOLDERNAME, split_folder)
+        fpath = Path(self._root, self._FOLDERNAME, split_folder)
         data_dp = FileLister(str(fpath), recursive=True).filter(self._dat_filter)
         label_dp = FileLister(str(fpath), recursive=True).filter(self._label_filter)
         return Gen4AutomotiveDetectionMiniFileReader(zip(data_dp, label_dp))
