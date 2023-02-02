@@ -14,7 +14,7 @@ from .utils._dataset import Dataset, Sample
 from .utils._utils import check_sha256
 
 
-class MiniDatasetFileReader(IterDataPipe[Sample]):
+class Gen4AutomotiveDetectionMiniFileReader(IterDataPipe[Sample]):
     def __init__(
         self,
         dp: IterDataPipe[str],
@@ -30,7 +30,7 @@ class MiniDatasetFileReader(IterDataPipe[Sample]):
             )
 
 
-class MiniDataset(Dataset):
+class Gen4AutomotiveDetectionMini(Dataset):
     """"""
 
     _DTYPE = event_t
@@ -104,4 +104,4 @@ class MiniDataset(Dataset):
         fpath = os.path.join(self._root, self._FOLDERNAME, split_folder)
         data_dp = FileLister(str(fpath), recursive=True).filter(self._dat_filter)
         label_dp = FileLister(str(fpath), recursive=True).filter(self._label_filter)
-        return MiniDatasetFileReader(zip(data_dp, label_dp))
+        return Gen4AutomotiveDetectionMiniFileReader(zip(data_dp, label_dp))

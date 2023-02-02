@@ -199,13 +199,15 @@ class NCARSTestCase_Test(dataset_utils.DatasetTestCase):
         create_ncars_folder(tmpdir, datasets.NCARS._TEST_PATH)
 
 
-#############
-# MiniDataset
-#############
+#############################
+# Gen4AutomotiveDetectionMini
+#############################
 
 
 def create_minidataset_folder(tmpdir, split_folder):
-    testfolder = Path(tmpdir, "MiniDataset", "mini_dataset", split_folder)
+    testfolder = Path(
+        tmpdir, "Gen4AutomotiveDetectionMini", "mini_dataset", split_folder
+    )
     testfolder.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(
         Path(PATH_TO_TEST_DATA, "sample_ncars.dat"),
@@ -215,31 +217,37 @@ def create_minidataset_folder(tmpdir, split_folder):
     np.save(testfolder / "moorea_2019-02-19_004_td_610500000_670500000_bbox.npy", label)
 
 
-class MiniDatasetTestCase_Train(dataset_utils.DatasetTestCase):
-    DATASET_CLASS = datasets.MiniDataset
-    FEATURE_TYPES = (datasets.MiniDataset._DTYPE,)
+class Gen4AutomotiveDetectionMiniTestCase_Train(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.Gen4AutomotiveDetectionMini
+    FEATURE_TYPES = (datasets.Gen4AutomotiveDetectionMini._DTYPE,)
     TARGET_TYPES = (np.array,)
     KWARGS = {"split": "train"}
 
     def inject_fake_data(self, tmpdir):
-        create_minidataset_folder(tmpdir, datasets.MiniDataset._TRAIN_FOLDER)
+        create_minidataset_folder(
+            tmpdir, datasets.Gen4AutomotiveDetectionMini._TRAIN_FOLDER
+        )
 
 
-class MiniDatasetTestCase_Valid(dataset_utils.DatasetTestCase):
-    DATASET_CLASS = datasets.MiniDataset
-    FEATURE_TYPES = (datasets.MiniDataset._DTYPE,)
+class Gen4AutomotiveDetectionMiniTestCase_Valid(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.Gen4AutomotiveDetectionMini
+    FEATURE_TYPES = (datasets.Gen4AutomotiveDetectionMini._DTYPE,)
     TARGET_TYPES = (np.array,)
     KWARGS = {"split": "valid"}
 
     def inject_fake_data(self, tmpdir):
-        create_minidataset_folder(tmpdir, datasets.MiniDataset._VALID_FOLDER)
+        create_minidataset_folder(
+            tmpdir, datasets.Gen4AutomotiveDetectionMini._VALID_FOLDER
+        )
 
 
-class MiniDatasetTestCase_Test(dataset_utils.DatasetTestCase):
-    DATASET_CLASS = datasets.MiniDataset
-    FEATURE_TYPES = (datasets.MiniDataset._DTYPE,)
+class Gen4AutomotiveDetectionMiniTestCase_Test(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.Gen4AutomotiveDetectionMini
+    FEATURE_TYPES = (datasets.Gen4AutomotiveDetectionMini._DTYPE,)
     TARGET_TYPES = (np.array,)
     KWARGS = {"split": "test"}
 
     def inject_fake_data(self, tmpdir):
-        create_minidataset_folder(tmpdir, datasets.MiniDataset._TEST_FOLDER)
+        create_minidataset_folder(
+            tmpdir, datasets.Gen4AutomotiveDetectionMini._TEST_FOLDER
+        )
