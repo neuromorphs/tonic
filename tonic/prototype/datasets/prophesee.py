@@ -55,7 +55,7 @@ class MiniDataset(Dataset):
     ) -> None:
         self.split = split
         super().__init__(
-            root,  # Path(root, self.__class__.__name__),
+            Path(root, self.__class__.__name__),
             transform,
             target_transform,
             transforms,

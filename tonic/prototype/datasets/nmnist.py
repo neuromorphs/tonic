@@ -1,5 +1,5 @@
 import os
-import pathlib
+from pathlib import Path
 from typing import Any, BinaryIO, Callable, Iterator, Optional, Tuple, Union
 
 import numpy as np
@@ -11,7 +11,6 @@ from torchdata.datapipes.iter import (
     Mapper,
     Saver,
     ZipArchiveLoader,
-    Zipper,
 )
 
 from tonic.download_utils import download_url
@@ -93,7 +92,7 @@ class NMNIST(Dataset):
 
     def __init__(
         self,
-        root: Union[str, pathlib.Path],
+        root: os.PathLike,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
@@ -105,12 +104,12 @@ class NMNIST(Dataset):
         self.train = train
         self.first_saccade_only = first_saccade_only
         super().__init__(
-            root,
-            transform,
-            target_transform,
-            transforms,
-            keep_compressed,
-            skip_sha256_check,
+            root=Path(root, self.__class__.__name__),
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
+            keep_compressed=keep_compressed,
+            skip_sha256_check=skip_sha256_check,
         )
         self._download()
 
