@@ -1,8 +1,7 @@
 import os
-import pathlib
-from typing import Any, Callable, Iterator, Optional, Tuple, Union
+from pathlib import Path
+from typing import Callable, Iterator, Optional
 
-import numpy as np
 from expelliarmus import Wizard
 from expelliarmus.wizard.clib import event_t
 from torchdata.datapipes.iter import FileLister, IterDataPipe
@@ -63,7 +62,7 @@ class NCARS(Dataset):
 
     def __init__(
         self,
-        root: Union[str, pathlib.Path],
+        root: os.PathLike,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
@@ -72,7 +71,7 @@ class NCARS(Dataset):
     ) -> None:
         self.train = train
         super().__init__(
-            root,
+            Path(root, self.__class__.__name__),
             transform,
             target_transform,
             transforms,
@@ -91,8 +90,8 @@ class NCARS(Dataset):
 
     def _check_exists(self) -> bool:
         # Checking that train and test folders exist.
-        ret = pathlib.Path(self._root, _TRAIN_PATH).is_dir()
-        ret = ret and pathlib.Path(self._root, _TEST_PATH).is_dir()
+        ret = Path(self._root, self._TRAIN_PATH).is_dir()
+        ret = ret and Path(self._root, self._TEST_PATH).is_dir()
         # Checking that some binary files are present.
         cnt = 0
         if ret:

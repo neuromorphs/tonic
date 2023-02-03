@@ -41,7 +41,7 @@ class DatasetTestCase(unittest.TestCase):
         )
 
     def create_dataset(self, inject_fake_data: bool = True, **kwargs: Any):
-        self.inject_fake_data(os.path.join(TMP_DIR, self.DATASET_CLASS.__name__))
+        self.inject_fake_data(TMP_DIR)
 
         if inject_fake_data:
             with patch.object(self.DATASET_CLASS, "_check_exists", return_value=True):
@@ -79,7 +79,7 @@ class DatasetTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.KWARGS.update({"root": os.path.join(TMP_DIR, cls.DATASET_CLASS.__name__)})
+        cls.KWARGS.update({"root": TMP_DIR})
         shutil.rmtree(
             os.path.join(TMP_DIR, cls.DATASET_CLASS.__name__), ignore_errors=True
         )

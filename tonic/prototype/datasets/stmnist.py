@@ -1,5 +1,5 @@
 import os
-import pathlib
+from pathlib import Path
 from typing import Any, BinaryIO, Callable, Iterator, Optional, Tuple, Union
 
 import numpy as np
@@ -12,10 +12,7 @@ from torchdata.datapipes.iter import (
     Mapper,
     Saver,
     ZipArchiveLoader,
-    Zipper,
 )
-
-from tonic.download_utils import check_integrity
 
 from .utils._dataset import Dataset, Sample
 from .utils._utils import check_sha256
@@ -93,7 +90,7 @@ class STMNIST(Dataset):
 
     def __init__(
         self,
-        root: Union[str, pathlib.Path],
+        root: os.PathLike,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
@@ -101,7 +98,7 @@ class STMNIST(Dataset):
         skip_sha256_check: Optional[bool] = True,
     ) -> None:
         super().__init__(
-            root,
+            Path(root, self.__class__.__name__),
             transform,
             target_transform,
             transforms,
