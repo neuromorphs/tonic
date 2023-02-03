@@ -1,6 +1,6 @@
 import itertools
 from dataclasses import dataclass
-from typing import Callable, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -175,7 +175,7 @@ class DropEventByTime:
         >>> transform = tonic.transforms.DropEventByTime(duration_ratio=(0.1, 0.8))
     """
 
-    duration_ratio: Union[float, Tuple[float]] = 0.2
+    duration_ratio: Union[float, Tuple[float, float]] = 0.2
 
     def __call__(self, events):
 
@@ -199,7 +199,7 @@ class DropEventByArea:
     """
 
     sensor_size: Tuple[int, int, int]
-    area_ratio: Union[float, Tuple[float]] = 0.2
+    area_ratio: Union[float, Tuple[float, float]] = 0.2
 
     def __call__(self, events):
 
@@ -224,7 +224,7 @@ class DropPixel:
         >>> transform2 = DropPixel(hot_pixel_frequency=60) # Hertz
     """
 
-    coordinates: Optional[Tuple] = None
+    coordinates: Optional[List[Tuple[int, int]]] = None
     hot_pixel_frequency: Optional[int] = None
 
     def __call__(self, events):
@@ -656,7 +656,7 @@ class UniformNoise:
     """
 
     sensor_size: Tuple[int, int, int]
-    n: int
+    n: Union[int, Tuple[int, int]]
 
     @staticmethod
     def get_params(n: Union[int, Tuple[int, int]]):
