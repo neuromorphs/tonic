@@ -72,6 +72,12 @@ Have a question about how something works? Ideas for improvement? Feature reques
 ## Contributing
 Please check out the [contributions](https://tonic.readthedocs.io/en/latest/about/contribute.html) page for details.
 
+## Sponsoring
+The development of this library is supported by
+
+<tr><td><a href="https://synsense.ai"><img src="https://www.synsense.ai/wp-content/uploads/2022/03/logo-synsense-blue.svg" alt="SynSense" width="200px"/></a></td><td>
+
+
 ## Citation
 If you find this package helpful, please consider citing it:
 
