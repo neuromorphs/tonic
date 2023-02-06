@@ -1,5 +1,5 @@
-**DATASETS**
-============
+Datasets
+========
 
 All datasets are subclasses of :class:`tonic.datasets.Dataset` and need certain methods implemented: ``__init__``,  ``__getitem__`` and ``__len__``. This design is inspired by torchvision's way to provide datasets.
 
@@ -45,3 +45,16 @@ Pose estimation, visual odometry, SLAM
     TUMVIE
     VPR
     
+
+.. currentmodule:: tonic.prototype.datasets
+
+Prototype iterable datasets
+---------------------------
+.. autosummary::
+    :toctree: generated/
+    :template: class_dataset.rst
+
+    NMNIST
+    NCARS
+    STMNIST
+    Gen4AutomotiveDetectionMini

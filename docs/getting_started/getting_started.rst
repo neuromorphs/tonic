@@ -1,5 +1,5 @@
-**GETTING STARTED**
-====================
+Getting started
+===============
 
 .. toctree::
    install
