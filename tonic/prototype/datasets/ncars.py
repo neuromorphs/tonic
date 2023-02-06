@@ -34,7 +34,7 @@ class NCARSFileReader(IterDataPipe[Sample]):
 
 
 class NCARS(Dataset):
-    """N-CARS <https://www.prophesee.ai/2018/03/13/dataset-n-cars/>
+    """`N-CARS <https://www.prophesee.ai/2018/03/13/dataset-n-cars/>`_
 
     This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.
     ::

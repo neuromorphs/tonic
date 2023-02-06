@@ -65,7 +65,9 @@ class STMNISTFileReader(IterDataPipe[Sample]):
 
 
 class STMNIST(Dataset):
-    """Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten
+    """`ST-MNIST <https://arxiv.org/abs/2005.04319>`_
+
+    Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten
     digits obtained by human participants writing on a neuromorphic tactile sensor array. The
     original paper can be found at https://arxiv.org/abs/2005.04319. Data is provided with the MAT
     format. Download of the compressed dataset has to be done by the user by accessing https://scho

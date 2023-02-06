@@ -30,9 +30,8 @@ class Gen4AutomotiveDetectionMiniFileReader(IterDataPipe[Sample]):
 
 
 class Gen4AutomotiveDetectionMini(Dataset):
-    """Automotice Detection Dataset using Prophesee's Gen4 event cameras.
-
-    <https://www.prophesee.ai/2020/11/24/automotive-megapixel-event-based-dataset/>
+    """`Gen4 Automotive Detection <https://www.prophesee.ai/2020/11/24/automotive-megapixel-event-
+    based-dataset/>`_
 
     This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.
     ::
