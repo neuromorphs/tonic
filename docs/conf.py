@@ -7,6 +7,7 @@ author = "Gregor Lenz"
 master_doc = "index"
 
 extensions = [
+    "autoapi.extension",
     "myst_nb",
     "pbr.sphinxext",
     "sphinx.ext.autodoc",
@@ -19,13 +20,24 @@ extensions = [
 sphinx_gallery_conf = {
     "examples_dirs": "gallery/",  # path to your example scripts
     "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
-    # "backreferences_dir": "gen_modules/backreferences",
+    "backreferences_dir": None,
     "matplotlib_animations": True,
     "doc_module": ("tonic",),
-    # "binder": True,
     "download_all_examples": False,
     "ignore_pattern": r"utils\.py",
 }
+
+autodoc_typehints = "both"
+autoapi_type = "python"
+autoapi_dirs = ["../tonic"]
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+    "special-members",
+    "imported-members",
+]
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -44,7 +56,13 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    ".ipynb_checkpoints",
+    "README.rst",
+]
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = "sphinx_book_theme"
