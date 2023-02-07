@@ -1,5 +1,5 @@
-**READING MATERIAL**
-====================
+Reading material
+================
 
 .. toctree::
     intro-event-cameras

@@ -1,5 +1,5 @@
-**GETTING INVOLVED**
-====================
+Getting involved
+================
 
 .. toctree::
    contribute
