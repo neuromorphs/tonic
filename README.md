@@ -14,8 +14,8 @@ You can find the full documentation on Tonic [on this site](https://tonic.readth
 
 * [A first example](https://tonic.readthedocs.io/en/latest/getting_started/nmnist.html) to get a feeling for how Tonic works.
 * [Run tutorials in your browser](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials) quick and easy.
-* [List of datasets](https://tonic.readthedocs.io/en/latest/reference/datasets.html).
-* [List of transformations](https://tonic.readthedocs.io/en/latest/reference/transformations.html).
+* [List of datasets](https://tonic.readthedocs.io/en/main/datasets.html).
+* [List of transformations](https://tonic.readthedocs.io/en/main/auto_examples/index.html).
 * [About](https://tonic.readthedocs.io/en/latest/about/info.html) this project.
 * [Release notes](https://tonic.readthedocs.io/en/latest/about/release_notes.html) on version changes.
 
