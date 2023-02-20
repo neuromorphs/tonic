@@ -754,11 +754,10 @@ class ToAveragedTimesurface:
 class ToFrame:
     """Accumulate events to frames by slicing along constant time (time_window), constant number of
     events (spike_count) or constant number of frames (n_time_bins / n_event_bins). All the events
-    in one slice are added up in a frame for each polarity. You can set one of the first 4
-    parameters to choose the slicing method. Depending on which method you choose, overlap will
-    assume different functionality, whether that might be temporal overlap, number of events or
-    fraction of a bin. As a rule of thumb, here are some considerations if you are unsure which
-    slicing method to choose:
+    in one slice are added up in a frame for each polarity.  If you want binary frames, you can 
+    manually clamp them to 1 afterwards. You can set one of the first 4 parameters to choose the 
+    slicing method. Depending on which method you choose, overlap will be defined differently.
+    As a rule of thumb, here are some considerations if you are unsure which slicing method to choose:
 
     * If your recordings are of roughly the same length, a safe option is to set time_window. Bare in mind
       that the number of events can vary greatly from slice to slice, but will give you some consistency when
@@ -775,24 +774,27 @@ class ToFrame:
       an overlap between 0 and 1 to provide some robustness.
 
     Parameters:
-        sensor_size: a 3-tuple of x,y,p for sensor_size. If omitted, the sensor size is calculated for that sample. However,
+        sensor_size: A 3-tuple of x,y,p for sensor_size. If omitted, the sensor size is calculated for that sample. However,
                     do use this feature sparingly as when not all pixels fire in a sample, this might cause issues with batching/
                     stacking tensors further down the line.
-        time_window (float): time window length for one frame. Use the same time unit as timestamps in the event recordings.
+        time_window (float): Time window length for one frame. Use the same time unit as timestamps in the event recordings.
                              Good if you want temporal consistency in your training, bad if you need some visual consistency
                              for every frame if the recording's activity is not consistent.
-        spike_count (int): number of events per frame. Good for training CNNs which do not care about temporal consistency.
-        n_time_bins (int): fixed number of frames, sliced along time axis. Good for generating a pre-determined number of
+        spike_count (int): Number of events per frame. Good for training CNNs which do not care about temporal consistency.
+        n_time_bins (int): Fixed number of frames, sliced along time axis. Good for generating a pre-determined number of
                            frames which might help with batching.
-        n_event_bins (int): fixed number of frames, sliced along number of events in the recording. Good for generating a
+        n_event_bins (int): Fixed number of frames, sliced along number of events in the recording. Good for generating a
                             pre-determined number of frames which might help with batching.
-        overlap (float): overlap between frames defined either in time units, number of events or number of bins between 0 and 1.
-        include_incomplete (bool): if True, includes overhang slice when time_window or spike_count is specified.
+        overlap (float): Overlap between frames. The definition of overlap depends on the slicing method.
+                         For slicing by time_window, the overlap is defined in microseconds. For slicing by spike_count, 
+                         the overlap is defined by number of events. For slicing by n_time_bins or n_event_bins, the 
+                         overlap is defined by the fraction of a bin between 0 and 1.
+        include_incomplete (bool): If True, includes overhang slice when time_window or spike_count is specified.
                                    Not valid for bin_count methods.
 
     Example:
         >>> from tonic.transforms import ToFrame
-        >>> transform1 = ToFrame(time_window=10000, overlap=300, include_incomplete=True)
+        >>> transform1 = ToFrame(time_window=10000, overlap=1000, include_incomplete=True)
         >>> transform2 = ToFrame(spike_count=3000, overlap=100, include_incomplete=True)
         >>> transform3 = ToFrame(n_time_bins=100, overlap=0.1)
     """
