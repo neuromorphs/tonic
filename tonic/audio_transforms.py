@@ -25,7 +25,7 @@ class FixLength:
     axis: int = 1
 
     def __call__(self, data: np.ndarray):
-        return librosa.util.fix_length(data, self.length, self.axis)
+        return librosa.util.fix_length(data=data, size=self.length, axis=self.axis)
 
 
 @dataclass
