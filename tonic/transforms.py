@@ -500,8 +500,15 @@ class RandomTimeReversal:
 
     def __call__(self, events):
         events = events.copy()
-        assert "t" and "p" in events.dtype.names
+
         if np.random.rand() < self.p:
+            # if events is a raster-like numpy array in shape [t, p, h, w] or [t, p, x]
+            if events.ndim == 4 or events.ndim == 3:
+                # reverse both time and polarity
+                # array with negative strides are not supported to be converted to tensor by torch, so return a copy
+                return events[::-1, ::-1, ...].copy()
+
+            assert "t" and "p" in events.dtype.names
             events["t"] = np.max(events["t"]) - events["t"]
             if self.flip_polarities:
                 events["p"] = np.invert(events["p"].astype(bool)).astype(

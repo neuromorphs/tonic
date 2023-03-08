@@ -501,6 +501,23 @@ def test_transform_time_reversal(p):
     assert events is not orig_events
 
 
+@pytest.mark.parametrize("p", [1, 0])
+def test_random_reversal_raster(p):
+    orig_events, sensor_size = create_random_input()
+    to_raster = transforms.ToFrame(sensor_size=sensor_size, n_event_bins=100)
+    # raster in shape [t, p, h, w]
+    orig_raster = to_raster(orig_events)
+
+    transform = transforms.RandomTimeReversal(p=p)
+    raster = transform(orig_raster)
+
+    if p == 1:
+        assert np.array_equal(raster, orig_raster[::-1, ::-1, ...])
+    elif p == 0:
+        assert np.array_equal(raster, orig_raster)
+    assert raster is not orig_raster
+
+
 @pytest.mark.parametrize("coefficient, offset", [(3.1, 100), (0.3, 0), (2.7, 10)])
 def test_transform_time_skew(coefficient, offset):
     orig_events, sensor_size = create_random_input()
