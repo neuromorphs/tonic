@@ -11,20 +11,20 @@ class FixLength:
     """Fix the length of a sample along a specified axis to a given length.
 
     Parameters:
-        length:
-            Desired length of the sample
-        axis:
-            Dimension along which the length needs to be fixed.
+        length (int): Desired length of the sample
+        axis (int, optional): Dimension along which the length needs to be fixed.. Defaults to 1.
+
     Args:
-        data: torch.Tensor
+        data (np.ndarray): data sample
+
     Returns:
-        torch.Tensor of the same dimension
+        np.ndarray: fixed length data sample
     """
 
     length: int
     axis: int = 1
 
-    def __call__(self, data: np.ndarray):
+    def __call__(self, data: np.ndarray) -> np.ndarray:
         return librosa.util.fix_length(data=data, size=self.length, axis=self.axis)
 
 
@@ -33,26 +33,22 @@ class Bin:
     """Bin the given data along a specified axis at the specified new frequency.
 
     Parameters:
-        orig_freq: float
-            Sampling frequency of the given data stream
-        new_freq: float
-            Desired frequency after binning
-        axis: int
-            Axis along which the data needs to be binned
+        orig_freq (float): Sampling frequency of the given data stream
+        new_freq (float): Desired frequency after binning
+        axis (int): Axis along which the data needs to be binned
 
     Args:
-         data: torch.Tensor
-            data to be binned
+        data (np.ndarray): data sample
 
     Returns:
-        torch.Tensor binned data
+        np.ndarray: binned data sample
     """
 
     orig_freq: float
     new_freq: float
     axis: int
 
-    def __call__(self, data: np.ndarray):
+    def __call__(self, data: np.ndarray) -> np.ndarray:
         data_len = data.shape[self.axis]
         n_splits = int(data_len / (self.orig_freq / self.new_freq))
         splits = np.array_split(data, n_splits, axis=self.axis)
