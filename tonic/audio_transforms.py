@@ -33,26 +33,22 @@ class Bin:
     """Bin the given data along a specified axis at the specified new frequency.
 
     Parameters:
-        orig_freq: float
-            Sampling frequency of the given data stream
-        new_freq: float
-            Desired frequency after binning
-        axis: int
-            Axis along which the data needs to be binned
+        orig_freq (float): Sampling frequency of the given data stream
+        new_freq (float): Desired frequency after binning
+        axis (int): Axis along which the data needs to be binned
 
     Args:
-         data: torch.Tensor
-            data to be binned
+        data (np.ndarray): data sample
 
     Returns:
-        torch.Tensor binned data
+        np.ndarray: binned data sample
     """
 
     orig_freq: float
     new_freq: float
     axis: int
 
-    def __call__(self, data: np.ndarray):
+    def __call__(self, data: np.ndarray) -> np.ndarray:
         data_len = data.shape[self.axis]
         n_splits = int(data_len / (self.orig_freq / self.new_freq))
         splits = np.array_split(data, n_splits, axis=self.axis)
