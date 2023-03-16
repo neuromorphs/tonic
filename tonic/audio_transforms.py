@@ -11,20 +11,20 @@ class FixLength:
     """Fix the length of a sample along a specified axis to a given length.
 
     Parameters:
-        length:
-            Desired length of the sample
-        axis:
-            Dimension along which the length needs to be fixed.
+        length (int): Desired length of the sample
+        axis (int, optional): Dimension along which the length needs to be fixed.. Defaults to 1.
+
     Args:
-        data: torch.Tensor
+        data (np.ndarray): data sample
+
     Returns:
-        torch.Tensor of the same dimension
+        np.ndarray: fixed length data sample
     """
 
     length: int
     axis: int = 1
 
-    def __call__(self, data: np.ndarray):
+    def __call__(self, data: np.ndarray) -> np.ndarray:
         return librosa.util.fix_length(data=data, size=self.length, axis=self.axis)
 
 
