@@ -29,6 +29,15 @@ class Gen4AutomotiveDetectionMiniFileReader(IterDataPipe[Sample]):
             )
 
 
+class Gen1AutomotiveDetection(Dataset):
+    """"""
+
+    class_map = {
+        0: "car",
+        1: "pedestrian",
+    }
+
+
 class Gen4AutomotiveDetectionMini(Dataset):
     """`Gen4 Automotive Detection <https://www.prophesee.ai/2020/11/24/automotive-megapixel-event-
     based-dataset/>`_
@@ -48,9 +57,6 @@ class Gen4AutomotiveDetectionMini(Dataset):
     Parameters:
         root (string): Location to decompressed archive.
         split (str): Can be 'train' (default), 'valid' or 'test'.
-        transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        transforms (callable, optional): A callable of transforms that is applied to both data and labels at the same time.
     """
 
     _DTYPE = event_t
@@ -63,24 +69,27 @@ class Gen4AutomotiveDetectionMini(Dataset):
     _TEST_FOLDER = "test"
 
     sensor_size = (1280, 720, 2)
+    class_map = {
+        0: "pedestrian",
+        1: "two wheeler",
+        2: "car",
+        3: "truck",
+        4: "bus",
+        5: "traffic sign",
+        6: "traffic light",
+    }
 
     def __init__(
         self,
         root: os.PathLike,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
         split: str = "train",
         skip_sha256_check: Optional[bool] = True,
     ) -> None:
         self.split = split
         super().__init__(
-            Path(root, self.__class__.__name__),
-            transform,
-            target_transform,
-            transforms,
-            False,
-            skip_sha256_check,
+            root=Path(root, self.__class__.__name__),
+            keep_compressed=False,
+            skip_sha256_check=skip_sha256_check,
         )
         if not self._check_exists():
             self._download()
