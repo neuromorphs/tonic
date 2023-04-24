@@ -136,11 +136,12 @@ def create_hsd_data(filename, n_samples):
         times = np.random.random(size=(n_samples, 100)).astype(np.float16)
         units = (np.random.random(size=(n_samples, 100)) * 700).astype(np.uint16)
         keys = ["zero", "one"]
+        speaker= (np.random.random(size=n_samples) * 20).astype(np.uint16)
         write_file.create_dataset("spikes/units", data=units)
         write_file.create_dataset("spikes/times", data=times)
         write_file.create_dataset("labels", data=[1] * n_samples)
         write_file.create_dataset("extra/keys", data=keys)
-
+        write_file.create_dataset("extra/speaker", data= speaker)
 
 class SHDTestCaseTrain(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.SHD
