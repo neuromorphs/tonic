@@ -250,3 +250,53 @@ class Gen4AutomotiveDetectionMiniTestCase_Test(dataset_utils.DatasetTestCase):
         create_minidataset_folder(
             tmpdir, datasets.Gen4AutomotiveDetectionMini._TEST_FOLDER
         )
+
+
+#########################
+# Gen1AutomotiveDetection
+#########################
+
+
+def create_gen1dataset_folder(tmpdir, split_folder):
+    testfolder = Path(tmpdir, "detection_dataset_duration_60s_ratio_1.0", split_folder)
+    testfolder.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(
+        PATH_TO_TEST_DATA / "sample_ncars.dat",
+        Path(testfolder, "moorea_2019-02-19_004_td_610500000_670500000_td.dat"),
+    )
+    label = np.array([0.4, 0.2, 0.1, 0.1])
+    np.save(testfolder / "moorea_2019-02-19_004_td_610500000_670500000_bbox.npy", label)
+
+
+class Gen1AutomotiveDetectionTestCase_Train(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.Gen1AutomotiveDetection
+    FEATURE_TYPES = (datasets.Gen1AutomotiveDetection._DTYPE,)
+    TARGET_TYPES = (np.array,)
+    KWARGS = {"split": "train"}
+
+    def inject_fake_data(self, tmpdir):
+        create_gen1dataset_folder(
+            tmpdir, datasets.Gen1AutomotiveDetection._TRAIN_FOLDER
+        )
+
+
+class Gen1AutomotiveDetectionTestCase_Valid(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.Gen1AutomotiveDetection
+    FEATURE_TYPES = (datasets.Gen1AutomotiveDetection._DTYPE,)
+    TARGET_TYPES = (np.array,)
+    KWARGS = {"split": "valid"}
+
+    def inject_fake_data(self, tmpdir):
+        create_gen1dataset_folder(
+            tmpdir, datasets.Gen1AutomotiveDetection._VALID_FOLDER
+        )
+
+
+class Gen1AutomotiveDetectionTestCase_Test(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.Gen1AutomotiveDetection
+    FEATURE_TYPES = (datasets.Gen1AutomotiveDetection._DTYPE,)
+    TARGET_TYPES = (np.array,)
+    KWARGS = {"split": "test"}
+
+    def inject_fake_data(self, tmpdir):
+        create_gen1dataset_folder(tmpdir, datasets.Gen1AutomotiveDetection._TEST_FOLDER)

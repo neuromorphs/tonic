@@ -171,7 +171,7 @@ class Gen4AutomotiveDetectionMini(AutomotiveDetectionBaseClass):
         self.split = split
         super().__init__(
             root=Path(root, self.__class__.__name__),
-            keep_compressed=False,
+            split=split,
             skip_sha256_check=skip_sha256_check,
         )
         self.shuffle = shuffle
