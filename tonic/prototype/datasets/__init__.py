@@ -1,6 +1,6 @@
 from .ncars import NCARS
 from .nmnist import NMNIST
-from .prophesee import Gen4AutomotiveDetectionMini
+from .prophesee import Gen1AutomotiveDetection, Gen4AutomotiveDetectionMini
 from .stmnist import STMNIST
 
 __all__ = [
@@ -8,4 +8,5 @@ __all__ = [
     "STMNIST",
     "NCARS",
     "Gen4AutomotiveDetectionMini",
+    "Gen1AutomotiveDetection",
 ]

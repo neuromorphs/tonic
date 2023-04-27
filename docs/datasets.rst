@@ -57,4 +57,5 @@ Prototype iterable datasets
     NMNIST
     NCARS
     STMNIST
+    Gen1AutomotiveDetection
     Gen4AutomotiveDetectionMini
