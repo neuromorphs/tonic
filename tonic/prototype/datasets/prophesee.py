@@ -126,7 +126,9 @@ class Gen1AutomotiveDetection(AutomotiveDetectionBaseClass):
     def __init__(self, root: os.PathLike, split: str = "train", shuffle: bool = False):
         super().__init__(root=root, split=split, shuffle=shuffle)
         if not self._check_exists():
-            raise RuntimeError("You need to download and extract the dataset manually")
+            raise RuntimeError(
+                "You need to download and extract the dataset manually. See the Tonic documentation for more details."
+            )
 
     def __len__(self) -> int:
         return {
@@ -200,3 +202,65 @@ class Gen4AutomotiveDetectionMini(AutomotiveDetectionBaseClass):
     def _download(self):
         download_url(url=self._URL, root=self._root, filename=self._FILENAME)
         check_sha256(Path(self._root, self._FILENAME), self._SHA256)
+
+
+class Gen4Automotive(AutomotiveDetectionBaseClass):
+    """`Gen4 Automotive Detection <https://www.prophesee.ai/2020/11/24/automotive-megapixel-event-
+    based-dataset/>`_
+
+    This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.
+    ::
+
+        @article{de2020large,
+          title={A large scale event-based detection dataset for automotive},
+          author={De Tournemire, Pierre and Nitti, Davide and Perot, Etienne and Migliore, Davide and Sironi, Amos},
+          journal={arXiv preprint arXiv:2001.08499},
+          year={2020}
+        }
+
+    .. note:: You need to download this dataset manually before you can use it with Tonic.
+
+    Parameters:
+        root (string): Location to decompressed archive.
+        split (str): Can be 'train' (default), 'valid' or 'test'.
+        shuffle (bool): If True, the dataset will be shuffled randomly.
+    """
+
+    _URL = "https://dataset.prophesee.ai/index.php/s/ScqMu02G5pdYKPh/download"
+    _FILENAME = "mini_dataset.zip"
+    _FOLDERNAME = "mini_dataset"
+    _SHA256 = "a13fb1240c19f2e1dbf453cecbb9e0c3ac9a7a5ea3cfc5a4f88760fff4977449"
+
+    sensor_size = dict(x=1280, y=720, p=2)
+    class_map = {
+        0: "pedestrian",
+        1: "two wheeler",
+        2: "car",
+        3: "truck",
+        4: "bus",
+        5: "traffic sign",
+        6: "traffic light",
+    }
+
+    def __init__(
+        self,
+        root: os.PathLike,
+        split: str = "train",
+        shuffle: bool = False,
+    ) -> None:
+        super().__init__(
+            root=Path(root, self.__class__.__name__),
+            split=split,
+            shuffle=shuffle,
+        )
+        if not self._check_exists():
+            raise RuntimeError(
+                "You need to download and extract the dataset manually. See the Tonic documentation for more details."
+            )
+
+    def __len__(self) -> int:
+        return {
+            "train": 4,
+            "valid": 1,
+            "test": 1,
+        }[self.split]
