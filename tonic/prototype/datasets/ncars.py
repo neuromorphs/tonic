@@ -50,31 +50,22 @@ class NCARS(Dataset):
     Parameters:
         root (string): Location to decompressed archive.
         train (bool): If True, uses training subset, otherwise testing subset.
-        transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        transforms (callable, optional): A callable of transforms that is applied to both data and labels at the same time.
     """
 
     _DTYPE = event_t
     _TRAIN_PATH = "n-cars_train"
     _TEST_PATH = "n-cars_test"
-    sensor_size = (120, 100, 2)
+    sensor_size = dict(x=120, y=100, p=2)
 
     def __init__(
         self,
         root: os.PathLike,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
         train: Optional[bool] = True,
         skip_sha256_check: Optional[bool] = True,
     ) -> None:
         self.train = train
         super().__init__(
             Path(root, self.__class__.__name__),
-            transform,
-            target_transform,
-            transforms,
             False,
             skip_sha256_check,
         )

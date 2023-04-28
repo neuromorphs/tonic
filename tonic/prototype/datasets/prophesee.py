@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Callable, Collection, Iterator, Optional, Union
+from typing import Iterator, Optional
 
 import numpy as np
 from expelliarmus import Wizard
@@ -105,7 +105,7 @@ class Gen1AutomotiveDetection(AutomotiveDetectionBaseClass):
     """
 
     _FOLDERNAME = "detection_dataset_duration_60s_ratio_1.0"
-    sensor_size = (304, 240, 2)
+    sensor_size = dict(x=304, y=240, p=2)
     class_map = {
         0: "car",
         1: "pedestrian",
@@ -150,7 +150,7 @@ class Gen4AutomotiveDetectionMini(AutomotiveDetectionBaseClass):
     _FOLDERNAME = "mini_dataset"
     _SHA256 = "a13fb1240c19f2e1dbf453cecbb9e0c3ac9a7a5ea3cfc5a4f88760fff4977449"
 
-    sensor_size = (1280, 720, 2)
+    sensor_size = dict(x=1280, y=720, p=2)
     class_map = {
         0: "pedestrian",
         1: "two wheeler",

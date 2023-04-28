@@ -13,9 +13,6 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
     def __init__(
         self,
         root: Union[str, pathlib.Path],
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
         keep_compressed: Optional[bool] = False,
         skip_sha256_check: Optional[bool] = True,
         dependencies: Optional[Collection[str]] = (),
@@ -32,10 +29,6 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
                 ) from None
         # Getting in root path.
         self._root = pathlib.Path(root).expanduser().resolve()
-        # Getting trasforms.
-        self.transform = transform
-        self.target_transform = target_transform
-        self.transforms = transforms
         # SHA256 skipping if the file has been already downloaded.
         self.skip_sha256 = skip_sha256_check
         # Flag to keep the archive compressed.
@@ -50,14 +43,7 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         yield from self._dp
 
     def _datapipe_wrapper(self):
-        dp = self._datapipe()
-        if self.transforms:
-            dp = Mapper(dp, self.transforms)
-        if self.transform:
-            dp = Mapper(dp, self.transform, input_col=0)
-        if self.target_transform:
-            dp = Mapper(dp, self.target_transform, input_col=1)
-        return dp
+        return self._datapipe()
 
     @abc.abstractmethod
     def _check_exists(self):

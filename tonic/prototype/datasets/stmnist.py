@@ -88,22 +88,16 @@ class STMNIST(Dataset):
 
     _DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     _SHA256 = "825bb5a64753fff4a2a2c32e3497fa8a951d9c94993e03ba25a057e17d83b884"
-    sensor_size = (10, 10, 2)
+    sensor_size = dict(x=10, y=10, p=2)
 
     def __init__(
         self,
         root: os.PathLike,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
         keep_compressed: Optional[bool] = False,
         skip_sha256_check: Optional[bool] = True,
     ) -> None:
         super().__init__(
             Path(root, self.__class__.__name__),
-            transform,
-            target_transform,
-            transforms,
             keep_compressed,
             skip_sha256_check,
         )
@@ -129,6 +123,7 @@ class STMNIST(Dataset):
         root = os.path.join(root, "data_uncompressed")
         if not os.path.isdir(root):
             os.mkdir(root)
+
             # Decompressing in root.
             def read_bin(fdata):
                 return fdata.read()

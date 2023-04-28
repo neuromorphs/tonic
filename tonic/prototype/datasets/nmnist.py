@@ -93,9 +93,6 @@ class NMNIST(Dataset):
     def __init__(
         self,
         root: os.PathLike,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
         train: Optional[bool] = True,
         first_saccade_only: Optional[bool] = False,
         keep_compressed: Optional[bool] = False,
@@ -105,9 +102,6 @@ class NMNIST(Dataset):
         self.first_saccade_only = first_saccade_only
         super().__init__(
             root=Path(root, self.__class__.__name__),
-            transform=transform,
-            target_transform=target_transform,
-            transforms=transforms,
             keep_compressed=keep_compressed,
             skip_sha256_check=skip_sha256_check,
         )
@@ -146,6 +140,7 @@ class NMNIST(Dataset):
         filepath = os.path.join(self._root, folder)
         if (not os.path.isdir(filepath)) or (not os.listdir(filepath)):
             os.makedirs(filepath, exist_ok=True)
+
             # Decompressing in root.
             def read_bin(fdata):
                 return fdata.read()
