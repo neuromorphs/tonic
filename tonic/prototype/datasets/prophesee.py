@@ -62,11 +62,15 @@ class AutomotiveDetectionBaseClass(Dataset):
         test_folder_exists = (base_path / self._TEST_FOLDER).is_dir()
 
         # Checking that some binary files are present.
-        if train_folder_exists and valid_folder_exists and test_folder_exists:
-            dp = FileLister(str(self._root), recursive=True).filter(self._dat_filter)
-            if len(list(dp)) > 0:
-                return True
-        return False
+        file_dp = FileLister(str(self._root), recursive=True).filter(self._dat_filter)
+        return (
+            True
+            if train_folder_exists
+            and valid_folder_exists
+            and test_folder_exists
+            and len(list(file_dp)) > 0
+            else False
+        )
 
     def _datapipe(self) -> IterDataPipe[Sample]:
         split_folder = {
@@ -77,6 +81,7 @@ class AutomotiveDetectionBaseClass(Dataset):
         fpath = Path(self._root, self._FOLDERNAME, split_folder)
         data_dp = FileLister(str(fpath), recursive=True).filter(self._dat_filter)
         label_dp = FileLister(str(fpath), recursive=True).filter(self._label_filter)
+
         dp = zip(data_dp, label_dp)
         if self.do_shuffle:
             dp = Shuffler(dp, buffer_size=1_000_000)
@@ -118,9 +123,9 @@ class Gen1AutomotiveDetection(AutomotiveDetectionBaseClass):
 
     def __len__(self) -> int:
         return {
-            "train": 4,
-            "valid": 1,
-            "test": 1,
+            "train": 1459,
+            "valid": 429,
+            "test": 470,
         }[self.split]
 
 
