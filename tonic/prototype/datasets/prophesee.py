@@ -42,12 +42,12 @@ class AutomotiveDetectionBaseClass(Dataset):
         shuffle=False,
     ) -> None:
         self.split = split
+        self.do_shuffle = shuffle
         super().__init__(
             root=root,
             keep_compressed=False,
             skip_sha256_check=skip_sha256_check,
         )
-        self.shuffle = shuffle
 
     def _dat_filter(self, fname: str) -> bool:
         return fname.endswith(".dat")
@@ -78,7 +78,7 @@ class AutomotiveDetectionBaseClass(Dataset):
         data_dp = FileLister(str(fpath), recursive=True).filter(self._dat_filter)
         label_dp = FileLister(str(fpath), recursive=True).filter(self._label_filter)
         dp = zip(data_dp, label_dp)
-        if self.shuffle:
+        if self.do_shuffle:
             dp = Shuffler(dp, buffer_size=1_000_000)
         return AutomotiveDetectionFileReader(dp)
 
@@ -168,13 +168,12 @@ class Gen4AutomotiveDetectionMini(AutomotiveDetectionBaseClass):
         shuffle: bool = False,
         skip_sha256_check: Optional[bool] = True,
     ) -> None:
-        self.split = split
         super().__init__(
             root=Path(root, self.__class__.__name__),
             split=split,
+            shuffle=shuffle,
             skip_sha256_check=skip_sha256_check,
         )
-        self.shuffle = shuffle
         if not self._check_exists():
             self._download()
 
