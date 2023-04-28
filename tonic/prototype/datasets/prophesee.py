@@ -89,24 +89,31 @@ class AutomotiveDetectionBaseClass(Dataset):
 
 
 class Gen1AutomotiveDetection(AutomotiveDetectionBaseClass):
-    """`Gen1 Automotive Detection Dataset<https://www.prophesee.ai/2020/01/24/prophesee-
+    """`Gen1 Automotive Detection Dataset <https://www.prophesee.ai/2020/01/24/prophesee-
     gen1-automotive-detection-dataset/>`_
 
     To download the data, you'll need to agree to Prophesee's Terms and Conditions.
 
     Then, the steps to acquire the data can be as follows:
 
-    Download the torrent file for the dataset::     wget
+    Download the torrent file for the dataset
+    ::
+        wget https://dataset.prophesee.ai/index.php/s/uE0QGLaFAEQnPwy/download\?path\=%2F\&files\=ATIS%20Automotive%20Detection%20Dataset.torrent
+        -O Gen1Prophesee.torrent
 
-    https://dataset.prophesee.ai/index.php/s/uE0QGLaFAEQnPwy/download\?path\=%2F\&files\=ATIS%20Automotive%20Detection%20Dataset.torrent
-    -O Gen1Prophesee.torrent
-
-    Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line::
+    Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line
+    ::
         aria2c Gen1Prophesee.torrent
 
-    This will download several 7z archives for training and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z::
+    This will download several 7z archives for training and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z
+    ::
         sudo apt-get install p7zip-full
         for i in *.7z; do 7z x $i; done
+
+    Parameters:
+        root (string): Location to decompressed archive.
+        split (str): Can be 'train' (default), 'valid' or 'test'.
+        shuffle (bool): If True, the dataset will be shuffled randomly.
     """
 
     _FOLDERNAME = "detection_dataset_duration_60s_ratio_1.0"
@@ -148,6 +155,7 @@ class Gen4AutomotiveDetectionMini(AutomotiveDetectionBaseClass):
     Parameters:
         root (string): Location to decompressed archive.
         split (str): Can be 'train' (default), 'valid' or 'test'.
+        shuffle (bool): If True, the dataset will be shuffled randomly.
     """
 
     _URL = "https://dataset.prophesee.ai/index.php/s/ScqMu02G5pdYKPh/download"
