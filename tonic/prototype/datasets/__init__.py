@@ -1,3 +1,5 @@
+from . import utils
+from .hsd import HSD
 from .ncars import NCARS
 from .nmnist import NMNIST
 from .prophesee import Gen1AutomotiveDetection, Gen4AutomotiveDetectionMini

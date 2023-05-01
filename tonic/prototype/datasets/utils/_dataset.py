@@ -61,3 +61,50 @@ class Dataset(IterDataPipe[Sample], abc.ABC):
         If available, also the division among train and test.
         """
         pass
+
+
+from typing import Dict, List
+
+# from tonic.prototype.datasets.utils import OnlineResource
+
+
+class Dataset2(IterDataPipe[Dict[str, Any]], abc.ABC):
+    def __init__(
+        self,
+        root: Union[str, pathlib.Path],
+        *,
+        skip_integrity_check: bool = False,
+        dependencies: Collection[str] = (),
+    ) -> None:
+        for dependency in dependencies:
+            try:
+                importlib.import_module(dependency)
+            except ModuleNotFoundError:
+                raise ModuleNotFoundError(
+                    f"{type(self).__name__}() depends on the third-party package '{dependency}'. "
+                    f"Please install it, for example with `pip install {dependency}`."
+                ) from None
+
+        self._root = pathlib.Path(root).expanduser().resolve()
+        resources = [
+            resource.load(self._root, skip_integrity_check=skip_integrity_check)
+            for resource in self._resources()
+        ]
+        self._dp = self._datapipe(resources)
+
+    def __iter__(self) -> Iterator[Dict[str, Any]]:
+        yield from self._dp
+
+    @abc.abstractmethod
+    def _resources(self):
+        pass
+
+    @abc.abstractmethod
+    def _datapipe(
+        self, resource_dps: List[IterDataPipe]
+    ) -> IterDataPipe[Dict[str, Any]]:
+        pass
+
+    @abc.abstractmethod
+    def __len__(self) -> int:
+        pass

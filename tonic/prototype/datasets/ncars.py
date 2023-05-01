@@ -6,7 +6,7 @@ from expelliarmus import Wizard
 from expelliarmus.wizard.clib import event_t
 from torchdata.datapipes.iter import FileLister, IterDataPipe
 
-from .utils._dataset import Dataset, Sample
+from .utils import Dataset, Sample
 from .utils._utils import check_sha256
 
 
