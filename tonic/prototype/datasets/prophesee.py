@@ -57,20 +57,17 @@ class AutomotiveDetectionBaseClass(Dataset):
 
     def _check_exists(self) -> bool:
         base_path = Path(self._root, self._FOLDERNAME)
-        train_folder_exists = (base_path / self._TRAIN_FOLDER).is_dir()
-        valid_folder_exists = (base_path / self._VALID_FOLDER).is_dir()
-        test_folder_exists = (base_path / self._TEST_FOLDER).is_dir()
+        split_mapping = {
+            "train": self._TRAIN_FOLDER,
+            "valid": self._VALID_FOLDER,
+            "test": self._TEST_FOLDER,
+        }
+        split_folder = base_path / split_mapping[self.split]
+        folder_exists = split_folder.is_dir()
 
         # Checking that some binary files are present.
-        file_dp = FileLister(str(self._root), recursive=True).filter(self._dat_filter)
-        return (
-            True
-            if train_folder_exists
-            and valid_folder_exists
-            and test_folder_exists
-            and len(list(file_dp)) > 0
-            else False
-        )
+        file_dp = FileLister(str(split_folder), recursive=True).filter(self._dat_filter)
+        return True if folder_exists and len(list(file_dp)) > 0 else False
 
     def _datapipe(self) -> IterDataPipe[Sample]:
         split_folder = {
@@ -218,7 +215,23 @@ class Gen4Automotive(AutomotiveDetectionBaseClass):
           year={2020}
         }
 
-    .. note:: You need to download this dataset manually before you can use it with Tonic.
+    To download the data, you'll need to agree to Prophesee's Terms and Conditions.
+
+    Then, the steps to acquire the data can be as follows:
+
+    Download the torrent file for the dataset
+    ::
+        wget https://dataset.prophesee.ai/index.php/s/8HY0Bv4mOU4RzBm/download?path=%2F&files=Large_Automotive_Detection_Dataset.torrent
+        -O Gen4Prophesee.torrent
+
+    Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line
+    ::
+        aria2c Gen4Prophesee.torrent
+
+    This will download several 7z archives for training, validation and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z
+    ::
+        sudo apt-get install p7zip-full
+        for i in *.7z; do 7z x $i; done
 
     Parameters:
         root (string): Location to decompressed archive.
@@ -226,11 +239,7 @@ class Gen4Automotive(AutomotiveDetectionBaseClass):
         shuffle (bool): If True, the dataset will be shuffled randomly.
     """
 
-    _URL = "https://dataset.prophesee.ai/index.php/s/ScqMu02G5pdYKPh/download"
-    _FILENAME = "mini_dataset.zip"
-    _FOLDERNAME = "mini_dataset"
-    _SHA256 = "a13fb1240c19f2e1dbf453cecbb9e0c3ac9a7a5ea3cfc5a4f88760fff4977449"
-
+    _FOLDERNAME = "Large_Automotive_Detection_Dataset"
     sensor_size = dict(x=1280, y=720, p=2)
     class_map = {
         0: "pedestrian",
@@ -248,11 +257,7 @@ class Gen4Automotive(AutomotiveDetectionBaseClass):
         split: str = "train",
         shuffle: bool = False,
     ) -> None:
-        super().__init__(
-            root=Path(root, self.__class__.__name__),
-            split=split,
-            shuffle=shuffle,
-        )
+        super().__init__(root=root, split=split, shuffle=shuffle)
         if not self._check_exists():
             raise RuntimeError(
                 "You need to download and extract the dataset manually. See the Tonic documentation for more details."
