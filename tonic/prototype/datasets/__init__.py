@@ -4,6 +4,7 @@ from .prophesee import (
     Gen1AutomotiveDetection,
     Gen4Automotive,
     Gen4AutomotiveDetectionMini,
+    Gen4Downsampled,
 )
 from .stmnist import STMNIST
 
@@ -11,6 +12,8 @@ __all__ = [
     "NMNIST",
     "STMNIST",
     "NCARS",
-    "Gen4AutomotiveDetectionMini",
     "Gen1AutomotiveDetection",
+    "Gen4Automotive",
+    "Gen4AutomotiveDetectionMini",
+    "Gen4Downsampled",
 ]

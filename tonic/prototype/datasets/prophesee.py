@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Iterator, Optional
 
+import h5py
 import numpy as np
 from expelliarmus import Wizard
 from expelliarmus.wizard.clib import event_t
@@ -268,4 +269,72 @@ class Gen4Automotive(AutomotiveDetectionBaseClass):
             "train": 4,
             "valid": 1,
             "test": 1,
+        }[self.split]
+
+
+class Gen4Downsampled(Dataset):
+    _FOLDERNAME = "Gen 4 Histograms"
+    _TRAIN_FOLDER = "train"
+    _VALID_FOLDER = "val"
+    _TEST_FOLDER = "test"
+
+    def __init__(
+        self,
+        root: os.PathLike,
+        split: str = "train",
+        skip_sha256_check: Optional[bool] = True,
+        shuffle=False,
+    ) -> None:
+        self.split = split
+        self.do_shuffle = shuffle
+        super().__init__(
+            root=root,
+            keep_compressed=False,
+            skip_sha256_check=skip_sha256_check,
+        )
+
+    def _dat_filter(self, fname: str) -> bool:
+        return fname.endswith(".h5")
+
+    def _label_filter(self, fname: str) -> bool:
+        return fname.endswith(".npy")
+
+    def _check_exists(self) -> bool:
+        base_path = Path(self._root, self._FOLDERNAME)
+        split_mapping = {
+            "train": self._TRAIN_FOLDER,
+            "valid": self._VALID_FOLDER,
+            "test": self._TEST_FOLDER,
+        }
+        split_folder = base_path / split_mapping[self.split]
+        folder_exists = split_folder.is_dir()
+
+        # Checking that some binary files are present.
+        file_dp = FileLister(str(split_folder), recursive=True).filter(self._dat_filter)
+        return True if folder_exists and len(list(file_dp)) > 0 else False
+
+    def _datapipe(self) -> IterDataPipe[Sample]:
+        split_folder = {
+            "train": self._TRAIN_FOLDER,
+            "valid": self._VALID_FOLDER,
+            "test": self._TEST_FOLDER,
+        }[self.split]
+        fpath = Path(self._root, self._FOLDERNAME, split_folder)
+        data_dp = FileLister(str(fpath), recursive=True).filter(self._dat_filter)
+        label_dp = FileLister(str(fpath), recursive=True).filter(self._label_filter)
+
+        dp = zip(data_dp, label_dp)
+        if self.do_shuffle:
+            dp = Shuffler(dp, buffer_size=1_000_000)
+        for data_file_path, label_file_path in dp:
+            yield (
+                h5py.File(data_file_path)["data"][()],
+                np.load(label_file_path),
+            )
+
+    def __len__(self) -> int:
+        return {
+            "train": 705,
+            "valid": 131,
+            "test": 119,
         }[self.split]
