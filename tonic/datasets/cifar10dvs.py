@@ -54,6 +54,19 @@ class CIFAR10DVS(Dataset):
     ordering = dtype.names
     sensor_size = (128, 128, 2)
 
+    classes = {
+        "airplane": 0,
+        "automobile": 1,
+        "bird": 2,
+        "cat": 3,
+        "deer": 4,
+        "dog": 5,
+        "frog": 6,
+        "horse": 7,
+        "ship": 8,
+        "truck": 9,
+    }
+
     def __init__(
         self,
         save_to: str,
@@ -68,21 +81,6 @@ class CIFAR10DVS(Dataset):
             transforms=transforms,
         )
 
-        # classes for CIFAR10DVS dataset
-
-        classes = {
-            "airplane": 0,
-            "automobile": 1,
-            "bird": 2,
-            "cat": 3,
-            "deer": 4,
-            "dog": 5,
-            "frog": 6,
-            "horse": 7,
-            "ship": 8,
-            "truck": 9,
-        }
-
         if not self._check_exists():
             self.download()
             for filename in self.data_filename:
@@ -94,7 +92,7 @@ class CIFAR10DVS(Dataset):
             for file in files:
                 if file.endswith("aedat4"):
                     self.data.append(os.path.join(path, file))
-                    label_number = classes[os.path.basename(path)]
+                    label_number = self.classes[os.path.basename(path)]
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
