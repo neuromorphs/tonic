@@ -173,6 +173,14 @@ def test_representation_inferred_frame():
     assert frames.shape[1:] == sensor_size[::-1]
 
 
+def test_representation_frame_wrong_sensor_size():
+    sensor_size = (20, 10, 2)
+    orig_events, _ = create_random_input(n_events=30000, sensor_size=sensor_size)
+    transform = transforms.ToFrame(sensor_size=(20, 10, 1), time_window=25000)
+    with pytest.raises(ValueError):
+        frames = transform(orig_events)
+
+
 def test_representation_audio_frame():
     sensor_size = (200, 1, 2)
     orig_events, _ = create_random_input(

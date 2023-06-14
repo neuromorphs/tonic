@@ -59,6 +59,10 @@ def to_frame_numpy(
 
     # test for single polarity
     if sensor_size[2] == 1:
+        if np.unique(events["p"]).size > 1:
+            raise ValueError(
+                "Single polarity sensor, but events contain both polarities."
+            )
         events["p"] = 0
 
     if time_window:
