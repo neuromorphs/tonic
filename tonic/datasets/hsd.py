@@ -106,6 +106,7 @@ class SHD(HSD):
     def speaker(self):
         return self._speaker[()]
 
+
 class SSC(HSD):
     """`Spiking Speech Commands <https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/>`_
     ::
@@ -166,3 +167,4 @@ class SSC(HSD):
 
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
         self.classes = file["extra/keys"][()]
+        self._speaker = file["extra/speaker"][()]
