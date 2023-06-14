@@ -31,11 +31,11 @@ class POKERDVS(Dataset):
                                          labels at the same time.
     """
 
-    base_url = "https://www.neuromorphic-vision.com/public/downloads/"
+    base_url = "https://nextcloud.lenzgregor.com/s/"
     train_filename = "pips_train.tar.gz"
     test_filename = "pips_test.tar.gz"
-    train_url = base_url + train_filename
-    test_url = base_url + test_filename
+    train_url = base_url + "ZeCPYBS8kx4Wyjd/download/" + train_filename
+    test_url = base_url + "2iRfwg3y9eAMpGL/download/" + test_filename
     train_md5 = "412bcfb96826e4fcb290558e8c150aae"
     test_md5 = "eef2bf7d0d3defae89a6fa98b07c17af"
 
