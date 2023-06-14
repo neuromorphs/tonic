@@ -8,7 +8,7 @@ from utils import create_random_input
 import tonic.datasets as datasets
 from tonic.download_utils import download_url
 
-base_url = "https://www.neuromorphic-vision.com/public/downloads/dataset_samples/"
+base_url = "https://nextcloud.lenzgregor.com/s/"
 
 
 class ASLDVSTestCaseTest(dataset_utils.DatasetTestCase):
@@ -20,8 +20,8 @@ class ASLDVSTestCaseTest(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "ASLDVS/a")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "a_0244.mat"
-        download_url(url=base_url + filename, root=testfolder, filename=filename)
+        filename = "2aeALcfARAS8Dkf/download/a_0244.mat"
+        download_url(url=base_url + filename, root=testfolder, filename="a_0244.mat")
         return {"n_samples": 1}
 
 
@@ -99,7 +99,8 @@ class NCaltech101TestCase(dataset_utils.DatasetTestCase):
         testfolder = os.path.join(tmpdir, "NCALTECH101/Caltech101/airplanes/")
         os.makedirs(testfolder, exist_ok=True)
         filename = "image_0006.bin"
-        download_url(url=base_url + filename, root=testfolder, filename=filename)
+        url = base_url + "sGTckK5fgit7QH3/download/" + filename
+        download_url(url=url, root=testfolder, filename=filename)
         return {"n_samples": 1}
 
 
@@ -112,8 +113,9 @@ class NMNISTTestCaseTrain(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "NMNIST/Train/1/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "image_0006.bin"
-        download_url(url=base_url + filename, root=testfolder, filename="24901.bin")
+        filename = "00015.bin"
+        url = base_url + "pi6WkPbg6tgd7ca/download/" + filename
+        download_url(url=url, root=testfolder, filename=filename)
         return {"n_samples": 1}
 
 
@@ -126,8 +128,9 @@ class NMNISTTestCaseTest(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "NMNIST/Test/1/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "image_0006.bin"
-        download_url(url=base_url + filename, root=testfolder, filename="04652.bin")
+        filename = "00015.bin"
+        url = base_url + "pi6WkPbg6tgd7ca/download/" + filename
+        download_url(url=url, root=testfolder, filename=filename)
         return {"n_samples": 1}
 
 
@@ -136,12 +139,13 @@ def create_hsd_data(filename, n_samples):
         times = np.random.random(size=(n_samples, 100)).astype(np.float16)
         units = (np.random.random(size=(n_samples, 100)) * 700).astype(np.uint16)
         keys = ["zero", "one"]
-        speaker= (np.random.random(size=n_samples) * 20).astype(np.uint16)
+        speaker = (np.random.random(size=n_samples) * 20).astype(np.uint16)
         write_file.create_dataset("spikes/units", data=units)
         write_file.create_dataset("spikes/times", data=times)
         write_file.create_dataset("labels", data=[1] * n_samples)
         write_file.create_dataset("extra/keys", data=keys)
-        write_file.create_dataset("extra/speaker", data= speaker)
+        write_file.create_dataset("extra/speaker", data=speaker)
+
 
 class SHDTestCaseTrain(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.SHD
