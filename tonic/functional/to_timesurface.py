@@ -75,11 +75,9 @@ def to_timesurface_numpy(
         if delta_t == 0:
             all_surfaces[index, :, :, :] = timesurface
         else:
-            print(float(last_event_timestamp) - float(last_accumulated))
             last_event_timestamp = event['t']
             if float(last_event_timestamp) - float(last_accumulated) > delta_t:
                 all_surfaces[accumulated_surface_index, :, :, :] = timesurface 
                 accumulated_surface_index += 1
                 last_accumulated = event['t']
-                print(accumulated_surface_index)
     return all_surfaces
