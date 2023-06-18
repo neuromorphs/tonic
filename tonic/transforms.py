@@ -916,12 +916,15 @@ class ToTimesurface:
         surface_dimensions (int, int): width does not have to be equal to height, however both numbers have to be odd.
             if surface_dimensions is None: the time surface is defined globally, on the whole sensor grid.
         tau (float): time constant to decay events around occuring event with.
+        delta_t (float): the interval at which the time-surfaces are accumulated, if set 0 number of time-surfaces will
+            equal to the number of events. (defaults to 0.0) 
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
     """
 
     sensor_size: Tuple[int, int, int]
     surface_dimensions: Union[None, Tuple[int, int]] = None
     tau: float = 5e3
+    delta_t: float = 0.0
     decay: str = "lin"
 
     def __call__(self, events):
@@ -931,6 +934,7 @@ class ToTimesurface:
             sensor_size=self.sensor_size,
             surface_dimensions=self.surface_dimensions,
             tau=self.tau,
+            delta_t=self.delta_t,
             decay=self.decay,
         )
 
