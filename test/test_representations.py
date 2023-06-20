@@ -201,18 +201,23 @@ def test_representation_image():
 
 
 @pytest.mark.parametrize(
-    "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]
+    "surface_dimensions, tau, delta_t", [((15, 15), 100, 0), ((3, 3), 10, 1e4), (None, 1e4, 1e5)]
 )
-def test_representation_time_surface(surface_dimensions, tau):
+def test_representation_time_surface(surface_dimensions, tau, delta_t):
     orig_events, sensor_size = create_random_input(n_events=1000)
 
     transform = transforms.ToTimesurface(
-        sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau
+        sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau, delta_t=delta_t
     )
 
     surfaces = transform(orig_events)
 
-    assert surfaces.shape[0] == len(orig_events)
+    if delta_t == 0:
+        assert surfaces.shape[0] == len(orig_events)
+    else:
+        duration = orig_events["t"][-1] - orig_events["t"][0]
+        assert surfaces.shape[0] == duration // delta_t 
+        
     assert surfaces.shape[1] == 2
     if surface_dimensions:
         assert surfaces.shape[2:] == surface_dimensions
