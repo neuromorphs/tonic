@@ -1,4 +1,5 @@
 import os
+import zipfile
 from pathlib import Path
 from typing import Any, BinaryIO, Callable, Iterator, Optional, Tuple, Union
 
@@ -32,9 +33,9 @@ class STMNISTFileReader(IterDataPipe[Sample]):
         self.sensor_size = sensor_size
 
     def __iter__(self) -> Iterator[Sample]:
-        for fname, fdata in self.dp:
+        for fname in self.dp:
             yield (
-                self._mat_to_array(fdata),
+                self._mat_to_array(fname),
                 self._get_target(fname),
             )
 
@@ -67,20 +68,18 @@ class STMNISTFileReader(IterDataPipe[Sample]):
 class STMNIST(Dataset):
     """`ST-MNIST <https://arxiv.org/abs/2005.04319>`_
 
-    Novel neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten
+    Neuromorphic Spiking Tactile MNIST (ST-MNIST) dataset, which comprises handwritten
     digits obtained by human participants writing on a neuromorphic tactile sensor array. The
     original paper can be found at https://arxiv.org/abs/2005.04319. Data is provided with the MAT
     format. Download of the compressed dataset has to be done by the user by accessing https://scho
     larbank.nus.edu.sg/bitstream/10635/168106/2/STMNIST%20dataset%20NUS%20Tee%20Research%20Group.zi
-    p, where a form has to be compiled. Then, the path to the ZIP archive has to be provided to the
-    stmnist() function root argument.
+    p, where a form has to be completed. Then, the path to the ZIP archive has to be provided to the
+    STMNIST constructor root argument.
 
     Events have (xytp) ordering.
     Parameters:
-        root (string): path to the ZIP archive downloaded by the user (e.g. "./STMNIST.zip").
-        transform (callable, optional): a callable of transforms to be applied to events data.
-        target_transform (callable, optional): a callable of transform to be applied to target data.
-        transforms (callable, optional): a callable of transforms to be applied to both events and target data.
+        root (string): Parent folder of 'STMNIST/STMNIST dataset NUS Tee Research Group.zip'. The STMNIST folder is related to the Tonic class name and is needed currently.
+        shuffle (bool): Whether to shuffle the dataset. More efficient if done based on file paths.
 
     Returns:
         dp (IterDataPipe[Sample]): Torchdata data pipe that yields a tuple of events (or transformed events) and target.
@@ -88,6 +87,7 @@ class STMNIST(Dataset):
 
     _DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     _SHA256 = "825bb5a64753fff4a2a2c32e3497fa8a951d9c94993e03ba25a057e17d83b884"
+    _FILENAME = "STMNIST dataset NUS Tee Research Group.zip"
     sensor_size = dict(x=10, y=10, p=2)
 
     def __init__(
@@ -95,18 +95,29 @@ class STMNIST(Dataset):
         root: os.PathLike,
         keep_compressed: Optional[bool] = False,
         skip_sha256_check: Optional[bool] = True,
+        shuffle: bool = False,
     ) -> None:
         super().__init__(
             Path(root, self.__class__.__name__),
             keep_compressed,
             skip_sha256_check,
         )
-        assert self._check_exists(), "Error: the archive is not present."
-        if not self.skip_sha256:
-            check_sha256(fpath=self._root, sha256_provided=self._SHA256)
+        if not skip_sha256_check:
+            check_sha256(
+                fpath=self._root / self._FILENAME, sha256_provided=self._SHA256
+            )
+        if not self._check_exists():
+            assert os.path.isfile(
+                self._root / self._FILENAME
+            ), "Error: root must point to parent folder of STMNIST/STMNIST dataset NUS Tee Research Group.zip."
+            if not keep_compressed:
+                with zipfile.ZipFile(self._root / self._FILENAME, "r") as zip_file:
+                    zip_file.extractall(self._root)
+        self.shuffle = shuffle
 
     def _check_exists(self):
-        return os.path.isfile(self._root)
+        dp = FileLister(str(self._root), recursive=True).filter(self._filter)
+        return len(list(dp)) >= 6953
 
     def __len__(self) -> int:
         return 6_953
@@ -114,45 +125,10 @@ class STMNIST(Dataset):
     def _filter(self, fname: str) -> bool:
         return fname.endswith(".mat") and ("LUT" not in fname)
 
-    def _uncompress(
-        self, dp: IterDataPipe[Tuple[Any, BinaryIO]]
-    ) -> IterDataPipe[Tuple[str, BinaryIO]]:
-        # Stripping the archive from self._root.
-        root = os.sep.join(str(self._root).split(os.sep)[:-1])
-        # Joining root with a folder to contain the data.
-        root = os.path.join(root, "data_uncompressed")
-        if not os.path.isdir(root):
-            os.mkdir(root)
-
-            # Decompressing in root.
-            def read_bin(fdata):
-                return fdata.read()
-
-            def filepath_fn(fpath):
-                fpath_i = fpath.split(os.sep)
-                start = fpath_i.index("data_submission") + len(os.sep)
-                fpath_i = os.sep.join(fpath_i[start:])
-                return os.path.join(
-                    root,
-                    fpath_i,
-                )
-
-            dp = Mapper(dp, read_bin, input_col=1)
-            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)
-            # Saving data to file.
-            for x in dp:
-                pass
-        dp = FileLister(root, recursive=True)
-        dp = FileOpener(dp, mode="rb")
-        return dp
-
     def _datapipe(self) -> IterDataPipe[Sample]:
-        dp = FileLister(str(self._root))
-        dp = FileOpener(dp, mode="b")
-        # Unzipping.
-        dp = ZipArchiveLoader(dp)
-        if not self.keep_cmp:
-            dp = self._uncompress(dp)
-        dp = Filter(dp, self._filter, input_col=0)
+        dp = FileLister(str(self._root), recursive=True)
+        if self.shuffle:
+            dp = dp.shuffle(buffer_size=10_000)
+        dp = Filter(dp, self._filter)
         dp = STMNISTFileReader(dp)
         return dp

@@ -139,8 +139,6 @@ def create_stmnist_zip_archive(tmpdir: str, filename: str):
         base_dir=folder_path,
         root_dir=folder_path,
     )
-    # We remove the folder previously created.
-    shutil.rmtree(folder_path)
 
 
 class STMNISTTestCase_Uncompressed(dataset_utils.DatasetTestCase):
