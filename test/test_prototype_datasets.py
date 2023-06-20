@@ -33,8 +33,8 @@ def create_nmnist_zip_archive(tmpdir: str, folder: str, filename: str):
     shutil.make_archive(
         base_name=Path(tmpdir, "NMNIST", filename),
         format="zip",
-        base_dir=folder_path,
-        root_dir=folder_path,
+        root_dir=folder_path.parent,
+        base_dir=folder,
     )
     # We remove the folder previously created.
     shutil.rmtree(folder_path)

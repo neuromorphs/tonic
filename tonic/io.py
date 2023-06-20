@@ -9,6 +9,7 @@ events_struct = np.dtype(
     [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
 )
 
+
 # many functions in this file have been copied from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/parsers.py
 def make_structured_array(*args, dtype=events_struct):
     """Make a structured array given a variable number of argument values.
@@ -168,7 +169,7 @@ def read_dvs_346mini(filename):
 
 
 def read_mnist_file(
-    bin_file: Union[str, BinaryIO], dtype: np.dtype, is_stream: Optional[bool] = False
+    bin_file: Union[str, BinaryIO], dtype: np.dtype, is_stream: bool = False
 ):
     """Reads the events contained in N-MNIST/N-CALTECH101 datasets.
 

@@ -1,4 +1,5 @@
 import os
+import zipfile
 from pathlib import Path
 from typing import Any, BinaryIO, Callable, Iterator, Optional, Tuple, Union
 
@@ -96,16 +97,19 @@ class NMNIST(Dataset):
         train: Optional[bool] = True,
         first_saccade_only: Optional[bool] = False,
         keep_compressed: Optional[bool] = False,
-        skip_sha256_check: Optional[bool] = True,
     ) -> None:
         self.train = train
         self.first_saccade_only = first_saccade_only
+        self.filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
+        self.subfolder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
+        sha256 = self._TRAIN_SHA256 if self.train else self._TEST_SHA256
+        root = Path(root, self.__class__.__name__)
+        if not self._check_exists(root / self.filename):
+            self._download(root, self.filename, sha256)
         super().__init__(
-            root=Path(root, self.__class__.__name__),
+            root=root,
             keep_compressed=keep_compressed,
-            skip_sha256_check=skip_sha256_check,
         )
-        self._download()
 
     def __len__(self) -> int:
         return 60_000 if self.train else 10_000
@@ -114,64 +118,35 @@ class NMNIST(Dataset):
         return fname.endswith(".bin")
 
     def _saccade_filter(self, events: np.ndarray):
-        return events[events["t"] > int(1e5)]
+        return events[events["t"] <= int(1e5)]
 
-    def _download(self) -> None:
-        # Setting file path depending on train value.
+    def _download(self, root, filename, sha256) -> None:
         url = self._TRAIN_URL if self.train else self._TEST_URL
-        sha256 = self._TRAIN_SHA256 if self.train else self._TEST_SHA256
-        filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
-        # Downloading and SHA256 check.
-        if not self._check_exists():
-            download_url(url=url, root=self._root, filename=filename)
-            check_sha256(os.path.join(self._root, filename), sha256)
-        elif not self.skip_sha256:
-            check_sha256(os.path.join(self._root, filename), sha256)
+        download_url(url=url, root=root, filename=filename)
+        check_sha256(root / filename, sha256)
 
-    def _check_exists(self) -> bool:
-        filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
-        return os.path.isfile(os.path.join(self._root, filename))
+    def _check_exists(self, folder) -> bool:
+        return not folder.is_file()
 
-    def _uncompress(
-        self, dp: IterDataPipe[Tuple[Any, BinaryIO]]
-    ) -> IterDataPipe[Tuple[str, BinaryIO]]:
-        folder = self._TRAIN_FOLDER if self.train else self._TEST_FOLDER
-        # Joining root with a folder to contain the data.
-        filepath = os.path.join(self._root, folder)
-        if (not os.path.isdir(filepath)) or (not os.listdir(filepath)):
-            os.makedirs(filepath, exist_ok=True)
-
-            # Decompressing in root.
-            def read_bin(fdata):
-                return fdata.read()
-
-            dp = Mapper(dp, read_bin, input_col=1)
-
-            def filepath_fn(fpath):
-                fpath_i = fpath.split(os.sep)
-                start = fpath_i.index(folder) + len(os.sep)
-                fpath_i = os.sep.join(fpath_i[start:])
-                return os.path.join(filepath, fpath_i)
-
-            dp = Saver(dp, mode="wb", filepath_fn=filepath_fn)
-            # Saving data to file.
-            for x in dp:
-                pass
-        dp = FileLister(filepath, recursive=True)
-        return dp
+    def _is_unzipped(self, folder) -> bool:
+        if not folder.is_dir():
+            return False
+        dp = FileLister(str(folder), recursive=True).filter(self._filter)
+        return len(list(dp)) >= 60_000 if self.train else 10_000
 
     def _datapipe(self) -> IterDataPipe[Sample]:
-        filename = self._TRAIN_FILENAME if self.train else self._TEST_FILENAME
-        filepath = os.path.join(self._root, filename)
-        dp = FileLister(str(filepath))
-        dp = FileOpener(dp, mode="b")
-        # Unzipping.
-        dp = ZipArchiveLoader(dp)
         if not self.keep_cmp:
-            dp = self._uncompress(dp).filter(self._filter)
+            folder = self._root / self.subfolder
+            if not self._is_unzipped(folder):
+                with zipfile.ZipFile(self._root / self.filename, "r") as zip_file:
+                    zip_file.extractall(self._root)
+            dp = FileLister(str(folder), recursive=True)
+            dp = dp.filter(self._filter)
         else:
-            # Filtering the non-bin files.
-            dp = Filter(dp, self._filter, input_col=0)
+            zip_filepath = self._root / self.filename
+            dp = FileLister(str(zip_filepath))
+            dp = FileOpener(dp, mode="rb")
+            dp = ZipArchiveLoader(dp)
         # Reading data to structured NumPy array and integer target.
         dp = NMNISTFileReader(dp, keep_compressed=self.keep_cmp)
         # Filtering the first saccade.
