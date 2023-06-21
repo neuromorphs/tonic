@@ -27,6 +27,8 @@ class Compose:
 
     def __call__(self, events):
         for t in self.transforms:
+            if len(events) == 0:
+                break
             events = t(events)
         return events
 
@@ -178,7 +180,6 @@ class DropEventByTime:
     duration_ratio: Union[float, Tuple[float, float]] = 0.2
 
     def __call__(self, events):
-
         return functional.drop_by_time_numpy(events, self.duration_ratio)
 
 
@@ -202,7 +203,6 @@ class DropEventByArea:
     area_ratio: Union[float, Tuple[float, float]] = 0.2
 
     def __call__(self, events):
-
         return functional.drop_by_area_numpy(events, self.sensor_size, self.area_ratio)
 
 
@@ -350,7 +350,6 @@ class RandomCrop:
     target_size: Tuple[int, int]
 
     def __call__(self, events):
-
         return functional.crop_numpy(
             events=events, sensor_size=self.sensor_size, target_size=self.target_size
         )
@@ -761,10 +760,10 @@ class ToAveragedTimesurface:
 class ToFrame:
     """Accumulate events to frames by slicing along constant time (time_window), constant number of
     events (spike_count) or constant number of frames (n_time_bins / n_event_bins). All the events
-    in one slice are added up in a frame for each polarity.  If you want binary frames, you can 
-    manually clamp them to 1 afterwards. You can set one of the first 4 parameters to choose the 
-    slicing method. Depending on which method you choose, overlap will be defined differently.
-    As a rule of thumb, here are some considerations if you are unsure which slicing method to choose:
+    in one slice are added up in a frame for each polarity.  If you want binary frames, you can
+    manually clamp them to 1 afterwards. You can set one of the first 4 parameters to choose the
+    slicing method. Depending on which method you choose, overlap will be defined differently. As a
+    rule of thumb, here are some considerations if you are unsure which slicing method to choose:
 
     * If your recordings are of roughly the same length, a safe option is to set time_window. Bare in mind
       that the number of events can vary greatly from slice to slice, but will give you some consistency when
@@ -793,8 +792,8 @@ class ToFrame:
         n_event_bins (int): Fixed number of frames, sliced along number of events in the recording. Good for generating a
                             pre-determined number of frames which might help with batching.
         overlap (float): Overlap between frames. The definition of overlap depends on the slicing method.
-                         For slicing by time_window, the overlap is defined in microseconds. For slicing by spike_count, 
-                         the overlap is defined by number of events. For slicing by n_time_bins or n_event_bins, the 
+                         For slicing by time_window, the overlap is defined in microseconds. For slicing by spike_count,
+                         the overlap is defined by number of events. For slicing by n_time_bins or n_event_bins, the
                          overlap is defined by the fraction of a bin between 0 and 1.
         include_incomplete (bool): If True, includes overhang slice when time_window or spike_count is specified.
                                    Not valid for bin_count methods.
@@ -815,7 +814,6 @@ class ToFrame:
     include_incomplete: bool = False
 
     def __call__(self, events):
-
         return functional.to_frame_numpy(
             events=events,
             sensor_size=self.sensor_size,
@@ -897,7 +895,6 @@ class ToImage:
     sensor_size: Tuple[int, int, int]
 
     def __call__(self, events):
-
         frames = functional.to_frame_numpy(
             events=events, sensor_size=self.sensor_size, event_count=len(events)
         )
@@ -917,7 +914,7 @@ class ToTimesurface:
             if surface_dimensions is None: the time surface is defined globally, on the whole sensor grid.
         tau (float): time constant to decay events around occuring event with.
         delta_t (float): the interval at which the time-surfaces are accumulated, if set 0 number of time-surfaces will
-            equal to the number of events. (defaults to 0.0) 
+            equal to the number of events. (defaults to 0.0)
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
     """
 
@@ -928,7 +925,6 @@ class ToTimesurface:
     decay: str = "lin"
 
     def __call__(self, events):
-
         return functional.to_timesurface_numpy(
             events=events,
             sensor_size=self.sensor_size,
@@ -954,7 +950,6 @@ class ToVoxelGrid:
     n_time_bins: int
 
     def __call__(self, events):
-
         return functional.to_voxel_grid_numpy(
             events.copy(), self.sensor_size, self.n_time_bins
         )
@@ -991,7 +986,6 @@ class ToBinaRep:
     n_bits: Optional[int] = 8
 
     def __call__(self, event_frames):
-
         return functional.to_bina_rep_numpy(event_frames, self.n_frames, self.n_bits)
 
 
