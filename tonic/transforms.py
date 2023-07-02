@@ -904,18 +904,12 @@ class ToImage:
 
 @dataclass(frozen=True)
 class ToTimesurface:
-    """Create global or local time surfaces for each event. Modeled after the paper Lagorce et al.
-    2016, Hots: a hierarchy of event-based time-surfaces for pattern recognition
-    https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7508476.
+    """Create global time surfaces at a specific time interval dt.
 
     Parameters:
-        sensor_size: a 3-tuple of x,y,p for sensor_size
-        surface_dimensions (int, int): width does not have to be equal to height, however both numbers have to be odd.
-            if surface_dimensions is None: the time surface is defined globally, on the whole sensor grid.
-        tau (float): time constant to decay events around occuring event with.
-        delta_t (float): the interval at which the time-surfaces are accumulated, if set 0 number of time-surfaces will
-            equal to the number of events. (defaults to 0.0)
-        decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
+        sensor_size: A 3-tuple of x,y,p for sensor_size
+        dt (float): The interval at which the time-surfaces are accumulated.
+        tau (float): Time constant to decay events with.
     """
 
     sensor_size: Tuple[int, int, int]

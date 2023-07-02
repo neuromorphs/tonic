@@ -38,7 +38,7 @@ To download a dataset, Tonic makes use of a copy of pytorch vision's tools that 
 `here <https://github.com/neuromorphs/tonic/blob/develop/tonic/datasets/download_utils.py>`_.
 Cloud providers such as Dropbox, Google Drive, OneDrive etc. are usually not straightforward 
 to automatically download from, so if the dataset owner provides multiple mirrors,
-prefer a simple REST-like webpage such as https://www.neuromorphic-vision.com/public/downloads/.
+prefer a simple REST-like webpage.
 
 The trickier question is the one of file decoding. There exist a variety of file formats that 
 events and related data are saved in, including .txt, .aedat, .dat, .es, .mat, .hdf5, .rosbag 
