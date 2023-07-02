@@ -17,13 +17,14 @@ events, label = nmnist[0]
 # --------------------------------
 
 transform = tonic.transforms.ToTimesurface(
-    sensor_size=nmnist.sensor_size, surface_dimensions=None, tau=100000, decay="exp"
+    sensor_size=nmnist.sensor_size,
+    tau=30000,
+    dt=10000,
 )
 
 frames = transform(events)
 
-# only plot a few of them
-ani = tonic.utils.plot_animation(frames[::70])
+ani = tonic.utils.plot_animation(frames)
 
 
 ####################################
