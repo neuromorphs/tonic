@@ -919,19 +919,15 @@ class ToTimesurface:
     """
 
     sensor_size: Tuple[int, int, int]
-    surface_dimensions: Union[None, Tuple[int, int]] = None
-    tau: float = 5e3
-    delta_t: float = 0.0
-    decay: str = "lin"
+    dt: float
+    tau: float
 
     def __call__(self, events):
         return functional.to_timesurface_numpy(
             events=events,
             sensor_size=self.sensor_size,
-            surface_dimensions=self.surface_dimensions,
+            dt=self.dt,
             tau=self.tau,
-            delta_t=self.delta_t,
-            decay=self.decay,
         )
 
 

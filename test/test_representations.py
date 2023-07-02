@@ -201,29 +201,28 @@ def test_representation_image():
 
 
 @pytest.mark.parametrize(
-    "surface_dimensions, tau, delta_t", [((15, 15), 100, 0), ((3, 3), 10, 1e4), (None, 1e4, 1e5)]
+    "sensor_size, dt, tau,",
+    [
+        ((40, 15, 2), 10000, 10000),
+        ((10, 20, 2), 20000, 1000),
+        ((30, 30, 2), 30000, 3000),
+    ],
 )
-def test_representation_time_surface(surface_dimensions, tau, delta_t):
-    orig_events, sensor_size = create_random_input(n_events=1000)
-
-    transform = transforms.ToTimesurface(
-        sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau, delta_t=delta_t
+def test_representation_time_surface(sensor_size, dt, tau):
+    orig_events, sensor_size = create_random_input(
+        sensor_size=sensor_size, n_events=10000
     )
+
+    transform = transforms.ToTimesurface(sensor_size=sensor_size, dt=dt, tau=tau)
 
     surfaces = transform(orig_events)
 
-    if delta_t == 0:
-        assert surfaces.shape[0] == len(orig_events)
-    else:
-        duration = orig_events["t"][-1] - orig_events["t"][0]
-        assert surfaces.shape[0] == duration // delta_t 
-        
+    duration = orig_events["t"][-1] - orig_events["t"][0]
+    assert surfaces.shape[0] == duration // dt
+
     assert surfaces.shape[1] == 2
-    if surface_dimensions:
-        assert surfaces.shape[2:] == surface_dimensions
-    else:
-        assert surfaces.shape[2] == sensor_size[1]
-        assert surfaces.shape[3] == sensor_size[0]
+    assert surfaces.shape[2] == sensor_size[1]
+    assert surfaces.shape[3] == sensor_size[0]
     assert surfaces is not orig_events
 
 
