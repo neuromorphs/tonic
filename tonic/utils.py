@@ -74,7 +74,8 @@ def plot_event_grid(
 
 
 def plot_animation(frames: np.ndarray, figsize: Tuple[int, int] = (5, 5)):
-    """Helper function that animates a tensor of frames of shape (TCHW).
+    """Helper function that animates a tensor of frames of shape (TCHW). If you run this in a
+    Jupyter notebook, you can display the animation inline like shown in the example below.
 
     Parameters:
         frames: numpy array or tensor of shape (TCHW)
@@ -91,6 +92,10 @@ def plot_animation(frames: np.ndarray, figsize: Tuple[int, int] = (5, 5)):
         >>>
         >>> frames = transform(events)
         >>> animation = tonic.utils.plot_animation(frames)
+        >>>
+        >>> # Display the animation inline in a Jupyter notebook
+        >>> from IPython.display import HTML
+        >>> HTML(animation.to_jshtml())
 
     Returns:
         The animation object. Store this in a variable to keep it from being garbage collected until displayed.
