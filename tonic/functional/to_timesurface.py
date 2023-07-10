@@ -1,6 +1,7 @@
 from typing import Tuple
 
 import numpy as np
+from numpy.lib import recfunctions as rfn
 
 from tonic.slicers import slice_events_by_time
 
@@ -41,7 +42,7 @@ def to_timesurface_numpy(
     start_t = event_slices[0][0][t_index]
     for i, slice in enumerate(event_slices):
         # structured to unstructured in order to access the indices
-        slice = slice.view((int, len(slice.dtype.names)))
+        slice = rfn.structured_to_unstructured(slice, dtype=int)
         indices = slice[:, [p_index, y_index, x_index]].T
         timestamps = slice[:, t_index]
         memory[tuple(indices)] = timestamps
