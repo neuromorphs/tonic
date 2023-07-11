@@ -317,6 +317,62 @@ class EventDrop:
 
 
 @dataclass(frozen=True)
+class EventDownsampling:
+    """Applies EventDownsampling from the paper "Insect-inspired Spatio-temporal Downsampling of Event-based
+        Input."
+        Allows:
+            1. Creating time bins to round time values to a certain value.
+            2a. Tonic's normal "naive" topographical scaling method to perform spatio-temporal event-based downsampling
+            2b. Integrator based method to perform spatio-temporal event-based downsampling
+            2c. Differentiator based method to perform spatio-temporal event-based downsampling
+            3. Feedback inhibition circuit.
+            
+    Parameters:
+        sensor_size (Tuple): size of the sensor that was used [W,H,P]
+        target_size (Tuple): size of the desired resolution [W,H]
+        
+    Example:
+        >>> transform = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15))
+    """
+    
+    sensor_size: Tuple[int, int, int]
+    target_size: Tuple[int, int]
+    
+    def __call__(self, events):
+        downsampling_method = np.random.choice(['naive', 'integrator', 'differentiator'], 1)[0]
+        dt = 0.5
+        
+        if downsampling_method == 'naive':
+            new_events = functional.naive_downsample(events=events, sensor_size=self.sensor_size, target_size=self.target_size)
+        elif self.downsampling_method == 'integrator':
+            noise_threshold = 5
+            
+            # To change temporal resolution of events
+            events = functional.time_bin_numpy(events=events, time_bin_interval=dt)
+            
+            new_events = functional.integrator_downsample(events=events, sensor_size=self.sensor_size, target_size=self.target_size,
+                                                          noise_threshold=noise_threshold)
+        elif self.downsampling_method == 'differentiator':
+            differentiator_time_bins = 2
+            new_events = functional.differentiator_downsample(events=events, sensor_size=self.sensor_size, target_size=self.target_size,
+                                                          dt=dt, differentiator_time_bins=differentiator_time_bins, 
+                                                          noise_threshold=noise_threshold)
+            
+        buffer_layer_parameters = {"p": 0.4, "theta": 0.3, "alpha": 0.5}
+        inhibitory_layer_parameters = {"p": 0.8}
+        buffer_postsynaptic_strength = 0.005
+        inhibitory_postsynaptic_strength = 4.0
+        delay=1
+        
+        return functional.feedback_inhibition(events=new_events, target_size=self.target_size, dt=dt, 
+                                              buffer_layer_parameters=buffer_layer_parameters, 
+                                              inhibitory_layer_parameters=inhibitory_layer_parameters,
+                                              buffer_postsynaptic_strength=buffer_postsynaptic_strength, 
+                                              inhibitory_postsynaptic_strength=inhibitory_postsynaptic_strength,
+                                              delay=delay)
+
+
+@dataclass(frozen=True)
 class MergePolarities:
     """Sets all polarities to zero. This transform does not have any parameters.
 
