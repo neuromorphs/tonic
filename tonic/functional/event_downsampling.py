@@ -1,8 +1,6 @@
 import numpy as np
 from numpy.lib.recfunctions import unstructured_to_structured
 
-events = np.load('dvs_struct_array.npy')
-
 def naive_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple):
     """Downsample the classic "naive" Tonic way. Multiply x/y values by a spatial_factor 
     obtained by dividing sensor size by the target size.
