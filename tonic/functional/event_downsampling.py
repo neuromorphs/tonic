@@ -162,7 +162,3 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
     else:
         events_new = np.concatenate(events_new.copy())
         return unstructured_to_structured(events_new.copy(), dtype=events.dtype)
-
-# import pickle
-# events = pickle.load(open('events_integrated.pickle', 'rb'))    
-# differentiator_downsample(events, sensor_size=(128,128,2), differentiator_time_bins=3, target_size=(8,8), dt=0.05, noise_threshold=2)

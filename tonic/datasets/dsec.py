@@ -247,14 +247,16 @@ class DSEC(Dataset):
             full_base_folder = os.path.join(base_folder, data_name)
             if data_name in ["events_left", "events_right"]:
                 with h5py.File(full_base_folder + "/events.h5", "r") as file:
-                    data = make_structured_array(
+                    data = {}
+                    data[data_name] = make_structured_array(
                         file["events"]["x"][()],
                         file["events"]["y"][()],
                         file["events"]["t"][()],
                         file["events"]["p"][()],
                         dtype=self.dtype,
                     )
-                    data["t"] += file["t_offset"][()]
+                    data[data_name]["t"] += file["t_offset"][()]
+                    data["ms_to_idx"] = file["ms_to_idx"][()]
 
             elif "images" in data_name:
                 images_rectified_filenames = sorted(
