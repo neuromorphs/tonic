@@ -72,8 +72,8 @@ def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_siz
         event_hist_pos = (np.maximum(event_histogram, 0)).clip(max=1)
         event_hist_neg = (-np.minimum(event_histogram, 0)).clip(max=1)
         
-        frame_histogram[time,:,:,1] += event_hist_pos
-        frame_histogram[time,:,:,0] += event_hist_neg
+        frame_histogram[time,...,1] += event_hist_pos
+        frame_histogram[time,...,0] += event_hist_neg
         
     # Differences between subsequent frames
     frame_differences = np.diff(frame_histogram, axis=0).clip(min=0)
@@ -147,8 +147,8 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
         event_histogram.append((time*dt, frame_spike))
         
         # Reset spiking coordinates to zero
-        frame_spike[coordinates_pos] = 0
-        frame_spike[coordinates_neg] = 0
+        frame_spike[coordinates_pos[:,0], coordinates_pos[:,1]] = 0
+        frame_spike[coordinates_neg[:,0], coordinates_neg[:,1]] = 0
         
         # Restructure events
         events_new.append(np.column_stack((np.flip(coordinates_pos, axis=1), np.ones((coordinates_pos.shape[0],1)).astype(dtype=bool), 
