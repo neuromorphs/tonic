@@ -273,7 +273,7 @@ def test_transform_event_downsampling(target_size, dt, downsampling_method, nois
                                       differentiator_time_bins):
     orig_events, sensor_size = create_random_input()
     
-    transform = transforms.EventDownsampling(sensor_size=sensor_size, target_size=target_size, 
+    transform = transforms.EventDownsampling(sensor_size=sensor_size, target_size=target_size, dt=dt, 
                                              downsampling_method=downsampling_method, noise_threshold=noise_threshold,
                                              differentiator_time_bins=differentiator_time_bins)
     
