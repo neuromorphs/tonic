@@ -320,11 +320,9 @@ class EventDrop:
 class EventDownsampling:
     """Applies EventDownsampling from the paper "Insect-inspired Spatio-temporal Downsampling of Event-based Input."
         Allows:
-            a. Tonic's normal "naive" topographical scaling method to perform spatio-temporal event-based downsampling
-            
-            b. Integrator based method to perform spatio-temporal event-based downsampling
-            
-            c. Differentiator based method to perform spatio-temporal event-based downsampling
+            1. Tonic's normal "naive" topographical scaling method to perform spatio-temporal event-based downsampling
+            2. Integrator based method to perform spatio-temporal event-based downsampling
+            3. Differentiator based method to perform spatio-temporal event-based downsampling
             
     Parameters:
         sensor_size (Tuple): size of the sensor that was used [W,H,P]
@@ -338,7 +336,7 @@ class EventDownsampling:
         >>> transform = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15),
                                                            downsampling_method='naive')
         >>> transform = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
-                                                           downsampling_method='integrator', noise_threshold=2)
+                                                           downsampling_method='integrator')
         >>> transform = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
                                                            downsampling_method='differentiator', noise_threshold=2,
                                                            differentiator_time_bins=3)
@@ -346,10 +344,10 @@ class EventDownsampling:
     
     sensor_size: Tuple[int, int, int]
     target_size: Tuple[int, int]
-    dt: float
     downsampling_method: str
-    noise_threshold: int
-    differentiator_time_bins: int
+    dt: Optional[float] = None
+    noise_threshold: Optional[int] = None
+    differentiator_time_bins: Optional[int] = None
     
     def __call__(self, events):
         assert self.downsampling_method in ['naive', 'integrator', 'differentiator']

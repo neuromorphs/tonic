@@ -83,7 +83,7 @@ def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_siz
     
     events_new = np.column_stack((x_new, y_new, polarity_new.astype(dtype=bool), time_index * dt))
     
-    return unstructured_to_structured(events_new.copy(), dtype=events.dtype)
+    return unstructured_to_structured(events_new.copy(), dtype=[("x", "<i4"), ("y", "<i4"), ("p", "<i4"), ("t", "<i4")])
     
 def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple, dt: float, noise_threshold: int = 0, 
                           differentiator_call: bool = False):
@@ -107,12 +107,16 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
     
     assert "x" and "y" and "t" in events.dtype.names
     assert isinstance(noise_threshold, int)
+    assert dt is not None
     
     events = events.copy()
     
     if np.issubdtype(events["t"].dtype, np.integer):
         dt *= 1000
         dt_scaling = True
+    
+    if differentiator_call:
+        assert dt // events["t"][-1] == 0
     
     # Downsample
     spatial_factor = np.asarray(target_size) / sensor_size[:-1]
@@ -143,22 +147,24 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
         coordinates_pos = np.stack(np.nonzero(np.maximum(frame_spike >= noise_threshold, 0))).T
         coordinates_neg = np.stack(np.nonzero(np.maximum(-frame_spike >= noise_threshold, 0))).T
         
-        # For optimising differentiator
-        event_histogram.append((time*dt, frame_spike))
+        if np.logical_or(coordinates_pos.size, coordinates_neg.size).sum():
         
-        # Reset spiking coordinates to zero
-        frame_spike[coordinates_pos[:,0], coordinates_pos[:,1]] = 0
-        frame_spike[coordinates_neg[:,0], coordinates_neg[:,1]] = 0
-        
-        # Restructure events
-        events_new.append(np.column_stack((np.flip(coordinates_pos, axis=1), np.ones((coordinates_pos.shape[0],1)).astype(dtype=bool), 
-                                            (time*dt)*np.ones((coordinates_pos.shape[0],1)))))
-        
-        events_new.append(np.column_stack((np.flip(coordinates_neg, axis=1), np.zeros((coordinates_neg.shape[0],1)).astype(dtype=bool), 
-                                            (time*dt)*np.ones((coordinates_neg.shape[0],1)))))
+            # For optimising differentiator
+            event_histogram.append((time*dt, frame_spike.copy()))
+            
+            # Reset spiking coordinates to zero
+            frame_spike[coordinates_pos[:,0], coordinates_pos[:,1]] = 0
+            frame_spike[coordinates_neg[:,0], coordinates_neg[:,1]] = 0
+            
+            # Restructure events
+            events_new.append(np.column_stack((np.flip(coordinates_pos, axis=1), np.ones((coordinates_pos.shape[0],1)).astype(dtype=bool), 
+                                                (time*dt)*np.ones((coordinates_pos.shape[0],1)))))
+            
+            events_new.append(np.column_stack((np.flip(coordinates_neg, axis=1), np.zeros((coordinates_neg.shape[0],1)).astype(dtype=bool), 
+                                                (time*dt)*np.ones((coordinates_neg.shape[0],1)))))
         
     if differentiator_call:
         return dt_scaling, event_histogram
     else:
         events_new = np.concatenate(events_new.copy())
-        return unstructured_to_structured(events_new.copy(), dtype=events.dtype)
+        return unstructured_to_structured(events_new.copy(), dtype=[("x", "<i4"), ("y", "<i4"), ("p", "<i4"), ("t", "<i4")])

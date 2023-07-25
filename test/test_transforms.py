@@ -266,8 +266,8 @@ def test_transform_downsample(time_factor, spatial_factor):
     
     
 @pytest.mark.parametrize("target_size, dt, downsampling_method, noise_threshold, differentiator_time_bins", 
-                         [((50, 20), 1, 'naive', 2, 5),
-                          ((50, 50), 0.05, 'integrator', 10, 2),
+                         [((50, 20), None, 'naive', None, None),
+                          ((50, 50), 0.05, 'integrator', 1, None),
                           ((20, 15), 5, 'differentiator', 3, 1)])
 def test_transform_event_downsampling(target_size, dt, downsampling_method, noise_threshold, 
                                       differentiator_time_bins):
