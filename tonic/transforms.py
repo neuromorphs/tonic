@@ -318,13 +318,13 @@ class EventDrop:
 
 @dataclass(frozen=True)
 class EventDownsampling:
-    """Applies EventDownsampling from the paper "Insect-inspired Spatio-temporal Downsampling of Event-based
-        Input."
+    """Applies EventDownsampling from the paper "Insect-inspired Spatio-temporal Downsampling of Event-based Input."
         Allows:
-            1. Creating time bins to round time values to a certain value.
-            2a. Tonic's normal "naive" topographical scaling method to perform spatio-temporal event-based downsampling
-            2b. Integrator based method to perform spatio-temporal event-based downsampling
-            2c. Differentiator based method to perform spatio-temporal event-based downsampling
+            a. Tonic's normal "naive" topographical scaling method to perform spatio-temporal event-based downsampling
+            
+            b. Integrator based method to perform spatio-temporal event-based downsampling
+            
+            c. Differentiator based method to perform spatio-temporal event-based downsampling
             
     Parameters:
         sensor_size (Tuple): size of the sensor that was used [W,H,P]
