@@ -9,7 +9,6 @@ from .drop_pixel import (
     identify_hot_pixel_raster,
 )
 from .event_downsampling import (
-    naive_downsample,
     integrator_downsample,
     differentiator_downsample,
 )
@@ -43,7 +42,6 @@ __all__ = [
     "to_voxel_grid_numpy",
     "to_bina_rep_numpy",
     "uniform_noise_numpy",
-    "naive_downsample",
     "integrator_downsample",
     "differentiator_downsample",
 ]

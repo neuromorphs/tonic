@@ -3,31 +3,6 @@ from numpy.lib.recfunctions import unstructured_to_structured
 
 from tonic.slicers import slice_events_by_time
 
-def naive_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple):
-    """Downsample the classic "naive" Tonic way. Multiply x/y values by a spatial_factor 
-    obtained by dividing sensor size by the target size.
-    
-    Parameters:
-        events (ndarray): ndarray of shape [num_events, num_event_channels].
-        sensor_size (tuple): a 3-tuple of x,y,p for sensor_size.
-        target_size (tuple): a 2-tuple of x,y denoting new down-sampled size for events to be
-                             re-scaled to (new_width, new_height).
-                             
-    Returns:
-        the downsampled input events.
-    """
-    
-    assert "x" and "y" in events.dtype.names
-    
-    events = events.copy()
-    
-    spatial_factor = np.asarray(target_size) / sensor_size[:-1]
-
-    events["x"] = events["x"] * spatial_factor[0]
-    events["y"] = events["y"] * spatial_factor[1]
-
-    return events
-
 def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple, dt: float, 
                               differentiator_time_bins: int = 2, noise_threshold: int = 0):
     """Downsample using an integrate-and-fire (I-F) neuron model with an additional differentiator 
@@ -83,7 +58,12 @@ def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_siz
     
     events_new = np.column_stack((x_new, y_new, polarity_new.astype(dtype=bool), time_index * dt))
     
-    return unstructured_to_structured(events_new.copy(), dtype=[("x", "<i4"), ("y", "<i4"), ("p", "<i4"), ("t", "<i4")])
+    names = ["x", "y", "p", "t"]
+    formats = ['i4', 'i4', 'i4', 'i4']
+    
+    dtype = np.dtype({'names': names, 'formats': formats})
+    
+    return unstructured_to_structured(events_new.copy(), dtype=dtype)
     
 def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple, dt: float, noise_threshold: int = 0, 
                           differentiator_call: bool = False):
@@ -167,4 +147,10 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
         return dt_scaling, event_histogram
     else:
         events_new = np.concatenate(events_new.copy())
-        return unstructured_to_structured(events_new.copy(), dtype=[("x", "<i4"), ("y", "<i4"), ("p", "<i4"), ("t", "<i4")])
+        
+        names = ["x", "y", "p", "t"]
+        formats = ['i4', 'i4', 'i4', 'i4']
+        
+        dtype = np.dtype({'names': names, 'formats': formats})
+        
+        return unstructured_to_structured(events_new.copy(), dtype=dtype)

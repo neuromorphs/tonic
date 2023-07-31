@@ -257,27 +257,47 @@ class Downsample:
 
     Parameters:
         time_factor (float): value to multiply timestamps with. Default is 1.
-        spatial_factor (float): value to multiply pixel coordinates with. Default is 1.
-                                Note that when using subsequential transforms that require
-                                sensor_size, you must change the spatial values for the later
-                                transformation.
+        spatial_factor (float or tuple of floats): values to multiply pixel coordinates with. Default is 1.
+                                                   Note that when using subsequential transforms that require
+                                                   sensor_size, you must change the spatial values for the later
+                                                   transformation.
+        sensor_size (tuple): size of the sensor that was used [W,H,P]
+        target_size (tuple): size of the desired resolution [W,H]
 
     Example:
         >>> from tonic.transforms import Downsample
         >>> transform1 = Downsample(time_factor=0.001) # change us to ms
         >>> transform2 = Downsample(spatial_factor=0.25) # reduce focal plane to 1/4.
+        >>> transform3 = Downsample(sensor_size=(40, 20, 2), target_size=(10, 5)) # reduce focal plane to 1/4.
     """
 
     time_factor: float = 1
-    spatial_factor: float = 1
-
+    spatial_factor: Union[float, Tuple[float, float]] = 1
+    sensor_size: Optional[Tuple[int, int, int]] = None
+    target_size: Optional[Tuple[int, int]] = None
+    
+    @staticmethod
+    def get_params(spatial_factor: Union[int, Tuple[int, int]]):
+        if not type(spatial_factor) == tuple:
+            spatial_factor = (spatial_factor, spatial_factor)
+        return spatial_factor
+    
     def __call__(self, events):
         events = events.copy()
+        
+        if self.target_size is not None:
+            # Ensure sensor_size is not None when target_size is not None
+            assert self.sensor_size is not None
+            # If both target_size and spatial_factor declared, override spatial_factor value in argument
+            spatial_factor = np.asarray(self.target_size) / self.sensor_size[:-1]
+        else:
+            spatial_factor = self.get_params(spatial_factor=self.spatial_factor)
+        
         events = functional.time_skew_numpy(events, coefficient=self.time_factor)
         if "x" in events.dtype.names:
-            events["x"] = events["x"] * self.spatial_factor
+            events["x"] = events["x"] * spatial_factor[0]
         if "y" in events.dtype.names:
-            events["y"] = events["y"] * self.spatial_factor
+            events["y"] = events["y"] * spatial_factor[1]
         return events
 
 
@@ -320,9 +340,8 @@ class EventDrop:
 class EventDownsampling:
     """Applies EventDownsampling from the paper "Insect-inspired Spatio-temporal Downsampling of Event-based Input."
         Allows:
-            1. Tonic's normal "naive" topographical scaling method to perform spatio-temporal event-based downsampling
-            2. Integrator based method to perform spatio-temporal event-based downsampling
-            3. Differentiator based method to perform spatio-temporal event-based downsampling
+            1. Integrator based method to perform spatio-temporal event-based downsampling
+            2. Differentiator based method to perform spatio-temporal event-based downsampling
             
     Parameters:
         sensor_size (Tuple): size of the sensor that was used [W,H,P]
@@ -333,11 +352,9 @@ class EventDownsampling:
         differentiator_time_bins (int): number of differentiator time bins within dt. Two by default.
         
     Example:
-        >>> transform = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15),
-                                                           downsampling_method='naive')
-        >>> transform = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
+        >>> transform1 = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
                                                            downsampling_method='integrator')
-        >>> transform = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
+        >>> transform2 = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
                                                            downsampling_method='differentiator', noise_threshold=2,
                                                            differentiator_time_bins=3)
     """
@@ -350,13 +367,9 @@ class EventDownsampling:
     differentiator_time_bins: Optional[int] = None
     
     def __call__(self, events):
-        assert self.downsampling_method in ['naive', 'integrator', 'differentiator']
-        if self.downsampling_method == 'naive':
-            return functional.naive_downsample(
-                events=events, sensor_size=self.sensor_size, target_size=self.target_size
-                )
+        assert self.downsampling_method in ['integrator', 'differentiator']
             
-        elif self.downsampling_method == 'integrator':
+        if self.downsampling_method == 'integrator':
             return functional.integrator_downsample(
                 events=events, sensor_size=self.sensor_size, target_size=self.target_size, 
                 dt=self.dt, noise_threshold=self.noise_threshold
