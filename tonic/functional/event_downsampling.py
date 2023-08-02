@@ -2,12 +2,15 @@ import numpy as np
 from numpy.lib.recfunctions import unstructured_to_structured
 
 from tonic.slicers import slice_events_by_time
+from tonic.functional.to_frame import to_frame_numpy
 
 def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple, dt: float, 
                               differentiator_time_bins: int = 2, noise_threshold: int = 0):
-    """Downsample using an integrate-and-fire (I-F) neuron model with an additional differentiator 
-    with a noise threshold similar to the membrane potential threshold in the I-F model. Multiply 
-    x/y values by a spatial_factor obtained by dividing sensor size by the target size.
+    """Spatio-temporally downsample using the integrator method coupled with a differentiator to effectively 
+    downsample large object sizes relative to downsampled pixel resolution in the DVS camera's visual field.
+    
+    Incorporates the paper Ghosh et al. 2023, Insect-inspired Spatio-temporal Downsampling of Event-based Input,
+    https://doi.org/10.1145/3589737.3605994
     
     Parameters:
         events (ndarray): ndarray of shape [num_events, num_event_channels].
@@ -20,7 +23,7 @@ def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_siz
         noise_threshold (int): number of events before a spike representing a new event is emitted.
         
     Returns:
-        the downsampled input events using the differentiator method.
+        the spatio-temporally downsampled input events using the differentiator method.
     """
         
     assert "x" and "y" and "t" in events.dtype.names
@@ -67,9 +70,13 @@ def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_siz
     
 def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple, dt: float, noise_threshold: int = 0, 
                           differentiator_call: bool = False):
-    """Downsample using an integrate-and-fire (I-F) neuron model with a noise threshold similar to 
-    the membrane potential threshold in the I-F model. Multiply x/y values by a spatial_factor 
-    obtained by dividing sensor size by the target size.
+    """Spatio-temporally downsample using with the following steps:
+    
+    1. Differencing of ON and OFF events to counter camera shake or jerk.
+    2. Use an integrate-and-fire (I-F) neuron model with a noise threshold similar to 
+    the membrane potential threshold in the I-F model to eliminate high-frequency noise.
+    
+    Multiply x/y values by a spatial_factor obtained by dividing sensor size by the target size.
     
     Parameters:
         events (ndarray): ndarray of shape [num_events, num_event_channels].
@@ -82,7 +89,7 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
                                     differentiator method.
         
     Returns:
-        the downsampled input events using the integrator method.
+        the spatio-temporally downsampled input events using the integrator method.
     """
     
     assert "x" and "y" and "t" in events.dtype.names
@@ -119,8 +126,8 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
         xy_neg = event[event["p"] == 0]
         
         # Sum in 2D space using histogram
-        frame_histogram = np.subtract(np.histogram2d(xy_pos["y"], xy_pos["x"], [range(target_size[1] + 1), range(target_size[0] + 1)])[0],
-                                      np.histogram2d(xy_neg["y"], xy_neg["x"], [range(target_size[1] + 1), range(target_size[0] + 1)])[0])
+        frame_histogram = np.subtract(to_frame_numpy(xy_pos, sensor_size=(*target_size, 1), n_event_bins=1), 
+                                      to_frame_numpy(xy_neg, sensor_size=(*target_size, 1), n_event_bins=1))[0,0,...]
         
         frame_spike += frame_histogram
             
