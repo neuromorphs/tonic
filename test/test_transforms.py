@@ -247,23 +247,52 @@ def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):
         assert not merged_polarity_raster[merged_polarity_raster > 5000].sum().sum()
 
 
-@pytest.mark.parametrize("time_factor, spatial_factor", [(1, 0.25), (1e-3, 1)])
-def test_transform_downsample(time_factor, spatial_factor):
+@pytest.mark.parametrize("time_factor, spatial_factor, target_size", [(1, 0.25, None), (1e-3, (1, 2), None), (1, 1, (5, 5))])
+def test_transform_downsample(time_factor, spatial_factor, target_size):
     orig_events, sensor_size = create_random_input()
 
     transform = transforms.Downsample(
-        time_factor=time_factor, spatial_factor=spatial_factor
+        sensor_size=sensor_size, time_factor=time_factor, spatial_factor=spatial_factor, target_size=target_size
     )
 
     events = transform(orig_events)
-
-    assert np.array_equal(
-        (orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"]
-    )
-    assert np.array_equal(np.floor(orig_events["x"] * spatial_factor), events["x"])
-    assert np.array_equal(np.floor(orig_events["y"] * spatial_factor), events["y"])
+    
+    if not isinstance(spatial_factor, tuple):
+        spatial_factor = (spatial_factor, spatial_factor)
+    
+    if target_size is None:
+        assert np.array_equal(
+            (orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"]
+        )
+        assert np.array_equal(np.floor(orig_events["x"] * spatial_factor[0]), events["x"])
+        assert np.array_equal(np.floor(orig_events["y"] * spatial_factor[1]), events["y"])
+    
+    else:
+        spatial_factor_test = np.asarray(target_size) / sensor_size[:-1]
+        assert np.array_equal(np.floor(orig_events["x"] * spatial_factor_test[0]), events["x"])
+        assert np.array_equal(np.floor(orig_events["y"] * spatial_factor_test[1]), events["y"])
+    
     assert events is not orig_events
-
+    
+    
+@pytest.mark.parametrize("target_size, dt, downsampling_method, noise_threshold, differentiator_time_bins", 
+                         [((50, 50), 0.05, 'integrator', 1, None),
+                          ((20, 15), 5, 'differentiator', 3, 1)])
+def test_transform_event_downsampling(target_size, dt, downsampling_method, noise_threshold, 
+                                      differentiator_time_bins):
+    
+    orig_events, sensor_size = create_random_input()
+    
+    transform = transforms.EventDownsampling(sensor_size=sensor_size, target_size=target_size, dt=dt, 
+                                             downsampling_method=downsampling_method, noise_threshold=noise_threshold,
+                                             differentiator_time_bins=differentiator_time_bins)
+    
+    events = transform(orig_events)
+    
+    assert len(events) <= len(orig_events)
+    assert np.logical_and(np.all(events["x"] <= target_size[0]), np.all(events["y"] <= target_size[1]))
+    assert events is not orig_events
+    
 
 @pytest.mark.parametrize("target_size", [(50, 50), (10, 5)])
 def test_transform_random_crop(target_size):
