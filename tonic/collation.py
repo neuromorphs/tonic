@@ -48,7 +48,10 @@ class PadTensors:
                 )
             samples_output.append(sample)
             targets_output.append(target)
-        return (
-            torch.stack(samples_output, 0 if self.batch_first else 1),
-            torch.tensor(targets_output, device=target.device),
-        )
+        
+        samples_output = torch.stack(samples_output, 0 if self.batch_first else 1)
+        if len(targets_output[0].shape) > 1:
+            targets_output = torch.stack(targets_output, 0 if self.batch_first else -1) 
+        else:
+            targets_output = torch.tensor(targets_output, device=target.device)
+        return (samples_output, targets_output)
