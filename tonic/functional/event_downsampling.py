@@ -1,7 +1,6 @@
 import numpy as np
 from numpy.lib.recfunctions import unstructured_to_structured
 
-from tonic.slicers import slice_events_by_time
 from tonic.functional.to_frame import to_frame_numpy
 
 def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_size: tuple, dt: float, 
@@ -111,24 +110,19 @@ def integrator_downsample(events: np.ndarray, sensor_size: tuple, target_size: t
     events["x"] = events["x"] * spatial_factor[0]
     events["y"] = events["y"] * spatial_factor[1]
     
-    # Re-format event times to new temporal resolution
-    events_sliced = slice_events_by_time(events, time_window=dt)
+    # Compute all histograms at once
+    all_frame_histograms = to_frame_numpy(events, sensor_size=(*target_size, 2), time_window=dt)
     
-    # Running buffer of events in each pixel
+    # Subtract the channels for ON/OFF differencing
+    frame_histogram_diffs = all_frame_histograms[:, 1] - all_frame_histograms[:, 0]
+    
     frame_spike = np.zeros(np.flip(target_size))
     event_histogram = []
     
     events_new = []
     
-    for time, event in enumerate(events_sliced):
-        # Separate by polarity
-        xy_pos = event[event["p"] == 1]
-        xy_neg = event[event["p"] == 0]
-        
-        # Sum in 2D space using histogram
-        frame_histogram = np.subtract(to_frame_numpy(xy_pos, sensor_size=(*target_size, 1), n_event_bins=1), 
-                                      to_frame_numpy(xy_neg, sensor_size=(*target_size, 1), n_event_bins=1))[0,0,...]
-        
+    for time, frame_histogram in enumerate(frame_histogram_diffs):
+    
         frame_spike += frame_histogram
             
         coordinates_pos = np.stack(np.nonzero(np.maximum(frame_spike >= noise_threshold, 0))).T
