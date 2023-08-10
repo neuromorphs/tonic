@@ -27,7 +27,7 @@ class NMNIST(Dataset):
         train (bool): If True, uses training subset, otherwise testing subset.
         first_saccade_only (bool): If True, only work with events of the first of three saccades.
                                    Results in about a third of the events overall.
-        stabilize (bool): If True, it stabilize egomotion of the saccades, centering the digit.
+        stabilize (bool): If True, it stabilizes egomotion of the saccades, centering the digit.
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         transforms (callable, optional): A callable of transforms that is applied to both data and
