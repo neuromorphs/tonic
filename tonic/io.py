@@ -129,7 +129,7 @@ def read_dvs_red(filename):
 
 def read_davis_346(filename):
     """
-    Get the aer events from DVS with resolution of (260, 346)
+    Get the aer events from DAVIS346 with resolution of (260, 346)
 
     Parameters:
         filename:   filename
@@ -145,8 +145,9 @@ def read_davis_346(filename):
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
 
+    # x, y, and p : bit-shift and bit-mask values taken from jAER (https://github.com/SensorsINI/jaer)
     x = (346 - 1) - ((all_addr & 4190208) >> 12)
-    y = ((all_addr & 2143289344) >> 22)
+    y = (260 - 1) - ((all_addr & 2143289344) >> 22)
     p = ((all_addr & 2048) >> 11)
 
     xytp = make_structured_array(x, y, t, p)
