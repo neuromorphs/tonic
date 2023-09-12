@@ -4,6 +4,7 @@ from .davisdataset import DAVISDATA
 from .dsec import DSEC
 from .dvs_lips import DVSLip
 from .dvsgesture import DVSGesture
+from .ebssa import EBSSA
 from .hsd import SHD, SSC
 from .mvsec import MVSEC
 from .ncaltech101 import NCALTECH101
@@ -19,6 +20,7 @@ __all__ = [
     "DAVISDATA",
     "DSEC",
     "DVSGesture",
+    "EBSSA",
     "MVSEC",
     "NCALTECH101",
     "NMNIST",

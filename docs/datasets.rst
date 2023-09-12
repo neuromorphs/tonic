@@ -45,6 +45,13 @@ Pose estimation, visual odometry, SLAM
     TUMVIE
     VPR
     
+Star tracking
+-------------------
+.. autosummary::
+    :toctree: generated/
+    :template: class_dataset.rst
+
+    EBSSA
 
 .. currentmodule:: tonic.prototype.datasets
 

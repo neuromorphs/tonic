@@ -89,6 +89,24 @@ class DVSLipTestCaseTest(dataset_utils.DatasetTestCase):
         return {"n_samples": 1}
 
 
+class EBSSATestCase(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.EBSSA
+    FEATURE_TYPES = (datasets.EBSSA.dtype,)
+    TARGET_TYPES = (np.ndarray,)
+    KWARGS = {"split": "labelled"}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "EBSSA")
+        os.makedirs(testfolder, exist_ok=True)
+        filename = "kndyqFPSAKcPfxb/download/1PK13T4ACwKMXZOP3QF3LN-EL-TGqVlXR.mat"
+        download_url(
+            url=base_url + filename,
+            root=testfolder,
+            filename="1PK13T4ACwKMXZOP3QF3LN-EL-TGqVlXR.mat",
+        )
+        return {"n_samples": 1}
+
+
 class NCaltech101TestCase(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NCALTECH101
     FEATURE_TYPES = (datasets.NCALTECH101.dtype,)
