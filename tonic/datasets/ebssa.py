@@ -1,8 +1,8 @@
-import os
+from pathlib import Path
 from typing import Any, Callable, Optional, Tuple
 
+import h5py
 import numpy as np
-import scipy.io as scio
 
 from tonic.dataset import Dataset
 from tonic.io import events_struct, make_structured_array
@@ -27,7 +27,6 @@ class EBSSA(Dataset):
             publisher={IEEE}
         }
 
-
     Parameters:
         save_to (string): Location to save files to on disk.
         split (string): Which split to load. One of "labelled", "unlabelled", "all".
@@ -38,16 +37,9 @@ class EBSSA(Dataset):
     """
 
     # These are Google drive file IDs found by right clicking on the file and selecting "Get shareable link"
-    file_ids = {
-        "labelled": [
-            "1_GRmzrCvdMXbzlb64Jh2i_4r7WCOvssu",
-            "16iGEqKCI2cWEsFuQlJ_VCloIMPpe5ZgB",
-            "1PK13T4ACwKMXZOP3QF3LN-EL-TGqVlXR",
-        ],
-        "unlabelled": [],
-    }
-
+    file_id = "1lCh2HWvxEzzaBHT5TlPuyUn6XPM5OVWN"
     folder_name = ""
+    file_name = "labelled_ebssa.h5"
     sensor_size = (240, 180, 2)
     dtype = events_struct
     ordering = dtype.names
@@ -55,7 +47,7 @@ class EBSSA(Dataset):
     def __init__(
         self,
         save_to: str,
-        split: str,
+        split: str = "labelled",
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
@@ -73,25 +65,22 @@ class EBSSA(Dataset):
         if not self._check_exists():
             self.download()
 
-        for path, dirs, files in os.walk(self.location_on_system):
-            dirs.sort()
-            files.sort()
-            for file in files:
-                if file.endswith("mat"):
-                    self.data.append(path + "/" + file)
+        file = h5py.File(Path(self.location_on_system) / self.file_name, "r")
+        self.keys = list(file.keys())
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """
         Returns:
-            (events, target) where target is index of the target class.
+            (events, target) where target is dict of bounding box and recording id.
         """
-        data = scio.loadmat(self.data[index])
-        td = data["TD"]
+        file = h5py.File(Path(self.location_on_system) / self.file_name, "r")
+        data = file[self.keys[index]]
 
-        t = td["ts"][0][0].flatten()
-        x = td["x"][0][0].flatten() - 1
-        y = td["y"][0][0].flatten() - 1
-        p = td["p"][0][0].flatten()
+        td = data["TD"]
+        t = td["ts"][()].flatten()
+        x = td["x"][()].flatten() - 1
+        y = td["y"][()].flatten() - 1
+        p = td["p"][()].flatten()
         events = make_structured_array(x, y, t, p)
         start_ts = float(events["t"][0])
         events["t"] = events["t"] - start_ts
@@ -100,13 +89,13 @@ class EBSSA(Dataset):
         annotation_time_window = 10_000
         bb_width = 10
 
-        obj_t = obj["ts"][0][0].flatten() - start_ts
+        obj_t = obj["ts"][()].flatten() - start_ts
         obj_t = (obj_t / annotation_time_window).round() * annotation_time_window
-        x_min = obj["x"][0][0].flatten() - 1 - bb_width / 2
+        x_min = obj["x"][()].flatten() - 1 - bb_width / 2
         x_min = x_min.clip(min=0)
-        y_min = obj["y"][0][0].flatten() - 1 - bb_width / 2
+        y_min = obj["y"][()].flatten() - 1 - bb_width / 2
         y_min = y_min.clip(min=0)
-        obj_id = obj["id"][0][0].flatten()
+        obj_id = obj["id"][()].flatten()
 
         x_max = x_min + bb_width
         x_max = x_max.clip(max=239)
@@ -123,9 +112,14 @@ class EBSSA(Dataset):
                 ("id", np.uint8),
             ]
         )
-        target = make_structured_array(
+        bbox = make_structured_array(
             obj_t, x_min, y_min, x_max, y_max, obj_id, dtype=dtype
         )
+
+        target = {
+            "bbox": bbox,
+            "recording_id": self.keys[index],
+        }
 
         if self.transform is not None:
             events = self.transform(events)
@@ -136,21 +130,15 @@ class EBSSA(Dataset):
         return events, target
 
     def __len__(self):
-        return len(self.data)
+        return len(self.keys)
 
     def _check_exists(self):
-        return self._folder_contains_at_least_n_files_of_type(
-            len(self.file_ids[self.split]), ".mat"
-        )
+        return self._folder_contains_at_least_n_files_of_type(1, ".h5")
 
     def download(self):
         import gdown
 
-        os.makedirs(self.location_on_system, exist_ok=True)
-        for id in self.file_ids[self.split]:
-            if not os.path.exists(os.path.join(self.location_on_system, id)):
-                gdown.download(
-                    id=id,
-                    output=os.path.join(self.location_on_system, id) + ".mat",
-                    quiet=False,
-                )
+        Path(self.location_on_system).mkdir(exist_ok=True)
+        id = self.file_id
+        if not Path(self.location_on_system, id).exists():
+            gdown.download(id=id, quiet=False)

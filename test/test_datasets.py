@@ -98,11 +98,9 @@ class EBSSATestCase(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "EBSSA")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "kndyqFPSAKcPfxb/download/1PK13T4ACwKMXZOP3QF3LN-EL-TGqVlXR.mat"
+        filename = "A5ooN9edo7TnNPx/download/labelled_ebssa.h5"
         download_url(
-            url=base_url + filename,
-            root=testfolder,
-            filename="1PK13T4ACwKMXZOP3QF3LN-EL-TGqVlXR.mat",
+            url=base_url + filename, root=testfolder, filename="labelled_ebssa.h5"
         )
         return {"n_samples": 1}
 
