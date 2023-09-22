@@ -85,36 +85,39 @@ class EBSSA(Dataset):
         start_ts = float(events["t"][0])
         events["t"] = events["t"] - start_ts
 
-        obj = data["Obj"]
-        annotation_time_window = 10_000
-        bb_width = 10
+        if "Obj" in list(data.keys()):
+            obj = data["Obj"]
+            annotation_time_window = 10_000
+            bb_width = 10
 
-        obj_t = obj["ts"][()].flatten() - start_ts
-        obj_t = (obj_t / annotation_time_window).round() * annotation_time_window
-        x_min = obj["x"][()].flatten() - 1 - bb_width / 2
-        x_min = x_min.clip(min=0)
-        y_min = obj["y"][()].flatten() - 1 - bb_width / 2
-        y_min = y_min.clip(min=0)
-        obj_id = obj["id"][()].flatten()
+            obj_t = obj["ts"][()].flatten() - start_ts
+            obj_t = (obj_t / annotation_time_window).round() * annotation_time_window
+            x_min = obj["x"][()].flatten() - 1 - bb_width / 2
+            x_min = x_min.clip(min=0)
+            y_min = obj["y"][()].flatten() - 1 - bb_width / 2
+            y_min = y_min.clip(min=0)
+            obj_id = obj["id"][()].flatten()
 
-        x_max = x_min + bb_width
-        x_max = x_max.clip(max=239)
-        y_max = y_min + bb_width
-        y_max = y_max.clip(max=179)
+            x_max = x_min + bb_width
+            x_max = x_max.clip(max=239)
+            y_max = y_min + bb_width
+            y_max = y_max.clip(max=179)
 
-        dtype = np.dtype(
-            [
-                ("t", np.int64),
-                ("x_min", float),
-                ("y_min", float),
-                ("x_max", float),
-                ("y_max", float),
-                ("id", np.uint8),
-            ]
-        )
-        bbox = make_structured_array(
-            obj_t, x_min, y_min, x_max, y_max, obj_id, dtype=dtype
-        )
+            dtype = np.dtype(
+                [
+                    ("t", np.int64),
+                    ("x_min", float),
+                    ("y_min", float),
+                    ("x_max", float),
+                    ("y_max", float),
+                    ("id", np.uint8),
+                ]
+            )
+            bbox = make_structured_array(
+                obj_t, x_min, y_min, x_max, y_max, obj_id, dtype=dtype
+            )
+        else:
+            bbox = None
 
         target = {
             "bbox": bbox,
