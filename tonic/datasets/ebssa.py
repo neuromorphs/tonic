@@ -82,6 +82,7 @@ class EBSSA(Dataset):
         y = td["y"][()].flatten() - 1
         p = td["p"][()].flatten()
         events = make_structured_array(x, y, t, p)
+        sensor_x_max, sensor_y_max = events["x"].max() + 1, events["y"].max() + 1
         start_ts = float(events["t"][0])
         events["t"] = events["t"] - start_ts
 
@@ -99,9 +100,9 @@ class EBSSA(Dataset):
             obj_id = obj["id"][()].flatten()
 
             x_max = x_min + bb_width
-            x_max = x_max.clip(max=239)
+            x_max = x_max.clip(max=sensor_x_max - 1)
             y_max = y_min + bb_width
-            y_max = y_max.clip(max=179)
+            y_max = y_max.clip(max=sensor_y_max - 1)
 
             dtype = np.dtype(
                 [
