@@ -140,7 +140,7 @@ def read_davis_346(filename):
 
         events: numpy structured array of events
     """
-    data_version, data_start = read_aedat_header_from_file(filename)
+    data_version, data_start, start_timestamp = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
     t = all_events["timeStamp"]
@@ -152,7 +152,7 @@ def read_davis_346(filename):
 
     xytp = make_structured_array(x, y, t, p)
     shape = (346, 260)
-    return shape, xytp
+    return shape, start_timestamp, xytp
 
 
 def read_dvs_346mini(filename):
@@ -233,16 +233,19 @@ def read_aedat_header_from_file(filename):
     count = 1
     is_comment = "#" in str(f.read(count))
 
+    start_timestamp = None
     while is_comment:
         # Read the rest of the line
         head = str(f.readline())
         if "!AER-DAT" in head:
             data_version = float(head[head.find("!AER-DAT") + 8 : -5])
+        elif "Creation time:" in head:
+            start_timestamp = int(head.split()[4].split("\\")[0])
         is_comment = "#" in str(f.read(1))
         count += 1
     data_start = f.seek(-1, 1)
     f.close()
-    return data_version, data_start
+    return data_version, data_start, start_timestamp
 
 
 def get_aer_events_from_file(filename, data_version, data_start):
