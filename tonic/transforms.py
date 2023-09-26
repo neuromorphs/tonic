@@ -275,16 +275,16 @@ class Downsample:
     spatial_factor: Union[float, Tuple[float, float]] = 1
     sensor_size: Optional[Tuple[int, int, int]] = None
     target_size: Optional[Tuple[int, int]] = None
-    
+
     @staticmethod
     def get_params(spatial_factor: Union[int, Tuple[int, int]]):
         if not type(spatial_factor) == tuple:
             spatial_factor = (spatial_factor, spatial_factor)
         return spatial_factor
-    
+
     def __call__(self, events):
         events = events.copy()
-        
+
         if self.target_size is not None:
             # Ensure sensor_size is not None when target_size is not None
             assert self.sensor_size is not None
@@ -292,7 +292,7 @@ class Downsample:
             spatial_factor = np.asarray(self.target_size) / self.sensor_size[:-1]
         else:
             spatial_factor = self.get_params(spatial_factor=self.spatial_factor)
-        
+
         events = functional.time_skew_numpy(events, coefficient=self.time_factor)
         if "x" in events.dtype.names:
             events["x"] = events["x"] * spatial_factor[0]
@@ -342,7 +342,7 @@ class EventDownsampling:
         Allows:
             1. Integrator based method to perform spatio-temporal event-based downsampling
             2. Differentiator based method to perform spatio-temporal event-based downsampling
-            
+
     Parameters:
         sensor_size (Tuple): size of the sensor that was used [W,H,P]
         target_size (Tuple): size of the desired resolution [W,H]
@@ -350,37 +350,43 @@ class EventDownsampling:
         downsampling_method (str): string stating downsampling method. Choose from ['naive', 'integrator', 'differentiator']
         noise_threshold (int): set number of events in downsampled pixel required to emit spike. Zero by default.
         differentiator_time_bins (int): number of differentiator time bins within dt. Two by default.
-        
+
     Example:
-        >>> transform1 = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
+        >>> transform1 = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5,
                                                            downsampling_method='integrator')
-        >>> transform2 = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5, 
+        >>> transform2 = tonic.transforms.EventDownsampling(sensor_size=(640,480,2), target_size=(20,15), dt=0.5,
                                                            downsampling_method='differentiator', noise_threshold=2,
                                                            differentiator_time_bins=3)
     """
-    
+
     sensor_size: Tuple[int, int, int]
     target_size: Tuple[int, int]
     downsampling_method: str
     dt: Optional[float] = None
     noise_threshold: Optional[int] = None
     differentiator_time_bins: Optional[int] = None
-    
+
     def __call__(self, events):
-        assert self.downsampling_method in ['integrator', 'differentiator']
-            
-        if self.downsampling_method == 'integrator':
+        assert self.downsampling_method in ["integrator", "differentiator"]
+
+        if self.downsampling_method == "integrator":
             return functional.integrator_downsample(
-                events=events, sensor_size=self.sensor_size, target_size=self.target_size, 
-                dt=self.dt, noise_threshold=self.noise_threshold
-                )
-            
-        elif self.downsampling_method == 'differentiator':
+                events=events,
+                sensor_size=self.sensor_size,
+                target_size=self.target_size,
+                dt=self.dt,
+                noise_threshold=self.noise_threshold,
+            )
+
+        elif self.downsampling_method == "differentiator":
             return functional.differentiator_downsample(
-                events=events, sensor_size=self.sensor_size, target_size=self.target_size,
-                dt=self.dt, noise_threshold=self.noise_threshold,
-                differentiator_time_bins=self.differentiator_time_bins
-                )
+                events=events,
+                sensor_size=self.sensor_size,
+                target_size=self.target_size,
+                dt=self.dt,
+                noise_threshold=self.noise_threshold,
+                differentiator_time_bins=self.differentiator_time_bins,
+            )
 
 
 @dataclass(frozen=True)
@@ -783,10 +789,14 @@ class NumpyAsType:
         )
         if source_is_structured_array and not target_is_structured_array:
             return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
+        elif not source_is_structured_array and target_is_structured_array:
+            return np.lib.recfunctions.unstructured_to_structured(events, self.dtype)
         elif source_is_structured_array and target_is_structured_array:
             return NotImplementedError
-        elif not target_is_structured_array and not source_is_structured_array:
+        elif not source_is_structured_array and not target_is_structured_array:
             return events.astype(self.dtype)
+        else:
+            raise ValueError("Something went wrong")
 
 
 @dataclass(frozen=True)
