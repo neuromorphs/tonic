@@ -1,2 +1,2 @@
-**TRANSFORM GALLERY**
-==========================
+Transforms gallery
+==================

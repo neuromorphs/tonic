@@ -1,8 +1,10 @@
 sphinx>=4.0
-sphinx-book-theme
+sphinx-book-theme==0.3.3
 sphinx-gallery
 myst_nb
 pbr
 torchvision
 ipywidgets
 matplotlib
+torchdata
+sphinx-autoapi

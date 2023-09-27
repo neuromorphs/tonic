@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-import tonic.transforms as transforms
+import pytest
 from utils import create_random_input
+
+import tonic.transforms as transforms
 
 
 @pytest.mark.parametrize(
@@ -172,6 +173,14 @@ def test_representation_inferred_frame():
     assert frames.shape[1:] == sensor_size[::-1]
 
 
+def test_representation_frame_wrong_sensor_size():
+    sensor_size = (20, 10, 2)
+    orig_events, _ = create_random_input(n_events=30000, sensor_size=sensor_size)
+    transform = transforms.ToFrame(sensor_size=(20, 10, 1), time_window=25000)
+    with pytest.raises(ValueError):
+        frames = transform(orig_events)
+
+
 def test_representation_audio_frame():
     sensor_size = (200, 1, 2)
     orig_events, _ = create_random_input(
@@ -192,34 +201,36 @@ def test_representation_image():
 
 
 @pytest.mark.parametrize(
-    "surface_dimensions, tau,", [((15, 15), 100), ((3, 3), 10), (None, 1e4)]
+    "sensor_size, dt, tau,",
+    [
+        ((40, 15, 2), 10000, 10000),
+        ((10, 20, 2), 20000, 1000),
+        ((30, 30, 2), 30000, 3000),
+    ],
 )
-def test_representation_time_surface(surface_dimensions, tau):
-    orig_events, sensor_size = create_random_input(n_events=1000)
-
-    transform = transforms.ToTimesurface(
-        sensor_size=sensor_size, surface_dimensions=surface_dimensions, tau=tau
+def test_representation_time_surface(sensor_size, dt, tau):
+    orig_events, sensor_size = create_random_input(
+        sensor_size=sensor_size, n_events=10000
     )
+
+    transform = transforms.ToTimesurface(sensor_size=sensor_size, dt=dt, tau=tau)
 
     surfaces = transform(orig_events)
 
-    assert surfaces.shape[0] == len(orig_events)
+    duration = orig_events["t"][-1] - orig_events["t"][0]
+    assert surfaces.shape[0] == duration // dt
+
     assert surfaces.shape[1] == 2
-    if surface_dimensions:
-        assert surfaces.shape[2:] == surface_dimensions
-    else:
-        assert surfaces.shape[2] == sensor_size[1]
-        assert surfaces.shape[3] == sensor_size[0]
+    assert surfaces.shape[2] == sensor_size[1]
+    assert surfaces.shape[3] == sensor_size[0]
     assert surfaces is not orig_events
 
 
 @pytest.mark.parametrize(
-    "surface_size, cell_size, tau, num_workers, decay",
-    [(7, 9, 100, 1, "lin"), (3, 4, 1000, 1, "exp")],
+    "surface_size, cell_size, tau, decay",
+    [(7, 9, 100, "lin"), (3, 4, 1000, "exp")],
 )
-def test_representation_avg_time_surface(
-    surface_size, cell_size, tau, num_workers, decay
-):
+def test_representation_avg_time_surface(surface_size, cell_size, tau, decay):
     orig_events, sensor_size = create_random_input(n_events=1000)
 
     transform = transforms.ToAveragedTimesurface(
@@ -227,7 +238,6 @@ def test_representation_avg_time_surface(
         surface_size=surface_size,
         cell_size=cell_size,
         tau=tau,
-        num_workers=num_workers,
         decay=decay,
     )
 

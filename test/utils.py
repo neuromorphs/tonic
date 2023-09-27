@@ -6,8 +6,7 @@ def create_random_input(
     n_events=10000,
     dtype=np.dtype([("x", int), ("y", int), ("t", int), ("p", int)]),
 ):
-    """
-    Creates random events for testing purposes.
+    """Creates random events for testing purposes.
 
     Returns
     - events - 10k events

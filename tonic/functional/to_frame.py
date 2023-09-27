@@ -1,9 +1,10 @@
 import numpy as np
+
 from tonic.slicers import (
-    slice_events_by_time,
     slice_events_by_count,
-    slice_events_by_time_bins,
     slice_events_by_event_bins,
+    slice_events_by_time,
+    slice_events_by_time_bins,
 )
 
 
@@ -17,8 +18,8 @@ def to_frame_numpy(
     overlap=0.0,
     include_incomplete=False,
 ):
-    """Accumulate events to frames by slicing along constant time (time_window),
-    constant number of events (event_count) or constant number of frames (n_time_bins / n_event_bins).
+    """Accumulate events to frames by slicing along constant time (time_window), constant number of
+    events (event_count) or constant number of frames (n_time_bins / n_event_bins).
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
@@ -58,6 +59,10 @@ def to_frame_numpy(
 
     # test for single polarity
     if sensor_size[2] == 1:
+        if np.unique(events["p"]).size > 1:
+            raise ValueError(
+                "Single polarity sensor, but events contain both polarities."
+            )
         events["p"] = 0
 
     if time_window:

@@ -4,6 +4,7 @@ from typing import Callable, List, Optional, Union
 
 import h5py
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.download_utils import download_and_extract_archive, download_url, list_files
 from tonic.io import make_structured_array
@@ -140,12 +141,16 @@ class DSEC(Dataset):
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
     ):
-        super(DSEC, self).__init__(
+        super().__init__(
             save_to,
             transform=transform,
             target_transform=target_transform,
             transforms=transforms,
         )
+
+        import imageio
+
+        imageio.plugins.freeimage.download()
 
         if split == "train":
             self.recording_selection = self.recordings[split].keys()
@@ -231,10 +236,8 @@ class DSEC(Dataset):
             a tuple of target_selection if train=True.
         """
         import hdf5plugin  # necessary to read event files
-        from PIL import Image  # necessary to read images
         import imageio  # necessary to read optical flow pngs
-
-        imageio.plugins.freeimage.download()
+        from PIL import Image  # necessary to read images
 
         recording = self.recording_selection[index]
         base_folder = os.path.join(self.location_on_system, recording)
@@ -244,18 +247,20 @@ class DSEC(Dataset):
             full_base_folder = os.path.join(base_folder, data_name)
             if data_name in ["events_left", "events_right"]:
                 with h5py.File(full_base_folder + "/events.h5", "r") as file:
-                    data = make_structured_array(
+                    data = {}
+                    data[data_name] = make_structured_array(
                         file["events"]["x"][()],
                         file["events"]["y"][()],
                         file["events"]["t"][()],
                         file["events"]["p"][()],
                         dtype=self.dtype,
                     )
-                    data["t"] += file["t_offset"][()]
+                    data[data_name]["t"] += file["t_offset"][()]
+                    data["ms_to_idx"] = file["ms_to_idx"][()]
 
             elif "images" in data_name:
-                images_rectified_filenames = list_files(
-                    full_base_folder, ".png", prefix=True
+                images_rectified_filenames = sorted(
+                    list_files(full_base_folder, ".png", prefix=True)
                 )
                 data = np.stack(
                     [np.array(Image.open(file)) for file in images_rectified_filenames]
@@ -276,7 +281,9 @@ class DSEC(Dataset):
                 "disparity_event",
                 "disparity_image",
             ]:
-                png_filenames = list_files(full_base_folder, ".png", prefix=True)
+                png_filenames = sorted(
+                    list_files(full_base_folder, ".png", prefix=True)
+                )
                 target = np.stack(
                     [np.array(Image.open(file)) for file in png_filenames]
                 )
@@ -285,11 +292,13 @@ class DSEC(Dataset):
                 "optical_flow_forward_event",
                 "optical_flow_backward_event",
             ]:
-                png_filenames = list_files(full_base_folder, ".png", prefix=True)
+                png_filenames = sorted(
+                    list_files(full_base_folder, ".png", prefix=True)
+                )
                 target = np.array(
-                    [imageio.imread(file, format="PNG-FI") for file in png_filenames]
+                    [imageio.v2.imread(file, format="PNG-FI") for file in png_filenames]
                 ).astype(float)
-                target[:, :, :, :2] -= 2 ^ 15
+                target[:, :, :, :2] -= 2**15
                 target[:, :, :, :2] /= 128
 
             elif target_name == "disparity_timestamps":

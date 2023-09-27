@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 
 
 def test_standardize_data_length():
@@ -18,6 +18,7 @@ def test_standardize_data_length():
 
 def test_bin():
     import numpy as np
+
     from tonic.audio_transforms import Bin
 
     bin_transform = Bin(orig_freq=16_000, new_freq=100, axis=1)
@@ -30,8 +31,9 @@ def test_bin():
 
 
 def test_linear_butter_filter_bank():
-    from tonic.audio_transforms import LinearButterFilterBank
     import numpy as np
+
+    from tonic.audio_transforms import LinearButterFilterBank
 
     fb = LinearButterFilterBank(
         order=2, low_freq=100, sampling_freq=16000, num_filters=16
@@ -43,8 +45,9 @@ def test_linear_butter_filter_bank():
 
 
 def test_mel_butter_filter_bank():
-    from tonic.audio_transforms import MelButterFilterBank
     import numpy as np
+
+    from tonic.audio_transforms import MelButterFilterBank
 
     fb = MelButterFilterBank(order=2, low_freq=100, sampling_freq=16000, num_filters=16)
     data = np.random.random((1, 16_000))

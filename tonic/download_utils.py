@@ -1,19 +1,18 @@
 import bz2
+import gzip
+import hashlib
+import lzma
 import os
 import os.path
-import hashlib
-import gzip
+import pathlib
 import re
 import tarfile
-from typing import Any, Callable, List, Iterable, Optional, TypeVar, Dict, IO, Tuple
-from urllib.parse import urlparse
-import zipfile
-import lzma
-import contextlib
 import urllib
-import urllib.request
 import urllib.error
-import pathlib
+import urllib.request
+import zipfile
+from typing import IO, Any, Callable, Dict, Iterable, List, Optional, Tuple, TypeVar
+from urllib.parse import urlparse
 
 from tqdm.auto import tqdm
 

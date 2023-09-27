@@ -3,6 +3,7 @@ from typing import Callable, List, Optional, Union
 
 import numpy as np
 from importRosbag.importRosbag import importRosbag
+
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url
 from tonic.io import make_structured_array
@@ -123,8 +124,11 @@ class DAVISDATA(Dataset):
         images["frames"] = np.stack(images["frames"])
         images["ts"] = ((images["ts"] - images["ts"][0]) * 1e6).astype(int)
         data = (events, imu, images)
-        target = topics["/optitrack/davis"]
-        target["ts"] = ((target["ts"] - target["ts"][0]) * 1e6).astype(int)
+        try:
+            target = topics["/optitrack/davis"]
+            target["ts"] = ((target["ts"] - target["ts"][0]) * 1e6).astype(int)
+        except KeyError:
+            target = None
 
         if self.transform is not None:
             data = self.transform(data)

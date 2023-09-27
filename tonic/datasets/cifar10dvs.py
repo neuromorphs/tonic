@@ -2,6 +2,7 @@ import os
 from typing import Callable, Optional
 
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.download_utils import extract_archive
 from tonic.io import read_aedat4
@@ -29,7 +30,7 @@ class CIFAR10DVS(Dataset):
                                          labels at the same time.
     """
 
-    url = "http://cifar10dvs.ridger.top/CIFAR10DVS.zip"
+    url = "https://figshare.com/ndownloader/files/38023437"
 
     filename = "CIFAR10DVS.zip"
     file_md5 = "ce3a4a0682dc0943703bd8f749a7701c"
@@ -46,12 +47,25 @@ class CIFAR10DVS(Dataset):
         "truck.zip",
     ]
 
-    folder_name = "CIFAR10DVS"
+    folder_name = ""
     dtype = np.dtype(
         [("t", np.uint64), ("x", np.uint16), ("y", np.uint16), ("p", bool)]
     )
     ordering = dtype.names
     sensor_size = (128, 128, 2)
+
+    classes = {
+        "airplane": 0,
+        "automobile": 1,
+        "bird": 2,
+        "cat": 3,
+        "deer": 4,
+        "dog": 5,
+        "frog": 6,
+        "horse": 7,
+        "ship": 8,
+        "truck": 9,
+    }
 
     def __init__(
         self,
@@ -67,21 +81,6 @@ class CIFAR10DVS(Dataset):
             transforms=transforms,
         )
 
-        # classes for CIFAR10DVS dataset
-
-        classes = {
-            "airplane": 0,
-            "automobile": 1,
-            "bird": 2,
-            "cat": 3,
-            "deer": 4,
-            "dog": 5,
-            "frog": 6,
-            "horse": 7,
-            "ship": 8,
-            "truck": 9,
-        }
-
         if not self._check_exists():
             self.download()
             for filename in self.data_filename:
@@ -92,8 +91,8 @@ class CIFAR10DVS(Dataset):
             dirs.sort()
             for file in files:
                 if file.endswith("aedat4"):
-                    self.data.append(path + "/" + file)
-                    label_number = classes[os.path.basename(path)]
+                    self.data.append(os.path.join(path, file))
+                    label_number = self.classes[os.path.basename(path)]
                     self.targets.append(label_number)
 
     def __getitem__(self, index):

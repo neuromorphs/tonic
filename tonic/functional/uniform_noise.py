@@ -1,10 +1,11 @@
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 
 
 def uniform_noise_numpy(events: np.ndarray, sensor_size: Tuple[int, int, int], n: int):
-    """
-    Adds a fixed number of noise events that are uniformly distributed across sensor size dimensions.
+    """Adds a fixed number of noise events that are uniformly distributed across sensor size
+    dimensions.
 
     Parameters:
         events: ndarray of shape (n_events, n_event_channels)

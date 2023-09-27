@@ -3,6 +3,7 @@ from typing import Callable, Optional
 
 import numpy as np
 from importRosbag.importRosbag import importRosbag
+
 from tonic.dataset import Dataset
 from tonic.download_utils import check_integrity, download_url
 from tonic.io import make_structured_array

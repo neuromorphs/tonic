@@ -2,10 +2,10 @@ import numpy as np
 
 
 def denoise_numpy(events, filter_time=10000):
-    """Drops events that are 'not sufficiently connected to other events in the recording.'
-    In practise that means that an event is dropped if no other event occured within a spatial neighbourhood
-    of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to filter noisy recordings
-    where events occur isolated in time.
+    """Drops events that are 'not sufficiently connected to other events in the recording.' In
+    practise that means that an event is dropped if no other event occured within a spatial
+    neighbourhood of 1 pixel and a temporal neighbourhood of filter_time time units. Useful to
+    filter noisy recordings where events occur isolated in time.
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]

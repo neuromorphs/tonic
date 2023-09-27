@@ -1,10 +1,11 @@
 import os
 import shutil
+from pathlib import Path
+
 import h5py
 import numpy as np
-from pathlib import Path
-from tonic import datasets, transforms
-from tonic import MemoryCachedDataset, DiskCachedDataset
+
+from tonic import DiskCachedDataset, MemoryCachedDataset, datasets, transforms
 
 
 def test_memory_caching_pokerdvs():
@@ -16,7 +17,7 @@ def test_memory_caching_pokerdvs():
     for data, label in cached_dataset:
         pass
 
-    assert len(cached_dataset.data_dict) == len(dataset)
+    assert len(cached_dataset.samples_dict) == len(dataset)
 
 
 def test_caching_pokerdvs():
@@ -92,3 +93,7 @@ def test_caching_from_files():
     dataset = DiskCachedDataset(dataset=None, cache_path=cache_path)
     assert len(dataset) == n_cached_samples
     assert len(os.listdir(cache_path)) == len(dataset)
+
+    # Make sure iteration stops properly when available number of items is reached.
+    for item in dataset:
+        events, target = item

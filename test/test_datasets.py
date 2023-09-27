@@ -1,14 +1,14 @@
 import os
 
+import dataset_utils
 import h5py
 import numpy as np
+from utils import create_random_input
+
 import tonic.datasets as datasets
 from tonic.download_utils import download_url
 
-import dataset_utils
-from utils import create_random_input
-
-base_url = "https://www.neuromorphic-vision.com/public/downloads/dataset_samples/"
+base_url = "https://nextcloud.lenzgregor.com/s/"
 
 
 class ASLDVSTestCaseTest(dataset_utils.DatasetTestCase):
@@ -20,8 +20,8 @@ class ASLDVSTestCaseTest(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "ASLDVS/a")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "a_0244.mat"
-        download_url(url=base_url + filename, root=testfolder, filename=filename)
+        filename = "2aeALcfARAS8Dkf/download/a_0244.mat"
+        download_url(url=base_url + filename, root=testfolder, filename="a_0244.mat")
         return {"n_samples": 1}
 
 
@@ -89,6 +89,22 @@ class DVSLipTestCaseTest(dataset_utils.DatasetTestCase):
         return {"n_samples": 1}
 
 
+class EBSSATestCase(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.EBSSA
+    FEATURE_TYPES = (datasets.EBSSA.dtype,)
+    TARGET_TYPES = (np.ndarray,)
+    KWARGS = {"split": "labelled"}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "EBSSA")
+        os.makedirs(testfolder, exist_ok=True)
+        filename = "A5ooN9edo7TnNPx/download/labelled_ebssa.h5"
+        download_url(
+            url=base_url + filename, root=testfolder, filename="labelled_ebssa.h5"
+        )
+        return {"n_samples": 1}
+
+
 class NCaltech101TestCase(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NCALTECH101
     FEATURE_TYPES = (datasets.NCALTECH101.dtype,)
@@ -99,7 +115,8 @@ class NCaltech101TestCase(dataset_utils.DatasetTestCase):
         testfolder = os.path.join(tmpdir, "NCALTECH101/Caltech101/airplanes/")
         os.makedirs(testfolder, exist_ok=True)
         filename = "image_0006.bin"
-        download_url(url=base_url + filename, root=testfolder, filename=filename)
+        url = base_url + "sGTckK5fgit7QH3/download/" + filename
+        download_url(url=url, root=testfolder, filename=filename)
         return {"n_samples": 1}
 
 
@@ -112,8 +129,9 @@ class NMNISTTestCaseTrain(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "NMNIST/Train/1/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "image_0006.bin"
-        download_url(url=base_url + filename, root=testfolder, filename="24901.bin")
+        filename = "00015.bin"
+        url = base_url + "pi6WkPbg6tgd7ca/download/" + filename
+        download_url(url=url, root=testfolder, filename=filename)
         return {"n_samples": 1}
 
 
@@ -126,8 +144,9 @@ class NMNISTTestCaseTest(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "NMNIST/Test/1/")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "image_0006.bin"
-        download_url(url=base_url + filename, root=testfolder, filename="04652.bin")
+        filename = "00015.bin"
+        url = base_url + "pi6WkPbg6tgd7ca/download/" + filename
+        download_url(url=url, root=testfolder, filename=filename)
         return {"n_samples": 1}
 
 
@@ -136,10 +155,12 @@ def create_hsd_data(filename, n_samples):
         times = np.random.random(size=(n_samples, 100)).astype(np.float16)
         units = (np.random.random(size=(n_samples, 100)) * 700).astype(np.uint16)
         keys = ["zero", "one"]
+        speaker = (np.random.random(size=n_samples) * 20).astype(np.uint16)
         write_file.create_dataset("spikes/units", data=units)
         write_file.create_dataset("spikes/times", data=times)
         write_file.create_dataset("labels", data=[1] * n_samples)
         write_file.create_dataset("extra/keys", data=keys)
+        write_file.create_dataset("extra/speaker", data=speaker)
 
 
 class SHDTestCaseTrain(dataset_utils.DatasetTestCase):

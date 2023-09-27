@@ -3,13 +3,14 @@ from typing import Callable, Optional
 
 import h5py
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.io import make_structured_array
 
 
 class HSD(Dataset):
-    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking Heidelberg Dataset (SHD)
-    and the Spiking Speech Commands dataset (SSC)."""
+    """Heidelberg Spiking Dataset <https://arxiv.org/abs/1910.07407> contains the Spiking
+    Heidelberg Digits (SHD) and the Spiking Speech Commands dataset (SSC)."""
 
     base_url = "https://zenkelab.org/datasets/"
     sensor_size = (700, 1, 1)
@@ -44,7 +45,7 @@ class HSD(Dataset):
 
 
 class SHD(HSD):
-    """`Spiking Heidelberg Digits <https://arxiv.org/abs/1910.07407>`_
+    """`Spiking Heidelberg Digits <https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/>`_
     ::
 
         @article{cramer2020heidelberg,
@@ -99,10 +100,15 @@ class SHD(HSD):
 
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
         self.classes = file["extra/keys"][()]
+        self._speaker = file["extra/speaker"][()]
+
+    @property
+    def speaker(self):
+        return self._speaker[()]
 
 
 class SSC(HSD):
-    """`Spiking Speech Commands <https://arxiv.org/abs/1910.07407>`_
+    """`Spiking Speech Commands <https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/>`_
     ::
 
         @article{cramer2020heidelberg,
@@ -161,3 +167,4 @@ class SSC(HSD):
 
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
         self.classes = file["extra/keys"][()]
+        self._speaker = file["extra/speaker"][()]

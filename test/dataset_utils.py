@@ -1,8 +1,9 @@
-import unittest
-from typing import Dict, Any, Union, Optional
-import numpy as np
-from unittest.mock import patch
 import shutil
+import unittest
+from typing import Any, Dict, Union
+from unittest.mock import patch
+
+import numpy as np
 
 
 class DatasetTestCase(unittest.TestCase):
@@ -21,6 +22,7 @@ class DatasetTestCase(unittest.TestCase):
         self, tmpdir: str, config: Dict[str, Any]
     ) -> Union[int, Dict[str, Any]]:
         """Inject fake data for dataset into a temporary directory.
+
         During the creation of the dataset the download and extract logic is disabled. Thus, the fake data injected
         here needs to resemble the raw data, i.e. the state of the dataset directly after the files are downloaded and
         potentially extracted.
@@ -72,9 +74,9 @@ class DatasetTestCase(unittest.TestCase):
         dataset, info = self.create_dataset()
         data, target = dataset[0]
 
-        if len(self.FEATURE_TYPES) == 1:
+        if type(data) != tuple:
             data = (data,)
-        if len(self.TARGET_TYPES) == 1:
+        if type(target) != tuple:
             target = (target,)
         assert len(data) == len(self.FEATURE_TYPES)
         assert len(target) == len(self.TARGET_TYPES)

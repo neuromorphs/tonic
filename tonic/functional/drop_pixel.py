@@ -3,8 +3,8 @@ import numpy as np
 
 # from https://gitlab.com/synsense/aermanager/-/blob/master/aermanager/preprocess.py#L188
 def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
-    """Identifies pixels that fire above above a certain frequency, averaged across
-    whole event recording. Such _hot_ pixels are sometimes caused by faulty hardware.
+    """Identifies pixels that fire above above a certain frequency, averaged across whole event
+    recording. Such _hot_ pixels are sometimes caused by faulty hardware.
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
@@ -31,7 +31,7 @@ def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
 
 
 def identify_hot_pixel_raster(events: np.ndarray, hot_pixel_frequency: float):
-    """Identifies pixels that fire above a certain predefined spike amount, supports both
+    """Identifies pixels that fire above a certain predefined spike amount, supports both.
 
     Parameters:
         events: ndarray of shape [P, H, W] or [T, P, H, W]
@@ -49,12 +49,11 @@ def identify_hot_pixel_raster(events: np.ndarray, hot_pixel_frequency: float):
         merged_polarity = events.copy().sum(0).sum(0)
 
     ind = np.argwhere(merged_polarity > hot_pixel_frequency)
-    a = 1
-    return tuple(zip(ind[:, 0], ind[:, 1]))
+    return tuple(zip(ind[:, 1], ind[:, 0]))
 
 
 def drop_pixel_numpy(events: np.ndarray, coordinates):
-    """Drops events for pixel locations that fire
+    """Drops events for pixel locations that fire.
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
@@ -77,7 +76,7 @@ def drop_pixel_numpy(events: np.ndarray, coordinates):
 
 
 def drop_pixel_raster(raster: np.ndarray, coordinates):
-    """Drops events for pixel locations
+    """Drops events for pixel locations.
 
     Parameters:
         events: ndarray of shape [p, h, w] or [t, p, h, w]
@@ -91,6 +90,6 @@ def drop_pixel_raster(raster: np.ndarray, coordinates):
     assert len(raster.shape) == 4 or len(raster.shape) == 3
 
     for x, y in coordinates:
-        raster[..., x, y] = 0
+        raster[..., y, x] = 0
 
     return raster

@@ -47,9 +47,9 @@ If you want you can [run them yourself](https://mybinder.org/v2/gh/neuromorphs/t
 :hidden:
 getting_started/getting_started
 auto_examples/index
+datasets
 tutorials/tutorials
 how-tos/how-tos
-reference/reference
 reading_material/reading_material
 getting_involved/getting_involved
 about/about

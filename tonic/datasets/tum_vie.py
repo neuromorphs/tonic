@@ -3,6 +3,7 @@ from typing import Callable, List, Optional, Union
 
 import h5py
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.download_utils import (
     check_integrity,

@@ -1,60 +1,54 @@
+from dataclasses import dataclass
+from typing import Iterator, List, Tuple, Union
+
 import librosa
 import numpy as np
-from dataclasses import dataclass
 from scipy.signal import butter, sosfilt
-from typing import Tuple, List, Union, Iterator
 
 
 @dataclass
 class FixLength:
-    """
-    Fix the length of a sample along a specified axis to a given length.
+    """Fix the length of a sample along a specified axis to a given length.
 
     Parameters:
-        length:
-            Desired length of the sample
-        axis:
-            Dimension along which the length needs to be fixed.
+        length (int): Desired length of the sample
+        axis (int, optional): Dimension along which the length needs to be fixed.. Defaults to 1.
+
     Args:
-        data: torch.Tensor
+        data (np.ndarray): data sample
+
     Returns:
-        torch.Tensor of the same dimension
+        np.ndarray: fixed length data sample
     """
 
     length: int
     axis: int = 1
 
-    def __call__(self, data: np.ndarray):
-        return librosa.util.fix_length(data, self.length, self.axis)
+    def __call__(self, data: np.ndarray) -> np.ndarray:
+        return librosa.util.fix_length(data=data, size=self.length, axis=self.axis)
 
 
 @dataclass
 class Bin:
-    """
-    Bin the given data along a specified axis at the specified new frequency
+    """Bin the given data along a specified axis at the specified new frequency.
 
     Parameters:
-        orig_freq: float
-            Sampling frequency of the given data stream
-        new_freq: float
-            Desired frequency after binning
-        axis: int
-            Axis along which the data needs to be binned
+        orig_freq (float): Sampling frequency of the given data stream
+        new_freq (float): Desired frequency after binning
+        axis (int): Axis along which the data needs to be binned
 
     Args:
-         data: torch.Tensor
-            data to be binned
+        data (np.ndarray): data sample
 
     Returns:
-        torch.Tensor binned data
-
+        np.ndarray: binned data sample
     """
 
     orig_freq: float
     new_freq: float
     axis: int
 
-    def __call__(self, data: np.ndarray):
+    def __call__(self, data: np.ndarray) -> np.ndarray:
         data_len = data.shape[self.axis]
         n_splits = int(data_len / (self.orig_freq / self.new_freq))
         splits = np.array_split(data, n_splits, axis=self.axis)
@@ -64,8 +58,7 @@ class Bin:
 
 @dataclass
 class SOSFilter:
-    """
-    SOS filter
+    """SOS filter.
 
     Parameters
     ----------
@@ -87,8 +80,7 @@ class SOSFilter:
 
 @dataclass
 class ButterFilter:
-    """
-    Butter filter
+    """Butter filter.
 
     Parameters
     ----------
@@ -132,8 +124,7 @@ class ButterFilter:
 
 @dataclass
 class ButterFilterBank:
-    """
-    Butter filter bank
+    """Butter filter bank.
 
     Parameters
     ----------
@@ -177,8 +168,7 @@ class ButterFilterBank:
 
 @dataclass
 class LinearButterFilterBank:
-    """
-    Butter filter bank
+    """Butter filter bank.
 
     Parameters
     ----------
@@ -228,8 +218,7 @@ class LinearButterFilterBank:
 
 @dataclass
 class MelButterFilterBank(LinearButterFilterBank):
-    """
-    Butter filter bank with frequencies along the mel scale
+    """Butter filter bank with frequencies along the mel scale.
 
     Parameters
     ----------
@@ -276,8 +265,7 @@ class MelButterFilterBank(LinearButterFilterBank):
 
 @dataclass
 class AddNoise:
-    """
-    Add nose to data
+    """Add nose to data.
 
     Params:
         dataset:
@@ -293,7 +281,7 @@ class AddNoise:
     normed: bool = True
 
     def get_noise_sample(self, sample_len: int) -> np.ndarray:
-        """Get a random noise sample from the dataset"""
+        """Get a random noise sample from the dataset."""
         # Find noise sample of minimum length
         while True:
             noise_idx = np.random.randint(0, len(self.dataset), (1,)).item()
@@ -325,7 +313,7 @@ class AddNoise:
 
 
 def normalize(signal):
-    """Normalize the signal"""
+    """Normalize the signal."""
     signal -= signal.mean()
     max_val = np.max(np.abs(signal))
     if max_val > 0:

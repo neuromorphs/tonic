@@ -1,10 +1,16 @@
+from typing import Tuple
+
 import numpy as np
+
 import tonic.transforms as transforms
 
 
-def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
-    """Plot events accumulated as frames equal to the product
-    of axes for visual inspection.
+def plot_event_grid(
+    events: np.ndarray,
+    axis_array: Tuple[int, int] = (1, 3),
+    plot_frame_number: bool = False,
+):
+    """Plot events accumulated as frames equal to the product of axes for visual inspection.
 
     Parameters:
         events: Structured numpy array of shape [num_events, num_event_channels].
@@ -67,8 +73,9 @@ def plot_event_grid(events, axis_array=(1, 3), plot_frame_number=False):
         plt.ylabel("Channels")
 
 
-def plot_animation(frames: np.ndarray):
-    """Helper function that animates a tensor of frames of shape (TCHW).
+def plot_animation(frames: np.ndarray, figsize: Tuple[int, int] = (5, 5)):
+    """Helper function that animates a tensor of frames of shape (TCHW). If you run this in a
+    Jupyter notebook, you can display the animation inline like shown in the example below.
 
     Parameters:
         frames: numpy array or tensor of shape (TCHW)
@@ -85,31 +92,33 @@ def plot_animation(frames: np.ndarray):
         >>>
         >>> frames = transform(events)
         >>> animation = tonic.utils.plot_animation(frames)
+        >>>
+        >>> # Display the animation inline in a Jupyter notebook
+        >>> from IPython.display import HTML
+        >>> HTML(animation.to_jshtml())
 
     Returns:
         The animation object. Store this in a variable to keep it from being garbage collected until displayed.
     """
     try:
-        from matplotlib import animation
         import matplotlib.pyplot as plt
+        from matplotlib import animation
     except ImportError:
         raise ImportError(
             "Please install the matplotlib package to plot events. This is an optional"
             " dependency."
         )
-    fig = plt.figure(figsize=(2, 2))
-    if frames[0].shape[0] == 2:
-        first_frame = frames[0][1] - frames[0][0]
-    else:
-        first_frame = frames[0][0]
-    ax = plt.imshow(first_frame)
+    fig = plt.figure(figsize=figsize)
+    if frames.shape[1] == 2:
+        rgb = np.zeros((frames.shape[0], 3, *frames.shape[2:]))
+        rgb[:, 1:, ...] = frames
+        frames = rgb
+    if frames.shape[1] in [1, 2, 3]:
+        frames = np.moveaxis(frames, 1, 3)
+    ax = plt.imshow(frames[0])
     plt.axis("off")
 
     def animate(frame):
-        if frame.shape[0] == 2:
-            frame = frame[1] - frame[0]
-        else:
-            frame = frame[0]
         ax.set_data(frame)
         return ax
 

@@ -1,8 +1,10 @@
-import pytest
-import numpy as np
-import tonic.transforms as transforms
 import itertools
+
+import numpy as np
+import pytest
 from utils import create_random_input
+
+import tonic.transforms as transforms
 
 
 @pytest.mark.parametrize(
@@ -158,10 +160,41 @@ def test_transform_decimation():
 
     orig_events, sensor_size = create_random_input(sensor_size=(1, 1, 2), n_events=1000)
     transform = transforms.Decimation(n=n)
-
     events = transform(orig_events)
 
     assert len(events) == 100
+
+
+def test_random_drop_pixel():
+    orig_events, sensor_size = create_random_input(
+        n_events=40000, sensor_size=(15, 15, 2)
+    )
+
+    p = 0.5
+    transform = transforms.RandomDropPixel(p=p, sensor_size=sensor_size)
+
+    # repeat stochastic transform a few times
+    remaining_pixels = []
+    for i in range(10):
+        events = transform(orig_events)
+        remaining_pixels.append(len(np.unique(events[["x", "y"]])))
+    n_pixels = np.array(remaining_pixels).mean()
+
+    assert len(events) < len(orig_events)
+    assert np.isclose(n_pixels, sensor_size[0] * sensor_size[1] * (1 - p), atol=10)
+
+
+def test_random_drop_pixel_raster():
+    orig_raster = np.random.randint(0, 10, (50, 2, 100, 200))
+    orig_frame = np.random.randint(0, 10, (2, 100, 200))
+
+    p = 0.2
+    transform = transforms.RandomDropPixel(p=p)
+    raster = transform(orig_raster.copy())
+    frame = transform(orig_frame.copy())
+
+    assert np.isclose(raster.sum() / orig_raster.sum(), 1 - p, atol=0.05)
+    assert np.isclose(frame.sum() / orig_frame.sum(), 1 - p, atol=0.05)
 
 
 @pytest.mark.parametrize(
@@ -192,7 +225,7 @@ def test_transform_drop_pixel(coordinates, hot_pixel_frequency):
 
 @pytest.mark.parametrize(
     "coordinates, hot_pixel_frequency",
-    [(((9, 11), (10, 12), (11, 13)), None), (None, 5000)],
+    [(((199, 11), (199, 12), (11, 13)), None), (None, 5000)],
 )
 def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):
     raster_test = np.random.randint(0, 100, (50, 2, 100, 200))
@@ -205,8 +238,8 @@ def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):
 
     if coordinates:
         for x, y in coordinates:
-            assert raster[:, :, x, y].sum() == 0
-            assert frame[:, x, y].sum() == 0
+            assert raster[:, :, y, x].sum() == 0
+            assert frame[:, y, x].sum() == 0
     if hot_pixel_frequency:
         merged_polarity_raster = raster.sum(0).sum(0)
         merged_polarity_frame = frame.sum(0)
@@ -214,23 +247,52 @@ def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):
         assert not merged_polarity_raster[merged_polarity_raster > 5000].sum().sum()
 
 
-@pytest.mark.parametrize("time_factor, spatial_factor", [(1, 0.25), (1e-3, 1)])
-def test_transform_downsample(time_factor, spatial_factor):
+@pytest.mark.parametrize("time_factor, spatial_factor, target_size", [(1, 0.25, None), (1e-3, (1, 2), None), (1, 1, (5, 5))])
+def test_transform_downsample(time_factor, spatial_factor, target_size):
     orig_events, sensor_size = create_random_input()
 
     transform = transforms.Downsample(
-        time_factor=time_factor, spatial_factor=spatial_factor
+        sensor_size=sensor_size, time_factor=time_factor, spatial_factor=spatial_factor, target_size=target_size
     )
 
     events = transform(orig_events)
-
-    assert np.array_equal(
-        (orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"]
-    )
-    assert np.array_equal(np.floor(orig_events["x"] * spatial_factor), events["x"])
-    assert np.array_equal(np.floor(orig_events["y"] * spatial_factor), events["y"])
+    
+    if not isinstance(spatial_factor, tuple):
+        spatial_factor = (spatial_factor, spatial_factor)
+    
+    if target_size is None:
+        assert np.array_equal(
+            (orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"]
+        )
+        assert np.array_equal(np.floor(orig_events["x"] * spatial_factor[0]), events["x"])
+        assert np.array_equal(np.floor(orig_events["y"] * spatial_factor[1]), events["y"])
+    
+    else:
+        spatial_factor_test = np.asarray(target_size) / sensor_size[:-1]
+        assert np.array_equal(np.floor(orig_events["x"] * spatial_factor_test[0]), events["x"])
+        assert np.array_equal(np.floor(orig_events["y"] * spatial_factor_test[1]), events["y"])
+    
     assert events is not orig_events
-
+    
+    
+@pytest.mark.parametrize("target_size, dt, downsampling_method, noise_threshold, differentiator_time_bins", 
+                         [((50, 50), 0.05, 'integrator', 1, None),
+                          ((20, 15), 5, 'differentiator', 3, 1)])
+def test_transform_event_downsampling(target_size, dt, downsampling_method, noise_threshold, 
+                                      differentiator_time_bins):
+    
+    orig_events, sensor_size = create_random_input()
+    
+    transform = transforms.EventDownsampling(sensor_size=sensor_size, target_size=target_size, dt=dt, 
+                                             downsampling_method=downsampling_method, noise_threshold=noise_threshold,
+                                             differentiator_time_bins=differentiator_time_bins)
+    
+    events = transform(orig_events)
+    
+    assert len(events) <= len(orig_events)
+    assert np.logical_and(np.all(events["x"] <= target_size[0]), np.all(events["y"] <= target_size[1]))
+    assert events is not orig_events
+    
 
 @pytest.mark.parametrize("target_size", [(50, 50), (10, 5)])
 def test_transform_random_crop(target_size):
@@ -466,6 +528,23 @@ def test_transform_time_reversal(p):
     elif p == 0:
         assert np.array_equal(orig_events, events)
     assert events is not orig_events
+
+
+@pytest.mark.parametrize("p", [1, 0])
+def test_random_reversal_raster(p):
+    orig_events, sensor_size = create_random_input()
+    to_raster = transforms.ToFrame(sensor_size=sensor_size, n_event_bins=100)
+    # raster in shape [t, p, h, w]
+    orig_raster = to_raster(orig_events)
+
+    transform = transforms.RandomTimeReversal(p=p)
+    raster = transform(orig_raster)
+
+    if p == 1:
+        assert np.array_equal(raster, orig_raster[::-1, ::-1, ...])
+    elif p == 0:
+        assert np.array_equal(raster, orig_raster)
+    assert raster is not orig_raster
 
 
 @pytest.mark.parametrize("coefficient, offset", [(3.1, 100), (0.3, 0), (2.7, 10)])

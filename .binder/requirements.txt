@@ -1,0 +1,13 @@
+numpy
+h5py
+importRosbag>=1.0.4
+scipy
+tqdm
+typing_extensions
+librosa
+pbr
+expelliarmus
+torchvision
+ipywidgets
+matplotlib
+torchdata
