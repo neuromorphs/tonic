@@ -7,7 +7,7 @@ def test_read_aedat_header():
     )
 
     assert data_version == 2
-    assert data_start == 14
+    assert data_start == 598
     assert start_timestamp == 1695355587880
 
 
