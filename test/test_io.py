@@ -12,7 +12,7 @@ def test_read_aedat_header():
 
 
 def test_read_aedat_events():
-    data_version, data_start = tonic.io.read_aedat_header_from_file(
+    data_version, data_start, start_timestamp = tonic.io.read_aedat_header_from_file(
         "test/test_data/sample.aedat4"
     )
     events = tonic.io.get_aer_events_from_file(
