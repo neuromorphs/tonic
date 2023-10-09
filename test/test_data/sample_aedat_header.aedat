@@ -1,0 +1,12 @@
+#!AER-DAT2.0
+# This is a raw AE data file - do not edit
+# Data format is int32 address, int32 timestamp (8 bytes total), repeated for each event
+# Timestamps tick: 1 us
+# Creation date: Fri Sep 22 14:06:27 AEST 2023
+# Creation time: System.currentTimeMillis() 1695355587880
+# User name: <UserName>
+# Hostname: <HostName>
+# AEChip: eu.seebetter.ini.chips.davis.Davis346red
+#Start of Preferences for this AEChip (search for "End of Preferences" to find end of this block)
+#<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+#<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
