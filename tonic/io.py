@@ -241,6 +241,7 @@ def read_aedat_header_from_file(filename):
     Returns:
         data_version (float):   The version of the .aedat file
         data_start (int):       The start index of the data
+        start_timestamp (int):  The start absolute system timestamp in micro-seconds
     """
     filename = os.path.expanduser(filename)
     assert os.path.isfile(filename), f"The .aedat file '{filename}' does not exist."
