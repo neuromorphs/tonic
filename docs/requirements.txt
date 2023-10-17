@@ -1,3 +1,4 @@
+astroid~=2.15 # https://github.com/readthedocs/sphinx-autoapi/issues/407
 sphinx>=4.0
 sphinx-book-theme==0.3.3
 sphinx-gallery
