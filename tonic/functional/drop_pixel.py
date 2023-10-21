@@ -57,8 +57,6 @@ def drop_pixel_numpy(events: np.ndarray, coordinates):
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        ordering: ordering of the event tuple inside of events. This function requires 'x' and
-                  'y' to be in the ordering
         coordinates: list of (x,y) coordinates for which all events will be deleted.
 
     Returns:
@@ -79,9 +77,7 @@ def drop_pixel_raster(raster: np.ndarray, coordinates):
     """Drops events for pixel locations.
 
     Parameters:
-        events: ndarray of shape [p, h, w] or [t, p, h, w]
-        ordering: ordering of the event tuple inside of events. This function requires 'x' and
-                  'y' to be in the ordering
+        raster: ndarray of shape [p, h, w] or [t, p, h, w]
         coordinates: list of (x,y) coordinates for which all events will be deleted.
 
     Returns:

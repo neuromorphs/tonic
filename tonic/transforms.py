@@ -836,7 +836,7 @@ class ToAveragedTimesurface:
 @dataclass(frozen=True)
 class ToFrame:
     """Accumulate events to frames by slicing along constant time (time_window), constant number of
-    events (spike_count) or constant number of frames (n_time_bins / n_event_bins). All the events
+    events (event_count) or constant number of frames (n_time_bins / n_event_bins). All the events
     in one slice are added up in a frame for each polarity.  If you want binary frames, you can
     manually clamp them to 1 afterwards. You can set one of the first 4 parameters to choose the
     slicing method. Depending on which method you choose, overlap will be defined differently. As a
@@ -847,9 +847,9 @@ class ToFrame:
       training RNNs or other algorithms that have time steps.
 
     * If your recordings have roughly the same amount of activity / number of events and you are more interested
-      in the spatial composition, then setting spike_count will give you frames that are visually more consistent.
+      in the spatial composition, then setting event_count will give you frames that are visually more consistent.
 
-    * The previous time_window and spike_count methods will likely result in a different amount of frames for each
+    * The previous time_window and event_count methods will likely result in a different amount of frames for each
       recording. If your training method benefits from consistent number of frames across a dataset (for easier
       batching for example), or you want a parameter that is easier to set than the exact window length or number
       of events per slice, consider fixing the number of frames by setting n_time_bins or n_event_bins. The two
@@ -863,22 +863,22 @@ class ToFrame:
         time_window (float): Time window length for one frame. Use the same time unit as timestamps in the event recordings.
                              Good if you want temporal consistency in your training, bad if you need some visual consistency
                              for every frame if the recording's activity is not consistent.
-        spike_count (int): Number of events per frame. Good for training CNNs which do not care about temporal consistency.
+        event_count (int): Number of events per frame. Good for training CNNs which do not care about temporal consistency.
         n_time_bins (int): Fixed number of frames, sliced along time axis. Good for generating a pre-determined number of
                            frames which might help with batching.
         n_event_bins (int): Fixed number of frames, sliced along number of events in the recording. Good for generating a
                             pre-determined number of frames which might help with batching.
         overlap (float): Overlap between frames. The definition of overlap depends on the slicing method.
-                         For slicing by time_window, the overlap is defined in microseconds. For slicing by spike_count,
+                         For slicing by time_window, the overlap is defined in microseconds. For slicing by event_count,
                          the overlap is defined by number of events. For slicing by n_time_bins or n_event_bins, the
                          overlap is defined by the fraction of a bin between 0 and 1.
-        include_incomplete (bool): If True, includes overhang slice when time_window or spike_count is specified.
+        include_incomplete (bool): If True, includes overhang slice when time_window or event_count is specified.
                                    Not valid for bin_count methods.
 
     Example:
         >>> from tonic.transforms import ToFrame
         >>> transform1 = ToFrame(time_window=10000, overlap=1000, include_incomplete=True)
-        >>> transform2 = ToFrame(spike_count=3000, overlap=100, include_incomplete=True)
+        >>> transform2 = ToFrame(event_count=3000, overlap=100, include_incomplete=True)
         >>> transform3 = ToFrame(n_time_bins=100, overlap=0.1)
     """
 
@@ -918,19 +918,19 @@ class ToSparseTensor:
         time_window (float): time window length for one frame. Use the same time unit as timestamps in the event recordings.
                              Good if you want temporal consistency in your training, bad if you need some visual consistency
                              for every frame if the recording's activity is not consistent.
-        spike_count (int): number of events per frame. Good for training CNNs which do not care about temporal consistency.
+        event_count (int): number of events per frame. Good for training CNNs which do not care about temporal consistency.
         n_time_bins (int): fixed number of frames, sliced along time axis. Good for generating a pre-determined number of
                            frames which might help with batching.
         n_event_bins (int): fixed number of frames, sliced along number of events in the recording. Good for generating a
                             pre-determined number of frames which might help with batching.
         overlap (float): overlap between frames defined either in time units, number of events or number of bins between 0 and 1.
-        include_incomplete (bool): if True, includes overhang slice when time_window or spike_count is specified.
+        include_incomplete (bool): if True, includes overhang slice when time_window or event_count is specified.
                                    Not valid for bin_count methods.
 
     Example:
         >>> from tonic.transforms import ToSparseTensor
         >>> transform1 = ToSparseTensor(time_window=10000, overlap=300, include_incomplete=True)
-        >>> transform2 = ToSparseTensor(spike_count=3000, overlap=100, include_incomplete=True)
+        >>> transform2 = ToSparseTensor(event_count=3000, overlap=100, include_incomplete=True)
         >>> transform3 = ToSparseTensor(n_time_bins=100, overlap=0.1)
     """
 

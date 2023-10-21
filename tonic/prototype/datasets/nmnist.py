@@ -73,10 +73,6 @@ class NMNIST(Dataset):
         train (bool): If True, uses training subset, otherwise testing subset.
         first_saccade_only (bool): If True, only work with events of the first of three saccades.
                                    Results in about a third of the events overall.
-        transform (callable, optional): A callable of transforms to apply to the data.
-        target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        transforms (callable, optional): A callable of transforms that is applied to both data and
-                                         labels at the same time.
     """
 
     _DTYPE = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])

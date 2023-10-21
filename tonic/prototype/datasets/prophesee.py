@@ -96,15 +96,18 @@ class Gen1AutomotiveDetection(AutomotiveDetectionBaseClass):
 
     Download the torrent file for the dataset
     ::
+
         wget https://dataset.prophesee.ai/index.php/s/uE0QGLaFAEQnPwy/download\?path\=%2F\&files\=ATIS%20Automotive%20Detection%20Dataset.torrent
         -O Gen1Prophesee.torrent
 
     Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line
     ::
+
         aria2c Gen1Prophesee.torrent
 
     This will download several 7z archives for training and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z
     ::
+    
         sudo apt-get install p7zip-full
         for i in *.7z; do 7z x $i; done
 

@@ -27,8 +27,6 @@ class SMNIST(Dataset):
         dt (float): Duration(in microseconds) of each timestep
         transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
-        transforms (callable, optional): A callable of transforms that is applied to both data and
-                                         labels at the same time.
 
      Returns:
          A dataset object that can be indexed or iterated over.
