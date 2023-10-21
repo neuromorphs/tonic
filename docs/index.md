@@ -27,7 +27,7 @@ If you want you can [run them yourself](https://mybinder.org/v2/gh/neuromorphs/t
 ### API reference
 * **{doc}`List of neuromorphic datasets<datasets>`**. Vision and audio datasets.
 * **{doc}`List of event transformations<auto_examples/index>`**. Event transforms and representations.
-* **{doc}`Supported file parsers`**. For the various file formats out there.
+* **{doc}Supported file parsers**. For the various file formats out there.
 
 ### Reading material
 * **{doc}`Introduction to neuromorphic cameras<reading_material/intro-event-cameras>`** if you've never worked with events/spikes.
