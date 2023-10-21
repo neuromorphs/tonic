@@ -57,6 +57,9 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
+    "auto_examples/**.ipynb",
+    "auto_examples/**.py",
+    "auto_examples/**.md5",
     "_build",
     "Thumbs.db",
     ".DS_Store",
@@ -67,7 +70,7 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 html_theme = "sphinx_book_theme"
 html_title = tonic.__version__
-html_logo = "_static/tonic-logo-black.png"
+html_logo = "_static/tonic-logo-black-bg.png"
 html_favicon = "_static/tonic_favicon.png"
 html_show_sourcelink = True
 html_sourcelink_suffix = ""

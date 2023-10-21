@@ -9,8 +9,7 @@ from tonic.io import events_struct, make_structured_array
 
 
 class EBSSA(Dataset):
-    """`EBSSA <https://www.westernsydney.edu.au/icns/resources/reproducible_research3/publication_s
-    upport_materials2/space_imaging>`_
+    """`EBSSA <https://www.westernsydney.edu.au/icns/resources/reproducible_research3/publication_support_materials2/space_imaging>`_
 
     There are six different splits provided in this dataset. The labelled section of the dataset contains 84 recordings and 84 label files. The unlabelled section of the dataset contains 153 recordings in folders marked "Unlabelled".
 
