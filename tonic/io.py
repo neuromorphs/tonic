@@ -158,7 +158,7 @@ def read_davis_346(filename):
     data_version, data_start, start_timestamp = read_aedat_header_from_file(filename)
     all_events = get_aer_events_from_file(filename, data_version, data_start)
     all_addr = all_events["address"]
-    t = all_events["timeStamp"]
+    t = start_timestamp * 1e3 + (all_events["timeStamp"] - all_events["timeStamp"][0])
 
     # x, y, and p : bit-shift and bit-mask values taken from jAER (https://github.com/SensorsINI/jaer)
     x = (346 - 1) - ((all_addr & 4190208) >> 12)
@@ -167,7 +167,7 @@ def read_davis_346(filename):
 
     xytp = make_structured_array(x, y, t, p)
     shape = (346, 260)
-    return shape, start_timestamp, xytp
+    return shape, xytp
 
 
 def read_dvs_346mini(filename):
