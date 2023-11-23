@@ -23,8 +23,8 @@ def spatial_jitter_numpy(
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        variance_x: squared sigma value for the distribution in the x direction
-        variance_y: squared sigma value for the distribution in the y direction
+        var_x: squared sigma value for the distribution in the x direction
+        var_y: squared sigma value for the distribution in the y direction
         sigma_xy: changes skewness of distribution, only change if you want shifts along diagonal axis.
         clip_outliers: when True, events that have been jittered outside the sensor size will be dropped.
 

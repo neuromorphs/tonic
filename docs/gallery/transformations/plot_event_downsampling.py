@@ -1,7 +1,7 @@
 """
-==========
+=================
 EventDownsampling
-==========
+=================
 The :class:`~tonic.transforms.EventDownsampling` applies 
 spatio-temporal downsampling to events as per the downsampling method chosen.
 """

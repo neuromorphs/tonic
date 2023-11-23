@@ -11,16 +11,17 @@ jobs:
         os: [ubuntu-latest, windows-2022]
         python-version: ["3.7", "3.9", "3.11"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - if: matrix.os == 'ubuntu-latest'
         name: install audio library libsndfile
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install requirements
         run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r test/requirements.txt
           pip install .
       - name: Test with pytest
@@ -32,35 +33,37 @@ jobs:
     needs: multitest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: install audio library libsndfile
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Generate coverage report
         run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r test/requirements.txt
           pip install .
           coverage run -m pytest test
           coverage xml
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
 
   documentation:
     needs: multitest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: install audio library libsndfile
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Install dependencies
         run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r docs/requirements.txt
           pip install .
       - name: Build documentation
@@ -76,10 +79,10 @@ jobs:
           fetch-depth: 0
       - name: install audio library libsndfile
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Install wheel
         run: pip install wheel
       - name: Build a binary wheel and a source tarball
@@ -88,7 +91,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_DEPLOYMENT }}
-          skip_existing: true
+          skip-existing: true
       - name: Github release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

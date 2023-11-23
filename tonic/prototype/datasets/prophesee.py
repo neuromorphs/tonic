@@ -94,17 +94,17 @@ class Gen1AutomotiveDetection(AutomotiveDetectionBaseClass):
 
     Then, the steps to acquire the data can be as follows:
 
-    Download the torrent file for the dataset
-    ::
+    Download the torrent file for the dataset::
+
         wget https://dataset.prophesee.ai/index.php/s/uE0QGLaFAEQnPwy/download\?path\=%2F\&files\=ATIS%20Automotive%20Detection%20Dataset.torrent
         -O Gen1Prophesee.torrent
 
-    Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line
-    ::
+    Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line::
+
         aria2c Gen1Prophesee.torrent
 
-    This will download several 7z archives for training and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z
-    ::
+    This will download several 7z archives for training and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z::
+    
         sudo apt-get install p7zip-full
         for i in *.7z; do 7z x $i; done
 
@@ -140,8 +140,7 @@ class Gen4AutomotiveDetectionMini(AutomotiveDetectionBaseClass):
     """`Gen4 Automotive Detection <https://www.prophesee.ai/2020/11/24/automotive-megapixel-event-
     based-dataset/>`_
 
-    This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.
-    ::
+    This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.::
 
         @article{de2020large,
           title={A large scale event-based detection dataset for automotive},
@@ -206,8 +205,7 @@ class Gen4Automotive(AutomotiveDetectionBaseClass):
     """`Gen4 Automotive Detection <https://www.prophesee.ai/2020/11/24/automotive-megapixel-event-
     based-dataset/>`_
 
-    This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.
-    ::
+    This datasets needs 'expelliarmus' installed on the system. Events have "txyp" ordering.::
 
         @article{de2020large,
           title={A large scale event-based detection dataset for automotive},
@@ -220,17 +218,17 @@ class Gen4Automotive(AutomotiveDetectionBaseClass):
 
     Then, the steps to acquire the data can be as follows:
 
-    Download the torrent file for the dataset
-    ::
+    Download the torrent file for the dataset::
+
         wget https://dataset.prophesee.ai/index.php/s/8HY0Bv4mOU4RzBm/download?path=%2F&files=Large_Automotive_Detection_Dataset.torrent
         -O Gen4Prophesee.torrent
 
-    Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line
-    ::
+    Download the data using peer-to-peer connections. On Linux this can be done using `aria2c` on the command line::
+
         aria2c Gen4Prophesee.torrent
 
-    This will download several 7z archives for training, validation and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z
-    ::
+    This will download several 7z archives for training, validation and testing. We'll need to unpack them manually by looping over the 7z files and feeding them to 7z::
+
         sudo apt-get install p7zip-full
         for i in *.7z; do 7z x $i; done
 

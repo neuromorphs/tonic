@@ -1,5 +1,6 @@
-sphinx>=4.0
-sphinx-book-theme==0.3.3
+astroid~=2.15 # https://github.com/readthedocs/sphinx-autoapi/issues/407
+sphinx~=5.3
+sphinx-book-theme
 sphinx-gallery
 myst_nb
 pbr

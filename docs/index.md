@@ -7,7 +7,7 @@
 
 **Download and manipulate neuromorphic datasets fast and easily!**
 
-__Tonic__ provides publicly available event-based vision and audio {doc}`datasets<reference/datasets>` and {doc}`event transformations<reference/transformations>`. The package is fully compatible with PyTorch Vision / Audio to give you the flexibility that you need. 
+__Tonic__ provides publicly available event-based vision and audio {doc}`datasets<datasets>` and {doc}`event transformations<auto_examples/index>`. The package is fully compatible with PyTorch Vision / Audio to give you the flexibility that you need. 
 
 ### Getting started
 * **{doc}`Install Tonic<getting_started/install>`** via pypi or anaconda.
@@ -25,9 +25,9 @@ If you want you can [run them yourself](https://mybinder.org/v2/gh/neuromorphs/t
 * **{doc}`Check out these scripts<how-tos/how-tos>`** if you run into a specific problem.
 
 ### API reference
-* **{doc}`List of neuromorphic datasets<reference/datasets>`**. Vision and audio datasets.
-* **{doc}`List of event transformations<reference/transformations>`**. Event transforms and representations.
-* **{doc}`Supported file parsers<reference/io>`**. For the various file formats out there.
+* **{doc}`List of neuromorphic datasets<datasets>`**. Vision and audio datasets.
+* **{doc}`List of event transformations<auto_examples/index>`**. Event transforms and representations.
+* **{doc}Supported file parsers**. For the various file formats out there.
 
 ### Reading material
 * **{doc}`Introduction to neuromorphic cameras<reading_material/intro-event-cameras>`** if you've never worked with events/spikes.
