@@ -87,3 +87,53 @@ class RandomPitchShift:
 
         semitone = self.factors[self.aug_index]
         return librosa.effects.pitch_shift(audio, sr=self.samplerate, n_steps=semitone)
+
+
+@dataclass
+class RandomAmplitudeScale:
+    """Scales the maximum amplitude of the incoming signal to a random amplitude chosen from a
+    range.
+
+    Parameters:
+        samplerate (float): sample rate of the sample
+        sample_length (int): sample length in seconds
+        min_amp (float): minimum of the amplitude range in volts
+        max_amp (float): maximum of the amplitude range in volts
+        factors (float): range of desired factors for amplitude scaling
+        aug_index (int): index of the chosen factor for pitchshift. It will be randomly chosen from the desired range (if not passed while initilization)
+        caching (bool): if we are caching the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
+
+
+    Args:
+        data (np.ndarray): input (single-or multi-channel) signal.
+
+    Returns:
+        np.ndarray: scaled version of the signal.
+    """
+
+    samplerate: float
+    sample_length: float
+    min_amp: float = 0.058
+    max_amp: float = 0.159
+    factors: list = field(
+        default_factory=lambda: list(range(int(1000 * 0.058), int(1000 * 0.159), 10))
+    )
+    aug_index: int = 0
+    caching: bool = False
+
+    def __post_init__(self):
+        # converted to mVolt
+        self.factors = list(
+            range(int(1000 * self.min_amp), int(1000 * self.max_amp), 10)
+        )
+
+    def __call__(self, audio: np.ndarray):
+        if not self.caching:
+            self.aug_index = random.choice(range(0, len(self.factors)))
+
+        max_amplitude = self.factors[self.aug_index] / 1000
+        max_data_amplitude = np.max(np.abs(audio.ravel()))
+        if max_data_amplitude == 0:
+            max_data_amplitude = 1.0
+
+        return audio / max_data_amplitude * max_amplitude
