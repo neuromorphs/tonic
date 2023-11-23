@@ -76,6 +76,63 @@ class SwapAxes:
 
 
 @dataclass
+class AmplitudeScale:
+    """this transform normalizes the maximum amplitude of the input signal.
+
+    Args:
+        data (np.ndarray): input single- or multi-channel signal.
+
+    Returns:
+        np.ndarray: scaled version of the signal.
+    """
+
+    max_amplitude: float = 158e-3
+
+    def __call__(self, data: np.ndarray) -> np.ndarray:
+        max_data_amplitude = np.max(np.abs(data.ravel()))
+
+        if max_data_amplitude == 0:
+            max_data_amplitude = 1.0
+
+        return data / max_data_amplitude * self.max_amplitude
+
+
+@dataclass
+class RobustAmplitudeScale:
+    """this transform normalizes the maximum amplitude of the input signal while eliminating the
+    outliers, to make that some very large outlier samples do not attenuate the majority of the
+    samples.
+
+    Paremeters:
+        max_robust_amplitude (float): maximum amplitude of non-outlier samples of the signal after robust scaling.
+        outlier_percent (float, optional): percentage of the outlier in the data. Defaults to 0.01.
+    Args:
+        data (np.ndarray): input single- or multi-channel signal.
+
+    Returns:
+        np.ndarray: scaled version of the signal.
+    """
+
+    max_robust_amplitude: float = 158e-3
+    outlier_percent: float = 0.01
+
+    def __call__(self, data: np.ndarray) -> np.ndarray:
+        sorted_amplitudes = np.sort(np.abs(data.ravel()))
+
+        robsut_amplitude_index = int(
+            len(sorted_amplitudes) * (1 - self.outlier_percent)
+        )
+        robust_amplitude = sorted_amplitudes[robsut_amplitude_index]
+
+        if robust_amplitude == 0:
+            # input signal consists of just outlier section
+            # then: try to limit the amplitude of the outlier
+            return data / np.max(np.abs(data.ravel())) * self.max_robust_amplitude
+
+        return data / robust_amplitude * self.max_robust_amplitude
+
+
+@dataclass
 class SOSFilter:
     """SOS filter.
 
