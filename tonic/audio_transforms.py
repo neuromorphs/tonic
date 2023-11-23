@@ -57,6 +57,25 @@ class Bin:
 
 
 @dataclass
+class SwapAxes:
+    """Interchange two axes of an array.
+
+    Args:
+        ax1 (int): First axis
+        ax2 (int): Second axis
+
+    Returns:
+        np.ndarray : array with interchanged axes
+    """
+
+    ax1: int = 0
+    ax2: int = 1
+
+    def __call__(self, data: np.ndarray) -> np.ndarray:
+        return np.swapaxes(data, self.ax1, self.ax2)
+
+
+@dataclass
 class SOSFilter:
     """SOS filter.
 
