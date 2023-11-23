@@ -137,3 +137,40 @@ class RandomAmplitudeScale:
             max_data_amplitude = 1.0
 
         return audio / max_data_amplitude * max_amplitude
+
+
+@dataclass
+class RIR:
+    """Convolves a RIR (room impluse response, sound of hand clapping in an empty room) to the data
+    sample.
+
+    Parameters:
+        samplerate (float): sample rate of the sample
+        caching (bool): if we are caching the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
+
+    Args:
+        audio (np.ndarray): data sample
+    Returns:
+        np.ndarray: data sample convolved with RIR
+    """
+
+    samplerate: float
+    caching: bool = False
+
+    def __call__(self, audio):
+        SAMPLE_RIR = download_asset(
+            "tutorial-assets/Lab41-SRI-VOiCES-rm1-impulse-mc01-stu-clo-8000hz.wav"
+        )
+        rir_raw, rir_sample_rate = torchaudio.load(SAMPLE_RIR)
+        rir = rir_raw[:, int(rir_sample_rate * 1.01) : int(rir_sample_rate * 1.3)]
+        rir = rir / torch.norm(rir, p=2)
+        RIR = torch.flip(rir, [1])
+
+        t_audio = torch.nn.functional.pad(
+            torch.from_numpy(audio), (RIR.shape[1] - 1, 0)
+        )
+        rir_augmented = torch.nn.functional.conv1d(t_audio[None, ...], RIR[None, ...])[
+            0
+        ].numpy()
+
+        return rir_augmented
