@@ -7,3 +7,4 @@ typing_extensions
 librosa
 pbr
 expelliarmus
+torchaudio
