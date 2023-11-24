@@ -108,7 +108,7 @@ def test_add_white_noise():
     - verifies if the output of transform is different than the input data
     - verifies that the size has not changed
     """
-    from tonic.audio_augmentations import Add_WhiteNoise
+    from tonic.audio_augmentations import AddWhiteNoise
 
     np.random.seed(123)
 
@@ -116,7 +116,7 @@ def test_add_white_noise():
     sl = 1  # sample length
     data = np.random.rand(1, sr * sl)
 
-    aug = Add_WhiteNoise(samplerate=sr)
+    aug = AddWhiteNoise(samplerate=sr)
     noisy = aug(data)
     assert noisy is not data
     assert noisy.shape[1] == data.shape[1]
