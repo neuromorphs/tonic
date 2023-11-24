@@ -77,7 +77,8 @@ class SwapAxes:
 
 @dataclass
 class AmplitudeScale:
-    """this transform normalizes the maximum amplitude of the input signal.
+    """Normalize the maximum amplitude of the input signal to a desired value, for instance the
+    value can corespond to the mVolt equivalent of be the maximum loudness of the audio.
 
     Args:
         data (np.ndarray): input single- or multi-channel signal.
@@ -99,9 +100,8 @@ class AmplitudeScale:
 
 @dataclass
 class RobustAmplitudeScale:
-    """this transform normalizes the maximum amplitude of the input signal while eliminating the
-    outliers, to make that some very large outlier samples do not attenuate the majority of the
-    samples.
+    """Normalize the maximum amplitude of the input signal while eliminating the outliers, to
+    ensure that some very large outlier samples do not attenuate the majority of the samples.
 
     Paremeters:
         max_robust_amplitude (float): maximum amplitude of non-outlier samples of the signal after robust scaling.
