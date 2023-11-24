@@ -68,7 +68,7 @@ class RandomPitchShift:
         sample_length (int): sample length in seconds
         factors (float): range of desired factors for pitch shift
         aug_index (int): index of the chosen factor for pitchshift. It will be randomly chosen from the desired range (if not passed while initilization)
-        caching (bool): if we are caching the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
+        caching (bool): if we are caching, the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
 
     Args:
         audio (np.ndarray): data sample
@@ -105,7 +105,7 @@ class RandomAmplitudeScale:
         max_amp (float): maximum of the amplitude range in volts
         factors (float): range of desired factors for amplitude scaling
         aug_index (int): index of the chosen factor for pitchshift. It will be randomly chosen from the desired range (if not passed while initilization)
-        caching (bool): if we are caching the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
+        caching (bool): if we are caching, the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
 
 
     Args:
@@ -176,15 +176,15 @@ class AddWhiteNoise:
 
 @dataclass
 class AddHomeNoise:
-    """Add a home background noise (from QUTNOise dataset) to the data sample with a known snr
+    """Add a home background noise (from QUTNOise dataset) to the audio sample with a known snr
     (signal to noise ratio).
 
     Parameters:
         sample_length (int): sample length in seconds
         target_sr (float): the target sample rate of the mixed final signal (default to the higher sample rate, between sample rates of noise and data )
+        params_dataset (dict): containing other parameters of the noise dataset
         orig_sr (float): original sample rate of data
         factors (float): range of desired snrs
-        noise_dataset_path: path to wave files from HOME class of QUTNoise dataset with a certain length
         partition (str): partition of the QUTNoise dataset that is used for noise augmentation
         aug_index (int): index of the chosen factor for snr. It will be randomly chosen from the desired range (if not passed while initilization)
         caching (bool): if we are caching the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
@@ -274,9 +274,6 @@ class AddHomeNoise:
             (same shape as ``waveform``).
         """
 
-        # if not (waveform.ndim - 1 == noise.ndim - 1 == snr.ndim and (lengths is None or lengths.ndim == snr.ndim)):
-        #     raise ValueError("Input leading dimensions don't match.")
-
         L = waveform.size(-1)
 
         if L != noise.size(-1):
@@ -284,8 +281,7 @@ class AddHomeNoise:
                 f"Length dimensions of waveform and noise don't match (got {L} and {noise.size(-1)})."
             )
 
-        # compute scale
-
+        # compute scale, second by second
         noisy_audio = torch.zeros_like(waveform)
         for i in range(0, self.sample_length):
             start, end = int(i * self.target_sr), int((i + 1) * self.target_sr)
@@ -319,11 +315,12 @@ class AddHomeNoise:
 @dataclass
 class EmbeddedHomeNoise(AddHomeNoise):
     """Add a home background noise (from QUTNOise dataset) to the data sample with a known snr_db
-    (signal to noise ratio). the difference with AddNoise is that in this transform an initial
-    noise will be added before onset of the augmented sample.
+    (signal to noise ratio).
 
+    The difference with AddHomeNoise is that a leading (/and trainling) noise will be added to the augmented sample.
     Parameters:
         noise_length (int): the length of noise (in seconds) that will be added to the sample
+        two_sided (bool): if True the augmented signal will be encompassed between leading and trailing noises
     Args:
         audio (np.ndarray): data sample
     Returns:
