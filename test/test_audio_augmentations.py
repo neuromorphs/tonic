@@ -122,20 +122,23 @@ def test_add_white_noise():
     assert noisy.shape[1] == data.shape[1]
 
 
-# def test_RIR():
-#     """Tests the RIR transform with a synthetic data.
+def test_RIR():
+    """Tests the RIR transform with a synthetic data.
 
-#     - verifies if the output of transform is different than the input data
-#     - verifies that the size has not changed
-#     """
-#     from tonic.audio_augmentations import RIR
+    - verifies if the output of transform is different than the input data
+    - verifies that the size has not changed
+    """
+    from tonic.audio_augmentations import RIR
 
-#     np.random.seed(123)
+    np.random.seed(123)
 
-#     sr = 16_000  # sample rate
-#     sl = 1  # sample length
-#     data = np.random.rand(1, sr * sl).astype("float32")
-#     aug = RIR(samplerate=sr)
-#     RIR_augmented = aug(data)
-#     assert RIR_augmented is not data
-#     assert RIR_augmented.shape[1] == data.shape[1]
+    sr = 16_000  # sample rate
+    sl = 1  # sample length
+    data = np.random.rand(1, sr * sl).astype("float32")
+    rir_audio_path = (
+        "tutorial-assets/Lab41-SRI-VOiCES-rm1-impulse-mc01-stu-clo-8000hz.wav"
+    )
+    aug = RIR(samplerate=sr, rir_audio=rir_audio_path)
+    RIR_augmented = aug(data)
+    assert RIR_augmented is not data
+    assert RIR_augmented.shape[1] == data.shape[1]
