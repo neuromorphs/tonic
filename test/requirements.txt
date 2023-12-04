@@ -1,6 +1,7 @@
 pytest
 coverage
 torch
+torchaudio
 matplotlib
 hdf5plugin
 imageio
