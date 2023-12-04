@@ -244,8 +244,8 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
 
 
 
-    Therefore all transforms applied to the dataset are categorized by the keys:  "detrministic", "augmentations"
-     and "to_spike_generation".
+    Therefore all transforms applied to the dataset are categorized by the keys:  "pre_aug", "augmentations"
+     and "post_aug".
 
      Args:
          'all_transforms' is a dictionarty passed to this class containing information about augmentations.
@@ -255,9 +255,9 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
 
     def __post_init__(self):
         super().__init__()
-        self.deterministic_transform = self.all_transforms["detrministic"]
-        self.cached_aug = self.all_transforms["augmentations"]
-        self.to_spike_transform = self.all_transforms["to_spike_generation"]
+        self.pre_aug = self.all_transforms["pre_aug"]
+        self.aug = self.all_transforms["augmentations"]
+        self.post_aug = self.all_transforms["post_aug"]
 
     def generate_all(self, item):
         for copy in range(0, self.num_copies):
@@ -270,11 +270,9 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
     def generate_copy(self, item, copy):
         file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
         # copy index is passed to augmentation (callable)
-        self.cached_aug.aug_index = copy
-        augmentation = [self.cached_aug]
-        self.dataset.transform = Compose(
-            self.deterministic_transform + augmentation + self.to_spike_transform
-        )
+        self.aug.aug_index = copy
+        augmentation = [self.aug]
+        self.dataset.transform = Compose(self.pre_aug + augmentation + self.post_aug)
         data, targets = self.dataset[item]
         save_to_disk_cache(data, targets, file_path=file_path, compress=self.compress)
 
