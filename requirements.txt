@@ -7,5 +7,3 @@ typing_extensions
 librosa
 pbr
 expelliarmus
-torch==1.12.0
-torchaudio==0.12.0
