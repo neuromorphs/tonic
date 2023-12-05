@@ -1,0 +1,967 @@
+CHANGES
+=======
+
+* Fix: wrong range of histogram in drop\_pixel
+* fix EBSSA test sample file path
+* Prophesee prototype docstring updates
+* update documentation config
+* exclude sphinx gallery READMEs
+* update incoherent docstrings
+* Update .readthedocs.yml
+* unskip some DSEC tests
+* Update ci-pipeline.yml
+* update skip\_existing for build-and-publish CI job
+* upgrade github actions for python setup and checkout to v3
+* pin astroid for docs building due to upstream bug
+* Install Pytorch CPU version for CI pipeline
+* Update io.py
+* Update test\_io.py
+* Update test\_io.py
+* Update test\_io.py
+* Update test\_io.py
+* Update test\_io.py
+* New sample aedat file. (This would hopefully fix the pytest issues)
+* make sure NumpyAsType covers case where unstructured array is converted to structured
+* Added absolute system time logged in the header at the start of the file
+* recordings have different sensor sizes
+* not all EBSSA recordings have labels
+* update EBSSA dataset to use h5 file of labelled data
+* add EBSSA dataset
+* bump importRosbag to v1.0.4
+* Create requirements.txt for Binder
+* added extract function for DAVIS346 recorded aedat files
+* pixel y posisionts were reversed in read\_davis\_346() method, fixed by subtracting y from the number of rows: 260
+* Added extract function for aedat file recorded from davis346red
+* Ooops, missing s
+* Update nmnist.py
+* Update nmnist.py
+* Fixed bug in differentiator code that resulted in improper spikes being propagated
+* Incorporated suggestion to carry out all frame histogram subtractions in single step
+* Added compatability for non-scalar targets
+* Changed numpy histogram2d to ToFrame Made docstrings more clear
+* Removed naive from event\_downsampling  Added relevant tests and changed transforms.py and \_\_init\_\_.py appropriately  Now event\_downsampling.py works for Python 3.7
+* Added gallery transform Added additional checks
+* Fixed docs
+* Fixed all bugs. All tests passed locally. Had forgotten to add functions to \_\_init\_\_.py
+* Fixed silly bug in transforms call for EventDownsampling
+* 
+* Resolved suggestions Refactored code for optimisation. Added tests
+* add ms\_to\_idx to DSEC data
+* Update transforms.py
+* Update event\_downsampling.py
+* Methods added for new event based downsampling
+* use numpy struct to unstruct function for timesurface generation
+* try/catch case where DAVIS dataset doesn't have optitrack targets
+* update plot\_animation fn
+* update plot\_animation fn
+* update docs notebook with new ToTimesurface transform
+* update docs gallery script for ToTimesurface
+* change Timesurface transform parameters and speed it up considerably
+* Compose takes into account empty event arrays now
+* update NMNIST prototype dataset and tests to make compatible with Python 3.11
+* test Python 3.11
+* simplify STMNIST prototype dataset, broke keep\_compressed option though
+* Add delta\_t as a parameter to time surface test
+* Remove print statements to evaluate correctness
+* Time surface returns time surfaces at interval
+* raise error if single polarity is used for sensor size but data contains more than one polarity
+* add speaker information to SSC
+* upload POKERDVS to different server
+* host dataset samples on Gregor Nextcloud to fix tests
+* make list of classes in CIFAR10DVS a class attribute
+* add Gen4 downsampled version
+* update Gen4Automotive docstring
+* add Gen4Automotive dataset
+* update Prophesee docstrings
+* add dataset length to Gen1Automotive
+* make sure Prophesee datasets are shuffled correctly
+* remove transform/target\_transform from prototype datasets and use dicts as sensor\_sizes
+* add Gen1 automotive detection dataset
+* add Gen1AutomotiveDetection
+* Update training-snns.rst
+* add class map to Gen4 detection dataset and remove transform arguments
+* add prototype slicers
+* update pre-commit config
+* Added to test\_datasets.py to enable generating the speaker element of SHD dataset for tests
+* Exposed the extra/speaker property in the SHD dataset to users so that it can be accessed when needed
+* Update \`Bin\` docstring
+* Update \`FixLength\` docstring
+* make sure librosa.utils.fix\_length is calling data, size and axis
+* add raster like events support for RandomTimeReversal
+* update ToFrame docstring
+* fix links in README to datasets and transforms
+* update prototype dataset docstrings
+* add prototype datasets to documentation
+* add sphinx-autoapi extension
+* delete auto\_examples directory on make clean
+* Fix data type hints in transforms.py (#240)
+* Add Synsense logo for sponsoring
+* update pytest skip decorator
+* skip DSEC tests that don't currently work on the CI
+* add docstring to Gen4 Automotive Mini Dataset
+* place STMNIST in STMNIST folder by default
+* rename MiniDataset to Gen4AutomotiveDetectionMini
+* add tests for MiniDataset
+* added label decoding for Prophesee MiniDataset
+* first version of Prophesee MiniDataset, no labels yet
+* add self. to class attributes in NCARS
+* Rename DVSGesture labels to make them suitable for plots
+* repeat transform in test\_random\_drop\_pixel a few times to reduce stochastic effect
+* make random\_drop\_pixel transform less flaky
+* make prototype module and therefore torchdata dependency optional
+* used download, checking and extraction logic consistent with other datasets
+* pin sphinx-book-theme to 0.3.3
+* import runtime\_checkable from typing\_extensions instead of typing to be compatible with Python 3.7
+* upper case datasets title
+* add runtime\_checkable to Slicer class to allow type checking slicers
+* add RandomDropPixel transform, for events, rasters and frames
+* NCARS fix
+* Update ncars.py
+* get rid of test warnings related to imageio for DSEC
+* add link to datasets directly in documentation sidebar
+* use dataclass field for MemoryCachedDataset
+* rename compression parameter in CachedDatasets to compress because it's a bool
+* autoformat all docstrings using [docformatter](https://github.com/PyCQA/docformatter)
+* Update ci-pipeline.yml
+* Update hsd.py
+* apply isort and black to all source files, unused imports removed
+* Going bold with expelliarmus as fixed dependency
+* Added expelliarmus to documentation requirements (I do not know why it is required)
+* Fixed typo
+* Used bool for polarity and added torchdata to documentation requirements
+* Fixed
+* Updated with Wizard the NCARS class
+* Added check\_exist to NCARS
+* Typo in test/requirements.txt
+* Added torchdata version for NCARS that makes use of expelliarmus, together with test routines
+* add aedat package as test requirement
+* use aedat directly instead of loris to read aedat4 files
+* update DVSGesture and CIFAR10DVS urls
+* Applied patches suggested by @biphasic
+* Conformed to other transforms (\_numpy suffix)
+* Added linear decay to to\_averaged\_blabla
+* Fixed bug in HATS
+* Fixed bug in STMNIST: np.max returns a single element, used np.maximum instead to obtain the element-wise maximum for converting the -1 polarities to zeros
+* Applied patches suggested by @biphasic
+* Removed import of prototype.datasets
+* Modified io.read\_mnist\_file with additional argument is\_stream to support datapipes output in case of compressed archives, which provided binary streams and not path to files
+* Substitued '+1' with '+len(os.sep)' when performing path separation
+* Simplified the absolute path to the test data in test/test\_prototype\_datasets.py
+* Replaced '/' with os.sep everywhere (DAMNED WINDOWS)
+* Fixed path separator with os.sep (stupid windows)
+* Fixed typo in test/requirements.txt
+* Added torchdata to test requirements
+* Fixed import error for typing
+* Added testing also for STMNIST
+* Blacken everything
+* Added testin for prototype datasets (NMNIST)
+* Removed a line from test\_datasets.py that I added
+* Blacken everything
+* Forgot to git add prototype/datasets/\_\_init\_\_.py
+* Added \_\_init\_\_.py in prototype/datasets; added flag to skip SHA256 if the file is not being downloaded for the first time; added keep\_compressed flag in the base class Dataset
+* Reused read\_mnist\_file with uncompressed archives (most common use case). Propagation of keep\_compressed to the NMNISTFileReader class
+* Fixed typo in prototype/README.md
+* Added check on file in NMNIST; fixed typo in \_dataset.py
+* Fixed bug in root path in NMNIST
+* Changed folder name for NMNIST
+* Added SHA256 sum to test archive
+* Blacken everything
+* Added SHA256 check to NMIST, following torchvision guidelines on new datasets
+* Bug fixing; moved the transforms to the general class Dataset, since it is redundant code. I plan on doing this also for the \_uncompress method
+* Added keep\_compressed=False parameter to the datasets. Added decompression before pipeline instantiation
+* Modified check\_sha256 documentation
+* Make sure looping over DiscCachedDataset terminates correctly when purely loading from cache
+* Added SHA256 check to STMNIST
+* Created SHA256 checking function. following torchvision recommendations
+* Make sure files are loaded in order
+* Hotfix in loading of optic flow ground truth, DSEC
+* Added to the README a check-list fro the datasets supported with the new API
+* Added MD5 check to STMNIST
+* Update README.md
+* \*Do not merge the PR\* Reformatting and stuff
+* Reimplemented in the same way NMNIST for consistency. Edited read\_mnist\_file to be compatible with ZIP archives
+* Removed dictionary, using tuple to prevent confusion on the events keyword. This way, also transforms on both events and target can be applied
+* Moved \_dataset to utils; default Dataset has transform, target\_transform and transforms and EventSample type
+* Blacken everything
+* Dataset class inspired by torchvision
+* Never mind: I was not able to convince Decompressor to unzip the archive. Only ZipArchiveLoader works
+* Changed ZipArchiveLoader with the more generic Decompressor. Inspired by torchvision prototype MNIST
+* Using ZipArchiveLoader from torchdata to extract iteratively the ZIP archive of the dataset
+* Added documentation to STMNIST
+* Create README.md
+* add release notes for v1.2.1
+* added some tonic.io tests with an .aedat4 sample file
+* add test cases for SHD and SSC datasets
+* update CenterCrop docstring
+* minor modification for plot\_centercrop in gallery
+* add CenterCrop transform
+* add spinx.ext.viewcode extension to show source code for classes/functions
+* DSEC: download freeimage imageio plugin if not already available
+* DSEC: optical flow pngs need to be floats
+* remove v2 imageio submodule
+* include transforms parameter for CachedDatasets and SlicedDatasets
+* use docs autosummaries for io and slicers modules
+* update own dataset how-to and large datasets tutorial
+* add transforms parameter to datasets to transform data and targets at the same time
+* sliced\_dataset\_test: only remove cache path if exists
+* DSEC: make events dtype a lot smaller to fit huge recordings into memory
+* add imageio to test requirements
+* Revert "change list comprehension to generator comprehension in SlicedDataset"
+* change list comprehension to generator comprehension in SlicedDataset
+* DSEC: use imageio.imread for optical flow target pngs
+* moved all the slicers to tonic.slicers and deleted tonic.transforms.functional.slicing
+* minor naming changes in DSEC
+* DSEC: no offsets for disparity / OF but just for events
+* added target slicing for slicers. Current slicers will just copy target by default to be consistent with current behaviour
+* DSEC: add warning about dropped recordings when optical flow targets are selected and return both start and end timestamps for flow
+* Print metadata file path for sliced datasets
+* add two more DSEC tests
+* update dataset descriptions
+* add hdf5plugin to test requirements
+* fix minor test case error
+* DSEC: when selecting optical flow targets, automatically select recording subset
+* rework \_\_getitem\_\_ for DSEC
+* Added MD5 check
+* Fixed bug in protype/nmnist.py regarding check\_exists
+* Bug and naming fixing
+* Added and (partially) tested STMNIST using datapipes
+* DSEC: changed train to split parameter and added some tests for it
+* add data\_selection and target\_selection to DSEC dataset
+* Fixed bug in download
+* WTF
+* Fixed bug on downloaded file name
+* Fixed conflicts
+* Merging local modifications
+* Simple characters for sensor\_size and dtype, so that they are more readable by the user to apply transforms
+* Wrong sensor size (32 instead of 34)
+* Got from develop original datasets/nmnist.py so that there are no error for sure
+* Messed up original nmnist
+* Messed up original nmnist
+* Ri-black formatting
+* Black formatting
+* Modified the original commit by making it self-sustained. I took from the original dataset class the NMNIST characteristics, such as URLs, hashes and so on, and embedded them in the code as constants. I added to the nmnist function the possibility to download and check the dataset from the internet, like the original NMNIST one. I added the first saccade filter with a Mapper (I was not able to use Filter because it works on the single iterable obejct and not on the tensor, I think). I kept the separation between the events and label transforms, but we may think of modifying the transforms to make them work on both data and targe (@biphasic). This code should not work with our transform, since we still need to add the functional decorator the transform classes. Seems to work with downloading, verifying and first saccade filtering
+* Create first prototype of functional NMNIST dataset
+* CIFAR10DVS events dtype must include 'p'
+* Update README.md
+* Update ci-pipeline.yml
+* fix CIFAR10-DVS file reading
+* make sure get\_params is used and not duplicated code in DropPixel, RefractoryPeriod
+* test range of p for DropEvent
+* test range for uniform noise transform
+* test refractory period with parameter range
+* update gallery. Representation plots now link to classes
+* update RefractoryPeriod param in gallery plotting
+* rework refractory period to use range instead of random\_period
+* remove random\_std param from TimeJitter
+* make UniformNoise use a range instead of randomize\_n
+* remove random\_p from DropEvent transform, use optional tuple instead
+* change randomize\_n of UniformNoise to int instead of float number
+* add ToBinaRep and ToImage to gallery
+* modify drop\_pixel transform to drop 14\*14 random pixels instead of rectangular target
+* add instruction to contribution page for the gallery
+* apply change requests
+* end tests
+* fix asserts
+* complete doc
+* fix indexes management
+* impl of plot events drop strats
+* add plot example for eventDrop
+* fix eventdrop
+* change path to docs
+* update documentation. Release notes, design choices, tutorial updates and more
+* event drop transform
+* transform by area
+* fix doc
+* drop event by time transform
+* add drops in package
+* drop events doc
+* implementation of drop events from paper
+* remove test superclasses
+* Black formatting docs notebooks too
+* matplotlib requirement for docs
+* add transformation gallery with nice animations
+* add plot\_animation util function
+* add channel dimension to VoxelGrid transform
+* fix TimeReversal transform
+* shorten spatial jitter parameter names
+* update dataset and transform docstrings
+* major overhaul to list datasets and transforms in documentation
+* update contribution documentation page
+* add examples to most transform docstrings
+* remove N-TIDIGTS dataset since labels are string-based and dataset seems inconsistent
+* update pre-commit config
+* Black formatting whole package
+* add decimation transform
+* update time reversal tests
+* make ToFrame call compose-able
+* update bina rep to avoid using a ToFrame transform directly
+* add Bina-Rep to docs
+* assert on y dimension on events
+* fix method doc
+* format doc
+* test bina rep
+* fix normalization
+* fix transform
+* remove circular dependency
+* add ToBinaRep transform
+* add to\_bina\_rep in package
+* implementation of bina-rep
+* add DVS-Lip to docs
+* format + fix typo
+* code format using black + automatic extraction of zip file
+* Fix url link
+* add dvslip dataset
+* [wip] update some augmentations to include random ranges
+* Update test\_tonic\_utils.py
+* make batch collation work for sparse tensors
+* add plotting support for audio events
+* make batch collation work for tensors that are on the GPU
+* add device parameter to MemoryCachedDataset, for GPU caching
+* add CropTime transform
+* add sparse tensor transform based on ToFrame
+* make DVS gesture dtype more memory efficient
+* fix asldvs md5 hash
+* fix slicing for n\_time\_bins with first event timestamp >> 0 and remove testing avg time surfaces with multiple workers for speed reasons
+* fix typo
+* update docstring
+* set dtype as keyword argument
+* merge
+* allow variable number of variables and ordering in make\_struct\_array, replace recfunctions.unstructured\_to\_structured where sensible
+* allow variable number of variables and ordering in make\_struct\_array, replace recfunctions.unstructured\_to\_structured where sensible
+* init structured array from empty instead of from iter
+* Changed reference link for CALTECH101
+* Update ci-pipeline.yml
+* Delete to\_averaged\_timesurface.py~
+* New HATS version: bug fixes and performance improvement (8x faster on CIFAR10DVS)
+* Changed coordinates data types on CIFAR10 from unsigned to signed to avoid overflow in transforms
+* Revert "Corrected overflow for unsigned event coordinates when computing the time surfaces positions."
+* Revert "Bug correction (wrote int32 instead of np.int32 in astype())."
+* Bug correction (wrote int32 instead of np.int32 in astype())
+* Corrected overflow for unsigned event coordinates when computing the time surfaces positions
+* Adjusted file extension so aedat4 in CIFAR10DVS for continuos unzipping issue
+* Update README.md
+* Update requirements.txt
+* rework wrapping\_own\_data notebook
+* exclude large datasets tutorial notebook, clarify ToFrame transform question
+* update documentation to execute notebooks on RTD and re-use NMNIST testing dataset
+* check string representation of transforms
+* Set equal number of workers for cells and time surfaces (thanks Gregor for the suggestion)
+* Bug fixes (wrong jobs division between cells and time surfaces
+* Added test on both linear and exponential decay for AveragedTimesurface
+* Added num\_workers to AveragedTimesurface; added exception handling for joblib; modified test function for AveragedTimeSurface
+* Added histograms array implementation and modified test routine for ToAveragedTimesurface
+* Update ci-pipeline.yml
+* Update ci-pipeline.yml
+* add automatic tonic.\_\_version\_\_ using pbr
+* fix FlipPolarity to flip pols from 0 to 1 and vice versa, plus take into account bools
+* Update README.md
+* Update test\_representations.py
+* add test\_transform\_flip\_polarity\_bools
+* Fix frames test
+* Add test to change for polarity>1 in frame generation
+* Fix frame generation for audio data with polarity>1
+* blacken the whole package
+* add convenience transform ToImage
+* delete tonic/version.py as pbr now taking care of that
+* blacken all tests
+* improve ToFrame tests slightly
+* Update requirements.txt
+* Update ci-pipeline.yml
+* Update ci-pipeline.yml
+* add requirements file
+* use pbr for automatic versioning
+* bump version to 1.0.15
+* Update README.md
+* Update ci-pipeline.yml
+* Update ci-pipeline.yml
+* fix change of API for approx() in pytest 7.x
+* Split CachedDataset into MemoryCachedDataset and DiskCachedDataset
+* update SHD and CIFAR10DVS documentation
+* bump version to 1.0.13
+* update NMNIST download link
+* doc strings updated
+* Update ci-pipeline.yml
+* Update ci-pipeline.yml
+* Update ci-pipeline.yml
+* move librosa requirement to setup.py, move audio tests and remove requirements.txt
+* removing pytorch transforms
+* revert download\_utils.py and fix comment
+* changed to stable dataset download source
+* fix google drive upload problem
+* catch up with 1.0.12 version
+* add CIFAR10-DVS dataset
+* bump version to 1.0.12
+* make ToFrame transform also work with audio data
+* Fix h5py multithreading issue for SHD/SSC on MacOS
+* add str comment to drop\_pixel\_raster
+* added identify pixel function for frames and rasters
+* added unit test for test transform for raster
+* added package identify\_hot\_pixel\_raster
+* added identify frequency and transforms
+* fix the if statement for events condition: event.dtype.names is not None
+* add contional statement for DropPixel function
+* add drop pixel raster function, this supports both frame and raster
+* Change compression to boolean
+* Compression flag added to the CachedDataset class. -> Defaults to lzf
+* add note to CachedDataset documentation
+* fix bug where the length of dataset would not be inferred correctly when dataset=None
+* Update ci-pipeline.yml
+* bump version to 1.0.10
+* Update ci-pipeline.yml
+* enable Windows test suite and documentation building in CI pipeline
+* fix TUM-VIE wrong recording name. Should be bike-night instead of bike-dark
+* Update .readthedocs.yml
+* Delete pypi-publish.yml
+* TUMVIE dataset in 1.0.9
+* update datasets documentation
+* add TUM-VIE dataset
+* Update and rename testing\_and\_coverage.yml to ci-pipeline.yml
+* separate test requirements from install requirements
+* delete unused download utils
+* remove loris as a dependency completely and with it NCARS and Navgesture
+* update github workflows
+* version 1.0.8: change frame dtype to int16 and catch OSError in SlicedDataset
+* add reset\_cache parameter to CachedDataset
+* exclude vscode folder
+* bump version to 1.0.6
+* update SlicedDataset to be able to write slice metadata of different length to disk
+* update DSEC sensor size
+* Update training\_snn.rst
+* Update training\_snn.rst
+* fix flaky batch collation test
+* return structured np event array in DSEC
+* added placeholder for divisive normalization
+* version 1.0.4
+* also catch OSError when looking for cached file to accomodate for outdated h5py package version
+* bump version to 1.0.3
+* check if sample is not already torch tensor during batch collation
+* normalize as a standlone function
+* DSEC docstring clarification
+* bump version to 1.0.2
+* update DSEC dataset to include recording parameter
+* using librosa for fix length
+* delete debug print message
+* added sos filters from scipy
+* Update version.py
+* add typing\_extensions as requirement
+* Update version.py
+* Update release\_notes.rst
+* Update index.md
+* Update README.md
+* tutorial notebooks update
+* add aermanager reference for slicing methods
+* add new tutorial notebook on large datasets
+* update release notes
+* exclude metadata folder
+* Caching now works with multi-data
+* slice more efficiently when using metadata
+* fix issue with non-matching image shapes in VPR
+* update CachedDataset
+* half wave rectification added
+* update DAVIS dataset
+* update SlicedDataset to contain filepath for metadata
+* add AERmanager ref to io.py
+* rename flip\_probability and drop\_probability to p
+* notebooks can be downloaded now on documentation site
+* added length to cached dataset to work with dataloader
+* format DSEC
+* update tutorial notebooks
+* update dataset docstrings
+* exchange dataset order in doc
+* add DSEC dataset
+* butter filter coefficients converted to floats
+* remove a few lines of unused code
+* fix flaky TimeSkew test
+* removed debug messages
+* add more dataset tests
+* blacken everything
+* add GPS data to VPR dataset
+* more dataset refactoring..
+* added some release notes for v1
+* update DAVIS, HSD, MVSEC, Navgesture and NTIDIGITS
+* refactored ASLDVS, DVSGesture, NCALTECH, NCARS, NMNIST, POKERDVS datasets to use \_check\_exists function for fast loading
+* redo dataset tests and have first working example for DVSGesture. No dataset extraction anymore at every call
+* Update training\_snn.rst
+* Update README.md
+* add nmnist animation to tutorial
+* update representation tests
+* Update codecov.yml
+* Update codecov.yml
+* Update codecov.yml
+* Update codecov.yml
+* Create codecov.yml
+* Update to\_voxel\_grid.py
+* added noise transform
+* filterbank code bug fix + tests
+* update documentation
+* fix issue in DAVIS dataset where some recordings don't have IMU data
+* add favicon
+* not executing notebooks remotely anymore
+* move torchvision requirement to docs/requirements
+* add torchvision requirement
+* see if docs release now works after local install
+* install package locally on readthedocs
+* update documentation to include API reference and tutorials
+* update a few docstrings
+* wip added butter filters
+* update docstrings
+* added Bin transform
+* check transforms are not performed in-place
+* add NumpyAsType test
+* added dummy standardize data length transform
+* drop pixel test
+* add parser functions to tonic
+* change to sphinx\_book\_theme
+* update some datasets to output the correct format
+* start to update documentation
+* update plotting util function
+* fix time surface transform mixed up dimensions
+* fix mixed up width and height dimension in voxel grid and Frame transform
+* exclude .idea folder
+* Update requirements.txt
+* disable dataset tests
+* reformat datasets to use dtypes
+* transform now works on events and events only, no event\_data tuple anymore
+* remove ToSparseTensor transform
+* update some datasets with new tuple output
+* make all tests but Slicing / Caching pass
+* event transform tests passing
+* flip tests pass
+* denoising test passes
+* refactor tests
+* blacken everything
+* removing ordering from tests
+* make first RandomCrop tests pass again
+* replace create\_random\_input\_with\_ordering with create\_random\_input
+* sed all [xytp]\_indices
+* test folder layout restructure
+* replace [x,y,t,p]\_loc strings
+* blacken everything before string replacements
+* start to refactor the test utils to use dtypes
+* separate functional slicing from classes, reorganize package structure a bit
+* make Python 3.7 compatible by importing Protocol from typing\_extensions
+* hash parent class transform and target\_transform
+* sensor size in test acquired from dataset
+* added a parameter to save a number of copies of an item to the cache
+* fix for ToFrame() transform
+* changes in dataset
+* fix to utils in test
+* changes in dataset transforms
+* transforms fix in tests
+* freeze dataclasses in order to make them hashable
+* added documentation
+* wip
+* added implementation of caching functionality
+* add tests for sparse and dense transforms and batch collation
+* make all tests pass again
+* refactored event transforms
+* refactor random flips and downsampling transforms
+* sliced dataset implemented
+* tests for slicing implemented
+* added scipy to requirements
+* dummy tests added. require implementation
+* SlicedDataset added
+* added SliceAtTimePoints slicer
+* Three slicers from aermanager added
+* Added initial version of Slicer and SliceByTime
+* Denoise and DropEvent refactor
+* update RandomCrop transform
+* replace numpy.histogramdd with numpy.add for performace increase
+* add global time surface possibility
+* assertion change
+* add temporal alignment transform
+* added floor
+* fix spatial downsampling
+* update documentation
+* update workflow to trigger on push
+* bump version
+* update github workflow
+* pypi publish workflow
+* now also return sensor\_size from functional transform where necessary, such as crop or resize. Also blacken everything
+* flexible sensor size
+* bump version to 0.4.5
+* add Downsample instead of Subsample transform and incorporate MaskHotPixel into DropPixel transform. Rename DropEvents to DropEvent
+* update documentation
+* NCALTECH101 now returning floats
+* Turns torch labels into tensors
+* Solved nmnist integrity test. Fixes #117
+* bump version to 0.4.4
+* fix wrong parameter name in plotting function and change value tensor in pytorch sparse tensor to float type
+* add tests for transform wrappers
+* refactor dataset tests not to use parameterized but purely pytest instead
+* refactor numpy functional tests to use pytest instead of parameterized
+* bump version to 0.4.3
+* add citations to datasets
+* introduce Subsample transform
+* remove assertion from TimeSkew method
+* provide nmnist events as floats
+* fix timeSkew test edge case
+* update spatial and time jitter methods and docstrings
+* bump version to 0.4.2
+* fix formatting in ToFrame docstring
+* improve documentation for ToFrame method
+* bump version
+* update documentation
+* add SMNIST to documentation
+* add missing overlap and include\_incomplete parameters to ToFrame transform
+* add comments
+* move downloaded files into smnist directory
+* put SHD and SSC data in hsd subfolder when downloading
+* considerably improve ToFrame() transform, allowing for 4 different slicing methods
+* add classes
+* completed spiking s-mnist dataset
+* whitespace
+* started implementing s-mnist
+* minor documentation changes
+* readme update: importing only DataLoader
+* add citation
+* broken crop: temporary fix
+* minor documentation modifications
+* bump version to 0.4.0
+* break out pytorch dependencies
+* update documentation to reflect non dependency on pytorch, add page that explains how to wrap your own dataset
+* add first support for tensorflow sparse tensors, remove custom dataloader
+* add custom dataloader class
+* remove direct PyTorch and PyTorch Vision dependencies from package
+* update dataset documentation
+* Update README.md
+* Update README.md
+* update documentation
+* move matplotlib import statement into function as it is an optional dependency
+* bump version to 0.3.10
+* add polarity dimension to N-TIDIGITS dataset and convert timestamps to microseconds
+* add sparse tensor support for audio datasets
+* split random input event generator function into vision and audio dataset events
+* add polarity dimension to SHD and SSC datasets and convert timestamps to microseconds to be compatible with transforms
+* add plt.show() to plot util function
+* bump version to 0.3.9
+* improve documentation
+* fix time\_filter parameter rename
+* update documentation
+* split torch tests from numpy tests
+* add channel dimension to sparse tensor transform
+* update VPR dataset
+* bump version
+* rework collate function for batching operations. Now works with sparse tensors instead of numpy event arrays
+* renamed VPR dataset and added documentation
+* removed import and target transform from VPR dataset
+* It should be pol - see https://github.com/event-driven-robotics/importRosbag/blob/master/importRosbag/messageTypes/dvs\_msgs\_EventArray.py
+* Fixes for VPR dataset
+* Update index.rst
+* Update README.md
+* set minimum importRosbag version and bump version
+* set importRosbag log level for DAVIS and MVSEC datasets
+* fix events order in MVSEC
+* bump version
+* small documentation fix
+* update documentation
+* update dataset description
+* make MVSEC dataset work
+* small documentation update
+* add return values for dataset doc
+* remove guess\_event\_ordering\_numpy as not reliable
+* automatic sensor\_size for n-caltech101 and plot\_event\_grid
+* refactor dataset tests
+* add first version of mvsec dataset, download from google drive is not reliable
+* add visual place recognition dataset
+* add importRosbag to loris deps
+* add rosbag python package, switch to .rosbag files for DAVIS dataset
+* delete comment in NCARS
+* avoid extracting archive again when download=False for NMNIST
+* change N-Caltech101 dropbox db link and also calculate sensor\_size on the fly since different for every recording
+* fix NMNIST and NTIDIGITS download links, dropbox somehow changed their API
+* add DAVIS event camera dataset
+* remove 'suggested dataset' section from docs
+* do not include dataset test for travis..
+* add N-TI DIGITS dataset
+* black formatted everything
+* minor documentation fix
+* improve dataset parameter documentation
+* add requirements file back in for readthedocs
+* small documentation fix
+* deleted requirements file
+* deactivate datasets tests
+* bump version
+* add Heidelberg Spiking Datasets
+* update TimeJitter transform
+* update contribute doc
+* sort\_timestamps update
+* sort\_timestamps
+* Update spatial\_jitter.py
+* improve plotting function
+* mirror ASL-DVS samples vertically
+* update docs for plotting function
+* change to new plotting function plot\_event\_grid
+* add ToVoxelGrid representation
+* Update README.md
+* fix travis dependencies, all tests passing
+* make all tests (dataset, functional, transforms) pass
+* refactored functional tests to use parameterized
+* start refactoring tests using parameterized. FlipLR and Crop working
+* add MaskHotPixel transform
+* Update README.md
+* bump version to 0.3.1
+* update navgesture-sit zip
+* add ASL-DVS dataset
+* ignore data dir symlink
+* add NavGesture dataset
+* fix NCARS sensor size by subtracting minimum y-value from all events
+* update package description
+* bump version
+* add a few newlines
+* update Compose description
+* make tests pass again. spatial and temporal jitter can now cause negative coordinates
+* modify spatial jitter to filter events in a single line
+* bump version
+* fix folder name error
+* fix obsolete call to MaskIsolated
+* Update README.md
+* bump version
+* change IBMGesture to DVSGesture
+* update README
+* add batch example to docs
+* bumped version
+* add tests for pokerdvs, ncars and ncaltech101 datasets
+* use floats for poker and ncars datasets
+* when in Python, always FLOAT
+* bump version
+* update docs conf
+* add NMNIST for first\_saccade\_only
+* deactivate dataset tests for now
+* migrate list of datasets to docs
+* renamed MaskIsolated to Denoise
+* contribute doc update
+* add contribute doc page
+* add trasparent white logo for docs
+* add transform descriptions
+* docstring args for datasets
+* docs update
+* ironing out readthedocs errors....
+* add requirements.txt to .readthedocs
+* prevent readthedocs from failing
+* modify .readthedocs.yml
+* modify .readthedocs.yml
+* modify .readthedocs.yml
+* add .readthedocs.yml
+* add dataset tests download flag
+* merge master
+* integrate target transforms into transforms
+* fix \_\_all\_\_ for transforms and add UniformNoise
+* refactor docs
+* batch support by padding with collate function
+* convert pol of 0 into -1 when converting to sparse tensor
+* change nmnist to batch reading
+* tests for averaged time surface + cleanup
+* add sparse tensor conversion
+* remove python2 inheritance compatibility
+* make ncars pytorch compatible
+* parameterize dataset tests
+* update README
+* add parameterized
+* exclude data folder
+* make ncaltech101 pytorch compatible
+* include pytorch DataLoader
+* make ibmgesture pytorch compatible
+* make nmnist pytorch compatible
+* make pokerdvs pytorch compatible
+* removed copy classes for Dataset, DataLoader, utils
+* add torch to requirements
+* fix tests
+* add torchvision to requirements
+* fix NCALTECH101 url
+* small fix for linear decay where - values not zeroed
+* add manifest file
+* add average time surface to correct location
+* move average script
+* update README
+* update README
+* modified setup classifier
+* setup and doc versioning from tonic.\_\_version\_\_
+* automatically include submodules
+* update setup.py
+* update logo
+* add logo
+* package rename to tonic
+* first version of average time surfaces
+* clean up avg surf test
+* there's a step missing that shapes the time surface
+* initial average ts. imcomplete implementation
+* update README
+* add ncaltech101
+* added utils function to plot rate-coded frames
+* added links for TI Digits and TIMIT
+* Update README.md
+* all datasets so far now output time in us
+* integer labels for poker pips
+* integer labels for ncars
+* add NCARS classification dataset
+* small fix for ratecoded frame generation
+* repackaged poker dvs toy data set
+* introduce tanh to ratecoded transform
+* add ToRatecodedFrame transform
+* flesh out merge\_pols for rate-coded frames
+* update README
+* bump version to 0.0.3
+* update flip documentation
+* fix flip UD transform
+* fix flipLR transformation
+* make loris optional
+* add transform test
+* introduce merge\_pols and interpolate params
+* remove sparse package dep
+* rename drop\_event to drop\_events
+* add to\_ratecoded\_frames
+* renamed labels to targets
+* add target transforms Repeat and ToOneHotEncoding
+* correct assertions and skip testclass for now
+* move import to dataset class
+* add IBMGesture data set tests
+* add NMNIST data set tests
+* move download and extraction methods to dataset class, introduce target\_transformation
+* shorten README
+* add travis integration
+* don't pass images after time surface creation
+* formatting transforms
+* update documentation
+* moved timesurface creation to functional section
+* add flags to spatial and temporal jitter to select if events should be dropped if negative / outliers
+* added mask\_isolated transform wrapper and doc entry
+* added tests for mask\_isolated method
+* add method mask\_isolated
+* var renaming
+* clipping spatially jittered events that lie outside sensor size
+* clipping negative time stamps after time jitter tranformation
+* add option to use single saccade for nmnist
+* improve docs rendering
+* add representations to init
+* add pokerdvs toy dataset
+* add pokerdvs dataset
+* correct typo
+* Add representation example to README
+* add doc for timesurface repr
+* change file encoding
+* add representation modifications
+* fix bug where dataloader would always return one entry to little
+* add dataset method for total number of events
+* improve testTimeSkew
+* fix mix ev stream method name
+* fix refractory period method
+* indicate IBM gestures data set availability in README
+* dataloader minor rewrite
+* new link for ibmgesture
+* new link for ibmgesture
+* added ibmgetsture in datasets.init script
+* ibmGesture added
+* add documentation instructions to README
+* update index.rst
+* fix docstrings to comply with google version of docstrings
+* refrac period
+* mix\_ev\_streams docstring
+* add .rst files for each method
+* change drop\_event encoding
+* update docstrings for crop, drop\_event and flip\_pol
+* add docs directory
+* exclude docs build directory
+* update instructions in README
+* add assertions for dtypes
+* methods support int32 dtype
+* add support for tests with int events
+* fix dtype detection in time jitter
+* improve instructions
+* make time jitter work with int arrays
+* change nmnist events dtype to uint32 to half memory footprint
+* add tqdm as dep
+* add example use case to readme
+* added testTimeSkewFlipPolarityFlipLR and fixed timeSkew method
+* improve transforms test readability
+* order tests alphabetically and remove duplicates
+* fix tests after merging all PRs
+* added new ASL-DVS dataset
+* add testDropoutFlipUD
+* add images and multi\_image to all transform calls
+* added assertions to check that X and Y have been altered for testTimeReversalSpatialJitter
+* added assertion for images for testTimeReversalSpatialJitter
+* test for time reversal and time jitter in one transformation
+* add multi image and time reversal test
+* add images to transform interface that are passed from one transform to the next
+* added time jitter transforms test
+* removed sensor\_size from spatial and time jitter methods
+* fix st\_transform test
+* remove EMNIST data set
+* added all transforms except mix\_event\_stream to interface
+* fix sensor size
+* fix applying transforms to dataset
+* renamed files, fix StopIteration for dataloader
+* add initial transforms interface on top of functional transforms
+* remove structured array dtypes and add sensor\_size and ordering to NMNIST data set
+* raise StopIteration at end of dataset
+* add NMNIST dataset, base classes and utils
+* add ATIS planes data set
+* added test for st transform
+* fixed indent
+* corrected names and time\_skew inclusion
+* add method for time jitter
+* avoid list comprehension to speed up transform
+* setup.py
+* Create LICENSE.txt
+* added test testMixEvTxyp
+* testCropTxyp
+* add test testTemporalFlipTxyp
+* added testRefractoryPeriodTxyp
+* harden testSpatialJitter
+* add test testSpatialJitterTxyp
+* add test testEventDropoutTxyp
+* add test testFlipUDtxyp
+* add test testFlipLRtxyp
+* make random event input generation more general
+* assert necessary elements are in ordering even when not guessing order
+* refactor tests to remove prints and warnings
+* event dropout tests added
+* remove sorting after noise generation as this is done after blending with original events anyway
+* speed up generation of noise events and improve test
+* added generic ordering on input event vector
+* corrected errors and added packages to method
+* added st\_transform.py for spatial temporal transformation of events method
+* create fixed number of noise events
+* Update README.md
+* Update README.md
+* Update README.md
+* linear time skew function & test
+* add n-caltech101 db link
+* Update docstring
+* Initial implmentation of a cropping function
+* Fix docstring
+* Initial numpy time reversal implementation
+* fix mixing of arrays of different length and code clean up
+* use mix\_ev\_streams to blend uniform noise into main event stream
+* create noise arrays for positive and negative events
+* mix\_ev test and minor changes
+* Import numpy as used in utils.py
+* Add numpy based event polarity flipping
+* replace for loop with simple addition
+* changed the code to use axis 0 as event indices
+* implemented dropout code
+* dropout module code
+* dropout module code
+* dropout module added
+* add spatial jitter method using multivariate Gaussian distribution
+* event mixing of arbitrary streams
+* remove print and del statements
+* refractory period parameter in seconds rather than micro seconds
+* add refractory period method
+* Address review comments
+* Fix sensor\_size index in flip\_ud\_numpy docstring
+* Add up/down flipping with numpy
+* Fix ordering of X and Y in utils
+* fix non-existing np.numeric and add check for np ndarrays with dtypes
+* Change to isclose instead of strict equality
+* Add docstring to test utility
+* add python black doc link
+* Fixed shape issue and added more channel options
+* Install instructions for pre-commit
+* Add description to function docstring
+* Functional example, tests, precommit
+* Update README.md
+* add EML implementation paper
+* add links to some data sets
+* initial commit
