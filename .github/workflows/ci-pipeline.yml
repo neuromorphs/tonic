@@ -45,6 +45,7 @@ jobs:
         run: |
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r test/requirements.txt
+          pip install -r test/torch_requirements.txt
           pip install .
           coverage run -m pytest test
           coverage xml
