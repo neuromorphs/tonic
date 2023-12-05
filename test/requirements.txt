@@ -1,7 +1,7 @@
 pytest
 coverage
-torch==1.9+cpu
-torchaudio
+torch==2.1.0+cpu
+torchaudio==2.1.0+cpu
 matplotlib
 hdf5plugin
 imageio
