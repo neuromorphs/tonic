@@ -1,10 +1,17 @@
 import logging
 import os
+import sys
+
+if sys.version_info >= (3, 8):
+    from typing import Callable, Iterable, Optional, Tuple, TypedDict, Union
+else:
+    from typing import Callable, Iterable, Optional, Tuple, Union
+    from typing_extensions import TypedDict
+
 import random
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Iterable, Optional, Tuple, TypedDict, Union
 from warnings import warn
 
 import h5py
