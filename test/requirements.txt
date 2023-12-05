@@ -3,8 +3,4 @@ coverage
 matplotlib
 hdf5plugin
 imageio
-torchdata
 aedat
---index-url https://download.pytorch.org/whl/cpu
-torch
-torchaudio
