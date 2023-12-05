@@ -12,6 +12,9 @@ def uniform_noise_numpy(events: np.ndarray, sensor_size: Tuple[int, int, int], n
         sensor_size: 3-tuple of integers for x, y, p
         n: the number of noise events added.
     """
+    if len(events)==0:
+       return events
+
     noise_events = np.zeros(n, dtype=events.dtype)
     for channel in events.dtype.names:
         if channel == "x":

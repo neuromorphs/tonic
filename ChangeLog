@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Fix: silent frame support
 * Fix: wrong range of histogram in drop\_pixel
 * fix EBSSA test sample file path
 * Prophesee prototype docstring updates
