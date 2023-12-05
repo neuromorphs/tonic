@@ -234,7 +234,7 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
     """Aug_DiskCachedDataset is a child class from DiskCachedDataset with further customizations to
     handle augmented copies of a sample. The goal of this customization is to map the indices of
     cached files (copy) to augmentation parameters. This is useful in a category of augmentations
-    where the range of parameter is rather disceret and non probabilistic, for instance an ausio
+    where the range of parameter is rather disceret and non probabilistic, for instance an audio
     sample is being augmented with noise and SNR can take only N=5 values. Passing copy_index to
     augmentation Class as an init argument ensures that each copy will be a a distinct augmented
     sample with a trackable parameter.
@@ -248,7 +248,7 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
      and "post_aug".
 
      Args:
-         'all_transforms' is a dictionarty passed to this class containing information about augmentations.
+         'all_transforms' is a dictionarty passed to this class containing information about all transforms.
     """
 
     all_transforms: Optional[TypedDict] = None
@@ -290,7 +290,6 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
                 f"Data {item}: {file_path} not in cache, generating it now",
                 stacklevel=2,
             )
-            # self.generate_all(item)
             self.generate_copy(item, copy)
 
             # format might change during save to hdf5, i.e. tensors -> np arrays
