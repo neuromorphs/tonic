@@ -1,6 +1,6 @@
 pytest
 coverage
-torch
+torch==1.9+cpu
 torchaudio
 matplotlib
 hdf5plugin
