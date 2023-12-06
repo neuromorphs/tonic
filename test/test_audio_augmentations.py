@@ -68,7 +68,7 @@ def test_random_pitch_shift():
     sl = 1  # sample length
     data = np.random.rand(1, sr * sl)
 
-    aug = RandomPitchShift(sample_length=sl, samplerate=sl)
+    aug = RandomPitchShift(samplerate=sr)
     pitch_shifted = aug(data)
 
     assert pitch_shifted is not data
@@ -92,9 +92,7 @@ def test_random_amplitude_scale():
     data = np.ones((1, sr * sl))
     min_amp, max_amp = 0.05, 0.15
 
-    aug = RandomAmplitudeScale(
-        sample_length=sl, samplerate=sl, min_amp=min_amp, max_amp=max_amp
-    )
+    aug = RandomAmplitudeScale(samplerate=sr, min_amp=min_amp, max_amp=max_amp)
     amp_scaled = aug(data)
 
     assert amp_scaled is not data
