@@ -59,7 +59,6 @@ class RandomPitchShift:
 
     Parameters:
         samplerate (float): sample rate of the sample
-        sample_length (int): sample length in seconds
         factors (float): range of desired factors for pitch shift
         aug_index (int): index of the chosen factor for pitchshift. It will be randomly chosen from the desired range (if not passed while initilization)
         caching (bool): if we are caching, the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
@@ -71,7 +70,6 @@ class RandomPitchShift:
     """
 
     samplerate: float
-    sample_length: int
     factors: list = field(
         default_factory=lambda: list(range(-5, 0)) + list(range(1, 6))
     )
@@ -94,7 +92,6 @@ class RandomAmplitudeScale:
 
     Parameters:
         samplerate (float): sample rate of the sample
-        sample_length (int): sample length in seconds
         min_amp (float): minimum of the amplitude range in volts
         max_amp (float): maximum of the amplitude range in volts
         factors (float): range of desired factors for amplitude scaling
@@ -110,7 +107,6 @@ class RandomAmplitudeScale:
     """
 
     samplerate: float
-    sample_length: float
     min_amp: float = 0.058
     max_amp: float = 0.159
     factors: list = field(
