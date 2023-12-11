@@ -86,7 +86,6 @@ class ThreeET_Eyetracking(Dataset):
                 [line.strip().split() for line in f.readlines()], np.float64
             )
 
-        print(events)
         events = make_structured_array(
             events[:, 0],  # time in us
             events[:, 1],  # x
