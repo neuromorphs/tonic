@@ -1,8 +1,8 @@
 import os
 from typing import Any, Callable, Optional, Tuple
 
+import h5py
 import numpy as np
-import tables
 
 from tonic.dataset import Dataset
 from tonic.io import make_structured_array
@@ -78,8 +78,8 @@ class ThreeET_Eyetracking(Dataset):
             (events, target) where target is index of the target class.
         """
         # get events from .h5 file
-        with tables.open_file(self.data[index], "r") as f:
-            events = f.root.events.read()
+        with h5py.File(self.data[index], "r") as f:
+            events = f["events"][:]
         # load the sparse labels
         with open(self.targets[index], "r") as f:
             target = np.array(
