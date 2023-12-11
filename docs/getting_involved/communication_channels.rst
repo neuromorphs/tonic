@@ -3,11 +3,10 @@ Communication channels
 
 Discord
 -------
-We would be very happy if you got in touch with us, so please don't hesitate!
-The easiest way is to join our Discord channel. There we can reply more or less
-instantly. The #tonic channel is part of SynSense's public space along other channels
+The easiest way to get in touch with us is to via Discord. There we can reply more or less
+instantly. The #tonic channel is part of Open Neuromorphic's public space along other channels
 for all things revolving around SNN training.
-The link to join is https://discord.gg/V6FHBZURkg.
+The link to join is https://discord.gg/qubbM4uPuA
 
 Github
 ------
