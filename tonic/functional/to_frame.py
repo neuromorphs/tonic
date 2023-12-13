@@ -66,12 +66,9 @@ def to_frame_numpy(
         events["p"] = 0
 
     if time_window:
-        if len(events) == 0:
-            event_slices = []
-        else:
-            event_slices = slice_events_by_time(
-                events, time_window, overlap=overlap, include_incomplete=include_incomplete
-            )
+        event_slices = slice_events_by_time(
+            events, time_window, overlap=overlap, include_incomplete=include_incomplete
+        )
     elif event_count:
         event_slices = slice_events_by_count(
             events, event_count, overlap=overlap, include_incomplete=include_incomplete
