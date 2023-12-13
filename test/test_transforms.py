@@ -252,6 +252,24 @@ def test_transform_drop_pixel_unequal_sensor(hot_pixel_frequency, event_max_freq
 
 @pytest.mark.parametrize(
     "coordinates, hot_pixel_frequency",
+    [(((9, 11), (10, 12), (11, 13)), None), (None, 10000)],
+)
+def test_transform_drop_pixel_empty(coordinates, hot_pixel_frequency):
+    orig_events, sensor_size = create_random_input(
+        n_events=0, sensor_size=(15, 20, 2)
+    )
+
+    transform = transforms.DropPixel(coordinates=None, hot_pixel_frequency=hot_pixel_frequency)
+    events = transform(orig_events)
+    assert len(events) == len(orig_events)
+
+    transform = transforms.DropPixel(coordinates=coordinates, hot_pixel_frequency=None)
+    events = transform(orig_events)
+    assert len(events) == len(orig_events)
+
+
+@pytest.mark.parametrize(
+    "coordinates, hot_pixel_frequency",
     [(((199, 11), (199, 12), (11, 13)), None), (None, 5000)],
 )
 def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):

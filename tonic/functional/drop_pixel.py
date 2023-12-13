@@ -17,9 +17,6 @@ def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
 
     assert "x" and "y" and "t" in events.dtype.names
 
-    if len(events)==0:
-        return []
-
     total_time = events["t"][-1] - events["t"][0]
 
     hist = np.histogram2d(

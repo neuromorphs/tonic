@@ -228,6 +228,9 @@ class DropPixel:
     hot_pixel_frequency: Optional[int] = None
 
     def __call__(self, events):
+        if len(events) == 0:
+            return events   # return empty array
+
         if events.dtype.names is not None:
             # assert "x", "y", "p" in events.dtype.names
             if self.hot_pixel_frequency:
