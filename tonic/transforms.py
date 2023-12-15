@@ -61,7 +61,7 @@ class CenterCrop:
         if type(self.size) == int:
             self.size = [self.size, self.size]
         offsets = (self.sensor_size[0] - self.size[0]) // 2, (
-            self.sensor_size[1] - self.size[1]
+                self.sensor_size[1] - self.size[1]
         ) // 2
         offset_idx = [max(offset, 0) for offset in offsets]
         cropped_events = events[
@@ -69,7 +69,7 @@ class CenterCrop:
             & (events["x"] < (offset_idx[0] + self.size[0]))
             & (offset_idx[1] <= events["y"])
             & (events["y"] < (offset_idx[1] + self.size[1]))
-        ]
+            ]
         cropped_events["x"] -= offsets[0]
         cropped_events["y"] -= offsets[1]
         return cropped_events
@@ -228,6 +228,9 @@ class DropPixel:
     hot_pixel_frequency: Optional[int] = None
 
     def __call__(self, events):
+        if len(events) == 0:
+            return events   # return empty array
+
         if events.dtype.names is not None:
             # assert "x", "y", "p" in events.dtype.names
             if self.hot_pixel_frequency:
@@ -723,7 +726,7 @@ class TimeSkew:
 @dataclass(frozen=True)
 class UniformNoise:
     """Adds a fixed number of n noise events that are uniformly distributed across sensor size
-    dimensions such as x, y, t and p.
+    dimensions such as x, y, t and p. Not applied if the input is empty.
 
     Parameters:
         sensor_size: a 3-tuple of x,y,p for sensor_size
@@ -744,6 +747,9 @@ class UniformNoise:
         return n
 
     def __call__(self, events):
+        if len(events) == 0:
+            return events
+
         n = self.get_params(n=self.n)
         return functional.uniform_noise_numpy(
             events=events, sensor_size=self.sensor_size, n=n
@@ -782,10 +788,10 @@ class NumpyAsType:
 
     def __call__(self, events):
         source_is_structured_array = (
-            hasattr(events.dtype, "names") and events.dtype.names != None
+                hasattr(events.dtype, "names") and events.dtype.names != None
         )
         target_is_structured_array = (
-            hasattr(self.dtype, "names") and self.dtype.names != None
+                hasattr(self.dtype, "names") and self.dtype.names != None
         )
         if source_is_structured_array and not target_is_structured_array:
             return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
@@ -891,16 +897,29 @@ class ToFrame:
     include_incomplete: bool = False
 
     def __call__(self, events):
-        return functional.to_frame_numpy(
-            events=events,
-            sensor_size=self.sensor_size,
-            time_window=self.time_window,
-            event_count=self.event_count,
-            n_time_bins=self.n_time_bins,
-            n_event_bins=self.n_event_bins,
-            overlap=self.overlap,
-            include_incomplete=self.include_incomplete,
-        )
+
+        # if events are empty, return a frame in the expected format
+        if len(events) == 0:
+            if self.time_window is not None or self.event_count is not None:
+                return np.zeros((1, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+            elif self.n_event_bins is not None:
+                return np.zeros((self.n_event_bins, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+            elif self.n_time_bins is not None:
+                return np.zeros((self.n_time_bins, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+            else:
+                raise ValueError("No slicing method specified.")
+
+        else:
+            return functional.to_frame_numpy(
+                events=events,
+                sensor_size=self.sensor_size,
+                time_window=self.time_window,
+                event_count=self.event_count,
+                n_time_bins=self.n_time_bins,
+                n_event_bins=self.n_event_bins,
+                overlap=self.overlap,
+                include_incomplete=self.include_incomplete,
+            )
 
 
 @dataclass(frozen=True)

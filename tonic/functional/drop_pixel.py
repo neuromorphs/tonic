@@ -22,7 +22,7 @@ def identify_hot_pixel(events: np.ndarray, hot_pixel_frequency: float):
     hist = np.histogram2d(
         events["x"],
         events["y"],
-        bins=(np.arange(events["y"].max() + 1), np.arange(events["x"].max() + 1)),
+        bins=(np.arange(events["x"].max() + 2), np.arange(events["y"].max() + 2)),
     )[0]
     max_occur = hot_pixel_frequency * total_time * 1e-6
     hot_pixels = np.asarray((hist > max_occur).nonzero()).T
