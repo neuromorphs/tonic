@@ -1,9 +1,7 @@
 pytest
 coverage
-torch
 matplotlib
 hdf5plugin
 imageio
-torchdata
 aedat
 typing-extensions

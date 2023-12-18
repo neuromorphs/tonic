@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-2022]
-        python-version: ["3.7", "3.9", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       - if: matrix.os == 'ubuntu-latest'
@@ -23,6 +23,7 @@ jobs:
         run: |
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r test/requirements.txt
+          pip install -r test/torch_requirements.txt
           pip install .
       - name: Test with pytest
         run: pytest test
@@ -44,6 +45,7 @@ jobs:
         run: |
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r test/requirements.txt
+          pip install -r test/torch_requirements.txt
           pip install .
           coverage run -m pytest test
           coverage xml
