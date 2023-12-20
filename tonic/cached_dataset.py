@@ -261,7 +261,6 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
     all_transforms: Optional[TypedDict] = None
 
     def __post_init__(self):
-        super().__init__()
         self.pre_aug = self.all_transforms["pre_aug"]
         self.aug = self.all_transforms["augmentations"]
         self.post_aug = self.all_transforms["post_aug"]
@@ -277,8 +276,8 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
     def generate_copy(self, item, copy):
         file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
         # copy index is passed to augmentation (callable)
-        self.aug.aug_index = copy
-        augmentation = [self.aug]
+        self.aug[0].aug_index = copy
+        augmentation = self.aug
         self.dataset.transform = Compose(self.pre_aug + augmentation + self.post_aug)
         data, targets = self.dataset[item]
         save_to_disk_cache(data, targets, file_path=file_path, compress=self.compress)
