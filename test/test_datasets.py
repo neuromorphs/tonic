@@ -114,10 +114,10 @@ class ThreeET_EyetrackingTestCase(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "ThreeET_Eyetracking")
         os.makedirs(testfolder, exist_ok=True)
-        os.makedirs(testfolder + "/data", exist_ok=True)
-        os.makedirs(testfolder + "/labels", exist_ok=True)
+        os.makedirs(os.path.join(testfolder, "data"), exist_ok=True)
+        os.makedirs(os.pahh.join(testfolder, "labels"), exist_ok=True)
         # write one line of file name into train_files.txt under testfolder
-        os.system("echo 'testcase' > " + testfolder + "/train_files.txt")
+        os.system("echo testcase > " + os.path.join(testfolder, "train_files.txt"))
         filename = "testcase"
 
         # download test h5 file
