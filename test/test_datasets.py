@@ -115,7 +115,7 @@ class ThreeET_EyetrackingTestCase(dataset_utils.DatasetTestCase):
         testfolder = os.path.join(tmpdir, "ThreeET_Eyetracking")
         os.makedirs(testfolder, exist_ok=True)
         os.makedirs(os.path.join(testfolder, "data"), exist_ok=True)
-        os.makedirs(os.pahh.join(testfolder, "labels"), exist_ok=True)
+        os.makedirs(os.path.join(testfolder, "labels"), exist_ok=True)
         # write one line of file name into train_files.txt under testfolder
         os.system("echo testcase > " + os.path.join(testfolder, "train_files.txt"))
         filename = "testcase"
