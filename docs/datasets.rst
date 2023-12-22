@@ -53,6 +53,14 @@ Star tracking
 
     EBSSA
 
+Eye tracking
+-------------------
+.. autosummary::
+    :toctree: generated/
+    :template: class_dataset.rst
+
+    ThreeET_Eyetracking
+
 .. currentmodule:: tonic.prototype.datasets
 
 Prototype iterable datasets

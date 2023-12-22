@@ -105,6 +105,37 @@ class EBSSATestCase(dataset_utils.DatasetTestCase):
         return {"n_samples": 1}
 
 
+class ThreeET_EyetrackingTestCase(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.ThreeET_Eyetracking
+    FEATURE_TYPES = (datasets.ThreeET_Eyetracking.dtype,)
+    TARGET_TYPES = (np.ndarray,)
+    KWARGS = {"split": "train"}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "ThreeET_Eyetracking")
+        os.makedirs(testfolder, exist_ok=True)
+        os.makedirs(os.path.join(testfolder, "data"), exist_ok=True)
+        os.makedirs(os.path.join(testfolder, "labels"), exist_ok=True)
+        # write one line of file name into train_files.txt under testfolder
+        os.system("echo testcase > " + os.path.join(testfolder, "train_files.txt"))
+        filename = "testcase"
+
+        # download test h5 file
+        download_url(
+            url=base_url + "4aiA4BAqz5km4Gc/download/" + filename + ".h5",
+            root=os.path.join(testfolder, "data"),
+            filename=filename + ".h5",
+        )
+        # # download test labels
+        download_url(
+            url=base_url + "G6ejNmXNnB2sKyc/download/" + filename + ".txt",
+            root=os.path.join(testfolder, "labels"),
+            filename=filename + ".txt",
+        )
+
+        return {"n_samples": 1}
+
+
 class NCaltech101TestCase(dataset_utils.DatasetTestCase):
     DATASET_CLASS = datasets.NCALTECH101
     FEATURE_TYPES = (datasets.NCALTECH101.dtype,)
