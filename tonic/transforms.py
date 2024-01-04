@@ -189,7 +189,7 @@ class DropEventByArea:
     specified ratio of the sensor size.
 
     Args:
-        sensor_size (Tuple): size of the sensor that was used [W,H,P]
+        sensor_size (Optional[Tuple[int, int, int]]): size of the sensor that was used [W,H,P]. Defaults to None.
         area_ratio (Union[float, Tuple[float]], optional): Ratio of the sensor resolution that determines the size of the box area where events are dropped.
             - if a float, the value is used to calculate the size of the box area
             - if a tuple of 2 floats, the ratio is randomly chosen in [min, max)
@@ -199,7 +199,7 @@ class DropEventByArea:
         >>> transform = tonic.transforms.DropEventByArea(sensor_size=(128,128,2), area_ratio=(0.1, 0.8))
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: Optional(Tuple[int, int, int]) = None
     area_ratio: Union[float, Tuple[float, float]] = 0.2
 
     def __call__(self, events):
@@ -988,7 +988,7 @@ class ToImage:
     smaller chunks that are then individually binned to frames.
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: Optional(Tuple[int, int, int])
 
     def __call__(self, events):
         frames = functional.to_frame_numpy(
