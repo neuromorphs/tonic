@@ -61,7 +61,7 @@ class CenterCrop:
         if type(self.size) == int:
             self.size = [self.size, self.size]
         offsets = (self.sensor_size[0] - self.size[0]) // 2, (
-                self.sensor_size[1] - self.size[1]
+            self.sensor_size[1] - self.size[1]
         ) // 2
         offset_idx = [max(offset, 0) for offset in offsets]
         cropped_events = events[
@@ -69,7 +69,7 @@ class CenterCrop:
             & (events["x"] < (offset_idx[0] + self.size[0]))
             & (offset_idx[1] <= events["y"])
             & (events["y"] < (offset_idx[1] + self.size[1]))
-            ]
+        ]
         cropped_events["x"] -= offsets[0]
         cropped_events["y"] -= offsets[1]
         return cropped_events
@@ -199,7 +199,7 @@ class DropEventByArea:
         >>> transform = tonic.transforms.DropEventByArea(sensor_size=(128,128,2), area_ratio=(0.1, 0.8))
     """
 
-    sensor_size: Optional(Tuple[int, int, int]) = None
+    sensor_size: Optional[Tuple[int, int, int]] = None
     area_ratio: Union[float, Tuple[float, float]] = 0.2
 
     def __call__(self, events):
@@ -229,7 +229,7 @@ class DropPixel:
 
     def __call__(self, events):
         if len(events) == 0:
-            return events   # return empty array
+            return events  # return empty array
 
         if events.dtype.names is not None:
             # assert "x", "y", "p" in events.dtype.names
@@ -788,10 +788,10 @@ class NumpyAsType:
 
     def __call__(self, events):
         source_is_structured_array = (
-                hasattr(events.dtype, "names") and events.dtype.names != None
+            hasattr(events.dtype, "names") and events.dtype.names != None
         )
         target_is_structured_array = (
-                hasattr(self.dtype, "names") and self.dtype.names != None
+            hasattr(self.dtype, "names") and self.dtype.names != None
         )
         if source_is_structured_array and not target_is_structured_array:
             return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
@@ -897,15 +897,30 @@ class ToFrame:
     include_incomplete: bool = False
 
     def __call__(self, events):
-
         # if events are empty, return a frame in the expected format
         if len(events) == 0:
             if self.time_window is not None or self.event_count is not None:
-                return np.zeros((1, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+                return np.zeros(
+                    (1, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1])
+                )
             elif self.n_event_bins is not None:
-                return np.zeros((self.n_event_bins, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+                return np.zeros(
+                    (
+                        self.n_event_bins,
+                        self.sensor_size[2],
+                        self.sensor_size[0],
+                        self.sensor_size[1],
+                    )
+                )
             elif self.n_time_bins is not None:
-                return np.zeros((self.n_time_bins, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+                return np.zeros(
+                    (
+                        self.n_time_bins,
+                        self.sensor_size[2],
+                        self.sensor_size[0],
+                        self.sensor_size[1],
+                    )
+                )
             else:
                 raise ValueError("No slicing method specified.")
 
@@ -988,7 +1003,7 @@ class ToImage:
     smaller chunks that are then individually binned to frames.
     """
 
-    sensor_size: Optional(Tuple[int, int, int])
+    sensor_size: Optional[Tuple[int, int, int]]
 
     def __call__(self, events):
         frames = functional.to_frame_numpy(
