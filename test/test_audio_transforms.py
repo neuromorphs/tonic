@@ -80,3 +80,60 @@ def test_add_noise():
 
     signal = add_noise(data)
     assert signal.shape == (1, 16_000)
+
+
+def test_swap_axes():
+    """Tests SwapAxes transform with synthetic data."""
+    from tonic.audio_transforms import SwapAxes
+
+    np.random.seed(123)
+    sr = 16_000  # sample rate
+    sl = 1  # sample length
+    data = np.random.rand(1, sr * sl)
+    ax1, ax2 = 0, 1
+    swap_ax = SwapAxes(ax1=ax1, ax2=ax2)
+    swaped = swap_ax(data)
+
+    assert swaped.shape[0] == data.shape[1]
+    assert swaped.shape[1] == data.shape[0]
+
+
+def test_amplitude_scale():
+    """Tests the amplitude scaling transform with synthetic data."""
+    from tonic.audio_transforms import AmplitudeScale
+
+    np.random.seed(123)
+    sr = 16_000  # sample rate
+    sl = 1  # sample length
+    data = np.random.rand(1, sr * sl)
+    max_amps = np.random.rand(10)
+
+    for amp in max_amps:
+        AmpScale = AmplitudeScale(max_amplitude=amp)
+        transformed = AmpScale(data)
+        assert data.shape[1] == transformed.shape[1]
+        assert transformed.max() == amp
+
+
+def test_robust_amplitude_scale():
+    """Tests robust amplitude scaling transform with a synthetic data."""
+    from tonic.audio_transforms import RobustAmplitudeScale
+
+    np.random.seed(123)
+    sr = 16_000  # sample rate
+    sl = 1  # sample length
+    data = np.random.rand(1, sr * sl)
+    max_amps = np.random.rand(10)
+    percent = 0.01
+    for amp in max_amps:
+        RobustAmpScale = RobustAmplitudeScale(
+            max_robust_amplitude=amp, outlier_percent=percent
+        )
+        transformed = RobustAmpScale(data)
+        sorted_transformed = np.sort(np.abs(transformed.ravel()))
+        non_outlier = sorted_transformed[
+            0 : int(np.floor(len(sorted_transformed)) * (1 - percent))
+        ]
+        print(non_outlier)
+        assert data.shape[1] == transformed.shape[1]
+        assert np.all(non_outlier <= amp)
