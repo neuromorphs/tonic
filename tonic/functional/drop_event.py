@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -64,14 +64,14 @@ def drop_by_time_numpy(
 
 
 def drop_by_area_numpy(
-    events: np.ndarray, sensor_size: Tuple, area_ratio: Union[float, Tuple[float]] = 0.2
+    events: np.ndarray, sensor_size: Optional[Tuple[int, int, int]] = None, area_ratio: Union[float, Tuple[float]] = 0.2
 ):
     """Drops events located in a randomly chosen box area. The size of the box area is defined by a
     specified ratio of the sensor size.
 
     Args:
         events (np.ndarray): ndarray of shape [num_events, num_event_channels]
-        sensor_size (Tuple): size of the sensor that was used [W,H,P]
+        sensor_size (Optional[Tuple[int, int, int]]): size of the sensor that was used [W,H,P]. Defaults to None.
         area_ratio (Union[float, Tuple[float]], optional): Ratio of the sensor resolution that determines the size of the box area where events are dropped.
             - if a float, the value is used to calculate the size of the box area
             - if a tuple of 2 floats, the ratio is randomly chosen in [min, max)

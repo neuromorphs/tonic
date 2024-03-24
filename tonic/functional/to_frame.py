@@ -10,7 +10,7 @@ from tonic.slicers import (
 
 def to_frame_numpy(
         events,
-        sensor_size,
+        sensor_size = None,
         time_window=None,
         event_count=None,
         n_time_bins=None,
@@ -23,7 +23,7 @@ def to_frame_numpy(
 
     Parameters:
         events: ndarray of shape [num_events, num_event_channels]
-        sensor_size: size of the sensor that was used [W,H,P]
+        sensor_size (None): size of the sensor that was used [W,H,P]
         time_window (None): window length in us.
         event_count (None): number of events per frame.
         n_time_bins (None): fixed number of frames, sliced along time axis.
