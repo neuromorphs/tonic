@@ -63,7 +63,7 @@ jobs:
           python-version: 3.9
       - name: Install dependencies
         run: |
-          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r test/torch_requirements.txt
           pip install -r docs/requirements.txt
           pip install .
       - name: Build documentation
