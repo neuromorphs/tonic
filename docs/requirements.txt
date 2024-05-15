@@ -4,8 +4,6 @@ sphinx-book-theme
 sphinx-gallery
 myst_nb
 pbr
-torchvision
 ipywidgets
 matplotlib
-torchdata
 sphinx-autoapi
