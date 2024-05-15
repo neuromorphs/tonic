@@ -5,7 +5,7 @@
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
-[![Discord](https://img.shields.io/discord/852094154188259338)](https://discord.gg/V6FHBZURkg)
+[![Discord](https://img.shields.io/discord/1044548629622439977)](https://discord.gg/qubbM4uPuA)
 
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. It's like PyTorch Vision but for neuromorphic data!
 

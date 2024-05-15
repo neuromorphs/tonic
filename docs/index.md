@@ -4,6 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/tonic/badge/?version=latest)](https://tonic.readthedocs.io/en/latest/?badge=latest)
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
+[![Discord](https://img.shields.io/discord/1044548629622439977)](https://discord.gg/qubbM4uPuA)
 
 **Download and manipulate neuromorphic datasets fast and easily!**
 
