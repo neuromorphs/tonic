@@ -98,10 +98,41 @@ class EBSSATestCase(dataset_utils.DatasetTestCase):
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "EBSSA")
         os.makedirs(testfolder, exist_ok=True)
-        filename = "A5ooN9edo7TnNPx/download/labelled_ebssa.h5"
+        filename = "Jpw3Adae5kReMrN/download/labelled_ebssa.h5"
         download_url(
             url=base_url + filename, root=testfolder, filename="labelled_ebssa.h5"
         )
+        return {"n_samples": 1}
+
+
+class ThreeET_EyetrackingTestCase(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.ThreeET_Eyetracking
+    FEATURE_TYPES = (datasets.ThreeET_Eyetracking.dtype,)
+    TARGET_TYPES = (np.ndarray,)
+    KWARGS = {"split": "train"}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "ThreeET_Eyetracking")
+        os.makedirs(testfolder, exist_ok=True)
+        os.makedirs(os.path.join(testfolder, "data"), exist_ok=True)
+        os.makedirs(os.path.join(testfolder, "labels"), exist_ok=True)
+        # write one line of file name into train_files.txt under testfolder
+        os.system("echo testcase > " + os.path.join(testfolder, "train_files.txt"))
+        filename = "testcase"
+
+        # download test h5 file
+        download_url(
+            url=base_url + "4aiA4BAqz5km4Gc/download/" + filename + ".h5",
+            root=os.path.join(testfolder, "data"),
+            filename=filename + ".h5",
+        )
+        # # download test labels
+        download_url(
+            url=base_url + "G6ejNmXNnB2sKyc/download/" + filename + ".txt",
+            root=os.path.join(testfolder, "labels"),
+            filename=filename + ".txt",
+        )
+
         return {"n_samples": 1}
 
 

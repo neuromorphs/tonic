@@ -86,13 +86,21 @@ class DVSGesture(Dataset):
         if not self._check_exists():
             self.download()
 
+        self.users = []
+        self.lighting = []
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
-            dirs.sort()
-            for file in files:
-                if file.endswith("npy"):
-                    self.data.append(path + "/" + file)
-                    self.targets.append(int(file[:-4]))
+            rel_path = os.path.relpath(path, file_path)
+            if rel_path != ".":
+                user, lighting = rel_path.split("_", 1)
+                user = int(user[4:])
+                dirs.sort()
+                for file in files:
+                    if file.endswith("npy"):
+                        self.data.append(os.path.join(path, file))
+                        self.targets.append(int(file[:-4]))
+                        self.users.append(user)
+                        self.lighting.append(lighting)
 
     def __getitem__(self, index):
         """
