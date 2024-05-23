@@ -16,7 +16,6 @@ from warnings import warn
 
 import h5py
 import numpy as np
-from torchvision.transforms import Compose
 
 
 @dataclass
@@ -274,6 +273,8 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
                 self.generate_copy(item, copy)
 
     def generate_copy(self, item, copy):
+        from torchvision.transforms import Compose
+
         file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
         # copy index is passed to augmentation (callable)
         self.aug[0].aug_index = copy
