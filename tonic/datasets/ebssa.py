@@ -11,7 +11,11 @@ from tonic.io import events_struct, make_structured_array
 class EBSSA(Dataset):
     """`EBSSA <https://www.westernsydney.edu.au/icns/resources/reproducible_research3/publication_support_materials2/space_imaging>`_
 
-    There are six different splits provided in this dataset. The labelled section of the dataset contains 84 recordings and 84 label files. The unlabelled section of the dataset contains 153 recordings in folders marked "Unlabelled".
+    There are six different splits provided in this dataset. The labelled section of the dataset contains 84 recordings and 84 label files. 
+    The unlabelled section of the dataset contains 153 recordings in folders marked "Unlabelled".
+    If the automatic download from Google Drive fails, please download the file manually from https://drive.google.com/uc?id=1lCh2HWvxEzzaBHT5TlPuyUn6XPM5OVWN
+    and put it in a folder called 'EBSSA'. Then point the path to its parent folder. For example, if you put the data file in 'datasets/EBSSA/labelled_ebssa.h5',
+    create the dataset object with 'dataset = tonic.datasets.EBSSA('datasets', split='labelled')'
 
     ::
 

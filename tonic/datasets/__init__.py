@@ -11,6 +11,7 @@ from .ncaltech101 import NCALTECH101
 from .nmnist import NMNIST
 from .pokerdvs import POKERDVS
 from .s_mnist import SMNIST
+from .threeET_eyetracking import ThreeET_Eyetracking
 from .tum_vie import TUMVIE
 from .visual_place_recognition import VPR
 
@@ -28,6 +29,7 @@ __all__ = [
     "SHD",
     "SMNIST",
     "SSC",
+    "ThreeET_Eyetracking",
     "TUMVIE",
     "VPR",
     "DVSLip",

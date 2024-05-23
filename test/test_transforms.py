@@ -151,7 +151,7 @@ def test_transform_drop_events_by_area(area_ratio):
                 break
 
     assert (
-        dropped_area_found is True
+            dropped_area_found is True
     ), f"There should be an area with {dropped_events} events dropped in the obtained sequence."
 
 
@@ -224,6 +224,51 @@ def test_transform_drop_pixel(coordinates, hot_pixel_frequency):
 
 
 @pytest.mark.parametrize(
+    "hot_pixel_frequency, event_max_freq",
+    [(59, 60), (10, 60)],
+)
+def test_transform_drop_pixel_unequal_sensor(hot_pixel_frequency, event_max_freq):
+    orig_events, sensor_size = create_random_input(
+        n_events=40000, sensor_size=(15, 20, 2)
+    )
+    orig_events = orig_events.tolist()
+    orig_events += [(0, 0, int(t * 1e3), 1) for t in np.arange(1, 1e6, 1e3 / event_max_freq)]
+    orig_events += [(0, 19, int(t * 1e3), 1) for t in np.arange(1, 1e6, 1e3 / event_max_freq)]
+    orig_events += [(14, 0, int(t * 1e3), 1) for t in np.arange(1, 1e6, 1e3 / event_max_freq)]
+    orig_events += [(14, 19, int(t * 1e3), 1) for t in np.arange(1, 1e6, 1e3 / event_max_freq)]
+    # cast back to numpy events
+    orig_events = np.asarray(orig_events, np.dtype([("x", int), ("y", int), ("t", int), ("p", int)]))
+
+    transform = transforms.DropPixel(
+        coordinates=None, hot_pixel_frequency=hot_pixel_frequency
+    )
+
+    events = transform(orig_events)
+    assert len(np.where((events["x"] == 0) & (events["y"] == 0))[0]) == 0
+    assert len(np.where((events["x"] == 14) & (events["y"] == 0))[0]) == 0
+    assert len(np.where((events["x"] == 0) & (events["y"] == 19))[0]) == 0
+    assert len(np.where((events["x"] == 14) & (events["y"] == 19))[0]) == 0
+
+
+@pytest.mark.parametrize(
+    "coordinates, hot_pixel_frequency",
+    [(((9, 11), (10, 12), (11, 13)), None), (None, 10000)],
+)
+def test_transform_drop_pixel_empty(coordinates, hot_pixel_frequency):
+    orig_events, sensor_size = create_random_input(
+        n_events=0, sensor_size=(15, 20, 2)
+    )
+
+    transform = transforms.DropPixel(coordinates=None, hot_pixel_frequency=hot_pixel_frequency)
+    events = transform(orig_events)
+    assert len(events) == len(orig_events)
+
+    transform = transforms.DropPixel(coordinates=coordinates, hot_pixel_frequency=None)
+    events = transform(orig_events)
+    assert len(events) == len(orig_events)
+
+
+@pytest.mark.parametrize(
     "coordinates, hot_pixel_frequency",
     [(((199, 11), (199, 12), (11, 13)), None), (None, 5000)],
 )
@@ -247,7 +292,8 @@ def test_transform_drop_pixel_raster(coordinates, hot_pixel_frequency):
         assert not merged_polarity_raster[merged_polarity_raster > 5000].sum().sum()
 
 
-@pytest.mark.parametrize("time_factor, spatial_factor, target_size", [(1, 0.25, None), (1e-3, (1, 2), None), (1, 1, (5, 5))])
+@pytest.mark.parametrize("time_factor, spatial_factor, target_size",
+                         [(1, 0.25, None), (1e-3, (1, 2), None), (1, 1, (5, 5))])
 def test_transform_downsample(time_factor, spatial_factor, target_size):
     orig_events, sensor_size = create_random_input()
 
@@ -256,43 +302,42 @@ def test_transform_downsample(time_factor, spatial_factor, target_size):
     )
 
     events = transform(orig_events)
-    
+
     if not isinstance(spatial_factor, tuple):
         spatial_factor = (spatial_factor, spatial_factor)
-    
+
     if target_size is None:
         assert np.array_equal(
             (orig_events["t"] * time_factor).astype(orig_events["t"].dtype), events["t"]
         )
         assert np.array_equal(np.floor(orig_events["x"] * spatial_factor[0]), events["x"])
         assert np.array_equal(np.floor(orig_events["y"] * spatial_factor[1]), events["y"])
-    
+
     else:
         spatial_factor_test = np.asarray(target_size) / sensor_size[:-1]
         assert np.array_equal(np.floor(orig_events["x"] * spatial_factor_test[0]), events["x"])
         assert np.array_equal(np.floor(orig_events["y"] * spatial_factor_test[1]), events["y"])
-    
+
     assert events is not orig_events
-    
-    
-@pytest.mark.parametrize("target_size, dt, downsampling_method, noise_threshold, differentiator_time_bins", 
+
+
+@pytest.mark.parametrize("target_size, dt, downsampling_method, noise_threshold, differentiator_time_bins",
                          [((50, 50), 0.05, 'integrator', 1, None),
                           ((20, 15), 5, 'differentiator', 3, 1)])
-def test_transform_event_downsampling(target_size, dt, downsampling_method, noise_threshold, 
+def test_transform_event_downsampling(target_size, dt, downsampling_method, noise_threshold,
                                       differentiator_time_bins):
-    
     orig_events, sensor_size = create_random_input()
-    
-    transform = transforms.EventDownsampling(sensor_size=sensor_size, target_size=target_size, dt=dt, 
+
+    transform = transforms.EventDownsampling(sensor_size=sensor_size, target_size=target_size, dt=dt,
                                              downsampling_method=downsampling_method, noise_threshold=noise_threshold,
                                              differentiator_time_bins=differentiator_time_bins)
-    
+
     events = transform(orig_events)
-    
+
     assert len(events) <= len(orig_events)
     assert np.logical_and(np.all(events["x"] <= target_size[0]), np.all(events["y"] <= target_size[1]))
     assert events is not orig_events
-    
+
 
 @pytest.mark.parametrize("target_size", [(50, 50), (10, 5)])
 def test_transform_random_crop(target_size):
@@ -465,13 +510,13 @@ def test_transform_spatial_jitter(variance, clip_outliers):
         assert np.isclose(events["y"].all(), orig_events["y"].all(), atol=2 * variance)
 
         assert (
-            events["x"] - orig_events["x"]
-            == (events["x"] - orig_events["x"]).astype(int)
+                events["x"] - orig_events["x"]
+                == (events["x"] - orig_events["x"]).astype(int)
         ).all()
 
         assert (
-            events["y"] - orig_events["y"]
-            == (events["y"] - orig_events["y"]).astype(int)
+                events["y"] - orig_events["y"]
+                == (events["y"] - orig_events["y"]).astype(int)
         ).all()
 
     else:
@@ -503,8 +548,8 @@ def test_transform_time_jitter(std, clip_negative, sort_timestamps):
         np.testing.assert_array_equal(events["y"], orig_events["y"])
         np.testing.assert_array_equal(events["p"], orig_events["p"])
         assert (
-            events["t"] - orig_events["t"]
-            == (events["t"] - orig_events["t"]).astype(int)
+                events["t"] - orig_events["t"]
+                == (events["t"] - orig_events["t"]).astype(int)
         ).all()
     assert events is not orig_events
 
@@ -562,17 +607,7 @@ def test_transform_time_skew(coefficient, offset):
     assert events is not orig_events
 
 
-@pytest.mark.parametrize(
-    "n",
-    [
-        100,
-        0,
-        (
-            10,
-            100,
-        ),
-    ],
-)
+@pytest.mark.parametrize("n", [100, 0, (10, 100)])
 def test_transform_uniform_noise(n):
     orig_events, sensor_size = create_random_input()
 
@@ -597,6 +632,16 @@ def test_transform_uniform_noise(n):
     assert events is not orig_events
 
 
+@pytest.mark.parametrize("n", [100, 0, (10, 100)])
+def test_transform_uniform_noise_empty(n):
+    orig_events, sensor_size = create_random_input(n_events=0)
+    assert len(orig_events) == 0
+
+    transform = transforms.UniformNoise(sensor_size=sensor_size, n=n)
+    events = transform(orig_events)
+    assert len(events) == 0  # check returns an empty array, independent of n.
+
+
 def test_transform_time_alignment():
     orig_events, sensor_size = create_random_input()
 
@@ -606,3 +651,36 @@ def test_transform_time_alignment():
 
     assert np.min(events["t"]) == 0
     assert events is not orig_events
+
+
+def test_toframe_empty():
+    orig_events, sensor_size = create_random_input(n_events=0)
+    assert len(orig_events) == 0
+
+    with pytest.raises(ValueError):  # check that empty array raises error if no slicing method is specified
+        transform = transforms.ToFrame(sensor_size=sensor_size)
+        frame = transform(orig_events)
+
+    n_event_bins = 100
+    transform = transforms.ToFrame(sensor_size=sensor_size, n_event_bins=n_event_bins)
+    frame = transform(orig_events)
+    assert frame.shape == (n_event_bins, sensor_size[2], sensor_size[0], sensor_size[1])
+    assert frame.sum() == 0
+
+    n_time_bins = 100
+    transform = transforms.ToFrame(sensor_size=sensor_size, n_time_bins=n_time_bins)
+    frame = transform(orig_events)
+    assert frame.shape == (n_time_bins, sensor_size[2], sensor_size[0], sensor_size[1])
+    assert frame.sum() == 0
+
+    event_count = 1e3
+    transform = transforms.ToFrame(sensor_size=sensor_size, event_count=event_count)
+    frame = transform(orig_events)
+    assert frame.shape == (1, sensor_size[2], sensor_size[0], sensor_size[1])
+    assert frame.sum() == 0
+
+    time_window = 1e3
+    transform = transforms.ToFrame(sensor_size=sensor_size, time_window=time_window)
+    frame = transform(orig_events)
+    assert frame.shape == (1, sensor_size[2], sensor_size[0], sensor_size[1])
+    assert frame.sum() == 0

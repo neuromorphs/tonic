@@ -22,7 +22,7 @@ ANN is typically a
 tensor with high data precision, but low temporal resolution, the input
 for an SNN are
 binary flags of spikes with comparatively high temporal precision in the
-order of s. The unit in the SNN integrates all of the incoming spikes,
+order of µs. The unit in the SNN integrates all of the incoming spikes,
 which affect the internal parameters such as membrane potential. The
 unit in the ANN
 merely computes the linear combination for inputs on all synapses and

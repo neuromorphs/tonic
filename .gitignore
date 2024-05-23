@@ -5,6 +5,8 @@ data
 generated
 auto_examples
 .vscode
+AUTHORS
+ChangeLog
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
