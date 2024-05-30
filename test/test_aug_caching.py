@@ -1,16 +1,14 @@
 import os
 
 import numpy as np
-from torch.utils.data import Dataset
 
 from tonic.audio_augmentations import RandomPitchShift
 from tonic.audio_transforms import AmplitudeScale, FixLength
 from tonic.cached_dataset import Aug_DiskCachedDataset, load_from_disk_cache
 
 
-class mini_dataset(Dataset):
+class mini_dataset:
     def __init__(self) -> None:
-        super().__init__()
         np.random.seed(0)
         self.data = np.random.rand(10, 16000)
         self.transform = None
