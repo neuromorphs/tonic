@@ -1,9 +1,17 @@
 import logging
 import os
+import sys
+
+if sys.version_info >= (3, 8):
+    from typing import Callable, Iterable, Optional, Tuple, TypedDict, Union
+else:
+    from typing import Callable, Iterable, Optional, Tuple, Union
+    from typing_extensions import TypedDict
+
+import random
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Iterable, Optional, Tuple, Union
 from warnings import warn
 
 import h5py
@@ -225,6 +233,83 @@ def load_from_disk_cache(file_path: Union[str, Path]) -> Tuple:
     if len(target_list) == 1:
         target_list = target_list[0]
     return data_list, target_list
+
+
+@dataclass
+class Aug_DiskCachedDataset(DiskCachedDataset):
+    """Aug_DiskCachedDataset is a child class from DiskCachedDataset with further customizations to
+    handle augmented copies of a sample. The goal of this customization is to map the indices of
+    cached files (copy) to augmentation parameters. This is useful in a category of augmentations
+    where the range of parameter is rather disceret and non probabilistic, for instance an audio
+    sample is being augmented with noise and SNR can take only N=5 values. Passing copy_index to
+    augmentation Class as an init argument ensures that each copy will be a a distinct augmented
+    sample with a trackable parameter.
+
+    'generate_all' method generates all augmented vesions of a sample.
+    'generate_copy' method generates the missing variant (augmented version)
+
+
+
+    Therefore all transforms applied to the dataset are categorized by the keys:  "pre_aug", "augmentations"
+     and "post_aug".
+
+     Args:
+         'all_transforms' is a dictionarty passed to this class containing information about all transforms.
+    """
+
+    all_transforms: Optional[TypedDict] = None
+
+    def __post_init__(self):
+        self.pre_aug = self.all_transforms["pre_aug"]
+        self.aug = self.all_transforms["augmentations"]
+        self.post_aug = self.all_transforms["post_aug"]
+
+    def generate_all(self, item):
+        for copy in range(0, self.num_copies):
+            file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
+            try:
+                data, targets = load_from_disk_cache(file_path)
+            except (FileNotFoundError, OSError) as _:
+                self.generate_copy(item, copy)
+
+    def generate_copy(self, item, copy):
+        from torchvision.transforms import Compose
+
+        file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
+        # copy index is passed to augmentation (callable)
+        self.aug[0].aug_index = copy
+        augmentation = self.aug
+        self.dataset.transform = Compose(self.pre_aug + augmentation + self.post_aug)
+        data, targets = self.dataset[item]
+        save_to_disk_cache(data, targets, file_path=file_path, compress=self.compress)
+
+    def __getitem__(self, item) -> Tuple[object, object]:
+        if self.dataset is None and item >= self.n_samples:
+            raise IndexError(f"This dataset only has {self.n_samples} items.")
+
+        copy = random.randint(0, self.num_copies - 1)
+        file_path = os.path.join(self.cache_path, f"{item}_{copy}.hdf5")
+        try:
+            data, targets = load_from_disk_cache(file_path)
+
+        except (FileNotFoundError, OSError) as _:
+            logging.info(
+                f"Data {item}: {file_path} not in cache, generating it now",
+                stacklevel=2,
+            )
+            self.generate_copy(item, copy)
+
+            # format might change during save to hdf5, i.e. tensors -> np arrays
+            # We load the sample here again to keep the output format consistent.
+            data, targets = load_from_disk_cache(file_path)
+
+        if self.transform is not None:
+            data = self.transform(data)
+        if self.target_transform is not None:
+            targets = self.target_transform(targets)
+        if self.transforms is not None:
+            data, targets = self.transforms(data, targets)
+        return data, targets
 
 
 class CachedDataset(DiskCachedDataset):
