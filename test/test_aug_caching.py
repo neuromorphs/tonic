@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 from torch.utils.data import Dataset
-from torchvision.transforms import Compose
 
 from tonic.audio_augmentations import RandomPitchShift
 from tonic.audio_transforms import AmplitudeScale, FixLength
@@ -31,6 +30,8 @@ class mini_dataset(Dataset):
 
 
 def test_aug_disk_caching():
+    from torchvision.transforms import Compose
+
     all_transforms = {}
     all_transforms["pre_aug"] = [AmplitudeScale(max_amplitude=0.150)]
     all_transforms["augmentations"] = [RandomPitchShift(samplerate=16000, caching=True)]
