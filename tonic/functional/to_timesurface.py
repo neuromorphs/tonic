@@ -33,7 +33,7 @@ def to_timesurface_numpy(
     event_slices = slice_events_by_time(
         events, time_window=dt, overlap=overlap, include_incomplete=include_incomplete
     )
-    memory = np.zeros((sensor_size[::-1]), dtype=int)
+    memory = np.ones((sensor_size[::-1]), dtype=int) * -np.inf
     all_surfaces = []
     x_index = event_slices[0].dtype.names.index("x")
     y_index = event_slices[0].dtype.names.index("y")
