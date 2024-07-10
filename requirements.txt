@@ -1,4 +1,4 @@
-numpy
+numpy<2.0.0
 h5py
 importRosbag>=1.0.4
 scipy
