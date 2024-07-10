@@ -4,3 +4,4 @@ matplotlib
 hdf5plugin
 imageio
 aedat
+numpy
