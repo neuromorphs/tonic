@@ -42,7 +42,7 @@ def plot_event_grid(
         sensor_size = (sensor_size_x, sensor_size_y, sensor_size_p)
 
         transform = transforms.ToFrame(
-            sensor_size=sensor_size, n_time_bins=np.product(axis_array)
+            sensor_size=sensor_size, n_time_bins=np.prod(axis_array)
         )
 
         frames = transform(events)

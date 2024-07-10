@@ -47,13 +47,13 @@ def test_pytorch_batch_collation_dense_tensor():
     assert batch.shape[2] == sensor_size[2]
 
 
-@pytest.mark.skipif(not platform == "linux", reason="Test doesn't finish on Windows.")
+@pytest.mark.skipif(platform == "win32", reason="Test doesn't finish on Windows.")
 def test_plotting():
     events, sensor_size = create_random_input()
     tonic.utils.plot_event_grid(events)
 
 
-@pytest.mark.skipif(not platform == "linux", reason="Test doesn't finish on Windows.")
+@pytest.mark.skipif(platform == "win32", reason="Test doesn't finish on Windows.")
 def test_animation():
     events, sensor_size = create_random_input()
 
