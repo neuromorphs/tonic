@@ -66,6 +66,12 @@ class SliceByTime:
         time_window (int): time for window length (same unit as event timestamps)
         overlap (int): overlap (same unit as event timestamps)
         include_incomplete (bool): include the last incomplete slice that has shorter time
+        start_time (int): optional start time that is used for slicing, otherwise the first event time is used
+        end_time (int): optional end time that is used for slicing, otherwise the last event time is used
+        reset_time (bool): subtract the time_window from each slice. For example, if you have 4 events with
+                           timestamps [0, 150, 299, 300], a time_window of 100, and reset_time as True, you will
+                           get back 4 slices with timestamps [0], [50], [99], [0]. This is useful when you use
+                           start_time / end_time arguments for the ToFrame transform.
     """
 
     time_window: float
@@ -73,10 +79,15 @@ class SliceByTime:
     include_incomplete: bool = False
     start_time: float = None
     end_time: float = None
+    reset_time: bool = False
 
     def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
-        return self.slice_with_metadata(data, targets, metadata)
+        slices, targets = self.slice_with_metadata(data, targets, metadata)
+        if self.reset_time:
+            for i, slice in enumerate(slices):
+                slice["t"] = slice["t"] - i * self.time_window
+        return slices, targets
 
     def get_slice_metadata(
         self, data: np.ndarray, targets: int
