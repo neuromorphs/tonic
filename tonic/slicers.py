@@ -71,6 +71,8 @@ class SliceByTime:
     time_window: float
     overlap: float = 0.0
     include_incomplete: bool = False
+    start_time: float = None
+    end_time: float = None
 
     def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
@@ -83,13 +85,17 @@ class SliceByTime:
         stride = self.time_window - self.overlap
         assert stride > 0
 
+        start_time = t[0] if self.start_time is None else self.start_time
+        end_time = t[-1] if self.end_time is None else self.end_time
+        duration = end_time - start_time
+
         if self.include_incomplete:
-            n_slices = int(np.ceil(((t[-1] - t[0]) - self.time_window) / stride) + 1)
+            n_slices = int(np.ceil((duration - self.time_window) / stride) + 1)
         else:
-            n_slices = int(np.floor(((t[-1] - t[0]) - self.time_window) / stride) + 1)
+            n_slices = int(np.floor((duration - self.time_window) / stride) + 1)
         n_slices = max(n_slices, 1)  # for strides larger than recording time
 
-        window_start_times = np.arange(n_slices) * stride + t[0]
+        window_start_times = np.arange(n_slices) * stride + start_time
         window_end_times = window_start_times + self.time_window
         indices_start = np.searchsorted(t, window_start_times)[:n_slices]
         indices_end = np.searchsorted(t, window_end_times)[:n_slices]
@@ -293,9 +299,15 @@ def slice_events_by_time(
     time_window: int,
     overlap: int = 0,
     include_incomplete: bool = False,
+    start_time=None,
+    end_time=None,
 ):
     return SliceByTime(
-        time_window=time_window, overlap=overlap, include_incomplete=include_incomplete
+        time_window=time_window,
+        overlap=overlap,
+        include_incomplete=include_incomplete,
+        start_time=start_time,
+        end_time=end_time,
     ).slice(events, None)[0]
 
 

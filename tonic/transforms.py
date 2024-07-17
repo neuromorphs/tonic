@@ -61,7 +61,7 @@ class CenterCrop:
         if type(self.size) == int:
             self.size = [self.size, self.size]
         offsets = (self.sensor_size[0] - self.size[0]) // 2, (
-                self.sensor_size[1] - self.size[1]
+            self.sensor_size[1] - self.size[1]
         ) // 2
         offset_idx = [max(offset, 0) for offset in offsets]
         cropped_events = events[
@@ -69,7 +69,7 @@ class CenterCrop:
             & (events["x"] < (offset_idx[0] + self.size[0]))
             & (offset_idx[1] <= events["y"])
             & (events["y"] < (offset_idx[1] + self.size[1]))
-            ]
+        ]
         cropped_events["x"] -= offsets[0]
         cropped_events["y"] -= offsets[1]
         return cropped_events
@@ -229,7 +229,7 @@ class DropPixel:
 
     def __call__(self, events):
         if len(events) == 0:
-            return events   # return empty array
+            return events  # return empty array
 
         if events.dtype.names is not None:
             # assert "x", "y", "p" in events.dtype.names
@@ -788,10 +788,10 @@ class NumpyAsType:
 
     def __call__(self, events):
         source_is_structured_array = (
-                hasattr(events.dtype, "names") and events.dtype.names != None
+            hasattr(events.dtype, "names") and events.dtype.names != None
         )
         target_is_structured_array = (
-                hasattr(self.dtype, "names") and self.dtype.names != None
+            hasattr(self.dtype, "names") and self.dtype.names != None
         )
         if source_is_structured_array and not target_is_structured_array:
             return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
@@ -880,6 +880,10 @@ class ToFrame:
                          overlap is defined by the fraction of a bin between 0 and 1.
         include_incomplete (bool): If True, includes overhang slice when time_window or event_count is specified.
                                    Not valid for bin_count methods.
+        start_time (float): Optional start time if some empty frames are expected in the beginning. If omitted, the 
+                            start time is the timestamp of the first event for that sample.
+        end_time (float): Optional end time if some empty frames are expected in the end. If omitted, the end time 
+                          is the timestamp of the last event for that sample.
 
     Example:
         >>> from tonic.transforms import ToFrame
@@ -895,17 +899,35 @@ class ToFrame:
     n_event_bins: Optional[int] = None
     overlap: float = 0
     include_incomplete: bool = False
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
 
     def __call__(self, events):
 
         # if events are empty, return a frame in the expected format
         if len(events) == 0:
             if self.time_window is not None or self.event_count is not None:
-                return np.zeros((1, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+                return np.zeros(
+                    (1, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1])
+                )
             elif self.n_event_bins is not None:
-                return np.zeros((self.n_event_bins, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+                return np.zeros(
+                    (
+                        self.n_event_bins,
+                        self.sensor_size[2],
+                        self.sensor_size[0],
+                        self.sensor_size[1],
+                    )
+                )
             elif self.n_time_bins is not None:
-                return np.zeros((self.n_time_bins, self.sensor_size[2], self.sensor_size[0], self.sensor_size[1]))
+                return np.zeros(
+                    (
+                        self.n_time_bins,
+                        self.sensor_size[2],
+                        self.sensor_size[0],
+                        self.sensor_size[1],
+                    )
+                )
             else:
                 raise ValueError("No slicing method specified.")
 
@@ -919,6 +941,8 @@ class ToFrame:
                 n_event_bins=self.n_event_bins,
                 overlap=self.overlap,
                 include_incomplete=self.include_incomplete,
+                start_time=self.start_time,
+                end_time=self.end_time,
             )
 
 

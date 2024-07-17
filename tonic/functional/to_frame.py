@@ -9,14 +9,16 @@ from tonic.slicers import (
 
 
 def to_frame_numpy(
-        events,
-        sensor_size,
-        time_window=None,
-        event_count=None,
-        n_time_bins=None,
-        n_event_bins=None,
-        overlap=0.0,
-        include_incomplete=False,
+    events,
+    sensor_size,
+    time_window=None,
+    event_count=None,
+    n_time_bins=None,
+    n_event_bins=None,
+    overlap=0.0,
+    include_incomplete=False,
+    start_time=None,
+    end_time=None,
 ):
     """Accumulate events to frames by slicing along constant time (time_window), constant number of
     events (event_count) or constant number of frames (n_time_bins / n_event_bins).
@@ -37,11 +39,11 @@ def to_frame_numpy(
     assert "x" and "t" and "p" in events.dtype.names
 
     if (
-            not sum(
-                param is not None
-                for param in [time_window, event_count, n_time_bins, n_event_bins]
-            )
-                == 1
+        not sum(
+            param is not None
+            for param in [time_window, event_count, n_time_bins, n_event_bins]
+        )
+        == 1
     ):
         raise ValueError(
             "Please assign a value to exactly one of the parameters time_window,"
@@ -67,7 +69,12 @@ def to_frame_numpy(
 
     if time_window:
         event_slices = slice_events_by_time(
-            events, time_window, overlap=overlap, include_incomplete=include_incomplete
+            events,
+            time_window,
+            overlap=overlap,
+            include_incomplete=include_incomplete,
+            start_time=start_time,
+            end_time=end_time,
         )
     elif event_count:
         event_slices = slice_events_by_count(
@@ -93,4 +100,3 @@ def to_frame_numpy(
         for i, event_slice in enumerate(event_slices):
             np.add.at(frames, (i, event_slice["p"].astype(int), event_slice["x"]), 1)
     return frames
-
