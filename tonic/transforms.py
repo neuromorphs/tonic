@@ -1,6 +1,7 @@
 import itertools
 from dataclasses import dataclass
 from typing import Callable, List, Optional, Tuple, Union
+from warnings import warn
 
 import numpy as np
 
@@ -14,6 +15,7 @@ class Compose:
     Parameters:
         transforms (list of ``Transform`` objects): list of transform(s) to compose.
                                                     Can combine Tonic, PyTorch Vision/Audio transforms.
+        skip_empty (bool): If True (default), will not apply transforms to empty data.
 
     Example:
         >>> transforms.Compose([
@@ -22,12 +24,14 @@ class Compose:
         >>> ])
     """
 
-    def __init__(self, transforms: Callable):
+    def __init__(self, transforms: Callable, skip_empty: bool = True):
         self.transforms = transforms
+        self.skip_empty = skip_empty
 
     def __call__(self, events):
         for t in self.transforms:
-            if len(events) == 0:
+            if self.skip_empty and len(events) == 0:
+                warn("Found empty data. Will not apply transforms")
                 break
             events = t(events)
         return events
