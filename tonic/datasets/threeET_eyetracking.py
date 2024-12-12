@@ -60,7 +60,6 @@ class ThreeET_Eyetracking(Dataset):
             self.download()
 
         data_dir = os.path.join(save_to, "ThreeET_Eyetracking")
-        print("DATADIOR", data_dir, self.location_on_system)
         # Load filenames from the provided lists
         if split == "train":
             filenames = self.load_filenames(os.path.join(data_dir, "train_files.txt"))
