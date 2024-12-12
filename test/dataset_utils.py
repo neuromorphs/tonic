@@ -4,11 +4,12 @@ from typing import Any, Dict, Union
 from unittest.mock import patch
 import pytest
 import numpy as np
-import os 
+import os
 
 # Location of the files to be saved and extracted by the datasets during testing
 TEST_LOCATION_ON_SYSTEM = "~/../../tmp"
 TEST_LOCATION_ON_SYSTEM = os.path.expanduser(TEST_LOCATION_ON_SYSTEM)
+
 
 class DatasetTestCase(unittest.TestCase):
     DATASET_CLASS = None
@@ -20,7 +21,7 @@ class DatasetTestCase(unittest.TestCase):
         "extract_archive",
         "download_and_extract_archive",
     }
-    
+
     def inject_fake_data(
         self, tmpdir: str, config: Dict[str, Any]
     ) -> Union[int, Dict[str, Any]]:
@@ -83,12 +84,11 @@ class DatasetTestCase(unittest.TestCase):
         assert len(data) == len(self.FEATURE_TYPES)
         assert len(target) == len(self.TARGET_TYPES)
 
-        for (data_piece, feature_type) in zip(data, self.FEATURE_TYPES):
+        for data_piece, feature_type in zip(data, self.FEATURE_TYPES):
             if type(data_piece) == np.ndarray:
                 assert data_piece.dtype == feature_type
             else:
                 assert type(data_piece) == feature_type
-
 
     def test_num_examples(self):
         dataset, info = self.create_dataset()
@@ -97,5 +97,8 @@ class DatasetTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.KWARGS.update({"save_to": TEST_LOCATION_ON_SYSTEM})
-        shutil.rmtree(f"{TEST_LOCATION_ON_SYSTEM}/" + cls.DATASET_CLASS.__name__, ignore_errors=True)
+        shutil.rmtree(
+            f"{TEST_LOCATION_ON_SYSTEM}/" + cls.DATASET_CLASS.__name__,
+            ignore_errors=True,
+        )
         super().setUpClass()
