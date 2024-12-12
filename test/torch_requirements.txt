@@ -1,5 +1,5 @@
 --index-url https://download.pytorch.org/whl/cpu
-torch==2.1.0
-torchaudio==2.1.0
-torchvision==0.16.0
+torch==2.3.0
+torchaudio==2.3.0
+torchvision==0.18.0
 torchdata<=0.8.0
