@@ -313,12 +313,10 @@ def download_and_extract_archive(
     md5: Optional[str] = None,
     remove_finished: bool = False,
 ) -> None:
-    download_root = os.path.expanduser(download_root)
     if extract_root is None:
         extract_root = download_root
     if not filename:
         filename = os.path.basename(url)
-
     download_url(url, download_root, filename, md5)
 
     archive = os.path.join(download_root, filename)

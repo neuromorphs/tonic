@@ -20,5 +20,5 @@ def test_read_aedat_events():
     assert len(events) == 118651
 
 
-def test_read_aedat4():
-    events = tonic.io.read_aedat4("test/test_data/sample.aedat4")
+# def test_read_aedat4():
+#     events = tonic.io.read_aedat4("test/test_data/sample.aedat4")

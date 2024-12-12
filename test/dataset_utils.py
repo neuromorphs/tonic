@@ -2,14 +2,17 @@ import shutil
 import unittest
 from typing import Any, Dict, Union
 from unittest.mock import patch
-
+import pytest
 import numpy as np
+import os 
 
+# Location of the files to be saved and extracted by the datasets during testing
+TEST_LOCATION_ON_SYSTEM = "~/../../tmp"
+TEST_LOCATION_ON_SYSTEM = os.path.expanduser(TEST_LOCATION_ON_SYSTEM)
 
 class DatasetTestCase(unittest.TestCase):
     DATASET_CLASS = None
     FEATURE_TYPES = None
-
     _CHECK_FUNCTIONS = {"check_md5", "check_integrity", "check_exists"}
     _DOWNLOAD_EXTRACT_FUNCTIONS = {
         "download_url",
@@ -17,7 +20,7 @@ class DatasetTestCase(unittest.TestCase):
         "extract_archive",
         "download_and_extract_archive",
     }
-
+    
     def inject_fake_data(
         self, tmpdir: str, config: Dict[str, Any]
     ) -> Union[int, Dict[str, Any]]:
@@ -41,8 +44,7 @@ class DatasetTestCase(unittest.TestCase):
         )
 
     def create_dataset(self, inject_fake_data: bool = True, **kwargs: Any):
-        tmpdir = "/tmp/"
-        info = self._inject_fake_data(tmpdir)
+        info = self._inject_fake_data(TEST_LOCATION_ON_SYSTEM)
 
         if inject_fake_data:
             with patch.object(self.DATASET_CLASS, "_check_exists", return_value=True):
@@ -87,12 +89,13 @@ class DatasetTestCase(unittest.TestCase):
             else:
                 assert type(data_piece) == feature_type
 
+
     def test_num_examples(self):
         dataset, info = self.create_dataset()
         assert len(dataset) == info["n_samples"]
 
     @classmethod
     def setUpClass(cls):
-        cls.KWARGS.update({"save_to": "/tmp"})
-        shutil.rmtree("/tmp/" + cls.DATASET_CLASS.__name__, ignore_errors=True)
+        cls.KWARGS.update({"save_to": TEST_LOCATION_ON_SYSTEM})
+        shutil.rmtree(f"{TEST_LOCATION_ON_SYSTEM}/" + cls.DATASET_CLASS.__name__, ignore_errors=True)
         super().setUpClass()

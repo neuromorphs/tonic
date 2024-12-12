@@ -18,7 +18,7 @@ class Dataset:
         target_transform: Optional[Callable] = None,
         transforms: Optional[Callable] = None,
     ):
-        self.location_on_system = os.path.join(save_to, self.__class__.__name__)
+        self.location_on_system = os.path.join(os.path.expanduser(save_to), self.__class__.__name__)
         self.transform = transform
         self.target_transform = target_transform
         self.transforms = transforms
