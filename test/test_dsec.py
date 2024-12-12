@@ -84,7 +84,7 @@ def test_target_multiselection():
     assert len(targets) == 2
 
 
-@pytest.mark.skip("Data not available from CI server...")
+# @pytest.mark.skip("Data not available from CI server...")
 def test_optical_flow():
     dataset = tonic.datasets.DSEC(
         save_to="data",

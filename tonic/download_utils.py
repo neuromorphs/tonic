@@ -159,9 +159,9 @@ def _extract_zip(from_path: str, to_path: str, compression: Optional[str]) -> No
     with zipfile.ZipFile(
         from_path,
         "r",
-        compression=_ZIP_COMPRESSION_MAP[compression]
-        if compression
-        else zipfile.ZIP_STORED,
+        compression=(
+            _ZIP_COMPRESSION_MAP[compression] if compression else zipfile.ZIP_STORED
+        ),
     ) as zip:
         zip.extractall(to_path)
 

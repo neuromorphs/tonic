@@ -33,7 +33,6 @@ class DVSGestureTestCaseTrain(dataset_utils.DatasetTestCase):
 
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "DVSGesture/ibmGestureTrain/user24_led")
-        print("TESTFOLDER ", testfolder)
         os.makedirs(testfolder, exist_ok=True)
         events, sensor_size = create_random_input(dtype=datasets.DVSGesture.dtype)
         events = np.lib.recfunctions.structured_to_unstructured(events)
