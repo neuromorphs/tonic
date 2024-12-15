@@ -159,9 +159,9 @@ def _extract_zip(from_path: str, to_path: str, compression: Optional[str]) -> No
     with zipfile.ZipFile(
         from_path,
         "r",
-        compression=_ZIP_COMPRESSION_MAP[compression]
-        if compression
-        else zipfile.ZIP_STORED,
+        compression=(
+            _ZIP_COMPRESSION_MAP[compression] if compression else zipfile.ZIP_STORED
+        ),
     ) as zip:
         zip.extractall(to_path)
 
@@ -313,12 +313,10 @@ def download_and_extract_archive(
     md5: Optional[str] = None,
     remove_finished: bool = False,
 ) -> None:
-    download_root = os.path.expanduser(download_root)
     if extract_root is None:
         extract_root = download_root
     if not filename:
         filename = os.path.basename(url)
-
     download_url(url, download_root, filename, md5)
 
     archive = os.path.join(download_root, filename)
