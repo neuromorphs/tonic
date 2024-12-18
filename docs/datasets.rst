@@ -32,6 +32,7 @@ Audio event stream classification
 
     SHD
     SSC
+    NTIDIGITS18
 
 Pose estimation, visual odometry, SLAM
 --------------------------------------
