@@ -181,6 +181,68 @@ class NMNISTTestCaseTest(dataset_utils.DatasetTestCase):
         return {"n_samples": 1}
 
 
+def create_ntidigits_data(filename, n_samples):
+    with h5py.File(filename, mode="w") as write_file:
+        # Generate random times and units
+        times = np.random.random(size=(n_samples, 100)).astype(np.float16)
+        units = np.random.randint(0, 64, size=times.shape, dtype=np.uint16)
+
+        # Generate random sequences of symbols
+        symbols = ["o", "1", "2", "3", "4", "5", "6", "7", "8", "9", "z"]
+        sequences = np.array([
+            "speaker-a-" + "".join(np.random.choice(symbols, size=np.random.randint(1, 7), replace=True))
+            for _ in range(n_samples)
+        ]).astype("|S18")
+
+        for partition in ["train", "test"]:
+            # Create a dictionary to store the addresses and timestamps of each speaker
+            addresses = {}
+            timestamps = {}
+            for i in range(n_samples):
+                speaker = sequences[i]
+                if speaker not in addresses:
+                    addresses[speaker] = units[i]
+                    timestamps[speaker] = times[i]
+
+            # Create a group for addresses and timestamps, Store each speaker's data as a dataset in the group
+            train_address_group = write_file.create_group("{}_addresses".format(partition))
+            for speaker, addresses in addresses.items():
+                train_address_group.create_dataset(speaker, data=np.array(addresses, dtype=np.uint16))
+
+            train_timestamps_group = write_file.create_group("{}_timestamps".format(partition))
+            for speaker, timestamps in timestamps.items():
+                train_timestamps_group.create_dataset(speaker, data=np.array(timestamps, dtype=np.float16))
+
+            # Create datasets for labels
+            write_file.create_dataset("{}_labels".format(partition), data=sequences)
+
+
+class NTIDIGITS18TestCaseTrain(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.NTIDIGITS18
+    FEATURE_TYPES = (datasets.NTIDIGITS18.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": True}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "NTIDIGITS18/")
+        os.makedirs(testfolder, exist_ok=True)
+        create_ntidigits_data(testfolder + "n-tidigits.hdf5", n_samples=2)
+        return {"n_samples": 2}
+
+
+class NTIDIGITS18TestCaseTest(dataset_utils.DatasetTestCase):
+    DATASET_CLASS = datasets.NTIDIGITS18
+    FEATURE_TYPES = (datasets.NTIDIGITS18.dtype,)
+    TARGET_TYPES = (int,)
+    KWARGS = {"train": False}
+
+    def inject_fake_data(self, tmpdir):
+        testfolder = os.path.join(tmpdir, "NTIDIGITS18/")
+        os.makedirs(testfolder, exist_ok=True)
+        create_ntidigits_data(testfolder + "n-tidigits.hdf5", n_samples=2)
+        return {"n_samples": 2}
+
+
 def create_hsd_data(filename, n_samples):
     with h5py.File(filename, mode="w") as write_file:
         times = np.random.random(size=(n_samples, 100)).astype(np.float16)
