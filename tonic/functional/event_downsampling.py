@@ -46,8 +46,8 @@ def differentiator_downsample(events: np.ndarray, sensor_size: tuple, target_siz
         time = int(differentiated_time // dt)
         
         # Separate events based on polarity and apply Heaviside
-        event_hist_pos = (np.maximum(event_histogram >= noise_threshold, 0)).clip(max=1)
-        event_hist_neg = (-np.minimum(-event_histogram >= noise_threshold, 0)).clip(max=1)
+        event_hist_pos = event_histogram >= noise_threshold
+        event_hist_neg = -event_histogram >= noise_threshold
         
         frame_histogram[time,...,1] += event_hist_pos
         frame_histogram[time,...,0] += event_hist_neg
