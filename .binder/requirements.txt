@@ -10,4 +10,3 @@ expelliarmus
 torchvision
 ipywidgets
 matplotlib
-torchdata
