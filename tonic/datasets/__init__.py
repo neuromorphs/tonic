@@ -9,6 +9,7 @@ from .ntidigits18 import NTIDIGITS18
 from .hsd import SHD, SSC
 from .mvsec import MVSEC
 from .ncaltech101 import NCALTECH101
+from .nerdd import NERDD
 from .nmnist import NMNIST
 from .pokerdvs import POKERDVS
 from .s_mnist import SMNIST
@@ -25,6 +26,7 @@ __all__ = [
     "EBSSA",
     "MVSEC",
     "NCALTECH101",
+    "NERDD",
     "NMNIST",
     "POKERDVS",
     "SHD",

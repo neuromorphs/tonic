@@ -45,19 +45,13 @@ Pose estimation, visual odometry, SLAM
     MVSEC
     TUMVIE
     VPR
-    
-Star tracking
--------------------
-.. autosummary::
-    :toctree: generated/
-    :template: class_dataset.rst
 
-    EBSSA
-
-Eye tracking
+Object tracking
 -------------------
 .. autosummary::
     :toctree: generated/
     :template: class_dataset.rst
 
     ThreeET_Eyetracking
+    NeRDD
+    EBSSA
