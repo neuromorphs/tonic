@@ -61,17 +61,3 @@ Eye tracking
     :template: class_dataset.rst
 
     ThreeET_Eyetracking
-
-.. currentmodule:: tonic.prototype.datasets
-
-Prototype iterable datasets
----------------------------
-.. autosummary::
-    :toctree: generated/
-    :template: class_dataset.rst
-
-    NMNIST
-    NCARS
-    STMNIST
-    Gen1AutomotiveDetection
-    Gen4AutomotiveDetectionMini
