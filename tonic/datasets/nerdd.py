@@ -37,7 +37,7 @@ class NERDD:
                     "Please download it manually and place it in the specified directory."
                 )
             self._extract_archive()
-        
+
         self._load_dataset_structure()
 
     def _check_zip_exists(self) -> bool:
@@ -78,12 +78,12 @@ class NERDD:
             
             for scene in scenes:
                 scene_path = os.path.join(archive_path, scene)
+
                 event_file = os.path.join(scene_path, "Event", "output_events.npz")
-                rgb_folder = os.path.join(scene_path, "rgb_folder")
                 label_file = os.path.join(scene_path, "ev_rgb_coordinates.txt")
                 
                 if os.path.exists(event_file) and os.path.exists(label_file):
-                    self.data.append((event_file, label_file))
+                    self.data.append((event_file, label_file, int(archive[8:]), int(scene)))
                 else:
                     print(f"Skipping scene {scene} in archive {archive}: missing files.")
 
@@ -92,7 +92,7 @@ class NERDD:
         Returns:
             (events, target) where target is index of the target class.
         """
-        event_file, label_file = self.data[index]
+        event_file, label_file, archive, scene = self.data[index]
         events = np.load(event_file)["data"]
         events = make_structured_array(
             events[:, 3],  # t
@@ -110,11 +110,17 @@ class NERDD:
                 bboxes.append([float(timestamp)] + bbox_coords)
             bboxes = np.array(bboxes, dtype=np.float32)
 
+        targets = {
+            'archive' : archive,
+            'scene' : scene,
+            'bboxes' : bboxes,
+        }
+
         # Apply transforms if provided
         if self.transforms is not None:
-            events, bboxes = self.transforms(events, bboxes)
+            events, targets = self.transforms(events, targets)
 
-        return events, bboxes
+        return events, targets
 
     def __len__(self):
         return len(self.data)
