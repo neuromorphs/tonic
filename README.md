@@ -7,6 +7,8 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
 [![Discord](https://img.shields.io/discord/1044548629622439977)](https://discord.gg/qubbM4uPuA)
 
+**This project is looking for a new maintainer. Reach out to Gregor if you're interested!**
+
 **Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. It's like PyTorch Vision but for neuromorphic data!
 
 ## Documentation
