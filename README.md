@@ -21,6 +21,14 @@ You can find the full documentation on Tonic [on this site](https://tonic.readth
 * [About](https://tonic.readthedocs.io/en/latest/about/info.html) this project.
 * [Release notes](https://tonic.readthedocs.io/en/latest/about/release_notes.html) on version changes.
 
+## Dependencies
+
+The only dependency not managed with [Poetry](https://python-poetry.org/) is [PyTorch](https://pytorch.org/) due to its hardware specific variants.
+
+When developing and testing this package (e.g. with `poetry run pytest`) PyTorch can be installed with `poetry run pip install torch torchvision torchaudio`.
+
+When depending on this package follow a similar workflow to ensure there is an accessible PyTorch installation in the enviroment.
+
 ## Install
 ```bash
 pip install tonic
