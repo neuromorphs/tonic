@@ -5,7 +5,7 @@
 [![contributors](https://img.shields.io/github/contributors-anon/neuromorphs/tonic)](https://github.com/neuromorphs/tonic/pulse)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
-[![Discord](https://img.shields.io/discord/1044548629622439977)](https://discord.gg/qubbM4uPuA)
+[![Discord](https://img.shields.io/discord/1044548629622439977)](https://discord.gg/YSU9DGp4F2)
 
 **This project is looking for a new maintainer. Reach out to Gregor if you're interested!**
 
