@@ -7,6 +7,7 @@ auto_examples
 .vscode
 AUTHORS
 ChangeLog
+test_data_local
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
