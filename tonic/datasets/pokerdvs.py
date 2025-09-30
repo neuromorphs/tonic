@@ -113,6 +113,8 @@ class POKERDVS(Dataset):
 
         # Copy the file to the target location
         target_file = os.path.join(self.location_on_system, self.filename)
+        # Ensure the target directory exists
+        os.makedirs(self.location_on_system, exist_ok=True)
         shutil.copy2(source_file, target_file)
 
         # Extract the archive
