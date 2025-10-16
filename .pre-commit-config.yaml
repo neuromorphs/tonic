@@ -1,18 +1,34 @@
 repos:
-  - repo: https://github.com/python/black
-    rev: 23.3.0 
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-    - id: black
-      language_version: python3
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-symlinks
 
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
     hooks:
-      - id: isort
-        args: ["--profile", "black", "--filter-files"]
+      # Run the linter
+      - id: ruff-check
+        args: [--fix]
+      # Run the formatter
+      - id: ruff-format
 
-  - repo: https://github.com/myint/docformatter
-    rev: v1.6.0
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
     hooks:
-      - id: docformatter
-        args: [--in-place, --wrap-summaries=99, --wrap-descriptions=99]
+      - id: mypy
+        additional_dependencies:
+          - numpy
+          - types-requests
+        args: [--ignore-missing-imports, --show-error-codes]
+        files: ^tonic/
+        # Allow failures until type hints are added throughout the codebase
+        verbose: true

@@ -22,22 +22,45 @@ You can find the full documentation on Tonic [on this site](https://tonic.readth
 * [Release notes](https://tonic.readthedocs.io/en/latest/about/release_notes.html) on version changes.
 
 ## Install
+
+### For users
 ```bash
 pip install tonic
 ```
 or (thanks to [@Tobias-Fischer](https://github.com/Tobias-Fischer))
-```
+```bash
 conda install -c conda-forge tonic
 ```
 For the latest pre-release on the develop branch that passed the tests:
-```
+```bash
 pip install tonic --pre
 ```
+
+### For developers
+We recommend using [uv](https://docs.astral.sh/uv/) for development:
+```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone the repository
+git clone https://github.com/neuromorphs/tonic.git
+cd tonic
+
+# Install dependencies and tonic in editable mode
+uv sync --extra dev
+
+# Run tests
+uv run pytest test/
+```
+
 This package has been tested on:
 
-| Linux    | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)|
-|----------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| **Windows**  | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-2022)](https://github.com/neuromorphs/tonic) |
+| Platform | Python Versions | Status |
+|----------|----------------|---------|
+| **Linux** | 3.10, 3.11, 3.12, 3.13, 3.14 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic) |
+| **macOS (Intel)** | 3.10, 3.11, 3.12, 3.13, 3.14 | ![CI](https://github.com/neuromorphs/tonic/workflows/CI/badge.svg) |
+| **macOS (ARM64)** | 3.10, 3.11, 3.12, 3.13, 3.14 | ![CI](https://github.com/neuromorphs/tonic/workflows/CI/badge.svg) |
+| **Windows** | 3.10, 3.11, 3.12, 3.13, 3.14 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-latest)](https://github.com/neuromorphs/tonic) |
 
 ## Quickstart
 If you're looking for a minimal example to run, this is it!
