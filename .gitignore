@@ -142,3 +142,7 @@ dmypy.json
 *.swp
 
 test/numpy_test/data/
+
+.github/ROADMAP.md
+.github/drafts/
+.github/issues/
