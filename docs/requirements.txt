@@ -3,7 +3,6 @@ sphinx~=5.3
 sphinx-book-theme
 sphinx-gallery
 myst_nb
-pbr
 ipywidgets
 matplotlib
 sphinx-autoapi
