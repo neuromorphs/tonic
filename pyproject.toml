@@ -50,9 +50,9 @@ test = [
     "aedat>=1.0",
 ]
 torch = [
-    "torch>=2.0",
-    "torchvision>=0.15",
-    "torchaudio>=2.0",
+    "torch==2.3.0",
+    "torchvision==0.18.0",
+    "torchaudio==2.3.0",
 ]
 docs = [
     "astroid~=2.15",
