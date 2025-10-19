@@ -59,7 +59,7 @@ torch = [
     "torchaudio==2.3.0",
 ]
 docs = [
-    "astroid~=2.15",
+    "astroid>=3.0,<4.0",
     "sphinx~=5.3",
     "sphinx-book-theme",
     "sphinx-gallery",
