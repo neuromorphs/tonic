@@ -60,13 +60,13 @@ torch = [
 ]
 docs = [
     "astroid>=3.0,<4.0",
-    "sphinx~=5.3",
+    "sphinx>=6.1,<8.0",
     "sphinx-book-theme",
     "sphinx-gallery",
     "myst_nb",
     "ipywidgets",
     "matplotlib",
-    "sphinx-autoapi>=3.0",
+    "sphinx-autoapi>=3.0,<3.6",
 ]
 dev = [
     "tonic[test,torch,docs]",
