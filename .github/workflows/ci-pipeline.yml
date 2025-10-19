@@ -2,96 +2,146 @@ name: CI
 
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   multitest:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2022]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10", "3.11", "3.12"]
+        # Python 3.13 and 3.14 excluded: PyTorch 2.3.0 lacks pre-built wheels
+        # PyTorch 2.6+ required for Python 3.13, 2.9+ for Python 3.14
+        # macOS-13 removed: deprecated by GitHub, retiring December 4th, 2025
+        # macos-15: Apple Silicon (ARM64)
     steps:
       - uses: actions/checkout@v4
-      - if: matrix.os == 'ubuntu-latest'
-        name: install audio library libsndfile
+
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install requirements
+
+      - name: Install system dependencies (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: brew install libsndfile
+
+      - name: Install system dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          pip install -r test/requirements.txt
-          pip install -r test/torch_requirements.txt
-          pip install .
+          choco install -y libsndfile
+          Write-Host "libsndfile installation exit code: $LASTEXITCODE"
+        continue-on-error: true
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --extra test --extra torch
+
       - name: Test with pytest
-        run: pytest test
+        run: uv run pytest test -v
         env:
-            CI: true
+          CI: true
 
   coverage:
     needs: multitest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: install audio library libsndfile
+
+      - name: Install system dependencies
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v5
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.11
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --extra test --extra torch
+
       - name: Generate coverage report
         run: |
-          pip install -r test/requirements.txt
-          pip install -r test/torch_requirements.txt
-          pip install .
-          coverage run -m pytest test
-          coverage xml
+          uv run coverage run -m pytest test
+          uv run coverage xml
+
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
 
   documentation:
     needs: multitest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: install audio library libsndfile
+
+      - name: Install system dependencies
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v5
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.11
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
       - name: Install dependencies
-        run: |
-          pip install -r docs/requirements.txt
-          pip install -r test/torch_requirements.txt
-          pip install .
+        run: uv sync --extra docs --extra torch
+
       - name: Build documentation
-        run: cd docs && make clean && make html # Use SPHINXOPTS="-W" to fail on warning.
+        run: |
+          source .venv/bin/activate
+          cd docs && make clean && make html
 
   build-and-publish:
     needs: documentation
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: install audio library libsndfile
+
+      - name: Install system dependencies
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-      - name: Install wheel
-        run: pip install wheel
-      - name: Build a binary wheel and a source tarball
-        run: python setup.py sdist bdist_wheel
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Build wheel and source distribution
+        run: uv build
+
       - name: Publish distribution package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_DEPLOYMENT }}
           skip-existing: true
+
       - name: Github release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/*
+          generate_release_notes: true

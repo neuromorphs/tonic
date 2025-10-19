@@ -5,7 +5,6 @@ scipy
 tqdm
 typing_extensions
 librosa
-pbr
 expelliarmus
 torchvision
 ipywidgets

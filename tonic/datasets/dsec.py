@@ -296,7 +296,7 @@ class DSEC(Dataset):
                     list_files(full_base_folder, ".png", prefix=True)
                 )
                 target = np.array(
-                    [imageio.v2.imread(file, format="PNG-FI") for file in png_filenames]
+                    [self._read_16bit_png(file) for file in png_filenames]
                 ).astype(float)
                 target[:, :, :, :2] -= 2**15
                 target[:, :, :, :2] /= 128
@@ -329,6 +329,45 @@ class DSEC(Dataset):
 
     def __len__(self):
         return len(self.recording_selection)
+
+    def _read_16bit_png(self, filepath: str) -> np.ndarray:
+        """Read 16-bit RGB PNG files with fallback to pypng when imageio fails.
+
+        This method attempts to read 16-bit PNG files using imageio's PNG-FI format first.
+        If that fails (e.g., on macOS where FreeImage plugin may not be available), it falls
+        back to using the pypng library which provides reliable 16-bit PNG support.
+
+        Args:
+            filepath: Path to the PNG file to read
+
+        Returns:
+            numpy array with shape (height, width, channels) and dtype uint16
+        """
+        import imageio
+
+        try:
+            # Try imageio with PNG-FI format first (works on Linux/Windows with FreeImage)
+            return imageio.v2.imread(filepath, format="PNG-FI")
+        except (RuntimeError, imageio.core.request.InitializationError):
+            # Fallback to pypng for macOS and other platforms without FreeImage support
+            try:
+                import png
+            except ImportError:
+                raise ImportError(
+                    "Reading 16-bit PNG files requires either imageio with FreeImage plugin "
+                    "or pypng library. Install pypng with: pip install pypng"
+                )
+
+            with open(filepath, 'rb') as f:
+                reader = png.Reader(file=f)
+                width, height, pixels, metadata = reader.read()
+
+                # Convert to numpy array and reshape to (height, width, channels)
+                pixel_data = np.vstack(list(pixels))
+                if metadata['planes'] > 1:
+                    pixel_data = pixel_data.reshape((height, width, metadata['planes']))
+
+                return pixel_data
 
     def _check_exists(self, data_selection: List):
         all_names = {**self.data_names, **self.target_names}

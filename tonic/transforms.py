@@ -629,7 +629,7 @@ class RefractoryPeriod:
 
 @dataclass(frozen=True)
 class SpatialJitter:
-    """Changes x/y coordinate for each event by adding samples from a multivariate Gaussian
+    r"""Changes x/y coordinate for each event by adding samples from a multivariate Gaussian
     distribution. It with the following properties:
 
         .. math::
