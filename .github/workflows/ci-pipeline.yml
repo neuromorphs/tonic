@@ -44,7 +44,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --extra test --extra torch --no-build
+        run: uv sync --extra test --extra torch
 
       - name: Test with pytest
         run: uv run pytest test -v
@@ -69,7 +69,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --extra test --extra torch --no-build
+        run: uv sync --extra test --extra torch
 
       - name: Generate coverage report
         run: |
@@ -100,7 +100,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --extra docs --extra torch --no-build
+        run: uv sync --extra docs --extra torch
 
       - name: Build documentation
         run: cd docs && make clean && make html
