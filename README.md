@@ -66,12 +66,11 @@ uv run pytest test/
 
 This package has been tested on:
 
-| Platform          | Python Versions              | Status                                                                                                                                      |
-| ----------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Linux**         | 3.10, 3.11, 3.12, 3.13, 3.14 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)  |
-| **macOS (Intel)** | 3.10, 3.11, 3.12, 3.13, 3.14 | ![CI](https://github.com/neuromorphs/tonic/workflows/CI/badge.svg)                                                                          |
-| **macOS (ARM64)** | 3.10, 3.11, 3.12, 3.13, 3.14 | ![CI](https://github.com/neuromorphs/tonic/workflows/CI/badge.svg)                                                                          |
-| **Windows**       | 3.10, 3.11, 3.12, 3.13, 3.14 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-latest)](https://github.com/neuromorphs/tonic) |
+| Platform          | Python Versions  | Status                                                                                                                                      |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Linux**         | 3.10, 3.11, 3.12 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)  |
+| **macOS (ARM64)** | 3.10, 3.11, 3.12 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.macos-latest)](https://github.com/neuromorphs/tonic)   |
+| **Windows**       | 3.10, 3.11, 3.12 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-latest)](https://github.com/neuromorphs/tonic) |
 
 ## Quickstart
 
