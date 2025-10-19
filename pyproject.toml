@@ -47,6 +47,7 @@ test = [
     "matplotlib>=3.7",
     "hdf5plugin>=4.1",
     "imageio>=2.31",
+    "pypng>=0.20220715.0",
     "aedat>=1.0",
 ]
 # torch: Pinned to 2.3.0 for stability (supports Python 3.10-3.12)
