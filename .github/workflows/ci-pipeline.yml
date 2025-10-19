@@ -12,10 +12,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-15]
         python-version: ["3.10", "3.11", "3.12"]
         # Python 3.13 and 3.14 excluded: PyTorch 2.3.0 lacks pre-built wheels
         # PyTorch 2.6+ required for Python 3.13, 2.9+ for Python 3.14
+        # macOS-13 removed: deprecated by GitHub, retiring December 4th, 2025
+        # macos-15-intel: Intel (x86_64), macos-15: Apple Silicon (ARM64)
     steps:
       - uses: actions/checkout@v4
 
