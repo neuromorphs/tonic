@@ -49,6 +49,9 @@ test = [
     "imageio>=2.31",
     "aedat>=1.0",
 ]
+# torch: Pinned to 2.3.0 for stability (supports Python 3.10-3.12)
+# Note: Python 3.13 requires PyTorch >= 2.6, Python 3.14 requires >= 2.9
+# CI matrix currently tests Python 3.10-3.12 only
 torch = [
     "torch==2.3.0",
     "torchvision==0.18.0",

@@ -13,7 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-13, macos-14]
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.10", "3.11", "3.12"]
+        # Python 3.13 and 3.14 excluded: PyTorch 2.3.0 lacks pre-built wheels
+        # PyTorch 2.6+ required for Python 3.13, 2.9+ for Python 3.14
     steps:
       - uses: actions/checkout@v4
 
@@ -27,7 +29,10 @@ jobs:
 
       - name: Install system dependencies (Windows)
         if: matrix.os == 'windows-latest'
-        run: choco install -y libsndfile
+        shell: pwsh
+        run: |
+          choco install -y libsndfile
+          Write-Host "libsndfile installation exit code: $LASTEXITCODE"
         continue-on-error: true
 
       - name: Set up uv
@@ -39,7 +44,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --extra test --extra torch
+        run: uv sync --extra test --extra torch --no-build
 
       - name: Test with pytest
         run: uv run pytest test -v
@@ -64,7 +69,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --extra test --extra torch
+        run: uv sync --extra test --extra torch --no-build
 
       - name: Generate coverage report
         run: |
@@ -95,7 +100,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --extra docs --extra torch
+        run: uv sync --extra docs --extra torch --no-build
 
       - name: Build documentation
         run: cd docs && make clean && make html
