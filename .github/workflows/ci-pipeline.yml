@@ -105,7 +105,9 @@ jobs:
         run: uv sync --extra docs --extra torch
 
       - name: Build documentation
-        run: cd docs && make clean && make html
+        run: |
+          source .venv/bin/activate
+          cd docs && make clean && make html
 
   build-and-publish:
     needs: documentation
