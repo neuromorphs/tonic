@@ -30,7 +30,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "numpy>=1.24",
+    "numpy>=1.24,<2.0",  # PyTorch 2.3.0 incompatible with NumPy 2.0
     "h5py>=3.8",
     "importRosbag>=1.0.4",
     "scipy>=1.10",
