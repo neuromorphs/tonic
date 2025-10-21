@@ -1,6 +1,3 @@
-from sys import platform
-
-import pytest
 from utils import create_random_input
 
 import tonic

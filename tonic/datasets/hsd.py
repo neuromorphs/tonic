@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import h5py
 import numpy as np
@@ -76,8 +76,8 @@ class SHD(HSD):
         self,
         save_to: str,
         train: bool = True,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -141,8 +141,8 @@ class SSC(HSD):
         self,
         save_to: str,
         split: str = "train",
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
     ):
         super().__init__(
             save_to, transform=transform, target_transform=target_transform

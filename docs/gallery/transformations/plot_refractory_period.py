@@ -2,7 +2,7 @@
 ==================
 RefractoryPeriod
 ==================
-The :class:`~tonic.transforms.RefractoryPeriod` drops 
+The :class:`~tonic.transforms.RefractoryPeriod` drops
 all events during the refractory period.
 """
 

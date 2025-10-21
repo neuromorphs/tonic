@@ -47,7 +47,7 @@ def test_caching_transforms():
         dataset, cache_path="./cache/test2", transform=augmentation, num_copies=4
     )
 
-    for (data, label), (data2, label2) in zip(dataset, dataset_cached):
+    for (data, label), (data2, label2) in zip(dataset, dataset_cached, strict=False):
         assert (data == data2).all()
         assert label == label2
 
@@ -62,8 +62,8 @@ def test_caching_reset():
     dummy_content = np.zeros((3, 3))
     os.makedirs(cache_path)
     with h5py.File(old_file, "w") as f:
-        f.create_dataset(f"data/0", data=dummy_content)
-        f.create_dataset(f"target/0", data=dummy_content)
+        f.create_dataset("data/0", data=dummy_content)
+        f.create_dataset("target/0", data=dummy_content)
 
     dataset = datasets.POKERDVS(save_to="./data", train=False)
 

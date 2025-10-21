@@ -1,10 +1,10 @@
+import os
 import shutil
 import unittest
-from typing import Any, Dict, Union
+from typing import Any
 from unittest.mock import patch
-import pytest
+
 import numpy as np
-import os
 
 # Location of the files to be saved and extracted by the datasets during testing
 TEST_LOCATION_ON_SYSTEM = "~/../../tmp"
@@ -23,8 +23,8 @@ class DatasetTestCase(unittest.TestCase):
     }
 
     def inject_fake_data(
-        self, tmpdir: str, config: Dict[str, Any]
-    ) -> Union[int, Dict[str, Any]]:
+        self, tmpdir: str, config: dict[str, Any]
+    ) -> int | dict[str, Any]:
         """Inject fake data for dataset into a temporary directory.
 
         During the creation of the dataset the download and extract logic is disabled. Thus, the fake data injected
@@ -84,7 +84,7 @@ class DatasetTestCase(unittest.TestCase):
         assert len(data) == len(self.FEATURE_TYPES)
         assert len(target) == len(self.TARGET_TYPES)
 
-        for data_piece, feature_type in zip(data, self.FEATURE_TYPES):
+        for data_piece, feature_type in zip(data, self.FEATURE_TYPES, strict=False):
             if type(data_piece) == np.ndarray:
                 assert data_piece.dtype == feature_type
             else:

@@ -1,6 +1,5 @@
-import itertools
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -36,7 +35,7 @@ class Compose:
         format_string = self.__class__.__name__ + "("
         for t in self.transforms:
             format_string += "\n"
-            format_string += "    {0}".format(t)
+            format_string += f"    {t}"
         format_string += "\n)"
         return format_string
 
@@ -54,15 +53,16 @@ class CenterCrop:
             int instead of sequence like (h, w), a square crop (size, size) is made.
     """
 
-    sensor_size: Tuple[int, int, int]
-    size: Union[int, Tuple[int, int]]
+    sensor_size: tuple[int, int, int]
+    size: int | tuple[int, int]
 
     def __call__(self, events: np.ndarray) -> np.ndarray:
-        if type(self.size) == int:
+        if isinstance(self.size, int):
             self.size = [self.size, self.size]
-        offsets = (self.sensor_size[0] - self.size[0]) // 2, (
-            self.sensor_size[1] - self.size[1]
-        ) // 2
+        offsets = (
+            (self.sensor_size[0] - self.size[0]) // 2,
+            (self.sensor_size[1] - self.size[1]) // 2,
+        )
         offset_idx = [max(offset, 0) for offset in offsets]
         cropped_events = events[
             (offset_idx[0] <= events["x"])
@@ -149,11 +149,11 @@ class DropEvent:
         >>> transform2 = tonic.transforms.DropEvent(p=(0, 0.5))
     """
 
-    p: Union[float, Tuple[float, float]]
+    p: float | tuple[float, float]
 
     @staticmethod
-    def get_params(p: Union[float, Tuple[float, float]]):
-        if type(p) == tuple:
+    def get_params(p: float | tuple[float, float]):
+        if isinstance(p, tuple):
             p = (p[1] - p[0]) * np.random.random_sample() + p[0]
         return p
 
@@ -177,7 +177,7 @@ class DropEventByTime:
         >>> transform = tonic.transforms.DropEventByTime(duration_ratio=(0.1, 0.8))
     """
 
-    duration_ratio: Union[float, Tuple[float, float]] = 0.2
+    duration_ratio: float | tuple[float, float] = 0.2
 
     def __call__(self, events):
         return functional.drop_by_time_numpy(events, self.duration_ratio)
@@ -199,8 +199,8 @@ class DropEventByArea:
         >>> transform = tonic.transforms.DropEventByArea(sensor_size=(128,128,2), area_ratio=(0.1, 0.8))
     """
 
-    sensor_size: Tuple[int, int, int]
-    area_ratio: Union[float, Tuple[float, float]] = 0.2
+    sensor_size: tuple[int, int, int]
+    area_ratio: float | tuple[float, float] = 0.2
 
     def __call__(self, events):
         return functional.drop_by_area_numpy(events, self.sensor_size, self.area_ratio)
@@ -224,8 +224,8 @@ class DropPixel:
         >>> transform2 = DropPixel(hot_pixel_frequency=60) # Hertz
     """
 
-    coordinates: Optional[List[Tuple[int, int]]] = None
-    hot_pixel_frequency: Optional[int] = None
+    coordinates: list[tuple[int, int]] | None = None
+    hot_pixel_frequency: int | None = None
 
     def __call__(self, events):
         if len(events) == 0:
@@ -275,13 +275,13 @@ class Downsample:
     """
 
     time_factor: float = 1
-    spatial_factor: Union[float, Tuple[float, float]] = 1
-    sensor_size: Optional[Tuple[int, int, int]] = None
-    target_size: Optional[Tuple[int, int]] = None
+    spatial_factor: float | tuple[float, float] = 1
+    sensor_size: tuple[int, int, int] | None = None
+    target_size: tuple[int, int] | None = None
 
     @staticmethod
-    def get_params(spatial_factor: Union[int, Tuple[int, int]]):
-        if not type(spatial_factor) == tuple:
+    def get_params(spatial_factor: int | tuple[int, int]):
+        if not isinstance(spatial_factor, tuple):
             spatial_factor = (spatial_factor, spatial_factor)
         return spatial_factor
 
@@ -322,7 +322,7 @@ class EventDrop:
         >>> transform = tonic.transforms.EventDrop(sensor_size=(128,128,2))
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
 
     def __call__(self, events):
         choice = np.random.randint(0, 4)
@@ -362,12 +362,12 @@ class EventDownsampling:
                                                            differentiator_time_bins=3)
     """
 
-    sensor_size: Tuple[int, int, int]
-    target_size: Tuple[int, int]
+    sensor_size: tuple[int, int, int]
+    target_size: tuple[int, int]
     downsampling_method: str
-    dt: Optional[float] = None
-    noise_threshold: Optional[int] = None
-    differentiator_time_bins: Optional[int] = None
+    dt: float | None = None
+    noise_threshold: int | None = None
+    differentiator_time_bins: int | None = None
 
     def __call__(self, events):
         assert self.downsampling_method in ["integrator", "differentiator"]
@@ -422,8 +422,8 @@ class RandomCrop:
         >>> transform = tonic.transforms.RandomCrop(sensor_size=(340, 240, 2), target_size=(50, 50))
     """
 
-    sensor_size: Tuple[int, int, int]
-    target_size: Tuple[int, int]
+    sensor_size: tuple[int, int, int]
+    target_size: tuple[int, int]
 
     def __call__(self, events):
         return functional.crop_numpy(
@@ -445,13 +445,14 @@ class RandomDropPixel:
     """
 
     p: float
-    sensor_size: Optional[Tuple[int, int, int]] = None
+    sensor_size: tuple[int, int, int] | None = None
 
     def __call__(self, events):
         if events.dtype.names is not None:
             if self.sensor_size is None:
-                sensor_size_x, sensor_size_y, _ = int(events["x"].max() + 1), int(
-                    events["y"].max() + 1
+                sensor_size_x, sensor_size_y, _ = (
+                    int(events["x"].max() + 1),
+                    int(events["y"].max() + 1),
                 )
             else:
                 sensor_size_x, sensor_size_y, _ = self.sensor_size
@@ -459,7 +460,7 @@ class RandomDropPixel:
             coordinates_x, coordinates_y = np.where(
                 np.random.rand(sensor_size_x, sensor_size_y) < self.p
             )
-            coordinates = list(zip(coordinates_x, coordinates_y))
+            coordinates = list(zip(coordinates_x, coordinates_y, strict=False))
             return functional.drop_pixel_numpy(events=events, coordinates=coordinates)
 
         elif len(events.shape) == 4 or len(events.shape) == 3:
@@ -467,7 +468,7 @@ class RandomDropPixel:
             coordinates_x, coordinates_y = np.where(
                 np.random.rand(sensor_size_x, sensor_size_y) < self.p
             )
-            coordinates = list(zip(coordinates_x, coordinates_y))
+            coordinates = list(zip(coordinates_x, coordinates_y, strict=False))
             return functional.drop_pixel_raster(events, coordinates)
 
 
@@ -510,7 +511,7 @@ class RandomFlipLR:
         >>> transform = tonic.transforms.RandomFlipLR(p=0.3)
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
     p: float = 0.5
 
     def __post_init__(self):
@@ -538,7 +539,7 @@ class RandomFlipUD:
         >>> transform = tonic.transforms.RandomFlipUD(p=0.3)
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
     p: float = 0.5
 
     def __post_init__(self):
@@ -612,11 +613,11 @@ class RefractoryPeriod:
     >>> transform2 = tonic.transforms.RefractoryPeriod(delta=[0, 1000])
     """
 
-    delta: Union[int, Tuple[int, int]]
+    delta: int | tuple[int, int]
 
     @staticmethod
-    def get_params(delta: Union[int, Tuple[int, int]]):
-        if type(delta) == tuple:
+    def get_params(delta: int | tuple[int, int]):
+        if isinstance(delta, tuple):
             delta = int((delta[1] - delta[0]) * np.random.random_sample() + delta[0])
         return delta
 
@@ -647,7 +648,7 @@ class SpatialJitter:
         clip_outliers (bool): when True, events that have been jittered outside the sensor size will be dropped.
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
     var_x: float = 1
     var_y: float = 1
     sigma_xy: float = 0
@@ -715,8 +716,8 @@ class TimeSkew:
         >>> transform2 = TimeSkew(coefficient=[0.8, 1.2], offset=[0, 150])
     """
 
-    coefficient: Union[float, Tuple[float, float]]
-    offset: Union[float, Tuple[float, float]] = 0
+    coefficient: float | tuple[float, float]
+    offset: float | tuple[float, float] = 0
 
     def __call__(self, events):
         events = events.copy()
@@ -737,12 +738,12 @@ class UniformNoise:
         >>> transform = tonic.transforms.UniformNoise(sensor_size=(340, 240, 2), n=3000)
     """
 
-    sensor_size: Tuple[int, int, int]
-    n: Union[int, Tuple[int, int]]
+    sensor_size: tuple[int, int, int]
+    n: int | tuple[int, int]
 
     @staticmethod
-    def get_params(n: Union[int, Tuple[int, int]]):
-        if type(n) == tuple:
+    def get_params(n: int | tuple[int, int]):
+        if isinstance(n, tuple):
             n = int((n[1] - n[0]) * np.random.random_sample() + n[0])
         return n
 
@@ -788,10 +789,10 @@ class NumpyAsType:
 
     def __call__(self, events):
         source_is_structured_array = (
-            hasattr(events.dtype, "names") and events.dtype.names != None
+            hasattr(events.dtype, "names") and events.dtype.names is not None
         )
         target_is_structured_array = (
-            hasattr(self.dtype, "names") and self.dtype.names != None
+            hasattr(self.dtype, "names") and self.dtype.names is not None
         )
         if source_is_structured_array and not target_is_structured_array:
             return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
@@ -820,7 +821,7 @@ class ToAveragedTimesurface:
         decay (str): can be either 'lin' or 'exp', corresponding to linear or exponential decay.
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
     surface_size: int = 5
     cell_size: int = 10
     time_window: float = 1e3
@@ -880,9 +881,9 @@ class ToFrame:
                          overlap is defined by the fraction of a bin between 0 and 1.
         include_incomplete (bool): If True, includes overhang slice when time_window or event_count is specified.
                                    Not valid for bin_count methods.
-        start_time (float): Optional start time if some empty frames are expected in the beginning. If omitted, the 
+        start_time (float): Optional start time if some empty frames are expected in the beginning. If omitted, the
                             start time is the timestamp of the first event for that sample.
-        end_time (float): Optional end time if some empty frames are expected in the end. If omitted, the end time 
+        end_time (float): Optional end time if some empty frames are expected in the end. If omitted, the end time
                           is the timestamp of the last event for that sample.
 
     Example:
@@ -892,18 +893,17 @@ class ToFrame:
         >>> transform3 = ToFrame(n_time_bins=100, overlap=0.1)
     """
 
-    sensor_size: Optional[Tuple[int, int, int]]
-    time_window: Optional[float] = None
-    event_count: Optional[int] = None
-    n_time_bins: Optional[int] = None
-    n_event_bins: Optional[int] = None
+    sensor_size: tuple[int, int, int] | None
+    time_window: float | None = None
+    event_count: int | None = None
+    n_time_bins: int | None = None
+    n_event_bins: int | None = None
     overlap: float = 0
     include_incomplete: bool = False
-    start_time: Optional[float] = None
-    end_time: Optional[float] = None
+    start_time: float | None = None
+    end_time: float | None = None
 
     def __call__(self, events):
-
         # if events are empty, return a frame in the expected format
         if len(events) == 0:
             if self.time_window is not None or self.event_count is not None:
@@ -977,19 +977,19 @@ class ToSparseTensor:
         >>> transform3 = ToSparseTensor(n_time_bins=100, overlap=0.1)
     """
 
-    sensor_size: Tuple[int, int, int]
-    time_window: Optional[float] = None
-    event_count: Optional[int] = None
-    n_time_bins: Optional[int] = None
-    n_event_bins: Optional[int] = None
+    sensor_size: tuple[int, int, int]
+    time_window: float | None = None
+    event_count: int | None = None
+    n_time_bins: int | None = None
+    n_event_bins: int | None = None
     overlap: float = 0
     include_incomplete: bool = False
 
     def __call__(self, events):
         try:
             import torch
-        except ImportError:
-            raise ImportError("PyTorch not installed.")
+        except ImportError as err:
+            raise ImportError("PyTorch not installed.") from err
 
         dense_frames = functional.to_frame_numpy(
             events=events,
@@ -1012,7 +1012,7 @@ class ToImage:
     smaller chunks that are then individually binned to frames.
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
 
     def __call__(self, events):
         frames = functional.to_frame_numpy(
@@ -1032,7 +1032,7 @@ class ToTimesurface:
         tau (float): Time constant to decay events with.
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
     dt: float
     tau: float
 
@@ -1056,7 +1056,7 @@ class ToVoxelGrid:
         n_time_bins (int): fixed number of time bins to slice the event sample into.
     """
 
-    sensor_size: Tuple[int, int, int]
+    sensor_size: tuple[int, int, int]
     n_time_bins: int
 
     def __call__(self, events):
@@ -1092,8 +1092,8 @@ class ToBinaRep:
         >>> ])
     """
 
-    n_frames: Optional[int] = 1
-    n_bits: Optional[int] = 8
+    n_frames: int | None = 1
+    n_bits: int | None = 8
 
     def __call__(self, event_frames):
         return functional.to_bina_rep_numpy(event_frames, self.n_frames, self.n_bits)

@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import numpy as np
 
@@ -39,7 +39,7 @@ class POKERDVS(Dataset):
     test_md5 = "eef2bf7d0d3defae89a6fa98b07c17af"
 
     classes = ["cl", "he", "di", "sp"]
-    int_classes = dict(zip(classes, range(4)))
+    int_classes = dict(zip(classes, range(4), strict=False))
     sensor_size = (35, 35, 2)
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
@@ -48,9 +48,9 @@ class POKERDVS(Dataset):
         self,
         save_to: str,
         train: bool = True,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,

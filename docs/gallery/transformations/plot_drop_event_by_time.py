@@ -3,7 +3,7 @@
 DropEventByTime
 ===============
 The :class:`~tonic.transforms.DropEventByTime` removes
-all events in a certain time interval of a specified 
+all events in a certain time interval of a specified
 duration ratio.
 """
 

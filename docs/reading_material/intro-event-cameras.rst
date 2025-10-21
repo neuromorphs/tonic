@@ -191,7 +191,7 @@ are DVS, ATIS and DAVIS. Examples of companies that
 produce commercially available event cameras are
 Samsung, Prophesee, Celepixel and Sony/Insigthness. Most commercially
 available event cameras are still large in size, but small form factor
-version have been developed too. The first commercially available 
+version have been developed too. The first commercially available
 single-chip neuromorphic vision system for mobile
 and iot applications is called Speck [1]_, which combines a dvs and the
 Dynap-se neuromorphic cnn processor. The rise of the event camera has

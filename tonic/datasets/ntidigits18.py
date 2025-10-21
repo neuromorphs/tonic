@@ -1,14 +1,16 @@
 #!/user/bin/env python
 
-import numpy as np
-import h5py
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
+
+import h5py
+import numpy as np
+import requests
+from tqdm import tqdm
 
 from tonic.dataset import Dataset
 from tonic.io import make_structured_array
-import requests
-from tqdm import tqdm
+
 
 class NTIDIGITS18(Dataset):
     """`N-TIDIGITS18 Dataset <https://docs.google.com/document/d/1Uxe7GsKKXcy6SlDUX4hoJVAC0-UkH-8kr5UXp0Ndi1M/edit?tab=t.0#heading=h.sbnu5gtazqjq/>`_
@@ -45,25 +47,27 @@ class NTIDIGITS18(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("p", int)])
     ordering = dtype.names
 
-    class_map = {"o": 0,
-                 "1": 1,
-                 "2": 2,
-                 "3": 3,
-                 "4": 4,
-                 "5": 5,
-                 "6": 6,
-                 "7": 7,
-                 "8": 8,
-                 "9": 9,
-                 "z": 10}
+    class_map = {
+        "o": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "z": 10,
+    }
 
     def __init__(
-            self,
-            save_to: str,
-            train: bool = True,
-            single_digits=False,
-            transform: Optional[Callable] = None,
-            target_transform: Optional[Callable] = None,
+        self,
+        save_to: str,
+        train: bool = True,
+        single_digits=False,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -78,34 +82,45 @@ class NTIDIGITS18(Dataset):
         if not self._check_exists():
             self.download()
 
-        self.data = h5py.File(self.file_path, 'r')
+        self.data = h5py.File(self.file_path, "r")
         self.partition = "train" if train else "test"
-        self.single_indices = [i for i in range(len(self.data[f"{self.partition}_labels"])) if
-                               len(self.data[f"{self.partition}_labels"][i].decode().split("-")[-1]) == 1]
+        self.single_indices = [
+            i
+            for i in range(len(self.data[f"{self.partition}_labels"]))
+            if len(self.data[f"{self.partition}_labels"][i].decode().split("-")[-1])
+            == 1
+        ]
         self._samples = [x.decode() for x in self.data[f"{self.partition}_labels"]]
         self.single_digits = single_digits
 
         if single_digits:
             self._samples = [self._samples[i] for i in self.single_indices]
 
-        self.labels = [x.decode().split("-")[-1] for x in self.data[f"{self.partition}_labels"]]
+        self.labels = [
+            x.decode().split("-")[-1] for x in self.data[f"{self.partition}_labels"]
+        ]
 
     def download(self) -> None:
         response = requests.get(self.base_url, stream=True)
         if response.status_code == 200:
-            print("Downloading N-TIDIGITS from Dropbox at {}...".format(self.base_url))
-            file_size = int(response.headers.get('Content-Length', 0))  # get total file size in bytes
+            print(f"Downloading N-TIDIGITS from Dropbox at {self.base_url}...")
+            file_size = int(
+                response.headers.get("Content-Length", 0)
+            )  # get total file size in bytes
             chunk_size = 8192
 
             os.makedirs(self.location_on_system, exist_ok=True)
             # Initialize progress bar
-            with open(os.path.join(self.location_on_system, self.filename), 'wb') as f, tqdm(
+            with (
+                open(os.path.join(self.location_on_system, self.filename), "wb") as f,
+                tqdm(
                     total=file_size,
-                    unit='B',
+                    unit="B",
                     unit_scale=True,
                     desc="Downloading",
-                    ascii=True
-            ) as pbar:
+                    ascii=True,
+                ) as pbar,
+            ):
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
@@ -113,6 +128,7 @@ class NTIDIGITS18(Dataset):
         else:
             print("Failed to download N-TIDIGITS from Dropbox. Please try again later.")
             response.raise_for_status()
+
     def __getitem__(self, index):
         sample_id = self._samples[index]
         x = np.asarray(self.data[f"{self.partition}_addresses"][sample_id])
@@ -127,7 +143,9 @@ class NTIDIGITS18(Dataset):
         target = sample_id.split("-")[-1]
 
         if self.single_digits:
-            assert len(target) == 1, "Single digit samples requested, but target is not single digit."
+            assert len(target) == 1, (
+                "Single digit samples requested, but target is not single digit."
+            )
             target = self.class_map[target]
 
         if self.transform is not None:
@@ -140,6 +158,4 @@ class NTIDIGITS18(Dataset):
         return len(self._samples)
 
     def _check_exists(self):
-        return (
-            self._is_file_present()
-        )
+        return self._is_file_present()

@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import numpy as np
 from importRosbag.importRosbag import importRosbag
@@ -73,9 +73,9 @@ class VPR(Dataset):
     def __init__(
         self,
         save_to,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -109,9 +109,7 @@ class VPR(Dataset):
             for i, image in enumerate(images["frames"])
             if not (image.shape[0] == 260 and image.shape[1] == 346)
         ]
-        for (
-            index
-        ) in (
+        for index in (
             incorrect_shape_indices
         ):  # fix frame shapes that don't match for some reason
             shape_diff_x = self.sensor_size[0] - images["frames"][index].shape[1]
@@ -195,7 +193,7 @@ class VPR(Dataset):
                         timestamps.append(timestamp_diff)
                         previous_lat, previous_lon = msg.latitude, msg.longitude
 
-            except pynmea2.ParseError as e:
+            except pynmea2.ParseError:
                 continue
 
         return np.array(np.vstack((latitudes, longitudes, timestamps))).T

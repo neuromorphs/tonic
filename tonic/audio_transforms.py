@@ -1,5 +1,5 @@
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator, List, Tuple, Union
 
 import librosa
 import numpy as np
@@ -178,7 +178,7 @@ class ButterFilter:
     """
 
     order: int
-    freq: Union[float, Tuple[float, float]]
+    freq: float | tuple[float, float]
     analog: bool
     btype: str
     rectify: bool
@@ -220,7 +220,7 @@ class ButterFilterBank:
     """
 
     order: int
-    freq: List[Tuple[float, float]]
+    freq: list[tuple[float, float]]
     rectify: bool
     axis: int
     analog: bool = False

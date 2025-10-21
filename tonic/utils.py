@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import numpy as np
 
 import tonic.transforms as transforms
@@ -7,7 +5,7 @@ import tonic.transforms as transforms
 
 def plot_event_grid(
     events: np.ndarray,
-    axis_array: Tuple[int, int] = (1, 3),
+    axis_array: tuple[int, int] = (1, 3),
     plot_frame_number: bool = False,
 ):
     """Plot events accumulated as frames equal to the product of axes for visual inspection.
@@ -29,11 +27,11 @@ def plot_event_grid(
     """
     try:
         import matplotlib.pyplot as plt
-    except ImportError:
+    except ImportError as err:
         raise ImportError(
             "Please install the matplotlib package to plot events. This is an optional"
             " dependency."
-        )
+        ) from err
 
     if "y" in events.dtype.names:
         sensor_size_x = int(events["x"].max() + 1)
@@ -73,7 +71,7 @@ def plot_event_grid(
         plt.ylabel("Channels")
 
 
-def plot_animation(frames: np.ndarray, figsize: Tuple[int, int] = (5, 5)):
+def plot_animation(frames: np.ndarray, figsize: tuple[int, int] = (5, 5)):
     """Helper function that animates a tensor of frames of shape (TCHW). If you run this in a
     Jupyter notebook, you can display the animation inline like shown in the example below.
 
@@ -103,11 +101,11 @@ def plot_animation(frames: np.ndarray, figsize: Tuple[int, int] = (5, 5)):
     try:
         import matplotlib.pyplot as plt
         from matplotlib import animation
-    except ImportError:
+    except ImportError as err:
         raise ImportError(
             "Please install the matplotlib package to plot events. This is an optional"
             " dependency."
-        )
+        ) from err
     fig = plt.figure(figsize=figsize)
     if frames.shape[1] == 2:
         rgb = np.zeros((frames.shape[0], 3, *frames.shape[2:]))

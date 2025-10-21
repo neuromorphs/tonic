@@ -1,9 +1,8 @@
 import os
 import struct
-from typing import BinaryIO, Optional, Union
+from typing import BinaryIO
 
 import numpy as np
-from numpy.lib import recfunctions
 
 events_struct = np.dtype(
     [("x", np.int16), ("y", np.int16), ("t", np.int64), ("p", bool)]
@@ -21,13 +20,13 @@ def make_structured_array(*args, dtype=events_struct):
     Returns:
         struct_arr: numpy structured array with the shape of the first argument
     """
-    assert not isinstance(
-        args[-1], np.dtype
-    ), "The `dtype` must be provided as a keyword argument."
+    assert not isinstance(args[-1], np.dtype), (
+        "The `dtype` must be provided as a keyword argument."
+    )
     names = dtype.names
     assert len(args) == len(names)
     struct_arr = np.empty_like(args[0], dtype=dtype)
-    for arg, name in zip(args, names):
+    for arg, name in zip(args, names, strict=False):
         struct_arr[name] = arg
     return struct_arr
 
@@ -163,7 +162,7 @@ def read_davis_346(filename):
     # x, y, and p : bit-shift and bit-mask values taken from jAER (https://github.com/SensorsINI/jaer)
     x = (346 - 1) - ((all_addr & 4190208) >> 12)
     y = (260 - 1) - ((all_addr & 2143289344) >> 22)
-    p = ((all_addr & 2048) >> 11)
+    p = (all_addr & 2048) >> 11
 
     xytp = make_structured_array(x, y, t, p)
     shape = (346, 260)
@@ -195,9 +194,7 @@ def read_dvs_346mini(filename):
     return shape, xytp
 
 
-def read_mnist_file(
-    bin_file: Union[str, BinaryIO], dtype: np.dtype, is_stream: bool = False
-):
+def read_mnist_file(bin_file: str | BinaryIO, dtype: np.dtype, is_stream: bool = False):
     """Reads the events contained in N-MNIST/N-CALTECH101 datasets.
 
     Code adapted from https://github.com/gorchard/event-Python/blob/master/eventvision.py

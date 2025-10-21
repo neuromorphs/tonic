@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List, Tuple
+from typing import Any
 
 import numpy as np
 from typing_extensions import Protocol, runtime_checkable
@@ -12,7 +12,7 @@ class Slicer(Protocol):
     That means that you don't have to directly inherit from it, but just implement its methods.
     """
 
-    def get_slice_metadata(self, data: Any, targets: Any) -> List[Tuple[Any]]:
+    def get_slice_metadata(self, data: Any, targets: Any) -> list[tuple[Any]]:
         """This method returns the metadata for each recording that helps with slicing, for example
         the indices or timestamps at which the data would be sliced. The return value is typically
         a list of tuples that contain start and stop information for each slice.
@@ -26,7 +26,7 @@ class Slicer(Protocol):
         """
         ...
 
-    def slice_with_metadata(self, data: Any, targets: Any, metadata: Any) -> List[Any]:
+    def slice_with_metadata(self, data: Any, targets: Any, metadata: Any) -> list[Any]:
         """Given a piece of data and/or targets, cut out a certain part of it based on the
         start/end information given in metadata.
 
@@ -40,7 +40,7 @@ class Slicer(Protocol):
         """
         ...
 
-    def slice(self, data: Any, targets: Any) -> List[Any]:
+    def slice(self, data: Any, targets: Any) -> list[Any]:
         """Generate metadata and return all slices at once.
 
         Parameters:
@@ -81,7 +81,7 @@ class SliceByTime:
     end_time: float = None
     reset_time: bool = False
 
-    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+    def slice(self, data: np.ndarray, targets: int) -> list[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
         slices, targets = self.slice_with_metadata(data, targets, metadata)
         if self.reset_time:
@@ -91,7 +91,7 @@ class SliceByTime:
 
     def get_slice_metadata(
         self, data: np.ndarray, targets: int
-    ) -> List[Tuple[int, int]]:
+    ) -> list[tuple[int, int]]:
         t = data["t"]
         stride = self.time_window - self.overlap
         assert stride > 0
@@ -110,11 +110,11 @@ class SliceByTime:
         window_end_times = window_start_times + self.time_window
         indices_start = np.searchsorted(t, window_start_times)[:n_slices]
         indices_end = np.searchsorted(t, window_end_times)[:n_slices]
-        return list(zip(indices_start, indices_end))
+        return list(zip(indices_start, indices_end, strict=False))
 
     @staticmethod
     def slice_with_metadata(
-        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+        data: np.ndarray, targets: int, metadata: list[tuple[int, int]]
     ):
         return [data[start:end] for start, end in metadata], targets
 
@@ -135,13 +135,13 @@ class SliceByTimeBins:
     bin_count: int
     overlap: float = 0
 
-    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+    def slice(self, data: np.ndarray, targets: int) -> list[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
         return self.slice_with_metadata(data, targets, metadata)
 
     def get_slice_metadata(
         self, data: np.ndarray, targets: int
-    ) -> List[Tuple[int, int]]:
+    ) -> list[tuple[int, int]]:
         events = data
         assert "t" in events.dtype.names
         assert self.overlap < 1
@@ -154,11 +154,11 @@ class SliceByTimeBins:
         window_end_times = window_start_times + time_window
         indices_start = np.searchsorted(times, window_start_times)
         indices_end = np.searchsorted(times, window_end_times)
-        return list(zip(indices_start, indices_end))
+        return list(zip(indices_start, indices_end, strict=False))
 
     @staticmethod
     def slice_with_metadata(
-        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+        data: np.ndarray, targets: int, metadata: list[tuple[int, int]]
     ):
         return [data[start:end] for start, end in metadata], targets
 
@@ -178,13 +178,13 @@ class SliceByEventCount:
     overlap: int = 0
     include_incomplete: bool = False
 
-    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+    def slice(self, data: np.ndarray, targets: int) -> list[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
         return self.slice_with_metadata(data, targets, metadata)
 
     def get_slice_metadata(
         self, data: np.ndarray, targets: int
-    ) -> List[Tuple[int, int]]:
+    ) -> list[tuple[int, int]]:
         n_events = len(data)
         event_count = min(self.event_count, n_events)
 
@@ -199,11 +199,11 @@ class SliceByEventCount:
 
         indices_start = (np.arange(n_slices) * stride).astype(int)
         indices_end = indices_start + event_count
-        return list(zip(indices_start, indices_end))
+        return list(zip(indices_start, indices_end, strict=False))
 
     @staticmethod
     def slice_with_metadata(
-        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+        data: np.ndarray, targets: int, metadata: list[tuple[int, int]]
     ):
         return [data[start:end] for start, end in metadata], targets
 
@@ -224,24 +224,24 @@ class SliceByEventBins:
     bin_count: int
     overlap: float = 0
 
-    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+    def slice(self, data: np.ndarray, targets: int) -> list[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
         return self.slice_with_metadata(data, targets, metadata)
 
     def get_slice_metadata(
         self, data: np.ndarray, targets: int
-    ) -> List[Tuple[int, int]]:
+    ) -> list[tuple[int, int]]:
         n_events = len(data)
         spike_count = int(n_events // self.bin_count * (1 + self.overlap))
         stride = int(spike_count * (1 - self.overlap))
 
         indices_start = np.arange(self.bin_count) * stride
         indices_end = indices_start + spike_count
-        return list(zip(indices_start, indices_end))
+        return list(zip(indices_start, indices_end, strict=False))
 
     @staticmethod
     def slice_with_metadata(
-        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+        data: np.ndarray, targets: int, metadata: list[tuple[int, int]]
     ):
         return [data[start:end] for start, end in metadata], targets
 
@@ -258,18 +258,18 @@ class SliceAtIndices:
     start_indices: np.ndarray
     end_indices: np.ndarray
 
-    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+    def slice(self, data: np.ndarray, targets: int) -> list[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
         return self.slice_with_metadata(data, targets, metadata)
 
     def get_slice_metadata(
         self, data: np.ndarray, targets: int
-    ) -> List[Tuple[int, int]]:
-        return list(zip(self.start_indices, self.end_indices))
+    ) -> list[tuple[int, int]]:
+        return list(zip(self.start_indices, self.end_indices, strict=False))
 
     @staticmethod
     def slice_with_metadata(
-        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+        data: np.ndarray, targets: int, metadata: list[tuple[int, int]]
     ):
         return [data[start:end] for start, end in metadata], targets
 
@@ -286,21 +286,21 @@ class SliceAtTimePoints:
     start_tw: np.ndarray
     end_tw: np.ndarray
 
-    def slice(self, data: np.ndarray, targets: int) -> List[np.ndarray]:
+    def slice(self, data: np.ndarray, targets: int) -> list[np.ndarray]:
         metadata = self.get_slice_metadata(data, targets)
         return self.slice_with_metadata(data, targets, metadata)
 
     def get_slice_metadata(
         self, data: np.ndarray, targets: int
-    ) -> List[Tuple[int, int]]:
+    ) -> list[tuple[int, int]]:
         t = data["t"]
         indices_start = np.searchsorted(t, self.start_tw)
         indices_end = np.searchsorted(t, self.end_tw)
-        return list(zip(indices_start, indices_end))
+        return list(zip(indices_start, indices_end, strict=False))
 
     @staticmethod
     def slice_with_metadata(
-        data: np.ndarray, targets: int, metadata: List[Tuple[int, int]]
+        data: np.ndarray, targets: int, metadata: list[tuple[int, int]]
     ):
         return [data[start:end] for start, end in metadata], targets
 
@@ -351,5 +351,5 @@ def slice_events_at_indices(events: np.ndarray, start_indices, end_indices):
 
 def slice_events_at_timepoints(
     events: np.ndarray, start_tw: np.ndarray, end_tw: np.ndarray
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     return SliceAtTimePoints(start_tw=start_tw, end_tw=end_tw).slice(events, None)[0]

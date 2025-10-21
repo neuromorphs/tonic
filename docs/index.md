@@ -8,7 +8,7 @@
 
 **Download and manipulate neuromorphic datasets fast and easily!**
 
-__Tonic__ provides publicly available event-based vision and audio {doc}`datasets<datasets>` and {doc}`event transformations<auto_examples/index>`. The package is fully compatible with PyTorch Vision / Audio to give you the flexibility that you need. 
+__Tonic__ provides publicly available event-based vision and audio {doc}`datasets<datasets>` and {doc}`event transformations<auto_examples/index>`. The package is fully compatible with PyTorch Vision / Audio to give you the flexibility that you need.
 
 ### Getting started
 * **{doc}`Install Tonic<getting_started/install>`** via pypi or anaconda.

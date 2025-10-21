@@ -1,6 +1,6 @@
 import os
 import warnings
-from typing import Callable, List, Optional, Union
+from collections.abc import Callable
 
 import h5py
 import numpy as np
@@ -134,12 +134,12 @@ class DSEC(Dataset):
     def __init__(
         self,
         save_to: str,
-        split: Union[str, List[str]],
-        data_selection: Union[str, List[str]],
-        target_selection: Optional[Union[str, List[str]]] = None,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        split: str | list[str],
+        data_selection: str | list[str],
+        target_selection: str | list[str] | None = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -235,8 +235,6 @@ class DSEC(Dataset):
             a tuple of (data, target) where data is another tuple of data_selction and target
             a tuple of target_selection if train=True.
         """
-        import hdf5plugin  # necessary to read event files
-        import imageio  # necessary to read optical flow pngs
         from PIL import Image  # necessary to read images
 
         recording = self.recording_selection[index]
@@ -352,24 +350,24 @@ class DSEC(Dataset):
             # Fallback to pypng for macOS and other platforms without FreeImage support
             try:
                 import png
-            except ImportError:
+            except ImportError as err:
                 raise ImportError(
                     "Reading 16-bit PNG files requires either imageio with FreeImage plugin "
                     "or pypng library. Install pypng with: pip install pypng"
-                )
+                ) from err
 
-            with open(filepath, 'rb') as f:
+            with open(filepath, "rb") as f:
                 reader = png.Reader(file=f)
                 width, height, pixels, metadata = reader.read()
 
                 # Convert to numpy array and reshape to (height, width, channels)
                 pixel_data = np.vstack(list(pixels))
-                if metadata['planes'] > 1:
-                    pixel_data = pixel_data.reshape((height, width, metadata['planes']))
+                if metadata["planes"] > 1:
+                    pixel_data = pixel_data.reshape((height, width, metadata["planes"]))
 
                 return pixel_data
 
-    def _check_exists(self, data_selection: List):
+    def _check_exists(self, data_selection: list):
         all_names = {**self.data_names, **self.target_names}
         for recording in self.recording_selection:
             for data_name in data_selection:

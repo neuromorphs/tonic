@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import numpy as np
 from numpy.lib import recfunctions as rfn
 
@@ -8,7 +6,7 @@ from tonic.slicers import slice_events_by_time
 
 def to_timesurface_numpy(
     events,
-    sensor_size: Tuple[int, int, int],
+    sensor_size: tuple[int, int, int],
     dt: float,
     tau: float,
     overlap: int = 0,
