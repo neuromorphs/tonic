@@ -57,7 +57,7 @@ class CenterCrop:
     size: int | tuple[int, int]
 
     def __call__(self, events: np.ndarray) -> np.ndarray:
-        if type(self.size) == int:
+        if isinstance(self.size, int):
             self.size = [self.size, self.size]
         offsets = (
             (self.sensor_size[0] - self.size[0]) // 2,
@@ -153,7 +153,7 @@ class DropEvent:
 
     @staticmethod
     def get_params(p: float | tuple[float, float]):
-        if type(p) == tuple:
+        if isinstance(p, tuple):
             p = (p[1] - p[0]) * np.random.random_sample() + p[0]
         return p
 
@@ -281,7 +281,7 @@ class Downsample:
 
     @staticmethod
     def get_params(spatial_factor: int | tuple[int, int]):
-        if not type(spatial_factor) == tuple:
+        if not isinstance(spatial_factor, tuple):
             spatial_factor = (spatial_factor, spatial_factor)
         return spatial_factor
 
@@ -617,7 +617,7 @@ class RefractoryPeriod:
 
     @staticmethod
     def get_params(delta: int | tuple[int, int]):
-        if type(delta) == tuple:
+        if isinstance(delta, tuple):
             delta = int((delta[1] - delta[0]) * np.random.random_sample() + delta[0])
         return delta
 
@@ -743,7 +743,7 @@ class UniformNoise:
 
     @staticmethod
     def get_params(n: int | tuple[int, int]):
-        if type(n) == tuple:
+        if isinstance(n, tuple):
             n = int((n[1] - n[0]) * np.random.random_sample() + n[0])
         return n
 
@@ -789,10 +789,10 @@ class NumpyAsType:
 
     def __call__(self, events):
         source_is_structured_array = (
-            hasattr(events.dtype, "names") and events.dtype.names != None
+            hasattr(events.dtype, "names") and events.dtype.names is not None
         )
         target_is_structured_array = (
-            hasattr(self.dtype, "names") and self.dtype.names != None
+            hasattr(self.dtype, "names") and self.dtype.names is not None
         )
         if source_is_structured_array and not target_is_structured_array:
             return np.lib.recfunctions.structured_to_unstructured(events, self.dtype)
@@ -988,8 +988,8 @@ class ToSparseTensor:
     def __call__(self, events):
         try:
             import torch
-        except ImportError:
-            raise ImportError("PyTorch not installed.")
+        except ImportError as err:
+            raise ImportError("PyTorch not installed.") from err
 
         dense_frames = functional.to_frame_numpy(
             events=events,

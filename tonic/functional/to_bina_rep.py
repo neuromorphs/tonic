@@ -19,7 +19,7 @@ def to_bina_rep_numpy(
     Returns:
         (numpy.ndarray) the sequence of bina-rep event frames with dimensions (TxPxHxW).
     """
-    assert type(event_frames) == np.ndarray and len(event_frames.shape) == 4
+    assert isinstance(event_frames, np.ndarray) and len(event_frames.shape) == 4
     assert n_frames >= 1
     assert n_bits >= 2
 

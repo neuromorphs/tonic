@@ -87,6 +87,42 @@ def _get_google_drive_file_id(url: str) -> str | None:
     return match.group("id")
 
 
+def download_file_from_google_drive(
+    file_id: str, root: str, filename: str | None = None, md5: str | None = None
+) -> None:
+    """Download a file from Google Drive.
+
+    Args:
+        file_id: Google Drive file ID
+        root: Directory to download to
+        filename: Name to save the file as (optional)
+        md5: MD5 checksum to verify (optional)
+    """
+    try:
+        import gdown
+    except ImportError as err:
+        raise ImportError(
+            "Please install the gdown package to download files from Google Drive. "
+            "This is an optional dependency."
+        ) from err
+
+    root = os.path.expanduser(root)
+    if not filename:
+        filename = file_id
+    fpath = os.path.join(root, filename)
+
+    os.makedirs(root, exist_ok=True)
+
+    if check_integrity(fpath, md5):
+        print("Using downloaded and verified file: " + fpath)
+        return
+
+    gdown.download(id=file_id, output=fpath, quiet=False)
+
+    if not check_integrity(fpath, md5):
+        raise RuntimeError("File not found or corrupted.")
+
+
 def download_url(
     url: str,
     root: str,
@@ -163,8 +199,8 @@ def _extract_zip(from_path: str, to_path: str, compression: str | None) -> None:
         compression=(
             _ZIP_COMPRESSION_MAP[compression] if compression else zipfile.ZIP_STORED
         ),
-    ) as zip:
-        zip.extractall(to_path)
+    ) as zip_file:
+        zip_file.extractall(to_path)
 
 
 _ARCHIVE_EXTRACTORS: dict[str, Callable[[str, str, str | None], None]] = {

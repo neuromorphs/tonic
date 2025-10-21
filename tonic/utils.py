@@ -27,11 +27,11 @@ def plot_event_grid(
     """
     try:
         import matplotlib.pyplot as plt
-    except ImportError:
+    except ImportError as err:
         raise ImportError(
             "Please install the matplotlib package to plot events. This is an optional"
             " dependency."
-        )
+        ) from err
 
     if "y" in events.dtype.names:
         sensor_size_x = int(events["x"].max() + 1)
@@ -101,11 +101,11 @@ def plot_animation(frames: np.ndarray, figsize: tuple[int, int] = (5, 5)):
     try:
         import matplotlib.pyplot as plt
         from matplotlib import animation
-    except ImportError:
+    except ImportError as err:
         raise ImportError(
             "Please install the matplotlib package to plot events. This is an optional"
             " dependency."
-        )
+        ) from err
     fig = plt.figure(figsize=figsize)
     if frames.shape[1] == 2:
         rgb = np.zeros((frames.shape[0], 3, *frames.shape[2:]))

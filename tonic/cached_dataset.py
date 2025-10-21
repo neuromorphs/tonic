@@ -182,18 +182,18 @@ def save_to_disk_cache(
         compress: Whether to apply compression. (default = True - uses lzf compression)
     """
     with h5py.File(file_path, "w") as f:
-        for name, data in zip(["data", "target"], [data, targets], strict=False):
-            if type(data) != tuple:
-                data = (data,)
+        for name, dataset in zip(["data", "target"], [data, targets], strict=False):
+            if not isinstance(dataset, tuple):
+                dataset = (dataset,)
             # can be events, frames, imu, gps, target etc.
-            for i, data_piece in enumerate(data):
-                if type(data_piece) == dict:
+            for i, data_piece in enumerate(dataset):
+                if isinstance(data_piece, dict):
                     for key, item in data_piece.items():
                         f.create_dataset(
                             f"{name}/{i}/{key}",
                             data=item,
                             compression="lzf"
-                            if type(item) == np.ndarray and compress
+                            if isinstance(item, np.ndarray) and compress
                             else None,
                         )
                 else:
@@ -201,7 +201,7 @@ def save_to_disk_cache(
                         f"{name}/{i}",
                         data=data_piece,
                         compression="lzf"
-                        if type(data_piece) == np.ndarray and compress
+                        if isinstance(data_piece, np.ndarray) and compress
                         else None,
                     )
 

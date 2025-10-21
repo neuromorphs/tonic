@@ -109,7 +109,7 @@ class TUMVIE(Dataset):
         if recording == "all" or ["all"]:
             self.selection = self.recordings
         else:
-            self.selection = recording if type(recording) == list else [recording]
+            self.selection = recording if isinstance(recording, list) else [recording]
 
             for recording in self.selection:
                 if recording not in self.recordings:
