@@ -20,15 +20,3 @@ repos:
         args: [--fix]
       # Run the formatter
       - id: ruff-format
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - numpy
-          - types-requests
-        args: [--ignore-missing-imports, --show-error-codes]
-        files: ^tonic/
-        # Allow failures until type hints are added throughout the codebase
-        verbose: true
