@@ -20,4 +20,18 @@ except PackageNotFoundError:
     # Package not installed, use fallback
     __version__ = "unknown"
 
-__all__ = ["__version__"]
+__all__ = [
+    "__version__",
+    "collation",
+    "datasets",
+    "io",
+    "slicers",
+    "transforms",
+    "utils",
+    "Aug_DiskCachedDataset",
+    "CachedDataset",
+    "DiskCachedDataset",
+    "MemoryCachedDataset",
+    "Dataset",
+    "SlicedDataset",
+]

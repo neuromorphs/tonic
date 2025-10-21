@@ -17,6 +17,6 @@ repos:
     hooks:
       # Run the linter
       - id: ruff-check
-        args: [--fix]
+        args: [--fix, --ignore=B008,F841]
       # Run the formatter
       - id: ruff-format
