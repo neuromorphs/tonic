@@ -49,7 +49,7 @@ def identify_hot_pixel_raster(events: np.ndarray, hot_pixel_frequency: float):
         merged_polarity = events.copy().sum(0).sum(0)
 
     ind = np.argwhere(merged_polarity > hot_pixel_frequency)
-    return tuple(zip(ind[:, 1], ind[:, 0]))
+    return tuple(zip(ind[:, 1], ind[:, 0], strict=False))
 
 
 def drop_pixel_numpy(events: np.ndarray, coordinates):

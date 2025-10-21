@@ -5,12 +5,12 @@ from .dsec import DSEC
 from .dvs_lips import DVSLip
 from .dvsgesture import DVSGesture
 from .ebssa import EBSSA
-from .ntidigits18 import NTIDIGITS18
 from .hsd import SHD, SSC
 from .mvsec import MVSEC
 from .ncaltech101 import NCALTECH101
 from .nerdd import NERDD
 from .nmnist import NMNIST
+from .ntidigits18 import NTIDIGITS18
 from .pokerdvs import POKERDVS
 from .s_mnist import SMNIST
 from .threeET_eyetracking import ThreeET_Eyetracking

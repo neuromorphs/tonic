@@ -1,5 +1,3 @@
-from typing import Tuple, Union
-
 import numpy as np
 
 
@@ -22,7 +20,7 @@ def drop_event_numpy(events: np.ndarray, drop_probability: float):
 
 def drop_by_time_numpy(
     events: np.ndarray,
-    duration_ratio: Union[float, Tuple[float]] = 0.2,
+    duration_ratio: float | tuple[float] = 0.2,
 ):
     """Drops events in a certain time interval with a length proportional to a specified ratio of
     the original length.
@@ -64,7 +62,7 @@ def drop_by_time_numpy(
 
 
 def drop_by_area_numpy(
-    events: np.ndarray, sensor_size: Tuple, area_ratio: Union[float, Tuple[float]] = 0.2
+    events: np.ndarray, sensor_size: tuple, area_ratio: float | tuple[float] = 0.2
 ):
     """Drops events located in a randomly chosen box area. The size of the box area is defined by a
     specified ratio of the sensor size.

@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import numpy as np
 from importRosbag.importRosbag import importRosbag
@@ -72,9 +72,9 @@ class MVSEC(Dataset):
         self,
         save_to: str,
         scene: str,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -83,7 +83,7 @@ class MVSEC(Dataset):
             transforms=transforms,
         )
         self.scene = scene
-        if not scene in self.resources.keys():
+        if scene not in self.resources.keys():
             raise RuntimeError(
                 f"Scene {scene} is not available or in the wrong format. Select one of: indoor_flying, outdoor_day, outdoor_night, motorcycle."
             )
@@ -165,7 +165,7 @@ class MVSEC(Dataset):
         return len(self.resources[self.scene]) // 2
 
     def download(self):
-        for (filename, md5_hash) in self.resources[self.scene]:
+        for filename, md5_hash in self.resources[self.scene]:
             download_url(
                 url=os.path.join(self.base_url, self.scene, filename),
                 root=os.path.join(self.location_on_system, self.scene),

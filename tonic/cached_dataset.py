@@ -3,10 +3,10 @@ import os
 import sys
 
 if sys.version_info >= (3, 8):
-    from typing import Callable, Iterable, Optional, Tuple, TypedDict, Union
+    from collections.abc import Callable, Iterable
 else:
-    from typing import Callable, Iterable, Optional, Tuple, Union
-    from typing_extensions import TypedDict
+    from collections.abc import Callable, Iterable
+
 
 import random
 import shutil
@@ -40,10 +40,10 @@ class MemoryCachedDataset:
     """
 
     dataset: Iterable
-    device: Optional[str] = None
-    transform: Optional[Callable] = None
-    target_transform: Optional[Callable] = None
-    transforms: Optional[Callable] = None
+    device: str | None = None
+    transform: Callable | None = None
+    target_transform: Callable | None = None
+    transforms: Callable | None = None
     samples_dict: dict = field(init=False, default_factory=dict)
 
     def __getitem__(self, index):
@@ -106,9 +106,9 @@ class DiskCachedDataset:
     dataset: Iterable
     cache_path: str
     reset_cache: bool = False
-    transform: Optional[Callable] = None
-    target_transform: Optional[Callable] = None
-    transforms: Optional[Callable] = None
+    transform: Callable | None = None
+    target_transform: Callable | None = None
+    transforms: Callable | None = None
     num_copies: int = 1
     compress: bool = True
 
@@ -135,7 +135,7 @@ class DiskCachedDataset:
         else:
             self.n_samples = len(self.dataset)
 
-    def __getitem__(self, item) -> Tuple[object, object]:
+    def __getitem__(self, item) -> tuple[object, object]:
         if self.dataset is None and item >= self.n_samples:
             raise IndexError(f"This dataset only has {self.n_samples} items.")
 
@@ -170,7 +170,7 @@ class DiskCachedDataset:
 
 
 def save_to_disk_cache(
-    data, targets, file_path: Union[str, Path], compress: bool = True
+    data, targets, file_path: str | Path, compress: bool = True
 ) -> None:
     """
     Save data to caching path on disk in an hdf5 file. Can deal with data
@@ -182,7 +182,7 @@ def save_to_disk_cache(
         compress: Whether to apply compression. (default = True - uses lzf compression)
     """
     with h5py.File(file_path, "w") as f:
-        for name, data in zip(["data", "target"], [data, targets]):
+        for name, data in zip(["data", "target"], [data, targets], strict=False):
             if type(data) != tuple:
                 data = (data,)
             # can be events, frames, imu, gps, target etc.
@@ -206,7 +206,7 @@ def save_to_disk_cache(
                     )
 
 
-def load_from_disk_cache(file_path: Union[str, Path]) -> Tuple:
+def load_from_disk_cache(file_path: str | Path) -> tuple:
     """Load data from file cache, separately for (data) and (targets).
 
     Can assemble dictionaries back together.
@@ -218,7 +218,9 @@ def load_from_disk_cache(file_path: Union[str, Path]) -> Tuple:
     data_list = []
     target_list = []
     with h5py.File(file_path, "r") as f:
-        for name, _list in zip(["data", "target"], [data_list, target_list]):
+        for name, _list in zip(
+            ["data", "target"], [data_list, target_list], strict=False
+        ):
             for index in f[name].keys():
                 if hasattr(f[f"{name}/{index}"], "keys"):
                     data = {
@@ -257,7 +259,7 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
          'all_transforms' is a dictionarty passed to this class containing information about all transforms.
     """
 
-    all_transforms: Optional[TypedDict] = None
+    all_transforms: dict | None = None
 
     def __post_init__(self):
         self.pre_aug = self.all_transforms["pre_aug"]
@@ -283,7 +285,7 @@ class Aug_DiskCachedDataset(DiskCachedDataset):
         data, targets = self.dataset[item]
         save_to_disk_cache(data, targets, file_path=file_path, compress=self.compress)
 
-    def __getitem__(self, item) -> Tuple[object, object]:
+    def __getitem__(self, item) -> tuple[object, object]:
         if self.dataset is None and item >= self.n_samples:
             raise IndexError(f"This dataset only has {self.n_samples} items.")
 

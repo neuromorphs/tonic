@@ -9,8 +9,8 @@ from .drop_pixel import (
     identify_hot_pixel_raster,
 )
 from .event_downsampling import (
-    integrator_downsample,
     differentiator_downsample,
+    integrator_downsample,
 )
 from .refractory_period import refractory_period_numpy
 from .spatial_jitter import spatial_jitter_numpy

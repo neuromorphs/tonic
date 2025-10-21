@@ -1,7 +1,8 @@
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import numpy as np
+
 from tonic.dataset import Dataset
 from tonic.io import read_mnist_file
 
@@ -67,9 +68,9 @@ class NMNIST(Dataset):
         train: bool = True,
         first_saccade_only: bool = False,
         stabilize: bool = False,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -150,20 +151,34 @@ def stabilize(events):
     y_off = 2
 
     saccade_1_index = events["t"] <= 105e3
-    stab_x[saccade_1_index] = x_off + stab_x[saccade_1_index] - \
-        3.5*events["t"][saccade_1_index]/105e3
-    stab_y[saccade_1_index] = y_off + stab_y[saccade_1_index] - \
-        7*events["t"][saccade_1_index]/105e3
+    stab_x[saccade_1_index] = (
+        x_off + stab_x[saccade_1_index] - 3.5 * events["t"][saccade_1_index] / 105e3
+    )
+    stab_y[saccade_1_index] = (
+        y_off + stab_y[saccade_1_index] - 7 * events["t"][saccade_1_index] / 105e3
+    )
 
     saccade_2_index = (events["t"] > 105e3) * (events["t"] <= 210e3)
-    stab_x[saccade_2_index] = x_off + stab_x[saccade_2_index] - \
-        3.5 - 3.5*(events["t"][saccade_2_index] - 105e3)/105e3
-    stab_y[saccade_2_index] = y_off + stab_y[saccade_2_index] - \
-        7 + 7*(events["t"][saccade_2_index] - 105e3)/105e3
+    stab_x[saccade_2_index] = (
+        x_off
+        + stab_x[saccade_2_index]
+        - 3.5
+        - 3.5 * (events["t"][saccade_2_index] - 105e3) / 105e3
+    )
+    stab_y[saccade_2_index] = (
+        y_off
+        + stab_y[saccade_2_index]
+        - 7
+        + 7 * (events["t"][saccade_2_index] - 105e3) / 105e3
+    )
 
-    saccade_3_index = (events["t"] > 210e3)
-    stab_x[saccade_3_index] = x_off + stab_x[saccade_3_index] - \
-        7 + 7*(events["t"][saccade_3_index]-210e3)/105e3
+    saccade_3_index = events["t"] > 210e3
+    stab_x[saccade_3_index] = (
+        x_off
+        + stab_x[saccade_3_index]
+        - 7
+        + 7 * (events["t"][saccade_3_index] - 210e3) / 105e3
+    )
     # events["y"] remains almonst unchaged because it is a horizontal saccade
     stab_y[saccade_3_index] = y_off + stab_y[saccade_3_index]
 

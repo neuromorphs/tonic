@@ -34,7 +34,7 @@ video frame that is captured every 25 ms.
 
 .. figure:: ../_static/snn/neuron-models.png
    :scale: 50%
-   
+
    Basic neuron model in an ANN compared to an SNN. Picture taken from Deng et al. 2020.
 
 The development in SNNs has focused to a great extent on vision
@@ -91,7 +91,7 @@ features from input data.
 Training Spiking Neural Networks
 --------------------------------
 
-Training SNNs follows one of 3 major pathways: converting the weights 
+Training SNNs follows one of 3 major pathways: converting the weights
 of pre-trained ANNs,
 supervised learning using backpropagation with
 spikes or local learning rules based on STDP
@@ -108,7 +108,7 @@ normalisation or dropout.
 
 .. figure:: ../_static/snn/surrogates.png
    :scale: 50%
-   
+
    Commonly used derivatives as a replacement for spike activation to
    provide a differentiable signal when training spiking neural networks.
    The step function has zero derivative (violet) everywhere except at 0

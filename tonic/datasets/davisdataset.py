@@ -1,5 +1,5 @@
 import os
-from typing import Callable, List, Optional, Union
+from collections.abc import Callable
 
 import numpy as np
 from importRosbag.importRosbag import importRosbag
@@ -72,10 +72,10 @@ class DAVISDATA(Dataset):
     def __init__(
         self,
         save_to: str,
-        recording: Union[str, List[str]],
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        recording: str | list[str],
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -93,9 +93,7 @@ class DAVISDATA(Dataset):
         for recording in self.selection:
             if recording not in self.recordings:
                 raise RuntimeError(
-                    "Recording {} is not available or in the wrong format.".format(
-                        recording
-                    )
+                    f"Recording {recording} is not available or in the wrong format."
                 )
 
         if not self._check_exists():

@@ -2,7 +2,7 @@
 ===============
 RandomFlipUD
 ===============
-The :class:`~tonic.transforms.RandomFlipUD` flips 
+The :class:`~tonic.transforms.RandomFlipUD` flips
 events on the vertical axis with probability p.
 """
 

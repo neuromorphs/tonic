@@ -46,10 +46,10 @@ This is a major release where we focused on performance improvements. In the int
 
 0.4.5
 -----
-* Dropped Subsample transform in favour of Downsample transform, which can now scale timestamps and spatial coordinates in one transform together. 
+* Dropped Subsample transform in favour of Downsample transform, which can now scale timestamps and spatial coordinates in one transform together.
 * Renamed `DropEvents` transform to `DropEvent` to be consistent with `DropPixel` and other singular transform names.
-* NCALTECH101 events are now returned as floats. 
-* MaskHotPixel has been incorporated into DropPixel transform, which can now either automatically suppress hot pixels or a fixed list of coordinates. 
+* NCALTECH101 events are now returned as floats.
+* MaskHotPixel has been incorporated into DropPixel transform, which can now either automatically suppress hot pixels or a fixed list of coordinates.
 
 0.4.0
 -----

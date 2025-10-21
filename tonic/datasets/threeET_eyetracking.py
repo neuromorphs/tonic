@@ -1,5 +1,6 @@
 import os
-from typing import Any, Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 
 import h5py
 import numpy as np
@@ -44,9 +45,9 @@ class ThreeET_Eyetracking(Dataset):
         self,
         save_to: str,
         split: str = "train",
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -72,7 +73,7 @@ class ThreeET_Eyetracking(Dataset):
         self.data = [os.path.join(data_dir, "data", f + ".h5") for f in filenames]
         self.targets = [os.path.join(data_dir, "labels", f + ".txt") for f in filenames]
 
-    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+    def __getitem__(self, index: int) -> tuple[Any, Any]:
         """
         Returns:
             (events, target) where target is index of the target class.
@@ -81,7 +82,7 @@ class ThreeET_Eyetracking(Dataset):
         with h5py.File(self.data[index], "r") as f:
             events = f["events"][:]
         # load the sparse labels
-        with open(self.targets[index], "r") as f:
+        with open(self.targets[index]) as f:
             target = np.array(
                 [line.strip().split() for line in f.readlines()], np.float64
             )
@@ -109,5 +110,5 @@ class ThreeET_Eyetracking(Dataset):
         return self._is_file_present()
 
     def load_filenames(self, path):
-        with open(path, "r") as f:
+        with open(path) as f:
             return [line.strip() for line in f.readlines()]

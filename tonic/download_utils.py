@@ -11,7 +11,8 @@ import urllib
 import urllib.error
 import urllib.request
 import zipfile
-from typing import IO, Any, Callable, Dict, Iterable, List, Optional, Tuple, TypeVar
+from collections.abc import Callable, Iterable
+from typing import IO, Any, TypeVar
 from urllib.parse import urlparse
 
 from tqdm.auto import tqdm
@@ -46,7 +47,7 @@ def check_md5(fpath: str, md5: str, **kwargs: Any) -> bool:
     return md5 == calculate_md5(fpath, **kwargs)
 
 
-def check_integrity(fpath: str, md5: Optional[str] = None) -> bool:
+def check_integrity(fpath: str, md5: str | None = None) -> bool:
     if not os.path.isfile(fpath):
         return False
     if md5 is None:
@@ -73,7 +74,7 @@ def _get_redirect_url(url: str, max_hops: int = 3) -> str:
         )
 
 
-def _get_google_drive_file_id(url: str) -> Optional[str]:
+def _get_google_drive_file_id(url: str) -> str | None:
     parts = urlparse(url)
 
     if re.match(r"(drive|docs)[.]google[.]com", parts.netloc) is None:
@@ -89,8 +90,8 @@ def _get_google_drive_file_id(url: str) -> Optional[str]:
 def download_url(
     url: str,
     root: str,
-    filename: Optional[str] = None,
-    md5: Optional[str] = None,
+    filename: str | None = None,
+    md5: str | None = None,
     max_redirect_hops: int = 3,
 ) -> None:
     """Download a file from a url and place it in root.
@@ -126,7 +127,7 @@ def download_url(
     try:
         print("Downloading " + url + " to " + fpath)
         _urlretrieve(url, fpath)
-    except (urllib.error.URLError, IOError) as e:  # type: ignore[attr-defined]
+    except (OSError, urllib.error.URLError) as e:  # type: ignore[attr-defined]
         if url[:5] == "https":
             url = url.replace("https:", "http:")
             print(
@@ -144,18 +145,18 @@ def download_url(
         raise RuntimeError("File not found or corrupted.")
 
 
-def _extract_tar(from_path: str, to_path: str, compression: Optional[str]) -> None:
+def _extract_tar(from_path: str, to_path: str, compression: str | None) -> None:
     with tarfile.open(from_path, f"r:{compression[1:]}" if compression else "r") as tar:
         tar.extractall(to_path)
 
 
-_ZIP_COMPRESSION_MAP: Dict[str, int] = {
+_ZIP_COMPRESSION_MAP: dict[str, int] = {
     ".bz2": zipfile.ZIP_BZIP2,
     ".xz": zipfile.ZIP_LZMA,
 }
 
 
-def _extract_zip(from_path: str, to_path: str, compression: Optional[str]) -> None:
+def _extract_zip(from_path: str, to_path: str, compression: str | None) -> None:
     with zipfile.ZipFile(
         from_path,
         "r",
@@ -166,23 +167,23 @@ def _extract_zip(from_path: str, to_path: str, compression: Optional[str]) -> No
         zip.extractall(to_path)
 
 
-_ARCHIVE_EXTRACTORS: Dict[str, Callable[[str, str, Optional[str]], None]] = {
+_ARCHIVE_EXTRACTORS: dict[str, Callable[[str, str, str | None], None]] = {
     ".tar": _extract_tar,
     ".zip": _extract_zip,
 }
-_COMPRESSED_FILE_OPENERS: Dict[str, Callable[..., IO]] = {
+_COMPRESSED_FILE_OPENERS: dict[str, Callable[..., IO]] = {
     ".bz2": bz2.open,
     ".gz": gzip.open,
     ".xz": lzma.open,
 }
-_FILE_TYPE_ALIASES: Dict[str, Tuple[Optional[str], Optional[str]]] = {
+_FILE_TYPE_ALIASES: dict[str, tuple[str | None, str | None]] = {
     ".tbz": (".tar", ".bz2"),
     ".tbz2": (".tar", ".bz2"),
     ".tgz": (".tar", ".gz"),
 }
 
 
-def _detect_file_type(file: str) -> Tuple[str, Optional[str], Optional[str]]:
+def _detect_file_type(file: str) -> tuple[str, str | None, str | None]:
     """Detect the archive type and/or compression of a file.
 
     Args:
@@ -234,7 +235,7 @@ def _detect_file_type(file: str) -> Tuple[str, Optional[str], Optional[str]]:
 
 
 def _decompress(
-    from_path: str, to_path: Optional[str] = None, remove_finished: bool = False
+    from_path: str, to_path: str | None = None, remove_finished: bool = False
 ) -> str:
     r"""Decompress a file.
 
@@ -270,7 +271,7 @@ def _decompress(
 
 
 def extract_archive(
-    from_path: str, to_path: Optional[str] = None, remove_finished: bool = False
+    from_path: str, to_path: str | None = None, remove_finished: bool = False
 ) -> str:
     """Extract an archive.
 
@@ -308,9 +309,9 @@ def extract_archive(
 def download_and_extract_archive(
     url: str,
     download_root: str,
-    extract_root: Optional[str] = None,
-    filename: Optional[str] = None,
-    md5: Optional[str] = None,
+    extract_root: str | None = None,
+    filename: str | None = None,
+    md5: str | None = None,
     remove_finished: bool = False,
 ) -> None:
     if extract_root is None:
@@ -320,7 +321,7 @@ def download_and_extract_archive(
     download_url(url, download_root, filename, md5)
 
     archive = os.path.join(download_root, filename)
-    print("Extracting {} to {}".format(archive, extract_root))
+    print(f"Extracting {archive} to {extract_root}")
     extract_archive(archive, extract_root, remove_finished)
 
 
@@ -328,7 +329,7 @@ def iterable_to_str(iterable: Iterable) -> str:
     return "'" + "', '".join([str(item) for item in iterable]) + "'"
 
 
-def list_files(root: str, suffix: str, prefix: bool = False) -> List[str]:
+def list_files(root: str, suffix: str, prefix: bool = False) -> list[str]:
     """List all files ending with a suffix at a given root
     Args:
         root (str): Path to directory whose folders need to be listed

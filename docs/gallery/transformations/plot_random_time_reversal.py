@@ -2,7 +2,7 @@
 ==================
 RandomTimeReversal
 ==================
-The :class:`~tonic.transforms.RandomTimeReversal` flips 
+The :class:`~tonic.transforms.RandomTimeReversal` flips
 events on the temporal axis with probability p.
 """
 
