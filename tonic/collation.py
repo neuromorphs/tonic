@@ -1,6 +1,6 @@
 try:
     import torch
-except:
+except ImportError:
     ...
 
 

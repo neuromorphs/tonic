@@ -350,11 +350,11 @@ class DSEC(Dataset):
             # Fallback to pypng for macOS and other platforms without FreeImage support
             try:
                 import png
-            except ImportError:
+            except ImportError as err:
                 raise ImportError(
                     "Reading 16-bit PNG files requires either imageio with FreeImage plugin "
                     "or pypng library. Install pypng with: pip install pypng"
-                )
+                ) from err
 
             with open(filepath, "rb") as f:
                 reader = png.Reader(file=f)
