@@ -7,39 +7,73 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5079802.svg)](https://doi.org/10.5281/zenodo.5079802)
 [![Discord](https://img.shields.io/discord/1044548629622439977)](https://discord.gg/YSU9DGp4F2)
 
-**This project is looking for a new maintainer. Reach out to Gregor if you're interested!**
+**This project is looking for a new maintainer. Reach out to Gregor if you're
+interested!**
 
-**Tonic** is a tool to facilitate the download, manipulation and loading of event-based/spike-based data. It's like PyTorch Vision but for neuromorphic data!
+**Tonic** is a tool to facilitate the download, manipulation and loading of
+event-based/spike-based data. It's like PyTorch Vision but for neuromorphic
+data!
 
 ## Documentation
+
 You can find the full documentation on Tonic [on this site](https://tonic.readthedocs.io/en/latest/index.html).
 
-* [A first example](https://tonic.readthedocs.io/en/latest/getting_started/nmnist.html) to get a feeling for how Tonic works.
-* [Run tutorials in your browser](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials) quick and easy.
-* [List of datasets](https://tonic.readthedocs.io/en/main/datasets.html).
-* [List of transformations](https://tonic.readthedocs.io/en/main/auto_examples/index.html).
-* [About](https://tonic.readthedocs.io/en/latest/about/info.html) this project.
-* [Release notes](https://tonic.readthedocs.io/en/latest/about/release_notes.html) on version changes.
+- [A first example](https://tonic.readthedocs.io/en/latest/getting_started/nmnist.html) to get a feeling for how Tonic works.
+- [Run tutorials in your browser](https://mybinder.org/v2/gh/neuromorphs/tonic/main?labpath=docs%2Ftutorials) quick and easy.
+- [List of datasets](https://tonic.readthedocs.io/en/main/datasets.html).
+- [List of transformations](https://tonic.readthedocs.io/en/main/auto_examples/index.html).
+- [About](https://tonic.readthedocs.io/en/latest/about/info.html) this project.
+- [Release notes](https://tonic.readthedocs.io/en/latest/about/release_notes.html) on version changes.
 
 ## Install
+
+### For users
+
 ```bash
 pip install tonic
 ```
+
 or (thanks to [@Tobias-Fischer](https://github.com/Tobias-Fischer))
-```
+
+```bash
 conda install -c conda-forge tonic
 ```
+
 For the latest pre-release on the develop branch that passed the tests:
-```
+
+```bash
 pip install tonic --pre
 ```
+
+### For developers
+
+We recommend using [uv](https://docs.astral.sh/uv/) for development:
+
+```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone the repository
+git clone https://github.com/neuromorphs/tonic.git
+cd tonic
+
+# Install dependencies and tonic in editable mode
+uv sync --extra dev
+
+# Run tests
+uv run pytest test/
+```
+
 This package has been tested on:
 
-| Linux    | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)|
-|----------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| **Windows**  | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-2022)](https://github.com/neuromorphs/tonic) |
+| Platform          | Python Versions  | Status                                                                                                                                      |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Linux**         | 3.10, 3.11, 3.12 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.ubuntu-latest)](https://github.com/neuromorphs/tonic)  |
+| **macOS (ARM64)** | 3.10, 3.11, 3.12 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.macos-latest)](https://github.com/neuromorphs/tonic)   |
+| **Windows**       | 3.10, 3.11, 3.12 | [![](http://github-actions.40ants.com/neuromorphs/tonic/matrix.svg?only=ci.multitest.windows-latest)](https://github.com/neuromorphs/tonic) |
 
 ## Quickstart
+
 If you're looking for a minimal example to run, this is it!
 
 ```python
@@ -68,19 +102,22 @@ frames, targets = next(iter(testloader))
 ```
 
 ## Discussion and questions
+
 Have a question about how something works? Ideas for improvement? Feature request? Please get in touch on the #tonic [Discord channel](https://discord.gg/V6FHBZURkg)
- or alternatively here on GitHub via the [Discussions](https://github.com/neuromorphs/tonic/discussions) page!
+or alternatively here on GitHub via the [Discussions](https://github.com/neuromorphs/tonic/discussions) page!
 
 ## Contributing
+
 Please check out the [contributions](https://tonic.readthedocs.io/en/latest/about/contribute.html) page for details.
 
 ## Sponsoring
+
 The development of this library is supported by
 
 <tr><td><a href="https://synsense.ai"><img src="https://www.synsense.ai/wp-content/uploads/2022/03/logo-synsense-blue.svg" alt="SynSense" width="200px"/></a></td><td>
 
-
 ## Citation
+
 If you find this package helpful, please consider citing it:
 
 ```BibTex
@@ -94,8 +131,7 @@ If you find this package helpful, please consider citing it:
   title        = {Tonic: event-based datasets and transformations.},
   month        = jul,
   year         = 2021,
-  note         = {{Documentation available under 
-                   https://tonic.readthedocs.io}},
+  note         = {{Documentation available under https://tonic.readthedocs.io}},
   publisher    = {Zenodo},
   version      = {0.4.0},
   doi          = {10.5281/zenodo.5079802},

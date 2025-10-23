@@ -1,6 +1,7 @@
 import os
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable, Optional
+from typing import Any
 
 import h5py
 
@@ -45,10 +46,10 @@ class SlicedDataset:
 
     dataset: Iterable
     slicer: Slicer
-    metadata_path: Optional[str] = None
-    transform: Optional[Callable] = None
-    target_transform: Optional[Callable] = None
-    transforms: Optional[Callable] = None
+    metadata_path: str | None = None
+    transform: Callable | None = None
+    target_transform: Callable | None = None
+    transforms: Callable | None = None
 
     def __post_init__(self):
         """Will try to read metadata from disk to know where slices start and stop for each sample.

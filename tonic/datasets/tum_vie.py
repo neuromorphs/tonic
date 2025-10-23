@@ -1,5 +1,5 @@
 import os
-from typing import Callable, List, Optional, Union
+from collections.abc import Callable
 
 import h5py
 import numpy as np
@@ -94,10 +94,10 @@ class TUMVIE(Dataset):
     def __init__(
         self,
         save_to: str,
-        recording: Union[str, List[str]],
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        recording: str | list[str],
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -109,7 +109,7 @@ class TUMVIE(Dataset):
         if recording == "all" or ["all"]:
             self.selection = self.recordings
         else:
-            self.selection = recording if type(recording) == list else [recording]
+            self.selection = recording if isinstance(recording, list) else [recording]
 
             for recording in self.selection:
                 if recording not in self.recordings:
@@ -125,7 +125,6 @@ class TUMVIE(Dataset):
         """
         base_folder = os.path.join(self.location_on_system, self.selection[index])
 
-        import hdf5plugin  # necessary to read event files
         from PIL import Image  # necessary to read images
 
         events_left_file = h5py.File(

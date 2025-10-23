@@ -2,7 +2,7 @@
 =================
 EventDownsampling
 =================
-The :class:`~tonic.transforms.EventDownsampling` applies 
+The :class:`~tonic.transforms.EventDownsampling` applies
 spatio-temporal downsampling to events as per the downsampling method chosen.
 """
 
@@ -13,12 +13,14 @@ events, label = nmnist[0]
 
 transform = tonic.transforms.Compose(
     [
-        tonic.transforms.EventDownsampling(sensor_size=nmnist.sensor_size, 
-                                           target_size=(12, 12), 
-                                           dt=0.01, 
-                                           downsampling_method="differentiator", 
-                                           noise_threshold=0, 
-                                           differentiator_time_bins=2),
+        tonic.transforms.EventDownsampling(
+            sensor_size=nmnist.sensor_size,
+            target_size=(12, 12),
+            dt=0.01,
+            downsampling_method="differentiator",
+            noise_threshold=0,
+            differentiator_time_bins=2,
+        ),
         tonic.transforms.ToFrame(
             sensor_size=(12, 12, 2),
             time_window=10000,

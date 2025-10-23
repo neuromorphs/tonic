@@ -1,0 +1,128 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tonic"
+version = "1.6.0"
+description = "Neuromorphic datasets and transformations"
+readme = "README.md"
+license = {text = "GPL-3.0-only"}
+requires-python = ">=3.10"
+authors = [
+    {name = "The Neuromorphs of Telluride", email = "mail@lenzgregor.com"}
+]
+maintainers = [
+    {name = "The Neuromorphs of Telluride", email = "mail@lenzgregor.com"}
+]
+keywords = ["neuromorphic", "datasets", "spiking-neural-networks", "event-camera"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.24,<2.0",  # PyTorch 2.3.0 incompatible with NumPy 2.0
+    "h5py>=3.8",
+    "importRosbag>=1.0.4",
+    "scipy>=1.10",
+    "tqdm>=4.65",
+    "typing-extensions>=4.5",
+    "librosa>=0.10",
+    "expelliarmus>=1.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4",
+    "coverage>=7.3",
+    "matplotlib>=3.7",
+    "hdf5plugin>=4.1",
+    "imageio>=2.31",
+    "pypng>=0.20220715.0",
+    "aedat>=1.0",
+]
+# torch: Pinned to 2.3.0 for stability (supports Python 3.10-3.12)
+# Note: Python 3.13 requires PyTorch >= 2.6, Python 3.14 requires >= 2.9
+# CI matrix currently tests Python 3.10-3.12 only
+torch = [
+    "torch==2.3.0",
+    "torchvision==0.18.0",
+    "torchaudio==2.3.0",
+]
+docs = [
+    "astroid>=3.0,<4.0",
+    "sphinx>=6.1,<8.0",
+    "sphinx-book-theme",
+    "sphinx-gallery",
+    "myst_nb",
+    "ipywidgets",
+    "matplotlib",
+    "sphinx-autoapi>=3.0,<3.6",
+]
+dev = [
+    "tonic[test,torch,docs]",
+    "ruff>=0.4.0",
+    "mypy>=1.9",
+]
+
+[project.urls]
+"Source Code" = "https://github.com/neuromorphs/tonic"
+"Documentation" = "https://tonic.readthedocs.org"
+"Bug Tracker" = "https://github.com/neuromorphs/tonic/issues"
+"Homepage" = "https://github.com/neuromorphs/tonic"
+
+[tool.setuptools]
+packages = ["tonic", "tonic.datasets", "tonic.functional"]
+
+[tool.setuptools.package-data]
+tonic = ["py.typed"]
+
+[tool.coverage.run]
+source = ["tonic"]
+parallel = true
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "A", "C4", "PT"]
+ignore = ["E501", "N806"]  # Line too long, non-lowercase variable names (scientific computing)
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Gradual typing
+ignore_missing_imports = true

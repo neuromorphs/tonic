@@ -26,7 +26,7 @@ def decimate_numpy(events: np.ndarray, n: int):
                 output_events.append(event)
 
     else:
-        memory = np.zeros((max_x + 1))
+        memory = np.zeros(max_x + 1)
 
         for event in events:
             memory[event["x"]] += 1

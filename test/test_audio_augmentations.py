@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 
 def test_random_time_stretch():

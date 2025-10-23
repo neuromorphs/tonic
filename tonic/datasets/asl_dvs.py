@@ -1,5 +1,6 @@
 import os
-from typing import Any, Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import scipy.io as scio
@@ -35,7 +36,7 @@ class ASLDVS(Dataset):
     folder_name = ""
 
     classes = [chr(letter) for letter in range(97, 123)]  # generate alphabet
-    int_classes = dict(zip(classes, range(len(classes))))
+    int_classes = dict(zip(classes, range(len(classes)), strict=False))
     sensor_size = (240, 180, 2)
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
@@ -43,9 +44,9 @@ class ASLDVS(Dataset):
     def __init__(
         self,
         save_to: str,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -71,7 +72,7 @@ class ASLDVS(Dataset):
                     self.data.append(path + "/" + file)
                     self.targets.append(self.int_classes[path[-1]])
 
-    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+    def __getitem__(self, index: int) -> tuple[Any, Any]:
         """
         Returns:
             (events, target) where target is index of the target class.

@@ -1,17 +1,15 @@
-from typing import List
-
 import numpy as np
 
 
 def spatial_jitter_numpy(
     events: np.ndarray,
-    sensor_size: List[int],
+    sensor_size: list[int],
     var_x: float = 1,
     var_y: float = 1,
     sigma_xy: float = 0,
     clip_outliers: bool = False,
 ):
-    """Changes x/y coordinate for each event by adding samples from a multivariate Gaussian
+    r"""Changes x/y coordinate for each event by adding samples from a multivariate Gaussian
     distribution. It with the following properties:
 
         .. math::

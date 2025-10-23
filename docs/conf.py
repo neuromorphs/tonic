@@ -9,7 +9,6 @@ master_doc = "index"
 extensions = [
     "autoapi.extension",
     "myst_nb",
-    "pbr.sphinxext",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",

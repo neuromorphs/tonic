@@ -220,24 +220,20 @@ def create_ntidigits_data(filename, n_samples):
                     timestamps[speaker] = times[i]
 
             # Create a group for addresses and timestamps, Store each speaker's data as a dataset in the group
-            train_address_group = write_file.create_group(
-                "{}_addresses".format(partition)
-            )
+            train_address_group = write_file.create_group(f"{partition}_addresses")
             for speaker, addresses in addresses.items():
                 train_address_group.create_dataset(
                     speaker, data=np.array(addresses, dtype=np.uint16)
                 )
 
-            train_timestamps_group = write_file.create_group(
-                "{}_timestamps".format(partition)
-            )
+            train_timestamps_group = write_file.create_group(f"{partition}_timestamps")
             for speaker, timestamps in timestamps.items():
                 train_timestamps_group.create_dataset(
                     speaker, data=np.array(timestamps, dtype=np.float16)
                 )
 
             # Create datasets for labels
-            write_file.create_dataset("{}_labels".format(partition), data=sequences)
+            write_file.create_dataset(f"{partition}_labels", data=sequences)
 
 
 class NTIDIGITS18TestCaseTrain(dataset_utils.DatasetTestCase):

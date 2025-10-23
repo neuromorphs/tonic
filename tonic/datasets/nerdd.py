@@ -1,8 +1,12 @@
 import os
+from collections.abc import Callable
+from typing import Any
+
 import numpy as np
-from typing import Any, Callable, Optional, Tuple
+
 from tonic.download_utils import extract_archive
 from tonic.io import make_structured_array
+
 
 class NERDD:
     """`NeRDD <https://github.com/MagriniGabriele/NeRDD>`_
@@ -23,7 +27,7 @@ class NERDD:
     def __init__(
         self,
         root: str,
-        transforms: Optional[Callable] = None,
+        transforms: Callable | None = None,
     ):
         self.data = []
         self.targets = []
@@ -65,29 +69,35 @@ class NERDD:
         """Load the dataset files and their corresponding labels."""
         data_path = os.path.join(self.location_on_system, self.folder_name)
         archives = [
-            f for f in os.listdir(data_path) 
+            f
+            for f in os.listdir(data_path)
             if os.path.isdir(os.path.join(data_path, f))
         ]
-        
+
         for archive in archives:
             archive_path = os.path.join(data_path, archive)
             scenes = [
-                f for f in os.listdir(archive_path) 
+                f
+                for f in os.listdir(archive_path)
                 if os.path.isdir(os.path.join(archive_path, f))
             ]
-            
+
             for scene in scenes:
                 scene_path = os.path.join(archive_path, scene)
 
                 event_file = os.path.join(scene_path, "Event", "output_events.npz")
                 label_file = os.path.join(scene_path, "ev_rgb_coordinates.txt")
-                
-                if os.path.exists(event_file) and os.path.exists(label_file):
-                    self.data.append((event_file, label_file, int(archive[8:]), int(scene)))
-                else:
-                    print(f"Skipping scene {scene} in archive {archive}: missing files.")
 
-    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+                if os.path.exists(event_file) and os.path.exists(label_file):
+                    self.data.append(
+                        (event_file, label_file, int(archive[8:]), int(scene))
+                    )
+                else:
+                    print(
+                        f"Skipping scene {scene} in archive {archive}: missing files."
+                    )
+
+    def __getitem__(self, index: int) -> tuple[Any, Any]:
         """
         Returns:
             (events, target) where target is index of the target class.
@@ -102,7 +112,7 @@ class NERDD:
             dtype=self.dtype,
         )
 
-        with open(label_file, "r") as f:
+        with open(label_file) as f:
             bboxes = []
             for line in f.readlines():
                 timestamp, bbox_str = line.strip().split(":")
@@ -111,9 +121,9 @@ class NERDD:
             bboxes = np.array(bboxes, dtype=np.float32)
 
         targets = {
-            'archive' : archive,
-            'scene' : scene,
-            'bboxes' : bboxes,
+            "archive": archive,
+            "scene": scene,
+            "bboxes": bboxes,
         }
 
         # Apply transforms if provided

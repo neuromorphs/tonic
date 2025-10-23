@@ -1,5 +1,3 @@
-from typing import Tuple, Union
-
 import numpy as np
 
 
@@ -22,7 +20,7 @@ def drop_event_numpy(events: np.ndarray, drop_probability: float):
 
 def drop_by_time_numpy(
     events: np.ndarray,
-    duration_ratio: Union[float, Tuple[float]] = 0.2,
+    duration_ratio: float | tuple[float] = 0.2,
 ):
     """Drops events in a certain time interval with a length proportional to a specified ratio of
     the original length.
@@ -39,9 +37,11 @@ def drop_by_time_numpy(
     """
     assert "x" and "t" and "p" in events.dtype.names
     assert (
-        type(duration_ratio) == float and duration_ratio >= 0.0 and duration_ratio < 1.0
+        isinstance(duration_ratio, float)
+        and duration_ratio >= 0.0
+        and duration_ratio < 1.0
     ) or (
-        type(duration_ratio) == tuple
+        isinstance(duration_ratio, tuple)
         and len(duration_ratio) == 2
         and all(val >= 0 and val < 1.0 for val in duration_ratio)
     )
@@ -64,7 +64,7 @@ def drop_by_time_numpy(
 
 
 def drop_by_area_numpy(
-    events: np.ndarray, sensor_size: Tuple, area_ratio: Union[float, Tuple[float]] = 0.2
+    events: np.ndarray, sensor_size: tuple, area_ratio: float | tuple[float] = 0.2
 ):
     """Drops events located in a randomly chosen box area. The size of the box area is defined by a
     specified ratio of the sensor size.
@@ -81,8 +81,10 @@ def drop_by_area_numpy(
         np.ndarray: augmented events that were not dropped (i.e., the events that are not located in the box area).
     """
     assert "x" and "t" and "y" and "p" in events.dtype.names
-    assert (type(area_ratio) == float and area_ratio >= 0.0 and area_ratio < 1.0) or (
-        type(area_ratio) is tuple
+    assert (
+        isinstance(area_ratio, float) and area_ratio >= 0.0 and area_ratio < 1.0
+    ) or (
+        isinstance(area_ratio, tuple)
         and len(area_ratio) == 2
         and all(val >= 0 and val < 1.0 for val in area_ratio)
     )

@@ -2,7 +2,7 @@
 ===============
 RandomFlipLR
 ===============
-The :class:`~tonic.transforms.RandomFlipLR` flips 
+The :class:`~tonic.transforms.RandomFlipLR` flips
 events on the horizontal axis with probability p.
 """
 
