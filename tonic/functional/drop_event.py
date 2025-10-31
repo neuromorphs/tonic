@@ -97,7 +97,7 @@ def drop_by_area_numpy(
 
     # select ratio
     if type(area_ratio) is tuple:
-        area_ratio = np.random.uniform(area_ratio[0] and area_ratio[1])
+        area_ratio = np.random.uniform(area_ratio[0], area_ratio[1])
 
     # select area
     cut_w = int(sensor_size[0] * area_ratio)
