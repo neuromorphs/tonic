@@ -13,13 +13,14 @@ def uniform_noise_numpy(events: np.ndarray, sensor_size: tuple[int, int, int], n
     noise_events = np.zeros(n, dtype=events.dtype)
     for channel in events.dtype.names:
         if channel == "x":
-            low, high = 0, sensor_size[0]
+            noise_events[channel] = np.random.randint(0, sensor_size[0], size=n)
         if channel == "y":
-            low, high = 0, sensor_size[1]
+            noise_events[channel] = np.random.randint(0, sensor_size[1], size=n)
         if channel == "p":
-            low, high = 0, sensor_size[2]
+            noise_events[channel] = np.random.randint(0, sensor_size[2], size=n)
         if channel == "t":
-            low, high = events["t"].min(), events["t"].max()
-        noise_events[channel] = np.random.uniform(low=low, high=high, size=n)
+            t_min, t_max = events["t"].min(), events["t"].max()
+            noise_events[channel] = np.random.uniform(t_min, t_max, size=n)
+
     noisy_events = np.concatenate((events, noise_events))
     return noisy_events[np.argsort(noisy_events["t"])]
