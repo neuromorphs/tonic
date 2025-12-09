@@ -12,6 +12,7 @@ from .nerdd import NERDD
 from .nmnist import NMNIST
 from .ntidigits18 import NTIDIGITS18
 from .pokerdvs import POKERDVS
+from .pokerdvs131 import POKERDVS131
 from .s_mnist import SMNIST
 from .threeET_eyetracking import ThreeET_Eyetracking
 from .tum_vie import TUMVIE
@@ -31,6 +32,7 @@ __all__ = [
     "NMNIST",
     "NTIDIGITS18",
     "POKERDVS",
+    "POKERDVS131",
     "SHD",
     "SMNIST",
     "SSC",
