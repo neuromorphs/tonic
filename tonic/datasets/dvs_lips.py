@@ -234,6 +234,8 @@ class DVSLip(Dataset):
         file_path = os.path.join(self.location_on_system, self.folder_name)
 
         for act_dir in os.listdir(file_path):
+            if '.DS_Store' in act_dir:
+                continue
             label = self.classes.index(act_dir)
 
             for file in os.listdir(os.path.join(file_path, act_dir)):
