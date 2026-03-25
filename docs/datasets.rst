@@ -44,6 +44,7 @@ Pose estimation, visual odometry, SLAM
     DSEC
     MVSEC
     TUMVIE
+    UZHFPV
     VPR
 
 Object tracking
