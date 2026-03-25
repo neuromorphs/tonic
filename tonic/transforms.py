@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
 import numpy as np
@@ -21,7 +21,7 @@ class Compose:
         >>> ])
     """
 
-    def __init__(self, transforms: Callable):
+    def __init__(self, transforms: Iterable[Callable]):
         self.transforms = transforms
 
     def __call__(self, events):
