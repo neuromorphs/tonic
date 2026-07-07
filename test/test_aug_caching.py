@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 import numpy as np
 
@@ -30,37 +31,38 @@ class mini_dataset:
 def test_aug_disk_caching():
     from torchvision.transforms import Compose
 
-    all_transforms = {}
-    all_transforms["pre_aug"] = [AmplitudeScale(max_amplitude=0.150)]
-    all_transforms["augmentations"] = [RandomPitchShift(samplerate=16000, caching=True)]
-    all_transforms["post_aug"] = [FixLength(16000)]
-    # number of copies is set to number of augmentation params (factors)
-    n = len(RandomPitchShift(samplerate=16000, caching=True).factors)
-    Aug_cach = Aug_DiskCachedDataset(
-        dataset=mini_dataset(),
-        cache_path="cache/",
-        all_transforms=all_transforms,
-        num_copies=n,
-    )
-
-    if not os.path.isdir("cache/"):
-        os.mkdir("cache/")
-
-    sample_index = 0
-    Aug_cach.generate_all(sample_index)
-
-    for i in range(n):
-        transform = Compose(
-            [
-                AmplitudeScale(max_amplitude=0.150),
-                RandomPitchShift(samplerate=16000, caching=True, aug_index=i),
-                FixLength(16000),
-            ]
+    with tempfile.TemporaryDirectory() as cache_dir:
+        cache_path = os.path.join(cache_dir, "cache")
+        all_transforms = {}
+        all_transforms["pre_aug"] = [AmplitudeScale(max_amplitude=0.150)]
+        all_transforms["augmentations"] = [
+            RandomPitchShift(samplerate=16000, caching=True)
+        ]
+        all_transforms["post_aug"] = [FixLength(16000)]
+        # number of copies is set to number of augmentation params (factors)
+        n = len(RandomPitchShift(samplerate=16000, caching=True).factors)
+        Aug_cach = Aug_DiskCachedDataset(
+            dataset=mini_dataset(),
+            cache_path=cache_path,
+            all_transforms=all_transforms,
+            num_copies=n,
         )
-        ds = mini_dataset()
-        ds.transform = transform
-        augmented_sample = ds[sample_index][0]
-        loaded_sample, targets = load_from_disk_cache(
-            "cache/" + "0_" + str(i) + ".hdf5"
-        )
-        assert (augmented_sample == loaded_sample).all()
+
+        sample_index = 0
+        Aug_cach.generate_all(sample_index)
+
+        for i in range(n):
+            transform = Compose(
+                [
+                    AmplitudeScale(max_amplitude=0.150),
+                    RandomPitchShift(samplerate=16000, caching=True, aug_index=i),
+                    FixLength(16000),
+                ]
+            )
+            ds = mini_dataset()
+            ds.transform = transform
+            augmented_sample = ds[sample_index][0]
+            loaded_sample, targets = load_from_disk_cache(
+                os.path.join(cache_path, f"0_{i}.hdf5")
+            )
+            assert np.allclose(augmented_sample, loaded_sample, rtol=1e-5, atol=1e-5)

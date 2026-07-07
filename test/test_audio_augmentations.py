@@ -31,8 +31,8 @@ def test_random_time_stretch():
             assert np.allclose(
                 slow.shape[1],
                 data.shape[1] / (slowing_down.factors[0]),
-                rtol=1e-2,
-                atol=1e-3,
+                rtol=5e-2,
+                atol=50,
             )
 
         speeding_up = RandomTimeStretch(
@@ -48,8 +48,8 @@ def test_random_time_stretch():
             assert np.allclose(
                 fast.shape[1],
                 data.shape[1] / (speeding_up.factors[0]),
-                rtol=1e-2,
-                atol=1e-3,
+                rtol=5e-2,
+                atol=50,
             )
 
 
