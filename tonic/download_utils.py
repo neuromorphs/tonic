@@ -55,6 +55,13 @@ def check_integrity(fpath: str, md5: str | None = None) -> bool:
     return check_md5(fpath, md5)
 
 
+def _normalize_download_url(url: str) -> str:
+    return url.replace(
+        "https://figshare.com/ndownloader/files/",
+        "https://ndownloader.figshare.com/files/",
+    )
+
+
 def _get_redirect_url(url: str, max_hops: int = 3) -> str:
     initial_url = url
     headers = {"Method": "HEAD", "User-Agent": USER_AGENT}
@@ -150,6 +157,8 @@ def download_url(
     if check_integrity(fpath, md5):
         print("Using downloaded and verified file: " + fpath)
         return
+
+    url = _normalize_download_url(url)
 
     # expand redirect chain if needed
     url = _get_redirect_url(url, max_hops=max_redirect_hops)
