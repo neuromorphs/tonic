@@ -38,7 +38,7 @@ jobs:
         continue-on-error: true
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v8
+        uses: astral-sh/setup-uv@v8.3.1
         with:
           enable-cache: true
 
@@ -63,7 +63,7 @@ jobs:
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v8
+        uses: astral-sh/setup-uv@v8.3.1
         with:
           enable-cache: true
 
@@ -95,7 +95,7 @@ jobs:
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v8
+        uses: astral-sh/setup-uv@v8.3.1
         with:
           enable-cache: true
 
@@ -126,7 +126,7 @@ jobs:
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v8
+        uses: astral-sh/setup-uv@v8.3.1
 
       - name: Set up Python 3.12
         run: uv python install 3.12
