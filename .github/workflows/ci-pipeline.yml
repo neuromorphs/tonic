@@ -19,7 +19,7 @@ jobs:
         # macOS-13 removed: deprecated by GitHub, retiring December 4th, 2025
         # macos-15: Apple Silicon (ARM64)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install system dependencies (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
@@ -38,7 +38,7 @@ jobs:
         continue-on-error: true
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
 
@@ -57,13 +57,13 @@ jobs:
     needs: multitest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install system dependencies
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
 
@@ -89,13 +89,13 @@ jobs:
     needs: multitest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install system dependencies
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
 
@@ -118,7 +118,7 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -126,7 +126,7 @@ jobs:
         run: sudo apt-get -y update && sudo apt-get install -y libsndfile1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
 
       - name: Set up Python 3.12
         run: uv python install 3.12

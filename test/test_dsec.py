@@ -21,11 +21,10 @@ def test_test_split():
     assert len(dataset) == 12
 
 
-# @pytest.mark.skip("Data not available from CI server...")
-def test_optical_flow_subset():
+def test_optical_flow_subset(dsec_fixture_dir, dsec_no_download):
     with pytest.warns():
         dataset = tonic.datasets.DSEC(
-            save_to="data",
+            save_to=dsec_fixture_dir,
             split="train",
             data_selection=[],
             target_selection="optical_flow_forward_timestamps",
@@ -36,20 +35,20 @@ def test_optical_flow_subset():
     assert len(targets) == 1
 
 
-# @pytest.mark.skip("Data not available from CI server...")
-def test_data_selection():
+def test_data_selection(dsec_fixture_dir, dsec_no_download):
     dataset = tonic.datasets.DSEC(
-        save_to="data", split="thun_00_a", data_selection="image_timestamps"
+        save_to=dsec_fixture_dir,
+        split="thun_00_a",
+        data_selection="image_timestamps",
     )
     data, targets = dataset[0]
     assert len(data) == 1
     assert len(targets) == 0
 
 
-# @pytest.mark.skip("Data not available from CI server...")
-def test_multi_data_selection():
+def test_multi_data_selection(dsec_fixture_dir, dsec_no_download):
     dataset = tonic.datasets.DSEC(
-        save_to="data",
+        save_to=dsec_fixture_dir,
         split="thun_00_a",
         data_selection=["image_timestamps", "image_exposure_timestamps_left"],
     )
@@ -58,10 +57,9 @@ def test_multi_data_selection():
     assert len(targets) == 0
 
 
-# @pytest.mark.skip("Data not available from CI server...")
-def test_target_selection():
+def test_target_selection(dsec_fixture_dir, dsec_no_download):
     dataset = tonic.datasets.DSEC(
-        save_to="data",
+        save_to=dsec_fixture_dir,
         split="thun_00_a",
         data_selection=[],
         target_selection="disparity_timestamps",
@@ -71,10 +69,9 @@ def test_target_selection():
     assert len(targets) == 1
 
 
-# @pytest.mark.skip("Data not available from CI server...")
-def test_target_multiselection():
+def test_target_multiselection(dsec_fixture_dir, dsec_no_download):
     dataset = tonic.datasets.DSEC(
-        save_to="data",
+        save_to=dsec_fixture_dir,
         split="thun_00_a",
         data_selection="image_timestamps",
         target_selection=["disparity_timestamps", "optical_flow_forward_timestamps"],
@@ -84,10 +81,9 @@ def test_target_multiselection():
     assert len(targets) == 2
 
 
-# @pytest.mark.skip("Data not available from CI server...")
-def test_optical_flow():
+def test_optical_flow(dsec_fixture_dir, dsec_no_download):
     dataset = tonic.datasets.DSEC(
-        save_to="data",
+        save_to=dsec_fixture_dir,
         split="thun_00_a",
         data_selection="image_timestamps",
         target_selection=[
@@ -114,7 +110,7 @@ def test_raises_exception_data_name():
         )
 
 
-def test_raises_exception_wrong_recording_name():
+def test_raises_exception_wrong_target_name():
     with pytest.raises(Exception):
         tonic.datasets.DSEC(
             save_to="data",
