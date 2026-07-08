@@ -50,6 +50,10 @@ def test_plotting():
 
 
 def test_animation():
+    import gc
+
+    import matplotlib.pyplot as plt
+
     events, sensor_size = create_random_input()
 
     transform = tonic.transforms.ToFrame(
@@ -58,4 +62,10 @@ def test_animation():
     )
 
     frames = transform(events)
-    tonic.utils.plot_animation(frames)
+    anim = tonic.utils.plot_animation(frames)
+    anim._fig.canvas.draw()
+    if anim.event_source is not None:
+        anim.event_source.stop()
+    plt.close("all")
+    del anim
+    gc.collect()

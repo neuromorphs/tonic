@@ -119,6 +119,9 @@ addopts = [
     "--strict-markers",
     "--tb=short",
 ]
+filterwarnings = [
+    "ignore:pkg_resources is deprecated:UserWarning",
+]
 
 [tool.mypy]
 python_version = "3.10"
