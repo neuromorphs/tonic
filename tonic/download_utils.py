@@ -190,7 +190,7 @@ def _extract_tar(from_path: str, to_path: str, compression: str | None) -> None:
     with tarfile.open(from_path, f"r:{compression[1:]}" if compression else "r") as tar:
         if hasattr(tarfile, "data_filter"):
             tar.extractall(to_path, filter="data")
-        else:
+        else:  # pragma: no cover
             tar.extractall(to_path)
 
 
