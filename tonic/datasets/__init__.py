@@ -15,6 +15,7 @@ from .pokerdvs import POKERDVS
 from .s_mnist import SMNIST
 from .threeET_eyetracking import ThreeET_Eyetracking
 from .tum_vie import TUMVIE
+from .uzh_fpv import UZHFPV
 from .visual_place_recognition import VPR
 
 __all__ = [
@@ -36,5 +37,6 @@ __all__ = [
     "SSC",
     "ThreeET_Eyetracking",
     "TUMVIE",
+    "UZHFPV",
     "VPR",
 ]
