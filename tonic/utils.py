@@ -57,7 +57,6 @@ def plot_event_grid(
                 if plot_frame_number:
                     axes_array[i, j].title.set_text(str(i * axis_array[1] + j))
         plt.tight_layout()
-        plt.show()
 
     else:
         sensor_size_x = int(events["x"].max() + 1)
@@ -121,5 +120,4 @@ def plot_animation(frames: np.ndarray, figsize: tuple[int, int] = (5, 5)):
         return ax
 
     anim = animation.FuncAnimation(fig, animate, frames=frames, interval=100)
-    plt.show()
     return anim

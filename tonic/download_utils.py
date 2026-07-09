@@ -151,6 +151,11 @@ def download_url(
         print("Using downloaded and verified file: " + fpath)
         return
 
+    url = url.replace(
+        "https://figshare.com/ndownloader/files/",
+        "https://ndownloader.figshare.com/files/",
+    )
+
     # expand redirect chain if needed
     url = _get_redirect_url(url, max_hops=max_redirect_hops)
 
@@ -183,7 +188,10 @@ def download_url(
 
 def _extract_tar(from_path: str, to_path: str, compression: str | None) -> None:
     with tarfile.open(from_path, f"r:{compression[1:]}" if compression else "r") as tar:
-        tar.extractall(to_path)
+        if hasattr(tarfile, "data_filter"):
+            tar.extractall(to_path, filter="data")
+        else:  # pragma: no cover
+            tar.extractall(to_path)
 
 
 _ZIP_COMPRESSION_MAP: dict[str, int] = {
