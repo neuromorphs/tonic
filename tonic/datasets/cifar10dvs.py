@@ -30,7 +30,7 @@ class CIFAR10DVS(Dataset):
                                          labels at the same time.
     """
 
-    url = "https://figshare.com/ndownloader/files/38023437"
+    url = "https://api.figshare.com/v2/file/download/38023437"
 
     filename = "CIFAR10DVS.zip"
     file_md5 = "ce3a4a0682dc0943703bd8f749a7701c"
