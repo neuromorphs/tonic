@@ -1,11 +1,10 @@
+import os
 import random
 from dataclasses import dataclass, field
 
 import librosa
 import numpy as np
 import torch
-import torchaudio
-from torchaudio.utils import download_asset
 
 from tonic.audio_transforms import FixLength
 
@@ -170,7 +169,10 @@ class RIR:
 
     Parameters:
         samplerate (float): sample rate of the sample
-        rir_audio (str): path to a sample room impluse response in the .wav format
+        rir_audio (str): path to a room impulse response in the .wav format. If the path does
+                         not exist locally, it is treated as a torchaudio asset key (e.g.
+                         "tutorial-assets/Lab41-SRI-VOiCES-rm1-impulse-mc01-stu-clo-8000hz.wav")
+                         and downloaded to the torch hub cache directory.
         caching (bool): if we are caching the DiskCached dataset will dynamically pass copy index of data item to the transform (to set aug_index). Otherwise the aug_index will be chosen randomly in every call of transform
 
     Args:
@@ -184,8 +186,9 @@ class RIR:
     caching: bool = False
 
     def __call__(self, audio):
-        SAMPLE_RIR = download_asset(self.rir_audio)
-        rir_raw, rir_sample_rate = torchaudio.load(SAMPLE_RIR)
+        rir_path = _get_rir_path(self.rir_audio)
+        rir_raw, rir_sample_rate = librosa.load(rir_path, sr=None, mono=False)
+        rir_raw = torch.from_numpy(np.atleast_2d(rir_raw))
         rir = rir_raw[:, int(rir_sample_rate * 1.01) : int(rir_sample_rate * 1.3)]
         rir = rir / torch.norm(rir, p=2)
         RIR = torch.flip(rir, [1])
@@ -198,3 +201,17 @@ class RIR:
         ].numpy()
 
         return rir_augmented
+
+
+def _get_rir_path(rir_audio: str) -> str:
+    """Returns a local path to the RIR file, downloading it from the torchaudio asset
+    store if it does not exist locally."""
+    if os.path.isfile(rir_audio):
+        return rir_audio
+    path = os.path.join(torch.hub.get_dir(), "torchaudio", rir_audio)
+    if not os.path.isfile(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        torch.hub.download_url_to_file(
+            f"https://download.pytorch.org/torchaudio/{rir_audio}", path
+        )
+    return path

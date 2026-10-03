@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tonic"
-version = "1.6.0"
+version = "1.7.0"
 description = "Neuromorphic datasets and transformations"
 readme = "README.md"
 license = {text = "GPL-3.0-only"}
@@ -30,7 +30,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "numpy>=1.24,<2.0",  # PyTorch 2.3.0 incompatible with NumPy 2.0
+    "numpy>=1.24",
     "h5py>=3.8",
     "importRosbag>=1.0.4",
     "scipy>=1.10",
@@ -50,13 +50,12 @@ test = [
     "pypng>=0.20220715.0",
     "aedat>=1.0",
 ]
-# torch: Pinned to 2.3.0 for stability (supports Python 3.10-3.12)
-# Note: Python 3.13 requires PyTorch >= 2.6, Python 3.14 requires >= 2.9
-# CI matrix currently tests Python 3.10-3.12 only
+# torch: >=2.4.1 is built against the NumPy 2 C API on all platforms
+# (2.3.1 supports NumPy 2 on Linux/macOS, 2.4.0 Windows wheels did not).
 torch = [
-    "torch==2.3.0",
-    "torchvision==0.18.0",
-    "torchaudio==2.3.0",
+    "torch>=2.4.1",
+    "torchvision>=0.19.1",
+    "torchaudio>=2.4.1",
 ]
 docs = [
     "astroid>=3.0,<4.0",
