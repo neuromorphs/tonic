@@ -134,7 +134,7 @@ class NTIDIGITS18(Dataset):
         x = np.asarray(self.data[f"{self.partition}_addresses"][sample_id])
         t = np.asarray(self.data[f"{self.partition}_timestamps"][sample_id])
         events = make_structured_array(
-            t * 1e6,
+            t.astype(np.float64) * 1e6, # Avoid numpy2 float64 regression
             x,
             1,
             dtype=self.dtype,

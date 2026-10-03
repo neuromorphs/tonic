@@ -13,11 +13,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.10", "3.11", "3.12"]
-        # Python 3.13 and 3.14 excluded: PyTorch 2.3.0 lacks pre-built wheels
-        # PyTorch 2.6+ required for Python 3.13, 2.9+ for Python 3.14
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        # Python 3.14 excluded: aedat (test extra) has no 3.14 wheels and needs Rust to build
         # macOS-13 removed: deprecated by GitHub, retiring December 4th, 2025
         # macos-15: Apple Silicon (ARM64)
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v4
 

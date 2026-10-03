@@ -338,3 +338,33 @@ class SSCTestCaseTest(dataset_utils.DatasetTestCase):
         os.makedirs(testfolder, exist_ok=True)
         create_hsd_data(testfolder + "ssc_test.h5", n_samples=5)
         return {"n_samples": 5}
+
+
+def test_shd_float16_times_converted_to_microseconds(tmp_path):
+    # NumPy 2 keeps float16 * Python float as float16, which overflows when scaling
+    # seconds to microseconds. Times must be upcast before conversion.
+    os.makedirs(tmp_path / "SHD")
+    create_hsd_data(str(tmp_path / "SHD" / "shd_train.h5"), n_samples=2)
+    dataset = datasets.SHD(save_to=str(tmp_path), train=True)
+
+    with h5py.File(tmp_path / "SHD" / "shd_train.h5", "r") as file:
+        times = file["spikes/times"][0]
+    events, _ = dataset[0]
+
+    expected = (times.astype(np.float64) * 1e6).astype(int)
+    np.testing.assert_array_equal(events["t"], expected)
+
+
+def test_ntidigits_float16_times_converted_to_microseconds(tmp_path):
+    os.makedirs(tmp_path / "NTIDIGITS18")
+    filename = str(tmp_path / "NTIDIGITS18" / "n-tidigits.hdf5")
+    create_ntidigits_data(filename, n_samples=2)
+    dataset = datasets.NTIDIGITS18(save_to=str(tmp_path), train=True)
+
+    sample_id = dataset._samples[0]
+    with h5py.File(filename, "r") as file:
+        times = file[f"train_timestamps/{sample_id}"][()]
+    events, _ = dataset[0]
+
+    expected = (times.astype(np.float64) * 1e6).astype(int)
+    np.testing.assert_array_equal(events["t"], expected)

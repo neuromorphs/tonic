@@ -21,7 +21,7 @@ class HSD(Dataset):
         file = h5py.File(os.path.join(self.location_on_system, self.data_filename), "r")
         # adding artificial polarity of 1 and convert to microseconds
         events = make_structured_array(
-            file["spikes/times"][index] * 1e6,
+            file["spikes/times"][index].astype(np.float64) * 1e6, # Avoid numpy2 float64 regression 
             file["spikes/units"][index],
             1,
             dtype=self.dtype,
