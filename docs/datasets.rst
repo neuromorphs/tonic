@@ -55,3 +55,13 @@ Object tracking
     ThreeET_Eyetracking
     NeRDD
     EBSSA
+
+For ``ThreeET_Eyetracking``, the default ``split_version="public_v1"`` is the
+official public benchmark: 16 training recordings and 2 validation recordings
+with no recording IDs in common. It is recording-disjoint, not subject-disjoint,
+and is distinct from the 22-recording experimental subset described in the 3ET
+paper. For historical reproduction, ``split_version="legacy_tonic_2023"`` reads
+the original archive manifests; those manifests contain ``subj_18_vid_7`` in
+both splits and can leak a recording between training and validation. Selecting
+that legacy version emits a warning. Both split versions reuse the same raw
+archive.

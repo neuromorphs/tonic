@@ -1,9 +1,11 @@
 import os
 import shutil
+from unittest.mock import patch
 
 import dataset_utils
 import h5py
 import numpy as np
+import pytest
 from utils import create_random_input
 
 import tonic.datasets as datasets
@@ -113,14 +115,45 @@ class ThreeET_EyetrackingTestCase(dataset_utils.DatasetTestCase):
     TARGET_TYPES = (np.ndarray,)
     KWARGS = {"split": "train"}
 
+    PUBLIC_V1_TRAIN = (
+        "subj_18_vid_2",
+        "subj_10_vid_8",
+        "subj_12_vid_1",
+        "subj_12_vid_2",
+        "subj_12_vid_9",
+        "subj_13_vid_1",
+        "subj_13_vid_2",
+        "subj_14_vid_10",
+        "subj_15_vid_2",
+        "subj_21_vid_11",
+        "subj_1_vid_1",
+        "subj_1_vid_9",
+        "subj_2_vid_4",
+        "subj_6_vid_5",
+        "subj_7_vid_18",
+        "subj_8_vid_2",
+    )
+    PUBLIC_V1_VAL = ("subj_16_vid_1", "subj_18_vid_7")
+    LEGACY_TONIC_2023_TRAIN = (
+        "subj_18_vid_7",
+        *PUBLIC_V1_TRAIN[1:],
+    )
+    LEGACY_TONIC_2023_VAL = PUBLIC_V1_VAL
+
     def inject_fake_data(self, tmpdir):
         testfolder = os.path.join(tmpdir, "ThreeET_Eyetracking")
         os.makedirs(testfolder, exist_ok=True)
         os.makedirs(os.path.join(testfolder, "data"), exist_ok=True)
         os.makedirs(os.path.join(testfolder, "labels"), exist_ok=True)
-        # write one line of file name into train_files.txt under testfolder
-        os.system("echo testcase > " + os.path.join(testfolder, "train_files.txt"))
-        filename = "testcase"
+
+        with open(
+            os.path.join(testfolder, "train_files.txt"), "w", encoding="utf-8"
+        ) as file:
+            file.write("\n".join(self.LEGACY_TONIC_2023_TRAIN) + "\n")
+        with open(
+            os.path.join(testfolder, "val_files.txt"), "w", encoding="utf-8"
+        ) as file:
+            file.write("\n".join(self.LEGACY_TONIC_2023_VAL) + "\n")
 
         # Copy from local test data instead of downloading
         source_h5 = os.path.join(
@@ -129,10 +162,76 @@ class ThreeET_EyetrackingTestCase(dataset_utils.DatasetTestCase):
         source_txt = os.path.join(
             os.path.dirname(__file__), "test_data", "sample_threeet_eyetracking.txt"
         )
-        shutil.copy(source_h5, os.path.join(testfolder, "data", filename + ".h5"))
-        shutil.copy(source_txt, os.path.join(testfolder, "labels", filename + ".txt"))
+        recordings = set(self.PUBLIC_V1_TRAIN) | set(self.PUBLIC_V1_VAL)
+        for filename in recordings:
+            shutil.copy(source_h5, os.path.join(testfolder, "data", filename + ".h5"))
+            shutil.copy(
+                source_txt, os.path.join(testfolder, "labels", filename + ".txt")
+            )
 
-        return {"n_samples": 1}
+        return {"n_samples": len(self.PUBLIC_V1_TRAIN)}
+
+    def test_public_v1_is_the_default_recording_disjoint_split(self):
+        with patch.object(self.DATASET_CLASS, "_check_exists", return_value=True):
+            train_dataset = self.DATASET_CLASS(
+                save_to=self.KWARGS["save_to"],
+                split="train",
+            )
+            val_dataset = self.DATASET_CLASS(
+                save_to=self.KWARGS["save_to"],
+                split="val",
+            )
+
+        assert train_dataset.split_version == "public_v1"
+        assert tuple(train_dataset.filenames) == self.PUBLIC_V1_TRAIN
+        assert tuple(val_dataset.filenames) == self.PUBLIC_V1_VAL
+        assert set(train_dataset.filenames).isdisjoint(val_dataset.filenames)
+
+    def test_public_v1_can_be_selected_explicitly(self):
+        with patch.object(self.DATASET_CLASS, "_check_exists", return_value=True):
+            train_dataset = self.DATASET_CLASS(
+                save_to=self.KWARGS["save_to"],
+                split="train",
+                split_version="public_v1",
+            )
+            val_dataset = self.DATASET_CLASS(
+                save_to=self.KWARGS["save_to"],
+                split="val",
+                split_version="public_v1",
+            )
+
+        assert tuple(train_dataset.filenames) == self.PUBLIC_V1_TRAIN
+        assert tuple(val_dataset.filenames) == self.PUBLIC_V1_VAL
+        assert set(train_dataset.filenames).isdisjoint(val_dataset.filenames)
+
+    def test_legacy_tonic_2023_warns_and_reproduces_archive_manifests(self):
+        self.inject_fake_data(self.KWARGS["save_to"])
+        with patch.object(self.DATASET_CLASS, "_check_exists", return_value=True):
+            with self.assertWarnsRegex(UserWarning, "recording-disjoint"):
+                train_dataset = self.DATASET_CLASS(
+                    save_to=self.KWARGS["save_to"],
+                    split="train",
+                    split_version="legacy_tonic_2023",
+                )
+            with self.assertWarnsRegex(UserWarning, "recording-disjoint"):
+                val_dataset = self.DATASET_CLASS(
+                    save_to=self.KWARGS["save_to"],
+                    split="val",
+                    split_version="legacy_tonic_2023",
+                )
+
+        assert tuple(train_dataset.filenames) == self.LEGACY_TONIC_2023_TRAIN
+        assert tuple(val_dataset.filenames) == self.LEGACY_TONIC_2023_VAL
+        assert set(train_dataset.filenames) & set(val_dataset.filenames) == {
+            "subj_18_vid_7"
+        }
+
+    def test_invalid_split_version_is_rejected_before_download(self):
+        with pytest.raises(ValueError, match="split_version"):
+            self.DATASET_CLASS(
+                save_to=self.KWARGS["save_to"],
+                split_version="unknown",  # type: ignore[arg-type]
+            )
 
 
 class NCaltech101TestCase(dataset_utils.DatasetTestCase):

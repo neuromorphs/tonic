@@ -1,6 +1,7 @@
 import os
+import warnings
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Literal
 
 import h5py
 import numpy as np
@@ -20,13 +21,32 @@ class ThreeET_Eyetracking(Dataset):
             year={2023}
         }
 
+    ``public_v1`` is the official public 16-training/2-validation benchmark
+    published in the companion GitHub repository and is the default split
+    definition. Its training and validation sets have no recording IDs in
+    common, although different recordings from the same subject may occur in
+    both sets. This public benchmark is distinct from the 22-recording
+    experimental subset described in the paper.
+
+    ``legacy_tonic_2023`` reproduces the split text files shipped in Tonic's
+    original raw archive. That legacy split contains ``subj_18_vid_7`` in both
+    training and validation and is provided only for historical reproducibility.
+    Both versions use the same raw archive. Selecting ``legacy_tonic_2023``
+    emits a warning because it contains complete-recording leakage.
+
     Parameters:
         save_to (string): Location to save files to on disk.
-        transform (callable, optional): A callable of transforms to apply to the data.
         split (string, optional): The dataset split to use, ``train`` or ``val``.
+        transform (callable, optional): A callable of transforms to apply to the data.
         target_transform (callable, optional): A callable of transforms to apply to the targets/labels.
         transforms (callable, optional): A callable of transforms that is applied to both data and
                                          labels at the same time.
+        split_version (string, optional): Split definition to use. Defaults to
+                                         ``public_v1``, which is
+                                         recording-disjoint;
+                                         ``legacy_tonic_2023`` reproduces the
+                                         original Tonic archive manifests and
+                                         emits a leakage warning.
 
     Returns:
          A dataset object that can be indexed or iterated over.
@@ -41,6 +61,30 @@ class ThreeET_Eyetracking(Dataset):
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
     ordering = dtype.names
 
+    split_versions = ("public_v1", "legacy_tonic_2023")
+    splits = ("train", "val")
+    public_v1_recordings = {
+        "train": (
+            "subj_18_vid_2",
+            "subj_10_vid_8",
+            "subj_12_vid_1",
+            "subj_12_vid_2",
+            "subj_12_vid_9",
+            "subj_13_vid_1",
+            "subj_13_vid_2",
+            "subj_14_vid_10",
+            "subj_15_vid_2",
+            "subj_21_vid_11",
+            "subj_1_vid_1",
+            "subj_1_vid_9",
+            "subj_2_vid_4",
+            "subj_6_vid_5",
+            "subj_7_vid_18",
+            "subj_8_vid_2",
+        ),
+        "val": ("subj_16_vid_1", "subj_18_vid_7"),
+    }
+
     def __init__(
         self,
         save_to: str,
@@ -48,6 +92,7 @@ class ThreeET_Eyetracking(Dataset):
         transform: Callable | None = None,
         target_transform: Callable | None = None,
         transforms: Callable | None = None,
+        split_version: Literal["public_v1", "legacy_tonic_2023"] = "public_v1",
     ):
         super().__init__(
             save_to,
@@ -56,18 +101,39 @@ class ThreeET_Eyetracking(Dataset):
             transforms=transforms,
         )
 
+        if split not in self.splits:
+            raise ValueError(f"Invalid split {split!r}. Expected one of {self.splits}.")
+        if split_version not in self.split_versions:
+            raise ValueError(
+                f"Invalid split_version {split_version!r}. "
+                f"Expected one of {self.split_versions}."
+            )
+
+        if split_version == "legacy_tonic_2023":
+            warnings.warn(
+                "split_version='legacy_tonic_2023' reproduces archive manifests "
+                "that contain 'subj_18_vid_7' in both training and validation. "
+                "Use only for historical reproduction; public_v1 is the "
+                "recording-disjoint official public benchmark.",
+                UserWarning,
+                stacklevel=2,
+            )
+
         # if not exist, download from url
         if not self._check_exists():
             self.download()
 
-        data_dir = os.path.join(save_to, "ThreeET_Eyetracking")
-        # Load filenames from the provided lists
-        if split == "train":
-            filenames = self.load_filenames(os.path.join(data_dir, "train_files.txt"))
-        elif split == "val":
-            filenames = self.load_filenames(os.path.join(data_dir, "val_files.txt"))
+        data_dir = self.location_on_system
+        if split_version == "public_v1":
+            filenames = list(self.public_v1_recordings[split])
         else:
-            raise ValueError("Invalid split name")
+            filenames = self.load_filenames(
+                os.path.join(data_dir, f"{split}_files.txt")
+            )
+
+        self.split = split
+        self.split_version = split_version
+        self.filenames = filenames
 
         # Get the data file paths and target file paths
         self.data = [os.path.join(data_dir, "data", f + ".h5") for f in filenames]
@@ -103,12 +169,13 @@ class ThreeET_Eyetracking(Dataset):
             events, target = self.transforms(events, target)
         return events, target
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
     def _check_exists(self):
         return self._is_file_present()
 
-    def load_filenames(self, path):
-        with open(path) as f:
+    @staticmethod
+    def load_filenames(path: str) -> list[str]:
+        with open(path, encoding="utf-8") as f:
             return [line.strip() for line in f.readlines()]
