@@ -1,9 +1,11 @@
 import os
 import urllib.request
+from collections.abc import Callable
+
 import numpy as np
-from typing import Callable, Optional
+
 from tonic.dataset import Dataset
-from dv import LegacyAedatFile
+
 
 class POKERDVS131(Dataset):
     """
@@ -20,7 +22,7 @@ class POKERDVS131(Dataset):
     # Label order used in the original paper: cl, he, di, sp
     # We will map symbols by their position in the sequence, following MATLAB scripts.
     classes = ["cl", "he", "di", "sp"]
-    int_classes = dict(zip(classes, range(4)))
+    int_classes = dict(zip(classes, range(4), strict=False))
 
     sensor_size = (128, 128, 2)  # Poker-DVS sensor native resolution
     dtype = np.dtype([("t", int), ("x", int), ("y", int), ("p", int)])
@@ -31,9 +33,9 @@ class POKERDVS131(Dataset):
     def __init__(
         self,
         save_to: str,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        transforms: Optional[Callable] = None,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
     ):
         super().__init__(
             save_to,
@@ -42,8 +44,15 @@ class POKERDVS131(Dataset):
             transforms=transforms,
         )
 
-        self.location = save_to
-        os.makedirs(self.location, exist_ok=True)
+        try:
+            from dv import LegacyAedatFile
+        except ImportError as err:
+            raise ImportError(
+                "POKERDVS131 reads the original AEDAT recordings with the dv "
+                "package. Install it with: pip install dv"
+            ) from err
+
+        os.makedirs(self.location_on_system, exist_ok=True)
 
         # 1) ensure files exist
         self._download_all()
@@ -53,8 +62,8 @@ class POKERDVS131(Dataset):
         self.targets = []
 
         for f in self.files:
-            path = os.path.join(self.location, f)
-            #events = tonic.io.read_aedat4(path)
+            path = os.path.join(self.location_on_system, f)
+            # events = tonic.io.read_aedat4(path)
             with LegacyAedatFile(path) as f_aedat:
                 events = np.array(
                     [
@@ -87,7 +96,7 @@ class POKERDVS131(Dataset):
         # assign label in rotating order cl → he → di → sp
         # order in original dataset by recording session
         for i, (s, e) in enumerate(segments):
-            sample = events[s:e+1]
+            sample = events[s : e + 1]
 
             label_idx = i % 4
             label_str = self.classes[label_idx]
@@ -100,7 +109,7 @@ class POKERDVS131(Dataset):
     # -----------------------------------------------------------
     def _download_all(self):
         for f in self.files:
-            dest = os.path.join(self.location, f)
+            dest = os.path.join(self.location_on_system, f)
             if not os.path.isfile(dest):
                 print(f"Downloading {f} ...")
                 urllib.request.urlretrieve(self.base_url + f, dest)

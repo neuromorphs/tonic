@@ -20,6 +20,7 @@ Visual event stream classification
     NCALTECH101
     NMNIST
     POKERDVS
+    POKERDVS131
     SMNIST
     DVSLip
 
