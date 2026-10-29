@@ -85,6 +85,7 @@ packages = ["tonic", "tonic.datasets", "tonic.functional"]
 
 [tool.setuptools.package-data]
 tonic = ["py.typed"]
+"tonic.datasets" = ["pips_train.tar.gz", "pips_test.tar.gz"]
 
 [tool.coverage.run]
 source = ["tonic"]
