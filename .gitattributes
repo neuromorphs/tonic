@@ -1,0 +1,23 @@
+# Line ending normalization
+*.py text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.txt text eol=lf
+*.toml text eol=lf
+*.rst text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+
+# Binary files (do not normalize)
+*.png binary
+*.jpg binary
+*.svg binary
+*.whl binary
+*.egg binary
+*.so binary
+*.dll binary
+*.dylib binary
